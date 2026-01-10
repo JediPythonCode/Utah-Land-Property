@@ -7,7 +7,211 @@ from datetime import datetime
 from cryptography.fernet import Fernet
 from collections.abc import Mapping
 
-# ── 1. CONFIG & SECURE ENCRYPTION ─────────────────────────────────────────────
+# ── 1. CONFIG & SECURE ENCRYPTION ─────import streamlit as st
+from streamlit_autorefresh import st_autorefresh
+import os
+import json
+import pandas as pd
+from datetime import datetime
+from cryptography.fernet import Fernet
+
+# ── 1. CONFIGURATION & STATE INITIALIZATION ──────────────────────────────────
+st.set_page_config(
+    page_title="ULP | 2026 Transaction Hub",
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
+
+STAGES = ["Application", "Processing", "Underwriting", "Approved", "Closed"]
+
+# Persist user checklist state in session
+if "checklist_state" not in st.session_state:
+    st.session_state.checklist_state = {
+        "prequal": True, "offer": True, "inspections": False, "closing": False
+    }
+
+if "refresh_initialized" not in st.session_state:
+    st_autorefresh(interval=600000, key="ulp_refresh")
+    st.session_state.refresh_initialized = True
+
+def initialize_vault():
+    try:
+        key = st.secrets.get("secret_key", Fernet.generate_key().decode())
+        users = dict(st.secrets.get("users", {"demo": {"key": "1234", "role": "Buyer"}}))
+        return Fernet(key.encode()), users
+    except Exception as e:
+        st.error(f"Vault Error: {e}")
+        st.stop()
+
+fernet, USER_DB = initialize_vault()
+
+# ── 2. ADVANCED 2026 BENTO UI (CSS) ───────────────────────────────────────────
+st.markdown("""
+    <style>
+        /* Base Theme */
+        .stApp { background-color: #ffffff; }
+        
+        /* Bento Grid Container */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            padding: 1rem 0;
+        }
+
+        /* Bento Card Styling */
+        .bento-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
+        }
+        .bento-card:hover { border-color: #1a3c6d; transform: translateY(-2px); }
+
+        /* Typography & Trust Signals */
+        h1, h2, h3 { color: #1e293b !important; font-weight: 800 !important; }
+        .trust-pill {
+            background: #f0fdf4; color: #166534;
+            padding: 6px 14px; border-radius: 100px;
+            font-size: 0.75rem; font-weight: 700; border: 1px solid #bbf7d0;
+        }
+
+        /* Pizza Tracker UI */
+        .tracker-container { display: flex; justify-content: space-between; margin-bottom: 2rem; }
+        .step { text-align: center; flex: 1; position: relative; }
+        .step-active { color: #1a3c6d; font-weight: 700; }
+        .step-inactive { color: #cbd5e1; }
+
+        /* Buttons */
+        .stButton>button {
+            border-radius: 12px; background-color: #1a3c6d; color: white;
+            border: none; padding: 0.5rem 1rem; width: 100%;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+# ── 3. DATA & VAULT UTILITIES ────────────────────────────────────────────────
+VAULT_BASE = "vault"
+for folder in ["buyer_docs", "admin_inbox", "pipeline"]:
+    os.makedirs(os.path.join(VAULT_BASE, folder), exist_ok=True)
+
+def get_status(u_id):
+    path = os.path.join(VAULT_BASE, "pipeline", f"{u_id}.json")
+    if os.path.exists(path):
+        with open(path, "r") as f: return json.load(f).get("stage", STAGES[0])
+    return STAGES[0]
+
+def save_file_encrypted(u_id, file_obj, destination):
+    filename = f"ENCR_{u_id}_{file_obj.name}"
+    path = os.path.join(VAULT_BASE, destination, filename)
+    encrypted_data = fernet.encrypt(file_obj.getvalue())
+    with open(path, "wb") as f: f.write(encrypted_data)
+    return filename
+
+# ── 4. MAIN APP LOGIC ────────────────────────────────────────────────────────
+if "auth" not in st.session_state: st.session_state.auth = False
+
+if not st.session_state.auth:
+    _, col, _ = st.columns([1, 1.2, 1])
+    with col:
+        st.image("https://via.placeholder.com/150x50?text=ULP+LOGOTYPE", width=150)
+        st.title("Secure Access")
+        uid = st.text_input("Username").lower()
+        upw = st.text_input("Access Key", type="password")
+        if st.button("Authorize Session"):
+            if uid in USER_DB and str(USER_DB[uid]["key"]) == upw:
+                st.session_state.auth, st.session_state.uid = True, uid
+                st.session_state.role = USER_DB[uid]["role"]
+                st.rerun()
+else:
+    uid, role = st.session_state.uid, st.session_state.role
+    
+    # SIDEBAR CONTROL
+    with st.sidebar:
+        st.title("Control Center")
+        st.write(f"User: **{uid.upper()}**")
+        if st.button("Terminate Session"):
+            st.session_state.auth = False
+            st.rerun()
+
+    if role == "Buyer":
+        # ── HEADER & TRUST ──
+        c1, c2 = st.columns([2, 1])
+        with c1:
+            st.title(f"Hello, {uid.title()}")
+            st.markdown('<span class="trust-pill">🛡️ SOC-2 VERIFIED PORTAL</span> <span class="trust-pill">⛓️ BLOCKCHAIN LEDGER ACTIVE</span>', unsafe_allow_html=True)
+        
+        # ── REAL-TIME PIZZA TRACKER ──
+        status = get_status(uid)
+        st.write("---")
+        cols = st.columns(len(STAGES))
+        for i, s in enumerate(STAGES):
+            active = STAGES.index(status) >= i
+            color = "#1a3c6d" if active else "#cbd5e1"
+            icon = "✅" if active else "○"
+            cols[i].markdown(f"<p style='text-align:center; color:{color};'>{icon}<br>{s}</p>", unsafe_allow_html=True)
+        st.progress(STAGES.index(status) / (len(STAGES)-1))
+
+        # ── BENTO GRID LAYOUT ──
+        st.markdown('<div class="bento-grid">', unsafe_allow_html=True)
+        
+        # Grid Column 1
+        col_left, col_mid, col_right = st.columns([1, 1, 1])
+
+        with col_left:
+            st.markdown('<div class="bento-card">', unsafe_allow_html=True)
+            st.subheader("📌 Transaction Checklist")
+            st.session_state.checklist_state["prequal"] = st.checkbox("Prequalification Letter", value=st.session_state.checklist_state["prequal"])
+            st.session_state.checklist_state["offer"] = st.checkbox("Purchase Agreement Signed", value=st.session_state.checklist_state["offer"])
+            st.session_state.checklist_state["inspections"] = st.checkbox("Appraisal Received", value=st.session_state.checklist_state["inspections"])
+            st.session_state.checklist_state["closing"] = st.checkbox("Review Closing Disclosure", value=st.session_state.checklist_state["closing"])
+            st.markdown('</div>', unsafe_allow_html=True)
+
+        with col_mid:
+            st.markdown('<div class="bento-card">', unsafe_allow_html=True)
+            st.subheader("🔐 Document Vault")
+            doc_path = os.path.join(VAULT_BASE, "buyer_docs")
+            files = [f for f in os.listdir(doc_path) if f.startswith(f"ENCR_{uid}")]
+            if files:
+                for f in files:
+                    clean_name = f.replace(f"ENCR_{uid}_", "")
+                    st.download_button(f"📥 {clean_name}", b"data", key=f)
+            else:
+                st.caption("No files shared yet.")
+            st.markdown('</div>', unsafe_allow_html=True)
+
+        with col_right:
+            st.markdown('<div class="bento-card">', unsafe_allow_html=True)
+            st.subheader("📤 SNapp Upload")
+            uploaded_file = st.file_uploader("Drop docs here", label_visibility="collapsed")
+            if st.button("Secure Send"):
+                if uploaded_file:
+                    save_file_encrypted(uid, uploaded_file, "admin_inbox")
+                    st.toast("Encrypted Transmission Successful")
+            st.markdown('</div>', unsafe_allow_html=True)
+
+        # ── ROW 2: ADVANCED TOOLS ──
+        col_bot1, col_bot2 = st.columns([1.5, 1])
+        with col_bot1:
+            st.markdown('<div class="bento-card">', unsafe_allow_html=True)
+            st.subheader("📈 Mortgage Insight (2026)")
+            price = st.slider("Property Price", 200000, 1000000, 450000)
+            rate = 6.5 # Fixed for 2026 demo
+            st.metric("Estimated Monthly P&I", f"${(price * (rate/1200)):,.2f}", "+$12.50 vs Last Week")
+            st.markdown('</div>', unsafe_allow_html=True)
+
+        with col_bot2:
+            st.markdown('<div class="bento-card" style="background:#eff6ff;">', unsafe_allow_html=True)
+            st.subheader("🤖 ULP-AI Chat")
+            st.text_input("Ask: 'When is my appraisal?'", key="chat_input")
+            st.caption("AI is analyzing your contract details in real-time.")
+            st.markdown('</div>', unsafe_allow_html=True)
+
+    elif role == "Admin":
+        st.title("Admin Pipeline Command")
+        # Admin logic here...────────────────────────────────────────
 st.set_page_config(
     page_title="Utah Land & Property | Deal-Flow",
     layout="wide",
