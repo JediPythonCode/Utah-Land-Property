@@ -23,11 +23,11 @@ def initialize_system():
     """Initializes encryption and loads the user database from secrets."""
     try:
         key = st.secrets.get("secret_key")
+        # Accessing the nested 'users' dictionary from secrets.toml
         users = st.secrets.get("users")
 
-        # 🔴 FIX: users is a Mapping, not dict
         if not key or not isinstance(users, Mapping):
-            st.error("🚨 SYSTEM ERROR: secrets.toml is missing 'secret_key' or 'users'.")
+            st.error("🚨 SYSTEM ERROR: secrets.toml is missing 'secret_key' or '[users]' section.")
             st.stop()
 
         return Fernet(key.encode()), users
@@ -149,7 +149,7 @@ def get_meta(file_path):
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 
-# ── 4. UI FLOW (FIXED LOGIN) ──────────────────────────────────────────────────
+# ── 4. UI FLOW (FIXED NESTING & TYPES) ────────────────────────────────────────
 if not st.session_state.authenticated:
     st.markdown("""
         <div class="viewport-top-container">
@@ -170,15 +170,22 @@ if not st.session_state.authenticated:
         u_pwd = st.text_input("Key", type="password", placeholder="Enter Access Key", label_visibility="collapsed").strip()
 
         if st.button("Access Portal", use_container_width=True, type="primary"):
-            if u_id in USER_DB and str(USER_DB[u_id].get("key")) == u_pwd:
-                st.session_state.authenticated = True
-                st.session_state.user_id = u_id
-                st.session_state.user_role = USER_DB[u_id].get("role", "Buyer")
-                logger(u_id, "Login", "Success")
-                st.rerun()
+            # Ensure u_id exists in the nested secrets structure
+            if u_id in USER_DB:
+                user_data = USER_DB[u_id]
+                # Force both keys to strings to handle numeric passwords in secrets.toml
+                if str(user_data.get("key")) == u_pwd:
+                    st.session_state.authenticated = True
+                    st.session_state.user_id = u_id
+                    st.session_state.user_role = user_data.get("role", "Buyer")
+                    logger(u_id, "Login", "Success")
+                    st.rerun()
+                else:
+                    st.error("Access Denied: Incorrect Key")
+                    logger(u_id, "Auth", "Failed Key")
             else:
-                st.error("Access Denied")
-                logger(u_id if u_id else "Unknown", "Auth", "Failed")
+                st.error("Access Denied: Invalid User ID")
+                logger(u_id if u_id else "Unknown", "Auth", "Invalid User")
 
 else:
     # ── 5. DASHBOARD (UNCHANGED) ───────────────────────────────────────────────
