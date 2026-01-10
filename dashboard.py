@@ -13,8 +13,20 @@ if "authenticated" not in st.session_state:
     st.session_state.user_role = None
 
 if not st.session_state.authenticated:
-    pillars = ["🛡️", "⚖️", "🔒", "💼", "📜"]
-    icon_stack = "".join([f'<div class="flip-logo" style="animation-delay: {i * 3}s; font-size: 80px;">{p}</div>' for i, p in enumerate(pillars)])
+   # --- PROFESSIONAL ICON SET (Monochromatic SVGs) ---
+# Using standard professional symbols: Shield, Scale, Lock, Briefcase, FileText
+pillar_icons = [
+    '<svg viewBox="0 0 24 24" width="80" height="80" stroke="#1d428a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>',
+    '<svg viewBox="0 0 24 24" width="80" height="80" stroke="#1d428a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M16 16s3-2 3-5V4l-7-3-7 3v7c0 3 3 5 3 5"></path><path d="M12 22V16"></path><path d="M8 17h8"></path></svg>',
+    '<svg viewBox="0 0 24 24" width="80" height="80" stroke="#1d428a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>',
+    '<svg viewBox="0 0 24 24" width="80" height="80" stroke="#1d428a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>',
+    '<svg viewBox="0 0 24 24" width="80" height="80" stroke="#1d428a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>'
+]
+
+icon_stack = "".join([
+    f'<div class="flip-logo" style="animation-delay: {i * 3}s;">{svg}</div>' 
+    for i, svg in enumerate(pillar_icons)
+])
 
     st.markdown(f'''
     <style>
@@ -43,12 +55,13 @@ if not st.session_state.authenticated:
         @keyframes pulse-green {{ 0% {{ box-shadow: 0 0 0px 0px rgba(0, 255, 65, 0.7); }} 70% {{ box-shadow: 0 0 0px 10px rgba(0, 255, 65, 0); }} 100% {{ box-shadow: 0 0 0px 0px rgba(0, 255, 65, 0); }} }}
         .sync-label {{ font-family: "Oswald", sans-serif; font-size: 15px; color: #1d428a; letter-spacing: 2px; font-weight: bold; }}
 
-        /* EXACT BUTTON HOVER & CENTERING */
-        div.stButton {{
-            display: flex;
-            justify-content: center;
+        /* TARGETING THE BUTTON CONTAINER FOR PERFECT ALIGNMENT */
+        [data-testid="stVerticalBlock"] > div:has(div.stButton) {{
+            text-align: center !important;
+            display: flex !important;
+            justify-content: center !important;
         }}
-        
+
         div.stButton > button {{
             background-color: #1d428a !important;
             color: #FFFFFF !important;
@@ -59,14 +72,19 @@ if not st.session_state.authenticated:
             padding: 18px 40px !important;
             border: 2px solid #1d428a !important;
             transition: all 0.3s ease-in-out !important;
-            margin: 0 auto !important;
             display: block !important;
+            margin: 0 auto !important;
         }}
         
         div.stButton > button:hover {{
             background-color: #FFFFFF !important;
             color: #1d428a !important;
             border: 2px solid #1d428a !important;
+        }}
+
+        /* Center the text input placeholder and text */
+        input {{
+            text-align: center !important;
         }}
     </style>
     
@@ -81,8 +99,9 @@ if not st.session_state.authenticated:
     with col_mid:
         with st.container(border=True):
             input_key = st.text_input("Security Key", type="password", placeholder="ENTER PRIVATE ACCESS KEY", label_visibility="collapsed")
-            # The button is now CSS-centered within this container
-            if st.button(" Secure Access Terminal"):
+            
+            # The button is now centered via the CSS block above
+            if st.button("Secure Access Terminal"):
                 try:
                     user_db = st.secrets["users"]
                     found_user = False
@@ -116,8 +135,6 @@ role = st.session_state.user_role
 st.markdown(f'''<div style="text-align: center;"><h1 class="ulp-header">Utah Land & Property</h1><div style="font-family: 'Oswald'; color: #1d428a; letter-spacing: 2px;">TERMINAL ACCESS: {role} LEVEL</div></div>''', unsafe_allow_html=True)
 
 st.markdown("""<div style="text-align:center; padding: 40px 0;"><h1 class="intel-header">Asset Intelligence</h1></div>""", unsafe_allow_html=True)
-
-
 
 col1, col2, col3 = st.columns(3)
 with col1:
