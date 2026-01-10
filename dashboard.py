@@ -29,7 +29,7 @@ if "current_deal" not in st.session_state:
         "vault": [], "notes": []
     }
 
-# --- 3. PRECISION AUTH CSS ---
+# --- 3. PRECISION AUTH & TERMINAL CSS ---
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Oswald:wght@500;700&display=swap');
@@ -42,7 +42,7 @@ st.markdown("""
             margin-bottom: 20px;
         }
         .branding-text {
-            color: #1d428a !important; /* Professional Blue */
+            color: #1d428a !important; 
             font-family: 'Oswald', sans-serif;
             font-weight: 700;
             font-size: 18px;
@@ -64,12 +64,7 @@ st.markdown("""
         }
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
 
-        /* Vertical Precision Stack: 5% Gap */
-        .auth-spacer {
-            height: 5vh;
-        }
-
-        /* Buttons & Inputs: Locked Geometry */
+        /* UNIFORM BLUE STACK (Login & Button) */
         div.stButton > button {
             background-color: #1d428a !important;
             color: white !important;
@@ -85,18 +80,23 @@ st.markdown("""
         
         [data-testid="stTextInput"] input {
             height: 56px !important;
+            background-color: #1d428a !important; /* MATCHING BLUE BOX */
             border: 2px solid #1d428a !important;
             border-radius: 4px !important;
             text-align: center !important;
             font-size: 18px !important;
             font-weight: 700 !important;
-            color: #1d428a !important;
+            color: white !important; /* WHITE LETTERING IN BOX */
         }
         
-        /* Terminal Labels & Header (Unchanged as requested) */
+        [data-testid="stTextInput"] input::placeholder {
+            color: rgba(255, 255, 255, 0.6) !important;
+        }
+
+        /* Terminal Headers (White Lettering on Blue) */
         .admin-header-bar {
             background-color: #1d428a;
-            color: white;
+            color: white !important;
             padding: 16px;
             text-align: center;
             border-radius: 4px;
@@ -106,6 +106,7 @@ st.markdown("""
             text-transform: uppercase;
             margin-bottom: 30px;
         }
+        
         .admin-label {
             font-family: 'Oswald', sans-serif !important;
             color: #1d428a !important;
@@ -135,7 +136,7 @@ if not st.session_state.authenticated:
     _, col_mid, _ = st.columns([1, 0.45, 1])
     with col_mid:
         input_key = st.text_input("Access Key", type="password", placeholder="ENTER ACCESS KEY", label_visibility="collapsed")
-        st.markdown('<div class="auth-spacer"></div>', unsafe_allow_html=True) # 5% relative gap
+        st.markdown('<div style="height: 20px;"></div>', unsafe_allow_html=True) # 5% visual gap
         if st.button("Authorize Session"):
             try:
                 for user, profile in st.secrets["users"].items():
@@ -147,7 +148,7 @@ if not st.session_state.authenticated:
             except: st.error("Configuration Error")
     st.stop()
 
-# --- 5. ADMIN TERMINAL (Rest of the script remains unchanged) ---
+# --- 5. ADMIN TERMINAL ---
 role = st.session_state.user_role
 D = st.session_state.current_deal
 
@@ -215,7 +216,7 @@ with col_docs:
         st.markdown('<div style="font-family:Oswald; font-size:14px; color:#1d428a; font-weight:700;">SETTLEMENT VAULT</div>', unsafe_allow_html=True)
         if role == "admin" and st.button("📄 GENERATE MASTER DEAL SHEET"):
             d_list = "\n".join([f"- {x}" for x in D["disclosures"] if x])
-            report = f"UTAH LAND & PROPERTY\nADDRESS: {D['address']}\nSELLER: {D['seller_name']}\nBUYER: {D['buyer_name']}\nPRICE: ${D['price']:,.2f}\nAITD: ${AITD_PRINCIPAL:,.2f}\nDISCLOSURES:\n{d_list}"
+            report = f"UTAH LAND & PROPERTY\nADDRESS: {D['address']}\nSELLER: {D['seller_name']}\nBUYER: {D['buyer_name']}\nPRICE: ${D['price']:,.2f}\nAITD: ${AITD_PRINCIPAL:,.2f}\n----------------------------------\nDISCLOSURES:\n{d_list}"
             D["vault"].append({"name": f"Deal_{D['deal_id']}_{datetime.now().strftime('%H%M')}.txt", "content": report})
             st.rerun()
         for doc in D["vault"]:
