@@ -45,8 +45,7 @@ if not st.session_state.authenticated:
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 90vh;
-            padding-top: 0px !important;
+            min-height: 85vh;
         }}
 
         .ulp-auth-title {{ font-family: "Inter", sans-serif; font-size: clamp(32px, 8vw, 80px); font-weight: 900; color: #1d428a; letter-spacing: -4px; line-height: 1.0; margin-bottom: 10px; text-align: center; text-transform: uppercase; }}
@@ -59,8 +58,21 @@ if not st.session_state.authenticated:
         @keyframes pulse-green {{ 0% {{ box-shadow: 0 0 0px 0px rgba(0, 255, 65, 0.7); }} 70% {{ box-shadow: 0 0 0px 10px rgba(0, 255, 65, 0); }} 100% {{ box-shadow: 0 0 0px 0px rgba(0, 255, 65, 0); }} }}
         .sync-label {{ font-family: "Oswald", sans-serif; font-size: 15px; color: #1d428a; letter-spacing: 2px; font-weight: bold; text-transform: uppercase; }}
         
-        div.stButton > button {{ background-color: #1d428a !important; color: #FFFFFF !important; font-family: 'Oswald', sans-serif !important; font-weight: 700 !important; text-transform: uppercase !important; letter-spacing: 2px !important; padding: 15px 40px !important; border: 2px solid #1d428a !important; width: 100% !important; max-width: 400px; margin: 10px auto !important; display: block; }}
-        [data-testid="stTextInput"] {{ width: 100% !important; max-width: 400px !important; margin: 0 auto; }}
+        /* Force Button and Input into a Tight Vertical Stack */
+        div.stButton > button {{ 
+            background-color: #1d428a !important; 
+            color: #FFFFFF !important; 
+            font-family: 'Oswald', sans-serif !important; 
+            font-weight: 700 !important; 
+            text-transform: uppercase !important; 
+            letter-spacing: 2px !important; 
+            padding: 15px 0px !important; 
+            border: 2px solid #1d428a !important; 
+            width: 100% !important; 
+            display: block;
+            margin-top: 10px !important;
+        }}
+        [data-testid="stTextInput"] {{ width: 100% !important; }}
         input {{ text-align: center !important; font-size: 18px !important; color: #1d428a !important; }}
         </style>
         
@@ -72,17 +84,20 @@ if not st.session_state.authenticated:
         </div>
     ''', unsafe_allow_html=True)
     
-    input_key = st.text_input("Key", type="password", placeholder="ENTER ACCESS KEY", label_visibility="collapsed")
-    if st.button("Authorize Session"):
-        try:
-            user_db = st.secrets["users"]
-            for username, profile in user_db.items():
-                if input_key == str(profile["key"]):
-                    st.session_state.authenticated = True
-                    st.session_state.user_role = profile["role"]
-                    st.rerun()
-            st.error("ACCESS DENIED")
-        except: st.error("SYSTEM ERROR")
+    # Using specific column width to wrap the input and button together in the center
+    _, col_mid, _ = st.columns([1, 0.8, 1])
+    with col_mid:
+        input_key = st.text_input("Key", type="password", placeholder="ENTER ACCESS KEY", label_visibility="collapsed")
+        if st.button("Authorize Session"):
+            try:
+                user_db = st.secrets["users"]
+                for username, profile in user_db.items():
+                    if input_key == str(profile["key"]):
+                        st.session_state.authenticated = True
+                        st.session_state.user_role = profile["role"]
+                        st.rerun()
+                st.error("ACCESS DENIED")
+            except: st.error("SYSTEM ERROR: Check Secrets Configuration")
     st.stop()
 
 # --- 4. INTERNAL DASHBOARD STYLING ---
@@ -116,7 +131,6 @@ if role == "admin":
             st.rerun()
 
 # --- 6. CORE CALCULATION ---
-# AITD Principal: $330k - $20k = $310k (Adjustable via Admin)
 AITD_PRINCIPAL = D["price"] - D["seller_equity"]
 
 st.markdown('<div class="ulp-header">Utah Land & Property</div>', unsafe_allow_html=True)
