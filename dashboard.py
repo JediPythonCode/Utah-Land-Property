@@ -98,35 +98,106 @@ with col3:
     status_color = "#00ff41" if st.session_state.checklist_step > 2 else "#bf953f"
     st.markdown(f'''<div class="gold-card"><div style="background: #1a1a1a; color: #ffffff; padding: 2px 12px; border-radius: 4px; font-family: 'Oswald'; font-size: 10px; letter-spacing: 2px; margin-bottom: 10px; border: 1px solid #ffffff; display: inline-block;">PORTAL V3.0</div><div style="font-size: 50px;">🏢</div><span class="m-title-white">Transaction Hub</span><div style="background: #111111; border-radius: 8px; padding: 15px; width: 100%; margin-top: 15px; border: 1px solid #333; text-align: center;"><div style="color:{status_color}; font-family:'Oswald'; font-size:12px;">PIPELINE STEP {st.session_state.checklist_step}/4</div><div style="color:white; font-family:'Inter'; font-weight:900; font-size:18px;">SECURE VAULT ACTIVE</div></div></div>''', unsafe_allow_html=True)
 
-# --- 5. FUNCTIONAL TERMINAL (THE STACK & INSERT) ---
+# --- 5. UNIFIED TRANSACTION & BUYER PORTAL TERMINAL (REPLACE THIS ENTIRE SECTION) ---
 st.divider()
-st.subheader("🛠️ Transaction & Upload Terminal")
-t_col1, t_col2 = st.columns([1, 1])
+st.subheader("🛠️ Transaction & Buyer Portal Terminal")
 
-with t_col1:
-    st.info("Dynamic Transaction Checklist")
-    steps = ["Prequalification", "Offer & Contract", "Loan Underwriting", "Digital Closing (RON)"]
-    for i, step in enumerate(steps, 1):
-        is_done = st.session_state.checklist_step > i
-        st.checkbox(step, value=is_done, key=f"step_{i}", disabled=True)
-    
-    if st.button("Advance to Next Phase"):
-        st.session_state.checklist_step = min(st.session_state.checklist_step + 1, 4)
-        st.rerun()
+# --- Central Deal State ---
+if "deal_state" not in st.session_state:
+    st.session_state.deal_state = {
+        "deal_id": "DL-" + datetime.now().strftime("%Y%m%d%H%M%S"),
+        "status": "Lead",
+        "property": {"address": "123 Example Rd, Utah", "3d_tour_url": "https://example.com/3d-tour"},
+        "buyer": {"name": "TBD", "pre_approval": False},
+        "agent": {"name": role},
+        "documents": [],
+        "checklist": [
+            {"task": "Prequalification", "status": "Pending"},
+            {"task": "Offer & Contract", "status": "Pending"},
+            {"task": "Loan Underwriting", "status": "Pending"},
+            {"task": "Digital Closing", "status": "Pending"},
+        ],
+        "financials": {"loan_amount": 0, "closing_costs": 0, "monthly_payment": 0},
+    }
 
-with t_col2:
-    st.info("Secure Document Vault (Upload)")
-    uploaded_file = st.file_uploader("Upload sensitive financial or property records", type=['pdf', 'jpg', 'png'], label_visibility="collapsed")
-    
-    if uploaded_file is not None:
-        if uploaded_file.name not in st.session_state.uploaded_docs:
-            st.session_state.uploaded_docs.append(uploaded_file.name)
-            st.success(f"Encrypted: {uploaded_file.name} uploaded to SNapp POS system.")
+deal = st.session_state.deal_state
 
-    if st.session_state.uploaded_docs:
+# --- Columns for Checklist & Document Vault ---
+col1, col2 = st.columns([1, 1])
+
+# --- Checklist Column ---
+with col1:
+    st.info("📋 Dynamic Transaction Checklist")
+    for idx, task in enumerate(deal["checklist"], 1):
+        completed = task["status"] == "Completed"
+        st.checkbox(f"{task['task']}", value=completed, key=f"deal_task_{idx}", disabled=True)
+
+    # Advance / Reset Buttons
+    adv_col, reset_col = st.columns(2)
+    with adv_col:
+        if st.button("Advance to Next Task"):
+            for task in deal["checklist"]:
+                if task["status"] != "Completed":
+                    task["status"] = "Completed"
+                    # Update deal status dynamically
+                    if task["task"] == "Prequalification": deal["status"] = "PreApproval"
+                    elif task["task"] == "Offer & Contract": deal["status"] = "UnderContract"
+                    elif task["task"] == "Loan Underwriting": deal["status"] = "Closing"
+                    elif task["task"] == "Digital Closing": deal["status"] = "Completed"
+                    break
+            st.session_state.deal_state = deal
+            st.rerun()
+    with reset_col:
+        if st.button("Reset Deal"):
+            for task in deal["checklist"]:
+                task["status"] = "Pending"
+            deal["status"] = "Lead"
+            st.session_state.deal_state = deal
+            st.rerun()
+
+# --- Document Vault Column ---
+with col2:
+    st.info("📂 Secure Document Vault")
+    uploaded_file = st.file_uploader("Upload sensitive financial or property records", type=['pdf','jpg','png'])
+    if uploaded_file:
+        doc_entry = {"name": uploaded_file.name, "uploaded_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+        deal["documents"].append(doc_entry)
+        st.session_state.deal_state = deal
+        st.success(f"Document uploaded: {uploaded_file.name}")
+
+    if deal["documents"]:
         with st.expander("View Vault Inventory"):
-            for doc in st.session_state.uploaded_docs:
-                st.write(f"📄 {doc}")
+            for doc in deal["documents"]:
+                st.write(f"📄 {doc['name']} (Uploaded: {doc['uploaded_at']})")
+
+# --- Deal Status Tracker ---
+st.markdown("### 🔄 Real-Time Deal Status")
+status_mapping = {
+    "Lead": "🟡 Lead Captured",
+    "PreApproval": "🟢 Pre-Approval Done",
+    "UnderContract": "🔵 Under Contract",
+    "Closing": "🟠 Closing Pending",
+    "Completed": "✅ Closed"
+}
+current_status = status_mapping.get(deal["status"], "🟡 Lead Captured")
+st.info(f"Current Deal Status: {current_status}")
+
+# --- Financial Calculator ---
+st.markdown("### 💰 Financial Overview")
+deal["financials"]["loan_amount"] = st.number_input("Loan Amount ($)", min_value=0, value=deal["financials"]["loan_amount"])
+deal["financials"]["closing_costs"] = st.number_input("Closing Costs ($)", min_value=0, value=deal["financials"]["closing_costs"])
+if deal["financials"]["loan_amount"] and deal["financials"]["closing_costs"]:
+    principal = deal["financials"]["loan_amount"]
+    interest_rate = 6.5 / 100 / 12  # example fixed
+    months = 30*12
+    payment = principal * (interest_rate * (1+interest_rate)**months) / ((1+interest_rate)**months - 1)
+    deal["financials"]["monthly_payment"] = payment
+    st.info(f"Estimated Monthly Payment: ${payment:,.2f}")
+
+# --- Save State ---
+st.session_state.deal_state = deal
+# --- END OF REPLACEMENT SECTION 5 ---
+
 
 # --- 6. LOGOUT ---
 if st.sidebar.button("Terminate Session"):
