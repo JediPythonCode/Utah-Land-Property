@@ -18,7 +18,7 @@ if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 
 if not st.session_state.authenticated:
-    # Injecting CSS and Font imports
+    # Forced CSS with !important to prevent Streamlit from shrinking fonts
     st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Oswald:wght@500;700&display=swap');
@@ -26,39 +26,39 @@ if not st.session_state.authenticated:
         .stApp { background-color: #f8f9fa !important; }
         header, footer, [data-testid="stHeader"] { display: none !important; }
         
-        /* ORIGINAL LARGE FONTS */
         .brand-title {
-            font-family: 'Inter', sans-serif;
-            font-size: clamp(42px, 10vw, 78px); /* Restored to original massive size */
-            font-weight: 900;
-            color: #1a3c6d;
-            letter-spacing: -1.5px;
-            text-align: center;
-            margin-top: 5vh;
-            line-height: 1.1;
+            font-family: 'Inter', sans-serif !important;
+            font-size: clamp(42px, 10vw, 78px) !important; /* ORIGINAL MASSIVE SIZE */
+            font-weight: 900 !important;
+            color: #1a3c6d !important;
+            letter-spacing: -1.5px !important;
+            text-align: center !important;
+            margin-top: 2vh !important;
+            margin-bottom: 0px !important;
+            line-height: 1.0 !important;
         }
         .brand-subtitle {
-            font-family: 'Oswald', sans-serif;
-            font-size: 1.35rem; /* Restored to original size */
-            color: #6b7280;
-            letter-spacing: 3px;
-            font-weight: 500;
-            text-align: center;
-            margin-bottom: 2rem;
+            font-family: 'Oswald', sans-serif !important;
+            font-size: 1.35rem !important; /* ORIGINAL SIZE */
+            color: #6b7280 !important;
+            text-align: center !important;
+            letter-spacing: 3px !important;
+            font-weight: 500 !important;
+            margin-top: 5px !important;
+            margin-bottom: 2.5rem !important;
         }
         .privacy-notice {
-            text-align: center;
-            color: #4b5563;
-            font-size: 1rem;
-            max-width: 640px;
-            margin: 0 auto 2.5rem;
-            line-height: 1.6;
-            font-family: 'Inter', sans-serif;
+            text-align: center !important;
+            color: #4b5563 !important;
+            font-size: 0.95rem !important;
+            max-width: 640px !important;
+            margin: 0 auto 2.5rem !important;
+            line-height: 1.6 !important;
+            font-family: 'Inter', sans-serif !important;
         }
         
-        /* GREEN STROBE INDICATOR */
         .pulse-lock {
-            height: 10px; width: 10px;
+            height: 12px; width: 12px;
             background: #10b981;
             border-radius: 50%;
             display: inline-block;
@@ -68,24 +68,24 @@ if not st.session_state.authenticated:
         }
         @keyframes pulse {
             0%   { box-shadow: 0 0 0 0 rgba(16,185,129,0.7); }
-            70%  { box-shadow: 0 0 0 10px rgba(16,185,129,0); }
+            70%  { box-shadow: 0 0 0 12px rgba(16,185,129,0); }
             100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
         }
         .access-text {
-            font-family: 'Oswald', sans-serif;
-            font-size: 1.1rem; /* Kept small as requested */
-            color: #1a3c6d;
-            font-weight: 700;
-            letter-spacing: 1.5px;
+            font-family: 'Oswald', sans-serif !important;
+            font-size: 1.1rem !important;
+            color: #1a3c6d !important;
+            font-weight: 700 !important;
+            letter-spacing: 1.5px !important;
+            text-transform: uppercase;
         }
     </style>
     """, unsafe_allow_html=True)
 
-    # Rendering Titles
-    st.markdown('<p class="brand-title">Utah Land & Property</p>', unsafe_allow_html=True)
-    st.markdown('<p class="brand-subtitle">Strategic Asset Framework</p>', unsafe_allow_html=True)
+    # Self-contained HTML blocks to ensure NO code leakage
+    st.markdown('<div class="brand-title">Utah Land & Property</div>', unsafe_allow_html=True)
+    st.markdown('<div class="brand-subtitle">Strategic Asset Framework</div>', unsafe_allow_html=True)
     
-    # Description
     st.markdown("""
     <div class="privacy-notice">
         Asset Protection • Privacy Preservation • Creative Land Financing Solutions
@@ -94,26 +94,26 @@ if not st.session_state.authenticated:
     </div>
     """, unsafe_allow_html=True)
 
-    # Strobe & Small Access Text
     st.markdown("""
     <div style="text-align: center; margin-bottom: 2rem;">
-        <span class="pulse-lock"></span><span class="access-text">CLIENT SECURE ACCESS</span>
+        <span class="pulse-lock"></span>
+        <span class="access-text">CLIENT SECURE ACCESS</span>
     </div>
     """, unsafe_allow_html=True)
 
-    # Password Input
+    # Login Input using standard Streamlit columns
     _, col_mid, _ = st.columns([1, 1.5, 1])
     with col_mid:
-        pwd = st.text_input("Key", type="password", placeholder="Enter Access Key", label_visibility="collapsed")
-        if st.button("Access Portal", use_container_width=True, type="primary"):
+        pwd = st.text_input("Key", type="password", placeholder="Enter your private key", label_visibility="collapsed")
+        if st.button("Access Secure Area", use_container_width=True, type="primary"):
             try:
                 if pwd in [st.secrets["PASSWORDS"]["CLIENT"], st.secrets["PASSWORDS"]["ADMIN"]]:
                     st.session_state.authenticated = True
                     st.rerun()
                 else:
-                    st.error("Access Denied.")
+                    st.error("Invalid key — access denied.")
             except:
-                st.error("Secrets Configuration Error.")
+                st.error("Configuration Error: Please check Streamlit Secrets.")
     st.stop()
 
 # ── 3. MAIN APP (AUTHENTICATED) ─────────────────────────────────────────────
@@ -122,25 +122,26 @@ with st.sidebar:
         st.session_state.authenticated = False
         st.rerun()
 
+# Dashboard Header (Positioned High)
 st.markdown("""
-<div style="margin-top: -80px; text-align:center;">
+<div style="margin-top: -85px; text-align:center;">
     <h1 style="font-family:'Inter'; font-weight:900; color:#1a3c6d; font-size:clamp(32px, 7vw, 54px); margin-bottom:0;">Utah Land & Property</h1>
     <p style="font-family:'Oswald'; color:#d97706; letter-spacing:3px; font-weight:700;">ASSET PROTECTION • PRIVACY • FINANCING</p>
 </div>
 """, unsafe_allow_html=True)
 
-# ── 4. UPLOADER ────────────────────────────────────────────────────────────
-with st.expander("📤 Secure Document Upload", expanded=False):
+st.divider()
+
+# ── 4. SECURE UPLOAD ───────────────────────────────────────────────────────
+with st.expander("📤 Secure Vault Upload", expanded=False):
     uploaded_file = st.file_uploader("Upload to Vault", type=['pdf', 'docx', 'xlsx', 'jpg', 'png', 'jpeg'])
     if uploaded_file:
         with open(uploaded_file.name, "wb") as f:
             f.write(uploaded_file.getbuffer())
-        st.success("File Vaulted.")
+        st.success("File added to encrypted vault.")
         st.rerun()
 
-st.divider()
-
-# ── 5. VAULT LIST ──────────────────────────────────────────────────────────
+# ── 5. FILE VAULT ──────────────────────────────────────────────────────────
 st.markdown("### 📄 Available Resources")
 doc_files = []
 for ext in ["*.pdf", "*.docx", "*.xlsx", "*.jpg", "*.png", "*.jpeg"]:
@@ -152,7 +153,7 @@ if doc_files:
             c1, c2 = st.columns([4, 1.2])
             with c1:
                 st.markdown(f"**{file_path}**")
-                st.caption(f"Vault Date: {datetime.fromtimestamp(os.path.getctime(file_path)).strftime('%Y-%m-%d %H:%M')}")
+                st.caption(f"Vaulted: {datetime.fromtimestamp(os.path.getctime(file_path)).strftime('%Y-%m-%d %H:%M')}")
             with c2:
                 with open(file_path, "rb") as f:
                     st.download_button("Download", f, file_name=file_path, key=f"dl_{file_path}", use_container_width=True)
