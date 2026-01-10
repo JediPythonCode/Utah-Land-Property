@@ -7,9 +7,10 @@ from streamlit_autorefresh import st_autorefresh
 st.set_page_config(page_title="Utah Land & Property", layout="wide", initial_sidebar_state="collapsed")
 st_autorefresh(interval=10000, key="ulp_sync_ping")
 
-# --- 2. AUTHENTICATION GATE & BUTTON HOVER STYLING ---
+# --- 2. AUTHENTICATION GATE & MULTI-USER LOGIC ---
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
+    st.session_state.user_role = None
 
 if not st.session_state.authenticated:
     pillars = ["🛡️", "⚖️", "🔒", "🏔️", "💼", "📜"]
@@ -42,7 +43,7 @@ if not st.session_state.authenticated:
         @keyframes pulse-green {{ 0% {{ box-shadow: 0 0 0px 0px rgba(0, 255, 65, 0.7); }} 70% {{ box-shadow: 0 0 0px 10px rgba(0, 255, 65, 0); }} 100% {{ box-shadow: 0 0 0px 0px rgba(0, 255, 65, 0); }} }}
         .sync-label {{ font-family: "Oswald", sans-serif; font-size: 15px; color: #1d428a; letter-spacing: 2px; font-weight: bold; }}
 
-        /* EXACT BUTTON HOVER: BLUE TO WHITE FLIP */
+        /* BUTTON HOVER: BLUE TO WHITE FLIP */
         div.stButton > button {{
             background-color: #1d428a !important;
             color: #FFFFFF !important;
@@ -55,7 +56,7 @@ if not st.session_state.authenticated:
             transition: all 0.3s ease-in-out !important;
             width: 100% !important;
         }}
-        div.stButton > button:hover, div.stButton > button:active, div.stButton > button:focus {{
+        div.stButton > button:hover {{
             background-color: #FFFFFF !important;
             color: #1d428a !important;
             border: 2px solid #1d428a !important;
@@ -72,21 +73,23 @@ if not st.session_state.authenticated:
     _, col_mid, _ = st.columns([1, 4, 1])
     with col_mid:
         with st.container(border=True):
-            pwd = st.text_input("Key", type="password", placeholder="ENTER PRIVATE ACCESS KEY", label_visibility="collapsed")
+            input_key = st.text_input("Security Key", type="password", placeholder="ENTER PRIVATE ACCESS KEY", label_visibility="collapsed")
             if st.button("Access Secure Transaction Terminal"):
-                # REINFORCED PASSWORD LOGIC
+                found_user = False
                 try:
-                    # Check if secrets exist to prevent KeyError
-                    if "PASSWORDS" in st.secrets and "ADMIN" in st.secrets["PASSWORDS"]:
-                        if pwd == st.secrets["PASSWORDS"]["ADMIN"]:
+                    # Iterate through the [users] table in secrets
+                    user_db = st.secrets["users"]
+                    for username, profile in user_db.items():
+                        if input_key == profile["key"]:
                             st.session_state.authenticated = True
+                            st.session_state.user_role = profile["role"]
+                            found_user = True
                             st.rerun()
-                        else:
-                            st.error("ACCESS DENIED: INVALID SECURITY KEY")
-                    else:
-                        st.error("SYSTEM ERROR: Secrets file is missing [PASSWORDS] block.")
-                except Exception as e:
-                    st.error(f"SYSTEM ERROR: {str(e)}")
+                    
+                    if not found_user:
+                        st.error("ACCESS DENIED: INVALID KEY")
+                except KeyError:
+                    st.error("SYSTEM ERROR: User database not found in secrets.")
     st.stop()
 
 # --- 3. INTERNAL DASHBOARD STYLE ---
@@ -98,15 +101,14 @@ st.markdown("""
         .intel-header { background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c) !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; font-family: 'Inter', sans-serif !important; font-weight: 900 !important; font-size: clamp(35px, 12vw, 65px) !important; text-align: center !important; text-transform: uppercase; }
         .gold-card { background-color: #FDD017 !important; background-image: url("https://www.transparenttextures.com/patterns/carbon-fibre.png") !important; border-top: 6px solid #1a1a1a !important; border-radius: 0px 20px 0px 20px !important; padding: 25px !important; text-align: center !important; margin-bottom: 15px; box-shadow: 0 12px 25px rgba(0,0,0,0.3) !important; }
         .m-title-white { color: #ffffff !important; font-family: 'Inter', sans-serif !important; font-weight: 900 !important; font-size: 24px !important; text-transform: uppercase !important; margin: 15px 0 !important; text-shadow: 2px 2px 4px rgba(0,0,0,0.5) !important; }
-        .green-pulse { height: 10px; width: 10px; background-color: #00ff41; border-radius: 50%; display: inline-block; margin-right: 8px; box-shadow: 0 0 10px #00ff41; animation: pulse-green 1.5s infinite; }
     </style>
 """, unsafe_allow_html=True)
 
-# --- 4. DASHBOARD HEADER ---
-st.markdown(f'''<div style="text-align: center;"><h1 class="ulp-header">Utah Land & Property</h1><div style="margin-bottom: 20px;"><span class="green-pulse"></span><span style="font-family: 'Oswald'; font-size: 14px; color: #1d428a; letter-spacing: 1px;">STRATEGIC SYNC: {datetime.now().strftime("%H:%M:%S")}</span></div></div>''', unsafe_allow_html=True)
+# --- 4. DASHBOARD CONTENT ---
+role = st.session_state.user_role
+st.markdown(f'''<div style="text-align: center;"><h1 class="ulp-header">Utah Land & Property</h1><div style="font-family: 'Oswald'; color: #1d428a;">TERMINAL ACCESS: {role} LEVEL</div></div>''', unsafe_allow_html=True)
 
-# --- 5. ASSET INTEL SECTION ---
-st.markdown("""<div style="text-align:center; padding: 40px 0;"><h1 class="intel-header">Asset Intelligence</h1><div style="color:#111; font-family:Oswald; letter-spacing:10px; font-size:16px; font-weight:900; margin-top:5px;">OMNI-STACK ACTIVE</div></div>""", unsafe_allow_html=True)
+st.markdown("""<div style="text-align:center; padding: 40px 0;"><h1 class="intel-header">Asset Intelligence</h1></div>""", unsafe_allow_html=True)
 
 
 
@@ -117,4 +119,14 @@ with col1:
             <div style="background: #1a1a1a; color: #00ff41; padding: 2px 12px; border-radius: 4px; font-family: 'Oswald'; font-size: 10px; letter-spacing: 2px; margin-bottom: 10px; border: 1px solid #00ff41; display: inline-block;">SYNC ACTIVE</div>
             <div style="font-size: 50px;">🛡️</div>
             <span class="m-title-white">Summit Layered Trust</span>
-            <div style="background: #111111; border-radius: 8px; padding: 20px; width: 100%; margin-top: 15px; border: 1px
+            <div style="background: #111111; border-radius: 8px; padding: 20px; width: 100%; margin-top: 15px; border: 1px solid #333;">
+                <div style="font-family:Oswald; font-size:10px; color:#00ff41; font-weight:bold; letter-spacing:1px;">PROTECTION</div>
+                <div style="font-family: 'Oswald'; font-size: 20px; font-weight: 900; color: #ffffff;">MAXIMUM</div>
+            </div>
+        </div>
+    ''', unsafe_allow_html=True)
+
+# --- 5. LOGOUT ---
+if st.sidebar.button("Terminiate Session"):
+    st.session_state.authenticated = False
+    st.rerun()
