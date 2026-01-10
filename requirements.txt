@@ -1,6 +1,2 @@
-import streamlit as st
-import json
-import os
-import glob
-import textwrap
-from datetime import datetime
+streamlit
+streamlit-autorefresh
