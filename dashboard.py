@@ -1,8 +1,11 @@
 import streamlit as st
+import st_autorefresh
 import json
 import os
 import glob
+import textwrap
 from datetime import datetime
+from streamlit_autorefresh
 
 # ── 1. CONFIG & AUTO-REFRESH ───────────────────────────────────────────────
 st.set_page_config(
