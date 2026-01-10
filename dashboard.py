@@ -4,6 +4,7 @@ import json
 import pandas as pd
 from datetime import datetime
 from cryptography.fernet import Fernet
+from collections.abc import Mapping
 
 # ───────────────── CONFIG ─────────────────
 st.set_page_config(
@@ -18,8 +19,9 @@ def load_secrets():
         secret_key = st.secrets["secret_key"]
         users = st.secrets["users"]
 
-        if not isinstance(users, dict):
-            st.error("🚨 USERS must be a dictionary in secrets.toml")
+        # IMPORTANT: st.secrets["users"] is NOT a dict, it's a Mapping
+        if not isinstance(users, Mapping):
+            st.error("🚨 USERS must be a table in secrets.toml")
             st.stop()
 
         return Fernet(secret_key.encode()), users
