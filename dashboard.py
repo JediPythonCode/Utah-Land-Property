@@ -39,34 +39,34 @@ st.markdown("""
         /* Branding Text & Blinking Indicator */
         .branding-container {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 20px;
         }
         .branding-text {
-            color: #1d428a;
+            color: #1d428a !important; /* Professional Blue */
             font-family: 'Oswald', sans-serif;
             font-weight: 700;
-            font-size: 16px;
+            font-size: 18px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
             display: inline-block;
             vertical-align: middle;
         }
         .blink-indicator {
-            height: 10px;
-            width: 10px;
+            height: 12px;
+            width: 12px;
             background-color: #00ff00;
             border-radius: 50%;
             display: inline-block;
-            margin-right: 10px;
+            margin-right: 12px;
             vertical-align: middle;
-            box-shadow: 0 0 8px #00ff00;
-            animation: blink 1s infinite;
+            box-shadow: 0 0 10px #00ff00;
+            animation: blink 1.2s infinite;
         }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
 
         /* Vertical Precision Stack: 5% Gap */
-        [data-testid="stVerticalBlock"] > div:has(div.stButton) {
-            margin-top: 5% !important;
+        .auth-spacer {
+            height: 5vh;
         }
 
         /* Buttons & Inputs: Locked Geometry */
@@ -75,20 +75,16 @@ st.markdown("""
             color: white !important;
             border: 2px solid #1d428a !important;
             border-radius: 4px !important;
-            height: 56px !important; /* Uniform Height */
+            height: 56px !important; 
             width: 100% !important;
             font-family: 'Oswald', sans-serif !important;
             font-weight: 700 !important;
             text-transform: uppercase !important;
             letter-spacing: 2px !important;
         }
-        div.stButton > button:hover {
-            border: 2px solid white !important;
-            box-shadow: 0 0 0 2px #1d428a !important;
-        }
-
+        
         [data-testid="stTextInput"] input {
-            height: 56px !important; /* Matches Button */
+            height: 56px !important;
             border: 2px solid #1d428a !important;
             border-radius: 4px !important;
             text-align: center !important;
@@ -97,7 +93,7 @@ st.markdown("""
             color: #1d428a !important;
         }
         
-        /* Admin Styling */
+        /* Terminal Labels & Header (Unchanged as requested) */
         .admin-header-bar {
             background-color: #1d428a;
             color: white;
@@ -127,7 +123,7 @@ st.markdown("""
 if not st.session_state.authenticated:
     st.markdown("""
         <div style="height: 15vh;"></div>
-        <div style="font-family:Inter; font-size:clamp(40px, 10vw, 75px); font-weight:900; color:#1d428a; text-align:center; line-height:0.9; margin-bottom:10px;">
+        <div style="font-family:Inter; font-size:clamp(40px, 10vw, 75px); font-weight:900; color:#1d428a; text-align:center; line-height:0.9; margin-bottom:15px;">
             UTAH LAND & PROPERTY
         </div>
         <div class="branding-container">
@@ -138,8 +134,8 @@ if not st.session_state.authenticated:
     
     _, col_mid, _ = st.columns([1, 0.45, 1])
     with col_mid:
-        # Precision Stack
-        input_key = st.text_input("Access Key", type="password", placeholder="ENTER KEY", label_visibility="collapsed")
+        input_key = st.text_input("Access Key", type="password", placeholder="ENTER ACCESS KEY", label_visibility="collapsed")
+        st.markdown('<div class="auth-spacer"></div>', unsafe_allow_html=True) # 5% relative gap
         if st.button("Authorize Session"):
             try:
                 for user, profile in st.secrets["users"].items():
@@ -151,7 +147,7 @@ if not st.session_state.authenticated:
             except: st.error("Configuration Error")
     st.stop()
 
-# --- 5. ADMIN TERMINAL ---
+# --- 5. ADMIN TERMINAL (Rest of the script remains unchanged) ---
 role = st.session_state.user_role
 D = st.session_state.current_deal
 
