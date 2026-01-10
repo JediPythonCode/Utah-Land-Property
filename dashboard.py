@@ -129,9 +129,9 @@ if role == "admin":
         
         n1, n2 = st.columns(2)
         n1.markdown('<span class="admin-label">Seller Name</span>', unsafe_allow_html=True)
-        a_seller = n1.text_input("Seller", value=D["seller_name"], label_visibility="collapsed")
+        a_seller = n1.text_input("Seller", value=D["seller_name"], key="seller_input", label_visibility="collapsed")
         n2.markdown('<span class="admin-label">Buyer Name</span>', unsafe_allow_html=True)
-        a_buyer = n2.text_input("Buyer", value=D["buyer_name"], label_visibility="collapsed")
+        a_buyer = n2.text_input("Buyer", value=D["buyer_name"], key="buyer_input", label_visibility="collapsed")
         
         f1, f2, f3 = st.columns(3)
         f1.markdown('<span class="admin-label">Sales Price</span>', unsafe_allow_html=True)
@@ -190,7 +190,6 @@ with col_docs:
         st.markdown('<div style="font-family:Oswald; font-size:14px; color:#1d428a; font-weight:700;">SETTLEMENT VAULT</div>', unsafe_allow_html=True)
         if role == "admin" and st.button("📄 GENERATE MASTER DEAL SHEET"):
             d_list = "\n".join([f"- {x}" for x in D["disclosures"] if x])
-            # ENTIRE DEAL STRUCTURE LOGIC
             report = f"""UTAH LAND & PROPERTY: MASTER SETTLEMENT SHEET
 --------------------------------------------------
 DATE: {datetime.now().strftime('%Y-%m-%d %H:%M')}
@@ -216,6 +215,15 @@ SERVICER: {D['instr_servicer']}
 
 DISCLOSURES:
 {d_list}
+
+--------------------------------------------------
+SIGNATURES:
+
+X_________________________________
+BUYER: {D['buyer_name']}
+
+X_________________________________
+SELLER: {D['seller_name']}
 
 DOCUMENT PREPARED BY UTAH LAND & PROPERTY, LLC.
 """
