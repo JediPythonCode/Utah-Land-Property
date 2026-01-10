@@ -1,11 +1,16 @@
 import base64
+import numpy_financial as npf
 from datetime import datetime
 from streamlit_autorefresh import st_autorefresh
 import streamlit as st
 from PIL import Image
 
 # --- 1. CONFIG & REFRESH ---
-st.set_page_config(page_title="Utah Land & Property", layout="wide", initial_sidebar_state="collapsed")
+st.set_page_config(
+    page_title="Utah Land & Property", 
+    layout="wide", 
+    initial_sidebar_state="collapsed"
+)
 st_autorefresh(interval=10000, key="ulp_sync_ping")
 
 # --- 2. DATA PERSISTENCE ---
@@ -15,38 +20,56 @@ if "authenticated" not in st.session_state:
 
 if "current_deal" not in st.session_state:
     st.session_state.current_deal = {
-        "deal_id": "DEAL-PRIMARY",
+        "deal_id": "Millcreek Condo",
         "address": "4646 S Quail Park Drive #C, Millcreek Utah 84117",
         "seller_name": "Douglas Stewart",
         "buyer_name": "Ashley Adams",
         "price": 455000.00,
         "seller_equity": 40000.00,
         "assignment_fee": 15000.00,
+        "interest_rate": 6.5,
         "instr_title": "Standard Title Search Required.", 
         "instr_escrow": "Hold Earnest Money in neutral account.", 
         "instr_servicer": "AITD Servicing setup through [Company Name].",
         "disclosures": ["Property sold As-Is."],
-        "vault": [], "images": []
+        "vault": [], 
+        "images": []
     }
 
-# --- 3. CSS (DEEP CLEAN & INSTITUTIONAL) ---
+# --- 3. THE "DEEP CLEAN" & INSTITUTIONAL CSS ---
 st.markdown("""
     <style>
-        #MainMenu {visibility: hidden;} footer {visibility: hidden;} header {visibility: hidden;}
-        .stDeployButton {display:none;} [data-testid="stHeader"] {background: rgba(0,0,0,0);}
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Oswald:wght@500;700&display=swap');
+        
+        /* HIDE ALL STREAMLIT & GITHUB BRANDING */
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        header {visibility: hidden;}
+        .stDeployButton {display:none;}
+        [data-testid="stHeader"] {background: rgba(0,0,0,0);}
         .stApp { background-color: #ffffff !important; }
+
+        /* Branding & Blinking Indicator */
         .branding-container { text-align: center; margin-bottom: 20px; }
         .branding-text { color: #1d428a !important; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 18px; text-transform: uppercase; letter-spacing: 1.5px; display: inline-block; vertical-align: middle; }
         .blink-indicator { height: 12px; width: 12px; background-color: #00ff00; border-radius: 50%; display: inline-block; margin-right: 12px; vertical-align: middle; box-shadow: 0 0 10px #00ff00; animation: blink 1.2s infinite; }
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
-        div.stButton > button { background-color: #1d428a !important; color: white !important; border: 2px solid #1d428a !important; border-radius: 4px !important; height: 56px !important; width: 100% !important; font-family: 'Oswald', sans-serif !important; font-weight: 700 !important; text-transform: uppercase !important; }
+
+        /* Precision Login & Admin Inputs */
+        div.stButton > button { background-color: #1d428a !important; color: white !important; border: 2px solid #1d428a !important; border-radius: 4px !important; height: 56px !important; width: 100% !important; font-family: 'Oswald', sans-serif !important; font-weight: 700 !important; text-transform: uppercase !important; letter-spacing: 2px !important; }
         [data-testid="stTextInput"] input { height: 56px !important; background-color: #1d428a !important; border: 2px solid #1d428a !important; border-radius: 4px !important; text-align: center !important; font-size: 18px !important; font-weight: 700 !important; color: white !important; }
+
+        /* Admin Terminal Styling */
         .admin-header-bar { background-color: #1d428a; color: white !important; padding: 16px; text-align: center; border-radius: 4px; font-family: 'Inter', sans-serif; font-weight: 900; font-size: 22px; text-transform: uppercase; margin-bottom: 30px; }
         .admin-label { font-family: 'Oswald', sans-serif !important; color: #1d428a !important; font-weight: 700 !important; text-transform: uppercase !important; font-size: 13px !important; margin-bottom: 8px; margin-top: 18px; display: block !important; }
+
+        /* Classy Buyer Cards */
         .buyer-card { background: #f1f5f9; padding: 20px; border-left: 5px solid #1d428a; border-radius: 4px; margin-bottom: 10px; }
         .buyer-label { font-family: 'Oswald', sans-serif; color: #1d428a; font-size: 11px; text-transform: uppercase; }
         .buyer-value { font-family: 'Inter', sans-serif; color: #1d428a; font-size: 26px; font-weight: 900; }
-        .disclosure-item { background: #f1f5f9; color: #1d428a; padding: 12px; border-left: 5px solid #1d428a; margin-bottom: 8px; font-family: 'Inter', sans-serif; font-weight: 700; }
+        
+        /* Payment Highlight Cards */
+        .pmt-card { background: #1d428a; color: white; padding: 18px; border-radius: 4px; text-align: center; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(29, 66, 138, 0.2); }
     </style>
 """, unsafe_allow_html=True)
 
@@ -66,49 +89,50 @@ if not st.session_state.authenticated:
                         st.session_state.user_role = str(profile["role"]).lower()
                         st.rerun()
                 st.error("ACCESS DENIED")
-            except: st.error("Config Error")
+            except: st.error("Secrets Configuration Error")
     st.stop()
 
-# --- 5. DATA SYNC ---
+# --- 5. CALCULATIONS ---
 role = st.session_state.user_role
 D = st.session_state.current_deal
 AITD_BAL = D["price"] - D["seller_equity"]
+
+def calc_monthly_pmt(principal, annual_rate, years):
+    if annual_rate <= 0: return principal / (years * 12)
+    return abs(npf.pmt(annual_rate/100/12, years*12, principal))
+
+pmt_15 = calc_monthly_pmt(AITD_BAL, D["interest_rate"], 15)
+pmt_30 = calc_monthly_pmt(AITD_BAL, D["interest_rate"], 30)
 
 # --- 6. ADMIN TERMINAL ---
 if role == "admin":
     st.markdown('<div class="admin-header-bar">ADMIN: STRATEGIC DEAL JACKET</div>', unsafe_allow_html=True)
     with st.container(border=True):
-        c1, c2 = st.columns(2)
-        c1.markdown('<span class="admin-label">Property Address</span>', unsafe_allow_html=True)
-        a_addr = c1.text_input("Addr", value=D["address"], label_visibility="collapsed")
-        c2.markdown('<span class="admin-label">Deal ID</span>', unsafe_allow_html=True)
-        a_id = c2.text_input("ID", value=D["deal_id"], label_visibility="collapsed")
+        c1, c2, c3 = st.columns([2, 1, 1])
+        a_addr = c1.text_input("Address", value=D["address"])
+        a_id = c2.text_input("Deal ID", value=D["deal_id"])
+        a_rate = c3.number_input("AITD Rate %", value=float(D["interest_rate"]), step=0.125)
         
         n1, n2 = st.columns(2)
-        n1.markdown('<span class="admin-label">Seller Name</span>', unsafe_allow_html=True)
-        a_seller = n1.text_input("Seller", value=D["seller_name"], label_visibility="collapsed")
-        n2.markdown('<span class="admin-label">Buyer Name</span>', unsafe_allow_html=True)
-        a_buyer = n2.text_input("Buyer", value=D["buyer_name"], label_visibility="collapsed")
+        a_seller = n1.text_input("Seller", value=D["seller_name"])
+        a_buyer = n2.text_input("Buyer", value=D["buyer_name"])
         
         f1, f2, f3 = st.columns(3)
-        f1.markdown('<span class="admin-label">Sales Price</span>', unsafe_allow_html=True)
-        a_price = f1.number_input("Price", value=float(D["price"]), label_visibility="collapsed")
-        f2.markdown('<span class="admin-label">Seller Equity Credit</span>', unsafe_allow_html=True)
-        a_equity = f2.number_input("Equity", value=float(D["seller_equity"]), label_visibility="collapsed")
-        f3.markdown('<span class="admin-label">Assignment Fee</span>', unsafe_allow_html=True)
-        a_fee = f3.number_input("Fee", value=float(D["assignment_fee"]), label_visibility="collapsed")
+        a_price = f1.number_input("Contract Price", value=float(D["price"]))
+        a_equity = f2.number_input("Seller Equity", value=float(D["seller_equity"]))
+        a_fee = f3.number_input("Assignment Fee", value=float(D["assignment_fee"]))
 
-        st.markdown('<span class="admin-label">Media Vault (Upload Images)</span>', unsafe_allow_html=True)
+        st.markdown('<span class="admin-label">Media Vault (Property Images)</span>', unsafe_allow_html=True)
         up_files = st.file_uploader("Upload", accept_multiple_files=True, type=['png', 'jpg', 'jpeg'], label_visibility="collapsed")
         if up_files: D["images"] = [Image.open(x) for x in up_files]
 
-        st.markdown('<span class="admin-label">Title / Escrow / Servicing Instructions</span>', unsafe_allow_html=True)
+        st.markdown('<span class="admin-label">Instructions</span>', unsafe_allow_html=True)
         i1, i2, i3 = st.columns(3)
-        a_title = i1.text_area("Title", value=D["instr_title"], label_visibility="collapsed")
-        a_escrow = i2.text_area("Escrow", value=D["instr_escrow"], label_visibility="collapsed")
-        a_servicer = i3.text_area("Servicer", value=D["instr_servicer"], label_visibility="collapsed")
+        a_title = i1.text_area("Title", value=D["instr_title"])
+        a_escrow = i2.text_area("Escrow", value=D["instr_escrow"])
+        a_servicer = i3.text_area("Servicer", value=D["instr_servicer"])
 
-        st.markdown('<span class="admin-label">Buyer Disclosures</span>', unsafe_allow_html=True)
+        st.markdown('<span class="admin-label">Disclosures</span>', unsafe_allow_html=True)
         updated_discs = []
         for i, d in enumerate(D["disclosures"]):
             updated_discs.append(st.text_input(f"D{i}", value=d, key=f"d_adm_{i}", label_visibility="collapsed"))
@@ -116,10 +140,10 @@ if role == "admin":
             D["disclosures"].append(""); st.rerun()
 
         if st.button("UPDATE MASTER DASHBOARD"):
-            D.update({"address": a_addr, "deal_id": a_id, "seller_name": a_seller, "buyer_name": a_buyer, "price": a_price, "seller_equity": a_equity, "assignment_fee": a_fee, "instr_title": a_title, "instr_escrow": a_escrow, "instr_servicer": a_servicer, "disclosures": updated_discs})
+            D.update({"address": a_addr, "deal_id": a_id, "interest_rate": a_rate, "seller_name": a_seller, "buyer_name": a_buyer, "price": a_price, "seller_equity": a_equity, "assignment_fee": a_fee, "instr_title": a_title, "instr_escrow": a_escrow, "instr_servicer": a_servicer, "disclosures": updated_discs})
             st.rerun()
 
-# --- 7. DASHBOARD & SETTLEMENT VAULT ---
+# --- 7. BUYER PERSPECTIVE PORTAL ---
 st.markdown("---")
 st.markdown(f'<div style="font-family:Inter; font-size:36px; font-weight:900; color:#1d428a; text-transform:uppercase;">{D["address"]}</div>', unsafe_allow_html=True)
 
@@ -128,8 +152,8 @@ if D["images"]:
     icols = st.columns(3)
     for idx, img in enumerate(D["images"]): icols[idx % 3].image(img, use_container_width=True)
 
-col_data, col_docs = st.columns([2, 1])
-with col_data:
+col_main, col_pmt = st.columns([2, 1])
+with col_main:
     p1, p2, p3 = st.columns(3)
     p1.markdown(f'<div class="buyer-card"><div class="buyer-label">Contract Price</div><div class="buyer-value">${D["price"]:,.2f}</div></div>', unsafe_allow_html=True)
     p2.markdown(f'<div class="buyer-card"><div class="buyer-label">Seller Equity Credit</div><div class="buyer-value">${D["seller_equity"]:,.2f}</div></div>', unsafe_allow_html=True)
@@ -137,9 +161,22 @@ with col_data:
     
     st.markdown('<div style="font-family:Oswald; font-size:14px; color:#1d428a; margin-top:20px; font-weight:700;">ACTIVE DISCLOSURES</div>', unsafe_allow_html=True)
     for disc in D["disclosures"]:
-        if disc: st.markdown(f'<div class="disclosure-item">✔️ {disc}</div>', unsafe_allow_html=True)
+        if disc: st.markdown(f'<div style="background:#f1f5f9; padding:12px; border-left:5px solid #1d428a; margin-bottom:8px; font-family:Inter; font-weight:700; color:#1d428a;">✔️ {disc}</div>', unsafe_allow_html=True)
 
-with col_docs:
+with col_pmt:
+    st.markdown(f"""
+        <div class="pmt-card">
+            <div style="font-size:12px; opacity:0.8; font-family:Oswald;">15-YEAR AMORTIZATION</div>
+            <div style="font-size:32px; font-weight:900;">${pmt_15:,.2f}</div>
+            <div style="font-size:11px; opacity:0.7;">P&I @ {D['interest_rate']}%</div>
+        </div>
+        <div class="pmt-card">
+            <div style="font-size:12px; opacity:0.8; font-family:Oswald;">30-YEAR AMORTIZATION</div>
+            <div style="font-size:32px; font-weight:900;">${pmt_30:,.2f}</div>
+            <div style="font-size:11px; opacity:0.7;">P&I @ {D['interest_rate']}%</div>
+        </div>
+    """, unsafe_allow_html=True)
+    
     with st.container(border=True):
         st.markdown('<div style="font-family:Oswald; font-size:14px; color:#1d428a; font-weight:700;">SETTLEMENT VAULT</div>', unsafe_allow_html=True)
         if role == "admin" and st.button("📄 GENERATE MASTER DEAL SHEET"):
@@ -161,6 +198,9 @@ ASSIGNMENT FEE:   ${D['assignment_fee']:,.2f}
 --------------------------------------------------
 AITD PRINCIPAL:   ${AITD_BAL:,.2f}
 --------------------------------------------------
+ESTIMATED PAYMENTS (@ {D['interest_rate']}%):
+15-YEAR AMORT:    ${pmt_15:,.2f}/mo
+30-YEAR AMORT:    ${pmt_30:,.2f}/mo
 
 INSTRUCTIONS:
 TITLE:    {D['instr_title']}
@@ -182,6 +222,7 @@ SELLER: {D['seller_name']}
 DOCUMENT PREPARED BY UTAH LAND & PROPERTY, LLC."""
             D["vault"].append({"name": f"Deal_{D['deal_id']}_{datetime.now().strftime('%H%M')}.txt", "content": report})
             st.rerun()
+        
         for doc in D["vault"]:
             v1, v2 = st.columns([2, 1])
             v1.markdown(f"<span style='font-size:12px; font-weight:bold; color:#1d428a;'>{doc['name']}</span>", unsafe_allow_html=True)
