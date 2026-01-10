@@ -31,16 +31,18 @@ if not st.session_state.authenticated:
         .stApp { background-color: #f8f9fa !important; }
         header, footer, [data-testid="stHeader"] { display: none !important; }
         
-        /* Centering the login container vertically and horizontally */
+        /* Centering the login container and adjusting vertical balance */
         .viewport-top-container { 
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 80vh; /* This centers it on the screen */
+            min-height: 60vh; /* Reduced from 80vh to pull the bottom up */
+            padding-top: 10%; /* Brings the top text up by roughly 20% */
             text-align: center; 
             width: 100%; 
-            padding: 20px;
+            padding-left: 20px;
+            padding-right: 20px;
         }
 
         .brand-title { font-family: 'Inter', sans-serif !important; font-size: clamp(38px, 8vw, 78px) !important; font-weight: 900 !important; color: #1a3c6d !important; letter-spacing: -1.5px !important; margin-bottom: 0px !important; line-height: 1.0 !important; }
@@ -51,7 +53,7 @@ if not st.session_state.authenticated:
         .access-text { font-family: 'Oswald', sans-serif !important; font-size: 0.9rem !important; color: #1a3c6d !important; font-weight: 700 !important; letter-spacing: 2px !important; vertical-align: middle; }
         
         /* Mobile adjustment */
-        @media (max-width: 600px) { .viewport-top-container { min-height: 70vh; } }
+        @media (max-width: 600px) { .viewport-top-container { min-height: 50vh; padding-top: 5%; } }
     </style>
     """, unsafe_allow_html=True)
 
@@ -86,7 +88,6 @@ if not st.session_state.authenticated:
 else:
     role = st.session_state.user_role
     
-    # CSS for dashboard centering and mobile layout
     st.markdown("""
         <style>
             .block-container { text-align: center; padding-top: 2rem; }
@@ -103,10 +104,9 @@ else:
 
     st.markdown("---")
 
-    # --- 3a. GLOBAL ACTIVITY VIEW (Top View for Everyone) ---
+    # --- 3a. GLOBAL ACTIVITY VIEW ---
     st.subheader("Latest Property Activity")
     
-    # Collect all files to show a "Recent Uploads" feed
     all_files = []
     for root, dirs, files in os.walk("vault"):
         for f in files:
@@ -114,12 +114,10 @@ else:
                 path = os.path.join(root, f)
                 all_files.append((f, os.path.getmtime(path), root.split('/')[-1]))
     
-    # Sort by newest first
     all_files.sort(key=lambda x: x[1], reverse=True)
 
     if all_files:
         feed_cols = st.columns(3)
-        # Show top 3 most recent uploads
         for i, (fname, ftime, ftype) in enumerate(all_files[:3]):
             dt = datetime.fromtimestamp(ftime).strftime('%Y-%m-%d %H:%M')
             with feed_cols[i]:
