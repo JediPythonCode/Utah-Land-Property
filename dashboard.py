@@ -40,7 +40,6 @@ if not st.session_state.authenticated:
         .stApp {{ background-color: #FFFFFF !important; }}
         header, footer, [data-testid="stHeader"] {{ display: none !important; }}
         
-        /* Center the entire block vertically */
         .main-auth-container {{
             display: flex;
             flex-direction: column;
@@ -135,7 +134,6 @@ if role == "admin":
             st.rerun()
 
 # --- 6. CORE CALCULATION & DASHBOARD ---
-# Logic: $330k Price - $20k Equity = $310k AITD Principal
 AITD_PRINCIPAL = D["price"] - D["seller_equity"]
 
 st.markdown('<div class="ulp-header">Utah Land & Property</div>', unsafe_allow_html=True)
@@ -190,4 +188,9 @@ with n_col:
             D["notes"].insert(0, f"{datetime.now().strftime('%H:%M')}: {new_note}")
             st.rerun()
         for n in D["notes"]:
-            st.markdown(f"<p style='font-size:12px; border-bottom:1px solid #eee;
+            # Corrected Line 193 formatting to avoid SyntaxError
+            st.markdown(f"<p style='font-size:12px; border-bottom:1px solid #eee; padding:5px;'>{n}</p>", unsafe_allow_html=True)
+
+if st.sidebar.button("LOGOUT"):
+    st.session_state.authenticated = False
+    st.rerun()
