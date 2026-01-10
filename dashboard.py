@@ -5,59 +5,62 @@ import glob
 from datetime import datetime
 from PIL import Image
 
-# ── 1. CORE SYSTEM CONFIG ──────────────────────────────────────────────────
-st.set_page_config(page_title="Utah Land & Property", layout="wide")
-
-# Emergency Secrets Check - If this fails, it won't be a white screen anymore
-if "access_keys" not in st.secrets:
-    st.error("🚨 CONFIGURATION ERROR: 'access_keys' not found in Secrets.")
-    st.info("Please ensure your secrets.toml or Cloud Secrets contain the [access_keys] section.")
-    st.stop()
-
-# Auto-refresh every 10 mins
+# ── 1. CONFIG ──────────────────────────────────────────────────────────────
+st.set_page_config(page_title="Utah Land & Property", layout="wide", initial_sidebar_state="collapsed")
 st_autorefresh(interval=600000, key="ulp_refresh")
 
-# Build Vault Folders
+# Ensure vault directories exist
 for folder in ["vault/general", "vault/buyer_docs", "vault/property_images"]:
     os.makedirs(folder, exist_ok=True)
 
-# Session State Init
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 if "user_role" not in st.session_state:
     st.session_state.user_role = None
 
-# ── 2. THE LOGIN GATE (NUCLEAR STABILITY VERSION) ──────────────────────────
+# ── 2. AUTHENTICATION GATE (CENTERED & STYLIZED) ───────────────────────────
 if not st.session_state.authenticated:
-    # Minimal CSS to avoid rendering crashes
+    if "access_keys" not in st.secrets:
+        st.error("🚨 Configuration Missing: Please add [access_keys] to Streamlit Secrets.")
+        st.stop()
+
+    # Re-introducing the Custom Typography and Centering
     st.markdown("""
-        <style>
-        .main { background-color: #f8f9fa; }
-        .stButton>button { width: 100%; border-radius: 5px; height: 3em; background-color: #1a3c6d; color: white; }
-        header, footer {visibility: hidden;}
-        </style>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Oswald:wght@500;700&display=swap');
+        
+        .stApp { background-color: #ffffff !important; }
+        header, footer, [data-testid="stHeader"] { visibility: hidden !important; }
+        
+        /* The container that handles vertical centering */
+        .main-hero {
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            min-height: 70vh; text-align: center; width: 100%; padding: 20px;
+        }
+
+        .brand-title { font-family: 'Inter', sans-serif !important; font-size: clamp(38px, 8vw, 78px) !important; font-weight: 900 !important; color: #1a3c6d !important; letter-spacing: -1.5px !important; margin-bottom: 0px !important; line-height: 1.0 !important; }
+        .brand-subtitle { font-family: 'Oswald', sans-serif !important; font-size: clamp(1rem, 3vw, 1.35rem) !important; color: #6b7280 !important; letter-spacing: 3px !important; font-weight: 500 !important; margin-top: 10px !important; margin-bottom: 1.5rem !important; }
+        .framework-text { color: #4b5563 !important; font-size: 1.1rem !important; max-width: 850px !important; margin: 0 auto 2rem !important; line-height: 1.7 !important; font-family: 'Inter', sans-serif !important; }
+        .pulse-lock { height: 12px; width: 12px; background: #10b981; border-radius: 50%; display: inline-block; margin-right: 12px; box-shadow: 0 0 12px rgba(16,185,129,0.5); animation: pulse 2s infinite; vertical-align: middle; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(16,185,129,0.7); } 70% { box-shadow: 0 0 0 12px rgba(16,185,129,0); } 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); } }
+        .access-text { font-family: 'Oswald', sans-serif !important; font-size: 0.95rem !important; color: #1a3c6d !important; font-weight: 700 !important; letter-spacing: 2px !important; vertical-align: middle; }
+        
+        /* Input tightening */
+        .stTextInput > div > div > input { text-align: center; }
+    </style>
     """, unsafe_allow_html=True)
 
-    # Vertical Spacing to "center" without breaking the browser
-    st.markdown("<br><br><br><br>", unsafe_allow_html=True)
-    
-    # Hero Section using standard Streamlit Markdown (Safest Method)
-    _, center_col, _ = st.columns([1, 2, 1])
-    
-    with center_col:
-        st.markdown(f"<h1 style='text-align: center; color: #1a3c6d; font-family: sans-serif; font-size: 3rem;'>Utah Land & Property</h1>", unsafe_allow_html=True)
-        st.markdown(f"<p style='text-align: center; letter-spacing: 3px; color: #6b7280;'>STRATEGIC ASSET PROTECTION FRAMEWORK</p>", unsafe_allow_html=True)
-        
-        st.markdown("---")
-        
-        st.markdown("<p style='text-align: center;'><strong>Privacy Creation Preservation • Creative Land & Real Estate Deal Structure</strong></p>", unsafe_allow_html=True)
-        
-        # Combined line - No dash
-        st.markdown("<p style='text-align: center; color: #10b981; font-weight: bold;'>🟢 SECURE CLIENT PORTAL ENCRYPTED ACCESS ONLY</p>", unsafe_allow_html=True)
-        
-        # Login Logic
-        pwd = st.text_input("Access Key", type="password", placeholder="Enter Private Key", label_visibility="collapsed")
-        if st.button("Authorize Access"):
+    # Hero Construction
+    st.write('<div class="main-hero">', unsafe_allow_html=True)
+    st.markdown('<div class="brand-title">Utah Land & Property</div>', unsafe_allow_html=True)
+    st.markdown('<div class="brand-subtitle">Strategic Asset Protection Framework</div>', unsafe_allow_html=True)
+    st.markdown('<div class="framework-text"><strong>Privacy Creation Preservation • Creative Land & Real Estate Deal Structure</strong></div>', unsafe_allow_html=True)
+    st.markdown('<div style="margin-bottom: 2.5rem;"><span class="pulse-lock"></span><span class="access-text">SECURE CLIENT PORTAL ENCRYPTED ACCESS ONLY</span></div>', unsafe_allow_html=True)
+
+    _, col_mid, _ = st.columns([1, 1.4, 1])
+    with col_mid:
+        pwd = st.text_input("Key", type="password", placeholder="Enter Access Key", label_visibility="collapsed")
+        if st.button("Authorize Portal Access", use_container_width=True, type="primary"):
             access_map = st.secrets["access_keys"]
             if pwd in access_map:
                 st.session_state.authenticated = True
@@ -65,100 +68,101 @@ if not st.session_state.authenticated:
                 st.rerun()
             else:
                 st.error("Invalid Security Key")
+    st.write('</div>', unsafe_allow_html=True)
 
-# ── 3. THE DASHBOARD (PROTECTED) ───────────────────────────────────────────
+# ── 3. PROTECTED CONTENT ──────────────────────────────────────────────────
 else:
     role = st.session_state.user_role
     
-    # Dashboard Header
-    col_a, col_b = st.columns([0.8, 0.2])
-    col_a.title(f"{role} Portal")
-    if col_b.button("Logout"):
+    # Dashboard Styles
+    st.markdown("""
+        <style>
+            .block-container { text-align: center; padding-top: 2rem; background-color: #ffffff; }
+            .stButton > button { display: block; margin: 0 auto; width: 220px; }
+            [data-testid="stFileUploader"] { width: 100%; max-width: 500px; margin: 0 auto; }
+            .activity-card { border: 1px solid #eee; padding: 15px; border-radius: 10px; background: #fafafa; }
+        </style>
+    """, unsafe_allow_html=True)
+
+    st.title(f"{role} Management Dashboard")
+    if st.button("Secure Logout", type="secondary"):
         st.session_state.authenticated = False
         st.rerun()
 
     st.markdown("---")
 
-    # --- 3a. RECENT ACTIVITY (NEWEST ON TOP) ---
+    # --- 3a. RECENT ACTIVITY (Top Feed for all) ---
     st.subheader("Latest System Activity")
-    files_found = []
+    activity = []
     for root, _, files in os.walk("vault"):
         for f in files:
             if not f.startswith('.'):
                 fp = os.path.join(root, f)
-                files_found.append((f, os.path.getmtime(fp), root.split(os.sep)[-1]))
+                activity.append((f, os.path.getmtime(fp), root.split(os.sep)[-1]))
     
-    files_found.sort(key=lambda x: x[1], reverse=True)
-    
-    if files_found:
+    activity.sort(key=lambda x: x[1], reverse=True)
+    if activity:
         act_cols = st.columns(3)
-        for i, (name, _, cat) in enumerate(files_found[:3]):
-            act_cols[i].success(f"**{name}**\n\nCategory: {cat.replace('_',' ').title()}")
+        for i, (name, _, cat) in enumerate(activity[:3]):
+            act_cols[i].markdown(f"""
+            <div class="activity-card">
+                <strong>{name}</strong><br>
+                <span style="color:#666; font-size:0.8rem;">{cat.replace('_',' ').title()}</span>
+            </div>
+            """, unsafe_allow_html=True)
     else:
-        st.info("The vault is currently empty.")
+        st.info("No files in vault.")
 
-    # --- 3b. PROPERTY VISUALS (CRASH-PROOF) ---
+    # --- 3b. PROPERTY VISUALS (Crash-Proof) ---
     st.markdown("---")
     st.subheader("Property Visuals")
+    raw_images = glob.glob("vault/property_images/*")
     
-    img_paths = glob.glob("vault/property_images/*")
-    if img_paths:
-        # Use columns for mobile-friendly stacking
+    if raw_images:
         img_cols = st.columns(4)
-        col_idx = 0
-        for p in img_paths:
+        count = 0
+        for p in raw_images:
             try:
-                # We open with PIL to VALIDATE it's an image. 
-                # If it's a PDF/Text file, this will trigger the 'except' block.
-                valid_img = Image.open(p)
-                img_cols[col_idx % 4].image(valid_img, use_container_width=True)
-                col_idx += 1
+                # Validate the image file actually works before trying to show it
+                with Image.open(p) as validated:
+                    img_cols[count % 4].image(validated, use_container_width=True)
+                    count += 1
             except:
-                # Silently ignore files that aren't valid images
                 continue
     else:
-        st.info("No images currently in vault.")
+        st.info("Waiting for property assets to be uploaded.")
 
-    # --- 3c. ROLE-BASED ACTIONS ---
+    # --- 3c. ROLE ACTIONS ---
     st.markdown("---")
     if role == "Buyer":
-        st.subheader("Your Documents for Signature")
+        st.subheader("Signature Documents")
         docs = [f for f in os.listdir("vault/buyer_docs") if not f.startswith('.')]
         if docs:
             for d in docs:
-                with open(f"vault/buyer_docs/{d}", "rb") as f_obj:
-                    st.download_button(f"📄 Download & Sign: {d}", f_obj, file_name=d)
+                with open(f"vault/buyer_docs/{d}", "rb") as fobj:
+                    st.download_button(f"📄 Download: {d}", fobj, file_name=d)
         else:
-            st.success("All clear. No pending signatures.")
-    
+            st.success("No pending documents for signature.")
     else:
-        st.subheader("Upload & Management")
+        st.subheader("Vault Management")
         c1, c2 = st.columns(2)
-        dest = c1.radio("Target Folder", ["General Vault", "Buyer's Signature Folder"], horizontal=True)
-        
-        # Only certain roles can upload to Property Images
+        target = c1.radio("Destination", ["General Vault", "Buyer's Signature Folder"], horizontal=True)
         if role in ["Admin", "Agent"]:
             kind = c2.radio("Asset Class", ["Document", "Property Image"], horizontal=True)
         else:
             kind = "Document"
-            c2.write(f"Class: {kind} (Restricted)")
 
-        up_files = st.file_uploader("Drop files here", accept_multiple_files=True)
-        if up_files:
-            for f in up_files:
-                if kind == "Property Image":
-                    folder = "vault/property_images"
-                elif dest == "Buyer's Signature Folder":
-                    folder = "vault/buyer_docs"
-                else:
-                    folder = "vault/general"
-                
+        up = st.file_uploader("Select Files", accept_multiple_files=True)
+        if up:
+            for f in up:
+                folder = "vault/property_images" if kind == "Property Image" else ("vault/buyer_docs" if target == "Buyer's Signature Folder" else "vault/general")
                 with open(os.path.join(folder, f.name), "wb") as save_f:
                     save_f.write(f.getbuffer())
-            st.success("Uploaded.")
+            st.success("Assets Saved.")
             st.rerun()
 
-    # Admin Audit
     if role == "Admin":
-        with st.expander("Master Vault Audit"):
-            st.write(glob.glob("vault/**/*", recursive=True))
+        with st.expander("System File Audit"):
+            st.json(glob.glob("vault/**/*", recursive=True))
+
+    st.markdown(f"<p style='color:#ccc; font-size:0.7rem; margin-top:50px;'>SESSION: {role.upper()} AUTHENTICATED</p>", unsafe_allow_html=True)
