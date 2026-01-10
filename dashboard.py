@@ -1,12 +1,11 @@
 import streamlit as st
 from streamlit_autorefresh import st_autorefresh
 import os
-import glob
 import pandas as pd
 from datetime import datetime
 from cryptography.fernet import Fernet
 
-# ── 1. CONFIG & ENCRYPTION ──────────────────────────────────────────────────
+# ── 1. CONFIG & SECURE ENCRYPTION ────────────────────────────────────────────
 st.set_page_config(
     page_title="Utah Land & Property",
     layout="wide",
@@ -15,105 +14,76 @@ st.set_page_config(
 
 st_autorefresh(interval=600000, key="ulp_refresh")
 
-if "secret_key" not in st.secrets:
-    ENCR_KEY = b'6_Wb7R-5N5_W_h_Z9F-4Qp3o9-G7_X_z1H-8I_w_9k0=' 
-else:
-    ENCR_KEY = st.secrets["secret_key"].encode()
+def initialize_encryption():
+    """Validates presence of key and initializes Fernet."""
 
-fernet = Fernet(ENCR_KEY)
+    try:
+        key = st.secrets.get("secret_key")
+        if not key:
+            st.error("🚨 SYSTEM CRITICAL: Encryption Key Missing. Access Disabled.")
+            st.stop()
+        return Fernet(key.encode())
+    except Exception as e:
+        st.error("🚨 SYSTEM CRITICAL: Security Initialization Failed.")
+        st.stop()
 
-# ── 2. BRANDING & STYLING (HIGH CONTRAST / NO DARK BG) ──────────────────────
+fernet = initialize_encryption()
+
+# ── 2. BRANDING & STYLING ──────────────────────────────────────────────────
+# (Styles remains as provided - strictly light mode with high contrast)
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Oswald:wght@500;700&display=swap');
-        
-        /* 1. Global Reset to Light Mode */
-        .stApp { 
-            background-color: #ffffff !important; 
-            color: #1a1a1a !important; 
-        }
-        
-        /* 2. Force Headers and Labels to Dark Blue/Black */
+        .stApp { background-color: #ffffff !important; color: #1a1a1a !important; }
         h1, h2, h3, h4, h5, h6, p, span, label, .stMarkdown {
-            color: #1a3c6d !important;
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
+            color: #1a3c6d !important; font-family: 'Inter', sans-serif; font-weight: 600;
         }
-
-        /* 3. Input Fields & File Uploader: Light BG with Dark Text */
-        input, textarea, [data-baseweb="select"] {
-            background-color: #f9fafb !important;
-            color: #1a1a1a !important;
-            border: 1px solid #d1d5db !important;
-        }
-
-        /* Target the File Uploader specifically */
         [data-testid="stFileUploader"] {
             background-color: #f3f4f6 !important;
             border: 2px dashed #1a3c6d !important;
-            border-radius: 10px;
-            padding: 10px;
+            border-radius: 10px; padding: 10px;
         }
-        
-        /* Fix the "Drag and Drop" text visibility */
-        [data-testid="stFileUploader"] section {
-            color: #1a1a1a !important;
-        }
-
-        /* 4. Branding Elements */
-        header, footer, [data-testid="stHeader"] { display: none !important; }
-        
         .viewport-top-container { 
             display: flex; flex-direction: column; justify-content: center; 
             align-items: center; min-height: 35vh; padding-top: 40px; 
             text-align: center; width: 100%; 
         }
-        
         .brand-title { 
             font-family: 'Inter', sans-serif !important; font-size: clamp(38px, 8vw, 78px) !important; 
             font-weight: 900 !important; color: #1a3c6d !important; letter-spacing: -1.5px !important; 
             margin-bottom: 0px !important; line-height: 1.0 !important; 
         }
-        
         .brand-subtitle { 
             font-family: 'Oswald', sans-serif !important; font-size: 1.25rem !important; 
             color: #6b7280 !important; letter-spacing: 3px !important; font-weight: 500 !important; 
             margin-top: 10px !important; margin-bottom: 1.5rem !important; 
         }
-
         .pulse-lock { 
             height: 12px; width: 12px; background: #10b981; border-radius: 50%; 
             display: inline-block; margin-right: 12px; 
             box-shadow: 0 0 12px rgba(16,185,129,0.5); animation: pulse 2s infinite; 
         }
-        
         @keyframes pulse { 
             0% { box-shadow: 0 0 0 0 rgba(16,185,129,0.7); } 
             70% { box-shadow: 0 0 0 12px rgba(16,185,129,0); } 
             100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); } 
         }
-        
-        /* Tab Navigation Labels */
-        button[data-baseweb="tab"] p {
-            color: #1a3c6d !important;
-            font-size: 1rem !important;
-        }
-
-        /* Cards in Activity Feed */
         .recent-file-card { 
             background: #ffffff; padding: 15px; border-radius: 10px; 
             border: 1px solid #e5e7eb; margin-bottom: 10px; 
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
         }
+        header, footer, [data-testid="stHeader"] { display: none !important; }
     </style>
 """, unsafe_allow_html=True)
 
 # ── 3. CORE LOGIC ────────────────────────────────────────────────────────────
-DISCLOSURE_FILE = "vault/general/deal_structure.txt"
-AUDIT_FILE = "vault/general/audit_log.csv"
+VAULT_BASE = "vault"
+DISCLOSURE_FILE = os.path.join(VAULT_BASE, "general", "deal_structure.txt")
+AUDIT_FILE = os.path.join(VAULT_BASE, "general", "audit_log.csv")
 
-for folder in ["vault/general", "vault/buyer_docs", "vault/property_images"]:
-    os.makedirs(folder, exist_ok=True)
+for folder in ["general", "buyer_docs", "property_images"]:
+    os.makedirs(os.path.join(VAULT_BASE, folder), exist_ok=True)
 
 def logger(user, action, details):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -125,7 +95,11 @@ def save_encrypted(file_path, data):
     with open(file_path, "wb") as f: f.write(encrypted_data)
 
 def read_encrypted(file_path):
-    with open(file_path, "rb") as f: return fernet.decrypt(f.read())
+    try:
+        with open(file_path, "rb") as f: 
+            return fernet.decrypt(f.read())
+    except Exception:
+        return None # Graceful failure for bad/unauthorized files
 
 def load_disclosure():
     if os.path.exists(DISCLOSURE_FILE):
@@ -143,15 +117,15 @@ if not st.session_state.authenticated:
             <div class="brand-subtitle">Strategic Asset Protection Framework</div>
             <div style="margin-bottom: 2rem;">
                 <span class="pulse-lock"></span>
-                <span class="access-text" style="color:#1a3c6d; font-family:'Oswald'; letter-spacing:2px;">SECURE CLIENT PORTAL ENCRYPTED ACCESS ONLY</span>
+                <span style="color:#1a3c6d; font-family:'Oswald'; letter-spacing:2px;">SECURE CLIENT PORTAL ENCRYPTED ACCESS ONLY</span>
             </div>
         </div>
     """, unsafe_allow_html=True)
     
     _, col_mid, _ = st.columns([1, 1.6, 1])
     with col_mid:
-        u_id = st.text_input("User ID", placeholder="Enter Username", label_visibility="collapsed")
-        u_pwd = st.text_input("Key", type="password", placeholder="Enter Access Key", label_visibility="collapsed")
+        u_id = st.text_input("User ID", placeholder="Username", label_visibility="collapsed")
+        u_pwd = st.text_input("Key", type="password", placeholder="Access Key", label_visibility="collapsed")
         if st.button("Access Portal", use_container_width=True, type="primary"):
             users = st.secrets.get("users", {})
             if u_id in users and str(users[u_id]["key"]) == u_pwd:
@@ -160,10 +134,12 @@ if not st.session_state.authenticated:
                 st.session_state.user_role = users[u_id]["role"]
                 logger(u_id, "Login", "Success")
                 st.rerun()
-            else: st.error("Access Denied")
+            else: 
+                st.error("Access Denied")
+                logger(u_id if u_id else "Unknown", "Login Attempt", "Failed")
 
 else:
-    # ── 5. AUTHENTICATED DASHBOARD ──────────────────────────────────────────
+    # ── 5. DASHBOARD ────────────────────────────────────────────────────────
     role = st.session_state.user_role
     user_id = st.session_state.user_id
 
@@ -174,18 +150,19 @@ else:
         st.session_state.authenticated = False
         st.rerun()
 
-    # --- SHARED ACTIVITY VIEW ---
+    # --- ACTIVITY FEED ---
     st.subheader("Global Activity Feed")
     all_files = []
-    for root, dirs, files in os.walk("vault"):
+    for root, dirs, files in os.walk(VAULT_BASE):
         for f in files:
             if not f.startswith('.'):
                 path = os.path.join(root, f)
-                all_files.append((f, os.path.getmtime(path), root.split('/')[-1]))
+                all_files.append((f, os.path.getmtime(path), os.path.basename(root)))
+    
     all_files.sort(key=lambda x: x[1], reverse=True)
     
     if all_files:
-        feed_cols = st.columns(3)
+        feed_cols = st.columns(min(3, len(all_files)))
         for i, (fname, ftime, ftype) in enumerate(all_files[:3]):
             dt = datetime.fromtimestamp(ftime).strftime('%Y-%m-%d %H:%M')
             feed_cols[i].markdown(f'''
@@ -202,7 +179,6 @@ else:
         t1, t2, t3 = st.tabs(["Push Disclosure", "Assign Files", "System Audit"])
         
         with t1:
-            st.markdown("### Update Global Disclosure")
             new_disc = st.text_area("Disclosure Content", value=load_disclosure(), height=150)
             if st.button("Update Portal Feed"):
                 with open(DISCLOSURE_FILE, "w") as f: f.write(new_disc)
@@ -210,42 +186,48 @@ else:
                 st.rerun()
 
         with t2:
-            st.markdown("### Encrypt & Assign Files")
-            target = st.text_input("Target User ID (e.g., buyer_smith)")
-            up_files = st.file_uploader("Upload Docs for Buyer", accept_multiple_files=True)
+            target = st.text_input("Target User ID")
+            up_files = st.file_uploader("Upload Docs", accept_multiple_files=True)
             if st.button("Secure & Assign Document") and up_files and target:
                 for f in up_files:
-                    save_encrypted(os.path.join("vault/buyer_docs", f"ENCR_{target}_{f.name}"), f.getbuffer())
+                    path = os.path.join(VAULT_BASE, "buyer_docs", f"ENCR_{target}_{f.name}")
+                    save_encrypted(path, f.getbuffer())
                 st.success(f"Files encrypted and assigned to {target}")
                 logger(user_id, "Admin Upload", f"To: {target}")
 
         with t3:
-            st.markdown("### Access Log")
             if os.path.exists(AUDIT_FILE):
                 st.dataframe(pd.read_csv(AUDIT_FILE).tail(15), use_container_width=True)
 
     elif role == "Buyer":
         with st.expander("📊 Financial Underwriting Pre-Screen", expanded=True):
-            inc = st.number_input("Monthly Income", value=5000, min_value=1)
-            debt = st.number_input("Monthly Debt", value=1500, min_value=0)
+            inc = st.number_input("Monthly Income", value=5000)
+            debt = st.number_input("Monthly Debt", value=1500)
             if st.button("Log Analysis"):
-                logger(user_id, "Underwriting", f"DTI: {(debt/inc)*100:.1f}%")
+                dti = (debt/inc)*100 if inc > 0 else 0
+                logger(user_id, "Underwriting", f"DTI: {dti:.1f}%")
                 st.success("Analysis captured.")
         
         st.subheader("Your Secure Documents")
-        docs = [f for f in os.listdir("vault/buyer_docs") if user_id in f]
+        doc_dir = os.path.join(VAULT_BASE, "buyer_docs")
+        docs = [f for f in os.listdir(doc_dir) if user_id in f]
+        
         if docs:
             for d in docs:
-                data = read_encrypted(os.path.join("vault/buyer_docs", d))
-                st.download_button(f"📄 Download {d.split('_', 2)[-1]}", data, file_name=d)
+                data = read_encrypted(os.path.join(doc_dir, d))
+                if data:
+                    st.download_button(f"📄 Download {d.split('_', 2)[-1]}", data, file_name=d)
+                else:
+                    st.error(f"Error reading {d}. Contact admin.")
         else:
-            st.info("Awaiting document release from management.")
+            st.info("Awaiting document release.")
 
-    # Property Visuals Section
+    # Property Visuals
     st.markdown("---")
     st.subheader("Property Visuals")
-    images = [f for f in os.listdir("vault/property_images") if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
+    img_dir = os.path.join(VAULT_BASE, "property_images")
+    images = [f for f in os.listdir(img_dir) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
     if images:
         cols = st.columns(4)
         for i, img in enumerate(images):
-            cols[i % 4].image(os.path.join("vault/property_images", img), use_container_width=True)
+            cols[i % 4].image(os.path.join(img_dir, img), use_container_width=True)
