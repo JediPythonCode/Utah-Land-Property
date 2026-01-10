@@ -24,7 +24,6 @@ if "user_role" not in st.session_state:
 
 # ── 2. AUTHENTICATION GATE ──────────────────────────────────────────────────
 if not st.session_state.authenticated:
-    # 1. Inject Styles
     st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Oswald:wght@500;700&display=swap');
@@ -33,18 +32,29 @@ if not st.session_state.authenticated:
         .viewport-top-container { margin-top: -10vh; text-align: center; width: 100%; }
         .brand-title { font-family: 'Inter', sans-serif !important; font-size: clamp(42px, 10vw, 78px) !important; font-weight: 900 !important; color: #1a3c6d !important; letter-spacing: -1.5px !important; margin-bottom: 0px !important; line-height: 1.0 !important; }
         .brand-subtitle { font-family: 'Oswald', sans-serif !important; font-size: 1.35rem !important; color: #6b7280 !important; letter-spacing: 3px !important; font-weight: 500 !important; margin-top: 5px !important; margin-bottom: 2rem !important; }
-        .framework-text { color: #4b5563 !important; font-size: 1.05rem !important; max-width: 700px !important; margin: 0 auto 2.5rem !important; line-height: 1.7 !important; font-family: 'Inter', sans-serif !important; }
+        .framework-text { color: #4b5563 !important; font-size: 1.05rem !important; max-width: 800px !important; margin: 0 auto 2.5rem !important; line-height: 1.7 !important; font-family: 'Inter', sans-serif !important; }
         .pulse-lock { height: 12px; width: 12px; background: #10b981; border-radius: 50%; display: inline-block; margin-right: 12px; box-shadow: 0 0 12px rgba(16,185,129,0.5); animation: pulse 2s infinite; vertical-align: middle; }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(16,185,129,0.7); } 70% { box-shadow: 0 0 0 12px rgba(16,185,129,0); } 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); } }
         .access-text { font-family: 'Oswald', sans-serif !important; font-size: 1.1rem !important; color: #1a3c6d !important; font-weight: 700 !important; letter-spacing: 2px !important; vertical-align: middle; }
     </style>
     """, unsafe_allow_html=True)
 
-    # 2. Render Hero (Minified String to prevent leakage)
-    hero_html = '<div class="viewport-top-container"><div class="brand-title">Utah Land & Property</div><div class="brand-subtitle">Strategic Asset Protection Framework</div><div class="framework-text">Privacy Creation Preservation • Creative Land & Real Estate Deal Structure<br><br><strong>Secure Client Portal</strong> — Encrypted access only.</div><div style="margin-bottom: 2rem;"><span class="pulse-lock"></span><span class="access-text">CLIENT SECURE ACCESS</span></div></div>'
+    # Combined Access Lines & Bolded Framework Text
+    hero_html = """
+    <div class="viewport-top-container">
+        <div class="brand-title">Utah Land & Property</div>
+        <div class="brand-subtitle">Strategic Asset Protection Framework</div>
+        <div class="framework-text">
+            <strong>Privacy Creation Preservation • Creative Land & Real Estate Deal Structure</strong>
+        </div>
+        <div style="margin-bottom: 2rem;">
+            <span class="pulse-lock"></span>
+            <span class="access-text">SECURE CLIENT PORTAL — ENCRYPTED ACCESS ONLY</span>
+        </div>
+    </div>
+    """
     st.markdown(hero_html, unsafe_allow_html=True)
 
-    # 3. Login Input
     _, col_mid, _ = st.columns([1, 1.4, 1])
     with col_mid:
         pwd = st.text_input("Key", type="password", placeholder="Enter Access Key", label_visibility="collapsed")
@@ -61,24 +71,43 @@ if not st.session_state.authenticated:
 else:
     role = st.session_state.user_role
     
-    # Header Section
-    col_t, col_l = st.columns([0.8, 0.2])
-    with col_t:
-        st.title(f"{role} Dashboard")
-    with col_l:
-        if st.button("Logout"):
-            st.session_state.authenticated = False
-            st.rerun()
+    # CSS to center the main dashboard content
+    st.markdown("""
+        <style>
+            .block-container { text-align: center; }
+            .stButton > button { display: block; margin: 0 auto; }
+            [data-testid="stFileUploader"] { width: 50%; margin: 0 auto; }
+            [data-testid="stHorizontalBlock"] { justify-content: center; }
+        </style>
+    """, unsafe_allow_html=True)
 
-    # --- PROPERTY GALLERY (Visual Content Above) ---
+    # Center-aligned Header
+    st.title(f"{role} Dashboard")
+    
+    if st.button("Secure Logout", type="secondary"):
+        st.session_state.authenticated = False
+        st.rerun()
+
+    st.markdown("---")
+
+    # --- PROPERTY GALLERY (Centered & Error-Protected) ---
     st.subheader("Property Visuals")
-    images = glob.glob("vault/property_images/*")
+    
+    valid_extensions = ('.png', '.jpg', '.jpeg', '.webp', '.PNG', '.JPG', '.JPEG')
+    images = [f for f in glob.glob("vault/property_images/*") if f.endswith(valid_extensions)]
+    
     if images:
-        cols = st.columns(4)
-        for idx, img_path in enumerate(images):
-            cols[idx % 4].image(img_path, use_container_width=True)
+        # Using a nested column structure to keep images centered
+        _, img_col, _ = st.columns([0.1, 0.8, 0.1])
+        with img_col:
+            cols = st.columns(4)
+            for idx, img_path in enumerate(images):
+                try:
+                    cols[idx % 4].image(img_path, use_container_width=True)
+                except:
+                    continue
     else:
-        st.info("No property images uploaded yet.")
+        st.info("No property images available.")
 
     st.markdown("---")
 
@@ -92,9 +121,8 @@ else:
                     st.download_button(f"📄 Download & Sign: {f_name}", f_obj, file_name=f_name)
         else:
             st.success("No pending documents for signature.")
-
     else:
-        # Admin, Agent, Escrow, Title, Servicer
+        # Management Logic
         st.subheader("Document Upload & Archival")
         
         c1, c2 = st.columns(2)
@@ -106,24 +134,20 @@ else:
             else:
                 upload_kind = "Document"
 
-        uploaded_files = st.file_uploader("Securely upload assets (PDF, JPG, PNG, DOCX)", accept_multiple_files=True)
+        uploaded_files = st.file_uploader("Drop Assets Here", accept_multiple_files=True)
 
         if uploaded_files:
             for file in uploaded_files:
-                if upload_kind == "Property Image":
-                    save_path = "vault/property_images"
-                elif target == "Buyer's Signature Folder":
-                    save_path = "vault/buyer_docs"
-                else:
-                    save_path = "vault/general"
-                
-                with open(os.path.join(save_path, file.name), "wb") as f:
+                dest = "vault/property_images" if upload_kind == "Property Image" else (
+                    "vault/buyer_docs" if target == "Buyer's Signature Folder" else "vault/general"
+                )
+                with open(os.path.join(dest, file.name), "wb") as f:
                     f.write(file.getbuffer())
-            st.success(f"Successfully archived {len(uploaded_files)} assets.")
+            st.success(f"Archived {len(uploaded_files)} assets.")
             st.rerun()
 
     if role == "Admin":
         with st.expander("Admin Master View"):
             st.json(glob.glob("vault/**/*", recursive=True))
 
-    st.markdown(f"**Role Permission:** As an **{role}**, you have encrypted write-access to the property data-room.")
+    st.markdown(f"**Authenticated as:** {role}")
