@@ -29,13 +29,13 @@ if "current_deal" not in st.session_state:
         "vault": [], "notes": []
     }
 
-# --- 3. REFINED CSS ---
+# --- 3. REFINED CSS & BUTTON CONFORMITY ---
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Oswald:wght@500;700&display=swap');
         .stApp { background-color: #ffffff !important; }
 
-        /* Buttons: Steady Blue with White Boundary Hover */
+        /* Full Conformity: Button and Input Match Size */
         div.stButton > button {
             background-color: #1d428a !important;
             color: white !important;
@@ -46,14 +46,33 @@ st.markdown("""
             font-family: 'Oswald', sans-serif !important;
             font-weight: 700 !important;
             text-transform: uppercase !important;
+            letter-spacing: 1px !important;
         }
         div.stButton > button:hover {
             border: 2px solid white !important;
             box-shadow: 0 0 0 2px #1d428a !important;
-            color: white !important;
         }
 
-        /* Admin Label - Dark Blue & Bold */
+        [data-testid="stTextInput"] input {
+            height: 52px !important;
+            border: 2px solid #e2e8f0 !important;
+            border-radius: 4px !important;
+            text-align: center !important;
+            font-size: 16px !important;
+            width: 100% !important;
+        }
+
+        /* Branding Styles */
+        .auth-branding {
+            color: #10b981; /* Green Indicator */
+            font-family: 'Oswald', sans-serif;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: -15px;
+            margin-bottom: 30px;
+        }
+
         .admin-label {
             font-family: 'Oswald', sans-serif !important;
             color: #1d428a !important;
@@ -65,7 +84,6 @@ st.markdown("""
             display: block !important;
         }
 
-        /* Admin Header Bar (Centered Title) */
         .admin-header-bar {
             background-color: #1d428a;
             color: white;
@@ -77,10 +95,8 @@ st.markdown("""
             font-size: 22px;
             text-transform: uppercase;
             margin-bottom: 30px;
-            border: 2px solid #1d428a;
         }
 
-        /* Disclosure List Styling */
         .disclosure-item {
             background: #f1f5f9;
             color: #1d428a;
@@ -89,17 +105,23 @@ st.markdown("""
             margin-bottom: 8px;
             font-family: 'Inter', sans-serif;
             font-weight: 700;
-            font-size: 14px;
         }
-        
-        input { height: 52px !important; }
     </style>
 """, unsafe_allow_html=True)
 
-# --- 4. LOGIN ---
+# --- 4. AUTH PAGE ---
 if not st.session_state.authenticated:
-    st.markdown('<div style="font-family:Inter; font-size:50px; font-weight:900; color:#1d428a; text-align:center; margin-top:80px;">UTAH LAND & PROPERTY</div>', unsafe_allow_html=True)
-    _, col_mid, _ = st.columns([1, 0.6, 1])
+    st.markdown("""
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh;">
+            <div style="font-family:Inter; font-size:clamp(30px, 8vw, 60px); font-weight:900; color:#1d428a; text-align:center; line-height:1;">
+                UTAH LAND & PROPERTY
+            </div>
+            <div class="auth-branding">
+                ● asset protection ● maximum privacy ● anonymous holdings
+            </div>
+    """, unsafe_allow_html=True)
+    
+    _, col_mid, _ = st.columns([1, 0.5, 1])
     with col_mid:
         input_key = st.text_input("Access Key", type="password", placeholder="ENTER KEY", label_visibility="collapsed")
         if st.button("Authorize Session"):
@@ -111,15 +133,15 @@ if not st.session_state.authenticated:
                         st.rerun()
                 st.error("DENIED")
             except: st.error("Config Missing")
+    st.markdown("</div>", unsafe_allow_html=True)
     st.stop()
 
-# --- 5. ADMIN TERMINAL ---
+# --- 5. ADMIN TERMINAL (REMAINING LOGIC) ---
 role = st.session_state.user_role
 D = st.session_state.current_deal
 
 if role == "admin":
     st.markdown('<div class="admin-header-bar">ADMIN: STRATEGIC DEAL JACKET</div>', unsafe_allow_html=True)
-    
     with st.container(border=True):
         c1, c2 = st.columns(2)
         c1.markdown('<span class="admin-label">Property Address</span>', unsafe_allow_html=True)
@@ -129,9 +151,9 @@ if role == "admin":
         
         n1, n2 = st.columns(2)
         n1.markdown('<span class="admin-label">Seller Name</span>', unsafe_allow_html=True)
-        a_seller = n1.text_input("Seller", value=D["seller_name"], key="seller_input", label_visibility="collapsed")
+        a_seller = n1.text_input("Seller", value=D["seller_name"], label_visibility="collapsed")
         n2.markdown('<span class="admin-label">Buyer Name</span>', unsafe_allow_html=True)
-        a_buyer = n2.text_input("Buyer", value=D["buyer_name"], key="buyer_input", label_visibility="collapsed")
+        a_buyer = n2.text_input("Buyer", value=D["buyer_name"], label_visibility="collapsed")
         
         f1, f2, f3 = st.columns(3)
         f1.markdown('<span class="admin-label">Sales Price</span>', unsafe_allow_html=True)
@@ -171,7 +193,6 @@ AITD_PRINCIPAL = D["price"] - D["seller_equity"]
 st.markdown(f'<div style="font-family:Inter; font-size:36px; font-weight:900; color:#1d428a; margin-top:20px; text-transform:uppercase;">{D["address"]}</div>', unsafe_allow_html=True)
 
 col_data, col_docs = st.columns([2, 1])
-
 with col_data:
     st.markdown(f"""
         <div style="background:#1d428a; padding:30px; border-radius:8px; color:white; margin-bottom:20px;">
@@ -190,43 +211,7 @@ with col_docs:
         st.markdown('<div style="font-family:Oswald; font-size:14px; color:#1d428a; font-weight:700;">SETTLEMENT VAULT</div>', unsafe_allow_html=True)
         if role == "admin" and st.button("📄 GENERATE MASTER DEAL SHEET"):
             d_list = "\n".join([f"- {x}" for x in D["disclosures"] if x])
-            report = f"""UTAH LAND & PROPERTY: MASTER SETTLEMENT SHEET
---------------------------------------------------
-DATE: {datetime.now().strftime('%Y-%m-%d %H:%M')}
-DEAL ID: {D['deal_id']}
-ADDRESS: {D['address']}
-
-PARTIES:
-SELLER: {D['seller_name']}
-BUYER:  {D['buyer_name']}
-
-FINANCIAL STRUCTURE:
-CONTRACT PRICE:   ${D['price']:,.2f}
-SELLER EQUITY:    ${D['seller_equity']:,.2f}
-ASSIGNMENT FEE:   ${D['assignment_fee']:,.2f}
---------------------------------------------------
-AITD PRINCIPAL:   ${AITD_PRINCIPAL:,.2f}
---------------------------------------------------
-
-INSTRUCTIONS:
-TITLE:    {D['instr_title']}
-ESCROW:   {D['instr_escrow']}
-SERVICER: {D['instr_servicer']}
-
-DISCLOSURES:
-{d_list}
-
---------------------------------------------------
-SIGNATURES:
-
-X_________________________________
-BUYER: {D['buyer_name']}
-
-X_________________________________
-SELLER: {D['seller_name']}
-
-DOCUMENT PREPARED BY UTAH LAND & PROPERTY, LLC.
-"""
+            report = f"""UTAH LAND & PROPERTY: MASTER SETTLEMENT SHEET\nADDRESS: {D['address']}\nSELLER: {D['seller_name']}\nBUYER: {D['buyer_name']}\nPRICE: ${D['price']:,.2f}\nAITD: ${AITD_PRINCIPAL:,.2f}\n----------------------------------\nDISCLOSURES:\n{d_list}\n----------------------------------\nSIGNATURES REQUIRED"""
             D["vault"].append({"name": f"Deal_{D['deal_id']}_{datetime.now().strftime('%H%M')}.txt", "content": report})
             st.rerun()
         
