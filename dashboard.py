@@ -12,7 +12,8 @@ if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
     st.session_state.user_role = None
 
-if "deal_data" not in st.session_state:
+# Robust Initialization: Ensures all keys exist to prevent KeyErrors
+if "deal_data" not in st.session_state or "fee_credit" not in st.session_state.deal_data:
     st.session_state.deal_data = {
         "price": 330000.00,
         "assignment_fee": 15000.00,
@@ -21,7 +22,7 @@ if "deal_data" not in st.session_state:
         "vault": []
     }
 
-# --- 3. LOGIN PAGE (EXACTLY AS REQUESTED: NO LOGIC REMOVED) ---
+# --- 3. LOGIN PAGE (PRESERVING YOUR ORIGINAL LOGIC) ---
 if not st.session_state.authenticated:
     pillar_icons = [
         '<svg viewBox="0 0 24 24" width="80" height="80" stroke="#1d428a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>',
@@ -73,7 +74,7 @@ if not st.session_state.authenticated:
                 except: st.error("SYSTEM ERROR: User database not found.")
     st.stop()
 
-# --- 4. INTERNAL DASHBOARD STYLE (POST-LOGIN) ---
+# --- 4. INTERNAL DASHBOARD STYLE ---
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Oswald:wght@500;700&display=swap');
@@ -81,35 +82,32 @@ st.markdown("""
         .bento-card { background: #ffffff; padding: 24px; border-radius: 12px; border: 2px solid #e2e8f0; margin-bottom: 20px; }
         .hero-bento { background: #1d428a; color: #ffffff; padding: 30px; border-radius: 12px; }
         .ulp-header { font-family: 'Inter', sans-serif; font-size: 36px; font-weight: 900; color: #1d428a; text-transform: uppercase; }
-        .hub-header { font-family: 'Inter', sans-serif; font-size: 28px; font-weight: 900; color: #1d428a !important; margin: 25px 0 15px 0; display: block; }
+        .hub-header { font-family: 'Inter', sans-serif; font-size: 28px; font-weight: 900; color: #1d428a !important; margin: 30px 0 15px 0; display: block; }
         .label-text { font-family: 'Oswald'; font-size: 11px; letter-spacing: 1px; color: #475569; text-transform: uppercase; font-weight: 700; }
         .hero-label { font-family: 'Oswald'; font-size: 11px; letter-spacing: 1px; color: #cbd5e1; text-transform: uppercase; }
         .value-text { font-family: 'Inter'; font-size: 26px; font-weight: 700; color: #1d428a; }
-        /* Ensure all text remains dark on white */
         .stMarkdown p, .stMarkdown span, div[data-testid="stExpander"] p { color: #1e293b !important; }
         .hero-bento div, .hero-bento p, .hero-bento span { color: white !important; }
     </style>
 """, unsafe_allow_html=True)
 
-# --- 5. LOGIC & CALCULATIONS ---
+# --- 5. DATA LOGIC ---
 role = st.session_state.user_role
-# Admin Editing Panel
+
 if role == "admin":
     with st.expander("ADMIN MODERATION PANEL: RECALCULATE TRANSACTION"):
         c1, c2, c3, c4 = st.columns(4)
-        st.session_state.deal_data["price"] = c1.number_input("Sales Price", value=st.session_state.deal_data["price"])
-        st.session_state.deal_data["assignment_fee"] = c2.number_input("Assignment Fee", value=st.session_state.deal_data["assignment_fee"])
-        st.session_state.deal_data["seller_equity"] = c3.number_input("Seller Equity", value=st.session_state.deal_data["seller_equity"])
-        st.session_state.deal_data["fee_credit"] = c4.number_input("Fee Portion to Credit", value=st.session_state.deal_data["fee_credit"])
+        st.session_state.deal_data["price"] = c1.number_input("Sales Price", value=st.session_state.deal_data.get("price", 330000.00))
+        st.session_state.deal_data["assignment_fee"] = c2.number_input("Assignment Fee", value=st.session_state.deal_data.get("assignment_fee", 15000.00))
+        st.session_state.deal_data["seller_equity"] = c3.number_input("Seller Equity", value=st.session_state.deal_data.get("seller_equity", 20000.00))
+        st.session_state.deal_data["fee_credit"] = c4.number_input("Fee Portion to Credit", value=st.session_state.deal_data.get("fee_credit", 5000.00))
 
-# Current Figures
+# Fixed Logic: Principal = Price - (Equity + Credit)
 PRICE = st.session_state.deal_data["price"]
 FEE = st.session_state.deal_data["assignment_fee"]
 EQUITY = st.session_state.deal_data["seller_equity"]
 CREDIT = st.session_state.deal_data["fee_credit"]
-
-# AITD Principal = Price ($330k) - (Seller Equity $20k + Fee Credit $5k) = $305,000
-AITD_PRINCIPAL = PRICE - (EQUITY + CREDIT)
+AITD_PRINCIPAL = PRICE - (EQUITY + CREDIT) # Result: $305,000.00
 
 # --- 6. TOP BENTO GRID ---
 st.markdown('<div class="ulp-header">Utah Land & Property</div>', unsafe_allow_html=True)
@@ -151,26 +149,21 @@ with h1:
     with st.container(border=True):
         st.markdown("<p class='label-text'>Universal Vault & Instruction Terminal</p>", unsafe_allow_html=True)
         
-        # Admin Instruction Push
         if role == "admin":
             if st.button("Generate Settlement Instructions for All Parties", use_container_width=True):
                 summary = f"Settlement Instructions: Price ${PRICE:,.2f}, ULP Fee ${FEE:,.2f}, Equity Credit ${EQUITY:,.2f}, AITD Balance ${AITD_PRINCIPAL:,.2f}."
                 st.session_state.deal_data["vault"].append({"name": f"Settlement_Sheet_{datetime.now().strftime('%H%M')}.txt", "content": summary, "sender": "ADMIN"})
                 st.success("Instruction sheet pushed to Escrow, Title, and Loan Servicer.")
 
-        # File Upload Logic
         uploaded_file = st.file_uploader("Drop files for transaction review", label_visibility="collapsed")
         if uploaded_file:
             st.session_state.deal_data["vault"].append({"name": uploaded_file.name, "content": "Encoded Binary File", "sender": role})
 
-        # Display Files
         for i, doc in enumerate(st.session_state.deal_data["vault"]):
             v_col1, v_col2, v_col3 = st.columns([3, 1, 1])
             v_col1.markdown(f"**{doc['name']}** (Source: {doc['sender'].upper()})")
-            
             if v_col2.button("View", key=f"v_{i}"):
                 st.info(f"Metadata: {doc.get('content')}")
-                
             if v_col3.button("Print", key=f"p_{i}"):
                 b64 = base64.b64encode(doc.get("content", "").encode()).decode()
                 st.markdown(f'<a href="data:file/txt;base64,{b64}" download="{doc["name"]}">Confirm Print/Download</a>', unsafe_allow_html=True)
@@ -178,15 +171,9 @@ with h1:
 with h2:
     with st.container(border=True):
         st.markdown("<p class='label-text'>Internal Broadcast</p>", unsafe_allow_html=True)
-        message = st.text_area("Secure Message", placeholder="Send a message to all parties (Escrow, Title, Agent)...", height=120)
+        message = st.text_area("Secure Message", placeholder="Send a message to all parties...", height=120)
         if st.button("Broadcast to Transaction Team", use_container_width=True):
             st.toast("Communication transmitted successfully.")
-        
-        st.markdown("---")
-        st.markdown("<p class='label-text'>Transaction Phase</p>", unsafe_allow_html=True)
-        st.checkbox("Buyer Vetting Complete", value=True, disabled=True)
-        st.checkbox("AITD Math Verified", value=True, disabled=True)
-        st.checkbox("Instructions Pushed to Title", value=any("Settlement" in d['name'] for d in st.session_state.deal_data["vault"]))
 
 # --- 8. LOGOUT ---
 if st.sidebar.button("Terminate Session"):
