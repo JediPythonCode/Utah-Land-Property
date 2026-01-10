@@ -149,7 +149,7 @@ def get_meta(file_path):
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 
-# ── 4. UI FLOW (ORIGINAL) ────────────────────────────────────────────────────
+# ── 4. UI FLOW (FIXED LOGIN) ──────────────────────────────────────────────────
 if not st.session_state.authenticated:
     st.markdown("""
         <div class="viewport-top-container">
@@ -166,14 +166,14 @@ if not st.session_state.authenticated:
 
     _, col_mid, _ = st.columns([1, 1.6, 1])
     with col_mid:
-        u_id = st.text_input("User ID", placeholder="Enter Username", label_visibility="collapsed")
-        u_pwd = st.text_input("Key", type="password", placeholder="Enter Access Key", label_visibility="collapsed")
+        u_id = st.text_input("User ID", placeholder="Enter Username", label_visibility="collapsed").strip()
+        u_pwd = st.text_input("Key", type="password", placeholder="Enter Access Key", label_visibility="collapsed").strip()
 
         if st.button("Access Portal", use_container_width=True, type="primary"):
-            if u_id in USER_DB and str(USER_DB[u_id]["key"]) == u_pwd:
+            if u_id in USER_DB and str(USER_DB[u_id].get("key")) == u_pwd:
                 st.session_state.authenticated = True
                 st.session_state.user_id = u_id
-                st.session_state.user_role = USER_DB[u_id]["role"]
+                st.session_state.user_role = USER_DB[u_id].get("role", "Buyer")
                 logger(u_id, "Login", "Success")
                 st.rerun()
             else:
