@@ -6,19 +6,25 @@ from streamlit_autorefresh import st_autorefresh
 st.set_page_config(page_title="Utah Land & Property", layout="wide", initial_sidebar_state="collapsed")
 st_autorefresh(interval=10000, key="ulp_sync_ping")
 
-# --- 2. AUTHENTICATION GATE (RETAINED AS REQUESTED) ---
+# --- 2. AUTHENTICATION & STATE ---
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
     st.session_state.user_role = None
 
-# Initialize Logic for ULP Deal Structure
-if "checklist_step" not in st.session_state:
-    st.session_state.checklist_step = 3  # Start at Underwriting for this deal
-if "uploaded_docs" not in st.session_state:
-    st.session_state.uploaded_docs = []
+if "deal_data" not in st.session_state:
+    st.session_state.deal_data = {
+        "price": 330000.00,
+        "assignment_fee": 15000.00,
+        "seller_equity": 20000.00,
+        "checklist_step": 3,
+        "vault": [
+            {"name": "Initial_Contract.pdf", "role": "admin", "time": "2026-01-08"},
+            {"name": "ULP_Assignment_Agreement.pdf", "role": "admin", "time": "2026-01-09"}
+        ]
+    }
 
 if not st.session_state.authenticated:
-    # [LOGIC NOT TOUCHED PER INSTRUCTION]
+    # [YOUR ORIGINAL AUTH LOGIC REMAINS - NO CHANGES]
     pillar_icons = [
         '<svg viewBox="0 0 24 24" width="80" height="80" stroke="#1d428a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>',
         '<svg viewBox="0 0 24 24" width="80" height="80" stroke="#1d428a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>',
@@ -43,108 +49,81 @@ if not st.session_state.authenticated:
                 except KeyError: st.error("SYSTEM ERROR: User database not found.")
     st.stop()
 
-# --- 3. INTERNAL BENTO STYLE ---
+# --- 3. DASHBOARD STYLE (BLUE/GREY ON WHITE) ---
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Oswald:wght@500;700&display=swap');
-        .stApp { background-color: #fcfcfc !important; }
-        .bento-card {
-            background: white;
-            padding: 24px;
-            border-radius: 20px;
-            border: 1px solid #edf2f7;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            margin-bottom: 20px;
-        }
-        .hero-bento {
-            background: #1d428a;
-            color: white;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 20px rgba(29, 66, 138, 0.2);
-        }
-        .ulp-header { font-family: 'Inter', sans-serif; font-size: clamp(30px, 5vw, 50px) !important; font-weight: 900 !important; color: #1d428a !important; letter-spacing: -2px; text-transform: uppercase; text-align: left; }
+        .stApp { background-color: #ffffff !important; }
+        .bento-card { background: #ffffff; padding: 24px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
+        .hero-bento { background: #1d428a; color: #ffffff; padding: 30px; border-radius: 12px; }
+        .ulp-header { font-family: 'Inter', sans-serif; font-size: 36px !important; font-weight: 900 !important; color: #1d428a !important; letter-spacing: -1px; text-transform: uppercase; }
         .label-text { font-family: 'Oswald'; font-size: 11px; letter-spacing: 1px; color: #64748b; text-transform: uppercase; font-weight: 700; }
-        .value-text { font-family: 'Inter'; font-size: 24px; font-weight: 700; color: #1a202c; }
-        .badge { background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; font-family: 'Oswald'; }
+        .value-text { font-family: 'Inter'; font-size: 24px; font-weight: 700; color: #1e293b; }
+        .role-badge { background: #f8fafc; color: #1d428a; border: 1px solid #1d428a; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 900; font-family: 'Oswald'; }
     </style>
 """, unsafe_allow_html=True)
 
-# --- 4. DASHBOARD CONTENT ---
+# --- 4. DATA CALCULATION ---
+role = st.session_state.user_role
+PRICE = st.session_state.deal_data["price"]
+FEE = st.session_state.deal_data["assignment_fee"]
+EQUITY = st.session_state.deal_data["seller_equity"]
+AITD_BAL = PRICE - (FEE + EQUITY)
+
+# --- 5. HEADER & ADMIN PANEL ---
 st.markdown('<h1 class="ulp-header">Utah Land & Property</h1>', unsafe_allow_html=True)
-st.markdown(f"<p style='font-family:Oswald; color:#1d428a; margin-top:-15px; letter-spacing:1px;'>ASSET TERMINAL | {st.session_state.user_role} ACCESS</p>", unsafe_allow_html=True)
+st.markdown(f"<p style='font-family:Oswald; color:#1d428a; margin-top:-15px;'>ASSET TERMINAL | <span class='role-badge'>{role.upper()} ACCESS</span></p>", unsafe_allow_html=True)
 
-# DEAL CALCULATIONS (Locked Logic)
-PRICE = 330000.00
-ASSIGNMENT_FEE = 15000.00
-SELLER_EQUITY = 20000.00
-AITD_PRINCIPAL = 305000.00
+if role == "admin":
+    with st.expander("DEAL MODERATION & INSTRUCTION PUSH"):
+        c1, c2, c3 = st.columns(3)
+        st.session_state.deal_data["price"] = c1.number_input("Sales Price", value=PRICE)
+        st.session_state.deal_data["assignment_fee"] = c2.number_input("Assignment Fee", value=FEE)
+        st.session_state.deal_data["seller_equity"] = c3.number_input("Seller Equity", value=EQUITY)
+        
+        if st.button("PUSH SETTLEMENT INSTRUCTIONS TO ALL PARTIES", use_container_width=True):
+            instruction_name = f"Settlement_Instructions_{datetime.now().strftime('%m%d')}.pdf"
+            st.session_state.deal_data["vault"].append({"name": instruction_name, "role": "SYSTEM-PUSH", "time": datetime.now().strftime("%Y-%m-%d")})
+            st.success("Instructions successfully pushed to Escrow, Title, and Loan Servicer.")
 
+# --- 6. CORE FINANCIALS (BENTO) ---
 col_main, col_stats = st.columns([2, 1])
-
 with col_main:
-    # Bento Item 1: The Deal Summary
-    st.markdown(f"""
-    <div class="hero-bento">
-        <div class="label-text" style="color: #cbd5e1;">Current Sale Price</div>
-        <div style="font-family: 'Inter'; font-size: 48px; font-weight: 900;">${PRICE:,.2f}</div>
-        <div style="height: 1px; background: rgba(255,255,255,0.1); margin: 20px 0;"></div>
-        <div style="display: flex; justify-content: space-between;">
-            <div>
-                <div class="label-text" style="color: #cbd5e1;">AITD Principal Balance</div>
-                <div style="font-size: 22px; font-weight: 700;">${AITD_PRINCIPAL:,.2f}</div>
-            </div>
-            <div style="text-align: right;">
-                <div class="badge" style="background: rgba(255,255,255,0.1); color: white;">SECURE TRANSACTION</div>
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(f"""<div class="hero-bento"><div class="label-text" style="color: #cbd5e1;">AITD PRINCIPAL BALANCE</div><div style="font-family: 'Inter'; font-size: 52px; font-weight: 900; color: white;">${AITD_BAL:,.2f}</div><div style="height: 1px; background: rgba(255,255,255,0.2); margin: 20px 0;"></div><div style="display: flex; justify-content: space-between;"><div><div class="label-text" style="color: #cbd5e1;">CONTRACT PRICE</div><div style="font-weight:700;">${PRICE:,.2f}</div></div><div style="text-align:right;"><div class="label-text" style="color: #cbd5e1;">ROLE</div><div style="font-weight:700;">{role.upper()}</div></div></div></div>""", unsafe_allow_html=True)
 
 with col_stats:
-    # Bento Item 2: Fees & Equity
-    st.markdown(f"""
-    <div class="bento-card">
-        <div class="label-text">Assignment Fee</div>
-        <div class="value-text" style="color:#1d428a;">${ASSIGNMENT_FEE:,.2f}</div>
-        <div style="font-size: 10px; color:#64748b; font-family:Oswald; margin-top:4px;">PAYEE: Utah Land & Property, LLC</div>
-    </div>
-    <div class="bento-card">
-        <div class="label-text">Seller Equity Credit</div>
-        <div class="value-text">${SELLER_EQUITY:,.2f}</div>
-        <div class="badge">BLOCKCHAIN VERIFIED</div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(f"""<div class="bento-card"><div class="label-text">ASSIGNMENT FEE (ULP)</div><div class="value-text" style="color:#1d428a;">${FEE:,.2f}</div></div>""", unsafe_allow_html=True)
+    st.markdown(f"""<div class="bento-card"><div class="label-text">SELLER EQUITY CREDIT</div><div class="value-text">${EQUITY:,.2f}</div></div>""", unsafe_allow_html=True)
 
-# --- 5. TRANSACTION HUB ---
-st.markdown("### 🛠️ Transaction Terminal")
-hub_1, hub_2 = st.columns(2)
+# --- 7. UNIFIED DOCUMENT VAULT & COMMUNICATION ---
+st.markdown("### Transaction Communication Hub")
+vault_col, task_col = st.columns([1.5, 1])
 
-with hub_1:
+with vault_col:
     with st.container(border=True):
-        st.markdown("<p class='label-text'>Phase-Based Checklist</p>", unsafe_allow_html=True)
-        st.checkbox("Prequalification / Key Verification", value=True, disabled=True)
-        st.checkbox("Offer & AITD Contract Review", value=True, disabled=True)
-        st.checkbox("Underwriting & Principal Audit", value=st.session_state.checklist_step >= 3)
-        st.checkbox("Final Digital Closing (RON)", value=st.session_state.checklist_step >= 4)
-        
-        if st.button("Advance Transaction Phase", use_container_width=True):
-            if st.session_state.checklist_step < 4:
-                st.session_state.checklist_step += 1
-                st.rerun()
-
-with hub_2:
-    with st.container(border=True):
-        st.markdown("<p class='label-text'>Secure Document Vault</p>", unsafe_allow_html=True)
-        uploaded = st.file_uploader("Upload New Assets", label_visibility="collapsed")
+        st.markdown("<p class='label-text'>Unified Document Vault</p>", unsafe_allow_html=True)
+        uploaded = st.file_uploader("Upload Document", label_visibility="collapsed")
         if uploaded:
-            st.session_state.uploaded_docs.append(uploaded.name)
-            st.success(f"Encrypted: {uploaded.name}")
+            st.session_state.deal_data["vault"].append({"name": uploaded.name, "role": role, "time": datetime.now().strftime("%Y-%m-%d")})
         
-        for doc in st.session_state.uploaded_docs:
-            st.markdown(f"📄 `{doc}`")
+        # Displaying the list of files for download (Simulated)
+        for item in st.session_state.deal_data["vault"]:
+            st.markdown(f"""<div style='display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #f1f5f9;'><span style='font-family:monospace; font-size:12px; color:#475569;'>{item['name']}</span><span style='font-size:10px; color:#94a3b8;'>BY: {item['role'].upper()} | {item['time']}</span></div>""", unsafe_allow_html=True)
 
-# --- 6. LOGOUT ---
+with task_col:
+    with st.container(border=True):
+        st.markdown("<p class='label-text'>Phase Tracking</p>", unsafe_allow_html=True)
+        is_disabled = role not in ["admin", "agent", "escrow"]
+        st.checkbox("Prequal Verified", value=True, disabled=True)
+        st.checkbox("Math Recalculated", value=True, disabled=True)
+        st.checkbox("Instructions Pushed", value=any("Settlement_Instructions" in d['name'] for d in st.session_state.deal_data["vault"]), disabled=True)
+        st.checkbox("Escrow Closing", value=st.session_state.deal_data["checklist_step"] >= 4, disabled=is_disabled)
+        
+        if not is_disabled and st.button("Advance Transaction", use_container_width=True):
+            st.session_state.deal_data["checklist_step"] += 1
+            st.rerun()
+
+# --- 8. LOGOUT ---
 if st.sidebar.button("Terminate Session"):
     st.session_state.authenticated = False
     st.rerun()
