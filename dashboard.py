@@ -3,7 +3,7 @@ import base64
 from datetime import datetime
 from streamlit_autorefresh import st_autorefresh
 
-# --- 1. CONFIG & REFRESH ---
+# --- 1. SYSTEM CONFIGURATION ---
 st.set_page_config(page_title="Utah Land & Property", layout="wide", initial_sidebar_state="collapsed")
 st_autorefresh(interval=10000, key="ulp_sync_ping")
 
@@ -25,7 +25,7 @@ if "current_deal" not in st.session_state:
 if "deal_history" not in st.session_state:
     st.session_state.deal_history = []
 
-# --- 3. RESTORED ORIGINAL CENTERED BLUE LOGIN ---
+# --- 3. THE CENTERED BLUE LOGIN (FORCE ALIGNED) ---
 if not st.session_state.authenticated:
     pillar_icons = [
         '<svg viewBox="0 0 24 24" width="80" height="80" stroke="#1d428a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>',
@@ -38,16 +38,32 @@ if not st.session_state.authenticated:
         @import url("https://fonts.googleapis.com/css2?family=Inter:wght@900&family=Oswald:wght@700&display=swap");
         .stApp {{ background-color: #FFFFFF !important; }}
         header, footer, [data-testid="stHeader"] {{ display: none !important; }}
+        
+        /* TEXT ALIGNMENT */
         .ulp-auth-title {{ font-family: "Inter", sans-serif; font-size: clamp(32px, 12vw, 80px); font-weight: 900; color: #1d428a; letter-spacing: -4px; line-height: 1.0; margin-bottom: 10px; text-align: center; text-transform: uppercase; }}
+        
+        /* LOGO ALIGNMENT */
         .logo-container {{ position: relative; height: 140px; display: flex; justify-content: center; align-items: center; margin: 10px 0; }}
         .flip-logo {{ position: absolute; opacity: 0; animation: logoFlip {len(pillar_icons)*3}s infinite; }}
         @keyframes logoFlip {{ 0% {{ opacity: 0; transform: scale(0.8); }} 1% {{ opacity: 1; transform: scale(1); }} 30% {{ opacity: 1; }} 33% {{ opacity: 0; transform: scale(1.05); }} 100% {{ opacity: 0; }} }}
+        
+        /* CENTERED BOX LOGIC */
+        .login-center-wrapper {{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto;
+        }}
+        
         .sync-box {{ text-align: center; margin-bottom: 30px; }}
         .pulse-dot {{ height: 10px; width: 10px; background-color: #00ff41; border-radius: 50%; display: inline-block; margin-right: 8px; box-shadow: 0 0 10px #00ff41; animation: pulse-green 1.5s infinite; }}
         @keyframes pulse-green {{ 0% {{ box-shadow: 0 0 0px 0px rgba(0, 255, 65, 0.7); }} 70% {{ box-shadow: 0 0 0px 10px rgba(0, 255, 65, 0); }} 100% {{ box-shadow: 0 0 0px 0px rgba(0, 255, 65, 0); }} }}
         .sync-label {{ font-family: "Oswald", sans-serif; font-size: 15px; color: #1d428a; letter-spacing: 2px; font-weight: bold; }}
         
-        /* ORIGINAL BLUE BUTTON STYLING */
+        /* THE BUTTON - ORIGINAL BLUE */
         div.stButton > button {{ 
             background-color: #1d428a !important; 
             color: #FFFFFF !important; 
@@ -57,13 +73,20 @@ if not st.session_state.authenticated:
             letter-spacing: 2px !important; 
             padding: 18px 45px !important; 
             border: 2px solid #1d428a !important; 
-            transition: all 0.3s ease-in-out !important; 
-            margin: 15px auto !important; 
-            display: block !important; 
-            width: 100%; 
+            width: 100% !important; 
+            display: block !important;
+            margin-top: 10px !important;
         }}
-        input {{ text-align: center !important; font-size: 20px !important; border: 2px solid #1d428a !important; }}
+        
+        /* THE INPUT - CENTERED TEXT */
+        div[data-baseweb="input"] input {{
+            text-align: center !important;
+            font-size: 20px !important;
+            border: 2px solid #1d428a !important;
+            color: #1d428a !important;
+        }}
         </style>
+        
         <div style="padding: 10vh 5% 0 5%; text-align: center;">
             <div class="ulp-auth-title">Utah Land & Property</div>
             <div class="logo-container">{icon_stack}</div>
@@ -74,9 +97,9 @@ if not st.session_state.authenticated:
         </div>
     ''', unsafe_allow_html=True)
     
-    _, col_mid, _ = st.columns([1, 1.5, 1])
+    # Using a nested column structure to force a narrow, centered input field
+    _, col_mid, _ = st.columns([1, 1.2, 1])
     with col_mid:
-        # Original simple input/button logic for perfect alignment
         input_key = st.text_input("Security Key", type="password", placeholder="ENTER PRIVATE ACCESS KEY", label_visibility="collapsed")
         if st.button("Secure Access Terminal"):
             try:
@@ -130,7 +153,7 @@ if role == "admin":
         
         if st.button("PUSH DATA TO ALL USERS", use_container_width=True): st.rerun()
 
-# --- 6. MATH & DASHBOARD ---
+# --- 6. CORE FINANCIALS ---
 AITD_PRINCIPAL = D["price"] - D["seller_equity"]
 
 st.markdown('<div class="ulp-header">Utah Land & Property</div>', unsafe_allow_html=True)
@@ -143,7 +166,7 @@ with col_hero:
 with col_side:
     st.markdown(f"""<div class="bento-card"><div class="label-text">UTAH LAND & PROPERTY ASSIGNMENT FEE</div><div class="value-text">${D['assignment_fee']:,.2f}</div><p style='font-size:10px; color:#475569; margin-top:5px;'>Service fee paid to Utah Land & Property; does not affect principal.</p></div>""", unsafe_allow_html=True)
 
-# --- 7. HUB & DOWNLOADS ---
+# --- 7. HUB & EXPORTS ---
 st.markdown('<div class="hub-header">Transaction Communication Hub</div>', unsafe_allow_html=True)
 v_col, n_col = st.columns([1.6, 1])
 
