@@ -59,18 +59,19 @@ if not st.session_state.authenticated:
         @keyframes pulse-green {{ 0% {{ box-shadow: 0 0 0px 0px rgba(0, 255, 65, 0.7); }} 70% {{ box-shadow: 0 0 0px 10px rgba(0, 255, 65, 0); }} 100% {{ box-shadow: 0 0 0px 0px rgba(0, 255, 65, 0); }} }}
         .sync-label {{ font-family: "Oswald", sans-serif; font-size: 15px; color: #1d428a; letter-spacing: 2px; font-weight: bold; }}
 
-        /* FORCE CENTERED ALIGNMENT FOR BUTTON AND INPUT */
-        [data-testid="stColumn"] {{
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+        /* --- THE ALIGNMENT FIX --- */
+        /* Target the vertical block within the column to force center contents */
+        [data-testid="stColumn"] [data-testid="stVerticalBlock"] {{
+            align-items: center !important;
+            justify-content: center !important;
+            text-align: center !important;
         }}
 
+        /* Target the Streamlit button wrapper */
         div.stButton {{
-            display: flex;
-            justify-content: center;
-            width: 100%;
+            display: flex !important;
+            justify-content: center !important;
+            width: 100% !important;
         }}
 
         div.stButton > button {{
@@ -80,18 +81,21 @@ if not st.session_state.authenticated:
             font-weight: 700 !important;
             text-transform: uppercase !important;
             letter-spacing: 2px !important;
-            padding: 18px 40px !important;
+            padding: 18px 45px !important;
             border: 2px solid #1d428a !important;
             transition: all 0.3s ease-in-out !important;
-            margin: 20px auto 0 auto !important;
+            margin: 15px auto !important;
+            display: inline-block !important;
         }}
         
         div.stButton > button:hover {{
             background-color: #FFFFFF !important;
             color: #1d428a !important;
             border: 2px solid #1d428a !important;
+            box-shadow: 0 4px 15px rgba(29, 66, 138, 0.2);
         }}
 
+        /* Centering the input text */
         input {{
             text-align: center !important;
         }}
