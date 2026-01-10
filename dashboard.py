@@ -50,12 +50,12 @@ if not st.session_state.authenticated:
         @keyframes logoFlip {{ 0% {{ opacity: 0; transform: scale(0.8); }} 1% {{ opacity: 1; transform: scale(1); }} 30% {{ opacity: 1; }} 33% {{ opacity: 0; transform: scale(1.05); }} 100% {{ opacity: 0; }} }}
         .sync-label {{ font-family: "Oswald", sans-serif; font-size: 15px; color: #1d428a; letter-spacing: 2px; font-weight: bold; text-transform: uppercase; }}
         
-        /* Conformity: Button and Input share exact same dimensions */
+        /* Conformity: Matching Button and Input exactly */
         div.stButton > button {{ 
             background-color: #1d428a !important; color: #FFFFFF !important; font-family: 'Oswald', sans-serif !important; 
             font-weight: 700 !important; text-transform: uppercase !important; letter-spacing: 2px !important; 
-            padding: 14px 0px !important; border: 2px solid #1d428a !important; width: 100% !important; margin-top: 10px !important; 
-            border-radius: 4px !important;
+            padding: 0px !important; border: 2px solid #1d428a !important; width: 100% !important; margin-top: 10px !important; 
+            height: 52px !important; border-radius: 4px !important;
         }}
         [data-testid="stTextInput"] {{ width: 100% !important; }}
         input {{ 
@@ -68,25 +68,19 @@ if not st.session_state.authenticated:
         <div style="text-align: center; margin-bottom: 25px;"><span class="sync-label">Secure Access Terminal</span></div>
     ''', unsafe_allow_html=True)
     
-    # Using a fixed-width column to force the button and input into a tight, identical size
     _, col_mid, _ = st.columns([1, 0.6, 1]) 
     with col_mid:
         input_key = st.text_input("Key", type="password", placeholder="ENTER ACCESS KEY", label_visibility="collapsed")
         if st.button("Authorize Session"):
             try:
                 user_db = st.secrets["users"]
-                found = False
                 for username, profile in user_db.items():
                     if input_key == str(profile["key"]):
                         st.session_state.authenticated = True
-                        # CASE-SENSITIVITY FAILSAFE: Convert "Admin" or "ADMIN" to "admin"
                         st.session_state.user_role = str(profile["role"]).lower() 
-                        found = True
                         st.rerun()
-                if not found:
-                    st.error("ACCESS DENIED")
-            except Exception as e:
-                st.error("CRITICAL: Secrets Config Error")
+                st.error("ACCESS DENIED")
+            except: st.error("CRITICAL: Secrets Config Error")
     st.stop()
 
 # --- 4. DASHBOARD STYLING ---
@@ -94,11 +88,13 @@ st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Oswald:wght@500;700&display=swap');
         .stApp { background-color: #ffffff !important; }
-        .admin-terminal { background: #f8fafc; border: 2px solid #1d428a; padding: 25px; border-radius: 12px; margin-bottom: 30px; }
+        .admin-terminal { background: #1d428a; border: 3px solid #0e2145; padding: 25px; border-radius: 12px; margin-bottom: 30px; color: white !important; }
+        .admin-terminal h3 { color: white !important; font-weight: 900 !important; font-family: 'Inter', sans-serif; text-transform: uppercase; }
+        .admin-terminal label { color: white !important; font-family: 'Oswald' !important; font-weight: 700 !important; text-transform: uppercase !important; font-size: 12px !important; }
         .hero-bento { background: #1d428a; color: #ffffff; padding: 30px; border-radius: 12px; }
         .ulp-header { font-family: 'Inter', sans-serif; font-size: 36px; font-weight: 900; color: #1d428a; text-transform: uppercase; }
         .label-text { font-family: 'Oswald'; font-size: 11px; letter-spacing: 1px; color: #475569; text-transform: uppercase; font-weight: 700; }
-        .value-text { font-family: 'Inter'; font-size: 22px; font-weight: 700; color: #1d428a; }
+        .vault-link { color: #1d428a !important; font-weight: 900 !important; text-decoration: underline !important; font-family: 'Oswald', sans-serif; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -110,7 +106,7 @@ if role == "admin":
     st.markdown('<div class="admin-terminal">', unsafe_allow_html=True)
     st.markdown("### 🛡️ ADMIN: STRATEGIC DEAL JACKET")
     
-    # Dynamic Form
+    # Ensuring inputs use session state directly to force updates
     r1c1, r1c2 = st.columns(2)
     new_addr = r1c1.text_input("Property Address", value=D["address"])
     new_id = r1c2.text_input("Deal ID", value=D["deal_id"])
@@ -127,18 +123,21 @@ if role == "admin":
     new_terms = st.text_area("Detailed Deal Terms", value=D["terms"])
     
     if st.button("🚀 UPDATE MASTER DASHBOARD", use_container_width=True):
-        st.session_state.current_deal.update({
-            "address": new_addr, "deal_id": new_id, "seller_name": new_seller,
-            "buyer_name": new_buyer, "price": new_price, "seller_equity": new_equity,
-            "assignment_fee": new_fee, "terms": new_terms
-        })
+        st.session_state.current_deal["address"] = new_addr
+        st.session_state.current_deal["deal_id"] = new_id
+        st.session_state.current_deal["seller_name"] = new_seller
+        st.session_state.current_deal["buyer_name"] = new_buyer
+        st.session_state.current_deal["price"] = new_price
+        st.session_state.current_deal["seller_equity"] = new_equity
+        st.session_state.current_deal["assignment_fee"] = new_fee
+        st.session_state.current_deal["terms"] = new_terms
         st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
 
 # --- 6. LIVE DASHBOARD ---
 AITD_PRINCIPAL = D["price"] - D["seller_equity"]
 st.markdown('<div class="ulp-header">Utah Land & Property</div>', unsafe_allow_html=True)
-st.caption(f"PROPERTY: {D['address']} | ID: {D['deal_id']} | ROLE: {role.upper()}")
+st.caption(f"PROPERTY: {D['address']} | ID: {D['deal_id']} | AUTH: {role.upper()}")
 
 c_hero, c_side = st.columns([2, 1])
 with c_hero:
@@ -156,11 +155,11 @@ with c_hero:
 
 with c_side:
     st.markdown(f"""
-        <div style="background:white; padding:20px; border:1px solid #e2e8f0; border-radius:12px;">
+        <div style="background:white; padding:20px; border:1px solid #e2e8f0; border-radius:12px; height: 100%;">
             <div class="label-text">ULP ASSIGNMENT FEE</div>
             <div style="font-family:'Inter'; font-size:22px; font-weight:700; color:#1d428a;">${D['assignment_fee']:,.2f}</div>
             <div class="label-text" style="margin-top:15px">PRIMARY TERMS</div>
-            <div style="font-size:12px; color:#475569;">{D['terms'][:150]}</div>
+            <div style="font-size:12px; color:#475569;">{D['terms']}</div>
         </div>
     """, unsafe_allow_html=True)
 
@@ -169,25 +168,48 @@ v_col, n_col = st.columns([1.6, 1])
 with v_col:
     with st.container(border=True):
         st.markdown("<p class='label-text'>Settlement Vault</p>", unsafe_allow_html=True)
-        if role == "admin" and st.button("📄 GENERATE DEAL SHEET", use_container_width=True):
-            report = f"PROPERTY: {D['address']}\nSELLER: {D['seller_name']}\nAITD: ${AITD_PRINCIPAL:,.2f}"
-            D["vault"].append({"name": f"Deal_{D['deal_id']}.txt", "content": report})
-            st.rerun()
+        if role == "admin":
+            if st.button("📄 GENERATE MASTER DEAL SHEET", use_container_width=True):
+                # Full data entry into the TXT file
+                report = f"""UTAH LAND & PROPERTY - OFFICIAL DEAL SHEET
+--------------------------------------------------
+DATE: {datetime.now().strftime('%Y-%m-%d %H:%M')}
+DEAL ID: {D['deal_id']}
+ADDRESS: {D['address']}
+
+PARTIES:
+SELLER: {D['seller_name']}
+BUYER: {D['buyer_name']}
+
+FINANCIAL STRUCTURE:
+CONTRACT PRICE: ${D['price']:,.2f}
+SELLER EQUITY:  ${D['seller_equity']:,.2f}
+AITD PRINCIPAL: ${AITD_PRINCIPAL:,.2f}
+ULP ASSIGN_FEE: ${D['assignment_fee']:,.2f}
+
+STRATEGIC TERMS:
+{D['terms']}
+--------------------------------------------------
+DOCUMENT GENERATED VIA SECURE TERMINAL"""
+                D["vault"].append({"name": f"Deal_{D['deal_id']}.txt", "content": report})
+                st.rerun()
+        
         for doc in D["vault"]:
-            v1, v2 = st.columns([4, 1])
-            v1.write(f"📁 **{doc['name']}**")
+            v1, v2 = st.columns([4, 1.5])
+            v1.markdown(f"📁 <span style='color:#1d428a; font-weight:bold;'>{doc['name']}</span>", unsafe_allow_html=True)
             b64 = base64.b64encode(doc['content'].encode()).decode()
-            v2.markdown(f'<a href="data:file/txt;base64,{b64}" download="{doc["name"]}" style="color:#1d428a; font-weight:bold;">PRINT</a>', unsafe_allow_html=True)
+            # Professional Blue Print Link
+            v2.markdown(f'<a href="data:file/txt;base64,{b64}" download="{doc["name"]}" class="vault-link">PRINT/DOWNLOAD</a>', unsafe_allow_html=True)
 
 with n_col:
     with st.container(border=True):
-        st.markdown("<p class='label-text'>Live Notes</p>", unsafe_allow_html=True)
-        new_note = st.text_input("Update", key="note_in", label_visibility="collapsed")
-        if st.button("Post") and new_note:
+        st.markdown("<p class='label-text'>Live Deal Notes</p>", unsafe_allow_html=True)
+        new_note = st.text_input("Log Entry", key="note_in", label_visibility="collapsed")
+        if st.button("Commit Note") and new_note:
             D["notes"].insert(0, f"{datetime.now().strftime('%H:%M')}: {new_note}")
             st.rerun()
         for n in D["notes"]:
-            st.markdown(f"<p style='font-size:12px; border-bottom:1px solid #eee; padding:5px;'>{n}</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='font-size:12px; border-bottom:1px solid #eee; padding:5px; color:#1d428a;'>{n}</p>", unsafe_allow_html=True)
 
 if st.sidebar.button("TERMINATE SESSION"):
     st.session_state.authenticated = False
