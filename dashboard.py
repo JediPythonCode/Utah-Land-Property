@@ -1,4 +1,5 @@
 import streamlit as st
+from streamlit_autorefresh import st_autorefresh
 import os
 import json
 import pandas as pd
@@ -6,146 +7,211 @@ from datetime import datetime
 from cryptography.fernet import Fernet
 from collections.abc import Mapping
 
-# ───────────────── CONFIG ─────────────────
+# ── 1. CONFIG & SECURE ENCRYPTION ────────────────────────────────────────────
 st.set_page_config(
     page_title="Utah Land & Property",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# ───────────────── SECRETS LOADING ─────────────────
-def load_secrets():
-    try:
-        secret_key = st.secrets["secret_key"]
-        users = st.secrets["users"]
+# Prevents DuplicateElementKey error
+if "refresh_initialized" not in st.session_state:
+    st_autorefresh(interval=600000, key="ulp_refresh")
+    st.session_state.refresh_initialized = True
 
-        # IMPORTANT: st.secrets["users"] is NOT a dict, it's a Mapping
-        if not isinstance(users, Mapping):
-            st.error("🚨 USERS must be a table in secrets.toml")
+def initialize_system():
+    """Initializes encryption and loads the user database from secrets."""
+    try:
+        key = st.secrets.get("secret_key")
+        users = st.secrets.get("users")
+
+        # 🔴 FIX: users is a Mapping, not dict
+        if not key or not isinstance(users, Mapping):
+            st.error("🚨 SYSTEM ERROR: secrets.toml is missing 'secret_key' or 'users'.")
             st.stop()
 
-        return Fernet(secret_key.encode()), users
-
+        return Fernet(key.encode()), users
     except Exception as e:
-        st.error(f"🚨 Secrets load failed: {e}")
+        st.error(f"🚨 SYSTEM CRITICAL: Secrets file unreachable. {e}")
         st.stop()
 
-fernet, USER_DB = load_secrets()
+# Initialize global variables
+fernet, USER_DB = initialize_system()
 
-# ───────────────── FILE SYSTEM ─────────────────
-BASE_DIR = "vault"
-BUYER_DIR = os.path.join(BASE_DIR, "buyer_docs")
-META_DIR = os.path.join(BASE_DIR, "metadata")
-AUDIT_FILE = os.path.join(BASE_DIR, "audit_log.csv")
+# ── 2. BRANDING & STYLING (RESTORED TO ORIGINAL) ──────────────────────────
+st.markdown("""
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Oswald:wght@500;700&display=swap');
 
-for d in [BASE_DIR, BUYER_DIR, META_DIR]:
-    os.makedirs(d, exist_ok=True)
+        .stApp { background-color: #ffffff !important; color: #1a1a1a !important; }
 
-# ───────────────── HELPERS ─────────────────
-def log_event(user, action, detail=""):
+        h1, h2, h3, h4, h5, h6, p, span, label, .stMarkdown {
+            color: #1a3c6d !important; font-family: 'Inter', sans-serif; font-weight: 600;
+        }
+
+        input, textarea, [data-baseweb="select"] {
+            background-color: #f9fafb !important; color: #1a1a1a !important;
+            border: 1px solid #d1d5db !important;
+        }
+
+        [data-testid="stFileUploader"] {
+            background-color: #f3f4f6 !important;
+            border: 2px dashed #1a3c6d !important;
+            border-radius: 10px; padding: 10px;
+        }
+
+        header, footer, [data-testid="stHeader"] { display: none !important; }
+
+        .viewport-top-container {
+            display: flex; flex-direction: column; justify-content: center;
+            align-items: center; min-height: 35vh; padding-top: 40px;
+            text-align: center; width: 100%;
+        }
+
+        .brand-title {
+            font-family: 'Inter', sans-serif !important; font-size: clamp(38px, 8vw, 78px) !important;
+            font-weight: 900 !important; color: #1a3c6d !important; letter-spacing: -1.5px !important;
+            margin-bottom: 0px !important; line-height: 1.0 !important;
+        }
+
+        .brand-subtitle {
+            font-family: 'Oswald', sans-serif !important; font-size: 1.25rem !important;
+            color: #6b7280 !important; letter-spacing: 3px !important; font-weight: 500 !important;
+            margin-top: 10px !important; margin-bottom: 1.5rem !important;
+        }
+
+        .pulse-lock {
+            height: 12px; width: 12px; background: #10b981; border-radius: 50%;
+            display: inline-block; margin-right: 12px;
+            box-shadow: 0 0 12px rgba(16,185,129,0.5); animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(16,185,129,0.7); }
+            70% { box-shadow: 0 0 0 12px rgba(16,185,129,0); }
+            100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+        }
+
+        .recent-file-card {
+            background: #ffffff; padding: 15px; border-radius: 10px;
+            border: 1px solid #e5e7eb; margin-bottom: 10px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+# ── 3. CORE LOGIC ────────────────────────────────────────────────────────────
+VAULT_BASE = "vault"
+DISCLOSURE_FILE = os.path.join(VAULT_BASE, "general", "deal_structure.txt")
+AUDIT_FILE = os.path.join(VAULT_BASE, "general", "audit_log.csv")
+
+for folder in ["general", "buyer_docs", "property_images", "metadata"]:
+    os.makedirs(os.path.join(VAULT_BASE, folder), exist_ok=True)
+
+def logger(user, action, details):
     try:
-        df = pd.DataFrame(
-            [[datetime.now(), user, action, detail]],
-            columns=["Time", "User", "Action", "Detail"]
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        log_entry = pd.DataFrame(
+            [[timestamp, user, action, str(details)]],
+            columns=["Timestamp", "User", "Action", "Details"]
         )
-        df.to_csv(
+        log_entry.to_csv(
             AUDIT_FILE,
-            mode="a",
+            mode='a',
             header=not os.path.exists(AUDIT_FILE),
             index=False
         )
     except:
-        pass  # Never block auth
+        pass  # 🔒 never block login
 
-def encrypt_save(path, data, note=""):
-    with open(path, "wb") as f:
-        f.write(fernet.encrypt(data))
-    with open(os.path.join(META_DIR, os.path.basename(path) + ".json"), "w") as m:
-        json.dump({"note": note}, m)
+def save_encrypted(file_path, data, description=""):
+    encrypted_data = fernet.encrypt(data)
+    with open(file_path, "wb") as f:
+        f.write(encrypted_data)
+    meta_path = os.path.join(VAULT_BASE, "metadata", os.path.basename(file_path) + ".json")
+    with open(meta_path, "w") as f:
+        json.dump({"description": description}, f)
 
-def decrypt_read(path):
+def read_encrypted(file_path):
     try:
-        with open(path, "rb") as f:
+        with open(file_path, "rb") as f:
             return fernet.decrypt(f.read())
     except:
         return None
 
-def read_note(filename):
-    p = os.path.join(META_DIR, filename + ".json")
-    if os.path.exists(p):
-        with open(p) as f:
-            return json.load(f).get("note", "")
-    return ""
+def get_meta(file_path):
+    meta_path = os.path.join(VAULT_BASE, "metadata", os.path.basename(file_path) + ".json")
+    if os.path.exists(meta_path):
+        with open(meta_path, "r") as f:
+            return json.load(f).get("description", "")
+    return "No description."
 
-# ───────────────── SESSION STATE ─────────────────
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 
-# ───────────────── LOGIN ─────────────────
+# ── 4. UI FLOW (ORIGINAL) ────────────────────────────────────────────────────
 if not st.session_state.authenticated:
-    st.title("🔐 Secure Client Portal")
+    st.markdown("""
+        <div class="viewport-top-container">
+            <div class="brand-title">Utah Land & Property</div>
+            <div class="brand-subtitle">Strategic Asset Protection Framework</div>
+            <div style="margin-bottom: 2rem;">
+                <span class="pulse-lock"></span>
+                <span style="color:#1a3c6d; font-family:'Oswald'; letter-spacing:2px;">
+                    SECURE CLIENT PORTAL ENCRYPTED ACCESS ONLY
+                </span>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
 
-    u = st.text_input("User ID")
-    p = st.text_input("Access Key", type="password")
+    _, col_mid, _ = st.columns([1, 1.6, 1])
+    with col_mid:
+        u_id = st.text_input("User ID", placeholder="Enter Username", label_visibility="collapsed")
+        u_pwd = st.text_input("Key", type="password", placeholder="Enter Access Key", label_visibility="collapsed")
 
-    if st.button("Login"):
-        if u in USER_DB and p == str(USER_DB[u]["key"]):
-            st.session_state.authenticated = True
-            st.session_state.user = u
-            st.session_state.role = USER_DB[u]["role"]
-            log_event(u, "LOGIN", "SUCCESS")
-            st.rerun()
-        else:
-            log_event(u or "UNKNOWN", "LOGIN", "FAILED")
-            st.error("❌ Invalid credentials")
+        if st.button("Access Portal", use_container_width=True, type="primary"):
+            if u_id in USER_DB and str(USER_DB[u_id]["key"]) == u_pwd:
+                st.session_state.authenticated = True
+                st.session_state.user_id = u_id
+                st.session_state.user_role = USER_DB[u_id]["role"]
+                logger(u_id, "Login", "Success")
+                st.rerun()
+            else:
+                st.error("Access Denied")
+                logger(u_id if u_id else "Unknown", "Auth", "Failed")
 
-    st.stop()
+else:
+    # ── 5. DASHBOARD (UNCHANGED) ───────────────────────────────────────────────
+    role = st.session_state.user_role
+    user_id = st.session_state.user_id
 
-# ───────────────── DASHBOARD ─────────────────
-user = st.session_state.user
-role = st.session_state.role
+    st.title(f"{role} Portal")
 
-st.sidebar.write(f"👤 {user} ({role})")
-if st.sidebar.button("Logout"):
-    st.session_state.authenticated = False
-    st.rerun()
+    if st.sidebar.button("Secure Logout"):
+        st.session_state.authenticated = False
+        st.rerun()
 
-st.title(f"{role} Dashboard")
+    if role == "Admin":
+        t1, t2, t3 = st.tabs(["Push Disclosure", "Assign Files", "Audit"])
+        with t2:
+            target = st.text_input("Target User ID")
+            desc = st.text_input("Description/Note for Buyer")
+            up_files = st.file_uploader("Upload", accept_multiple_files=True)
+            if st.button("Secure & Assign") and up_files and target:
+                for f in up_files:
+                    path = os.path.join(VAULT_BASE, "buyer_docs", f"ENCR_{target}_{f.name}")
+                    save_encrypted(path, f.getbuffer(), desc)
+                st.success("Files assigned.")
 
-# ───────────────── ADMIN ─────────────────
-if role == "Admin":
-    target = st.text_input("Target User ID")
-    note = st.text_input("Note for Buyer")
-    uploads = st.file_uploader("Upload Files", accept_multiple_files=True)
-
-    if st.button("Encrypt & Assign") and target and uploads:
-        for f in uploads:
-            path = os.path.join(BUYER_DIR, f"{target}_{f.name}")
-            encrypt_save(path, f.getbuffer(), note)
-        log_event(user, "UPLOAD", f"Files for {target}")
-        st.success("✅ Files assigned")
-
-# ───────────────── BUYER ─────────────────
-if role == "Buyer":
-    st.subheader("📁 Your Documents")
-
-    files = [f for f in os.listdir(BUYER_DIR) if f.startswith(user + "_")]
-
-    if not files:
-        st.info("No documents assigned yet.")
-
-    for i, f in enumerate(files):
-        data = decrypt_read(os.path.join(BUYER_DIR, f))
-        note = read_note(f)
-
-        st.write(f"**{f.split('_',1)[1]}**")
-        if note:
-            st.caption(f"📝 {note}")
-
-        st.download_button(
-            "Download",
-            data,
-            file_name=f.split("_",1)[1],
-            key=f"dl{i}"
-        )
-        st.divider()
+    elif role == "Buyer":
+        st.subheader("Your Documents")
+        doc_dir = os.path.join(VAULT_BASE, "buyer_docs")
+        docs = [f for f in os.listdir(doc_dir) if user_id in f]
+        for i, d in enumerate(docs):
+            note = get_meta(d)
+            data = read_encrypted(os.path.join(doc_dir, d))
+            st.write(f"**{d.split('_', 2)[-1]}**")
+            if note:
+                st.caption(f"Note: {note}")
+            st.download_button("Download", data, file_name=d, key=f"dl_{i}")
+            st.markdown("---")
