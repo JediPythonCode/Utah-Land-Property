@@ -35,21 +35,53 @@ def initialize_system():
 
 fernet, USER_DB = initialize_system()
 
-# ── 2. BRANDING & STYLING ─────────────────────────────────────────────────────
+# ── 2. BRANDING & STYLING (FORCED LIGHT MODE) ──────────────────────────────────
 st.markdown("""
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Oswald:wght@500;700&display=swap');
-        .stApp { background-color: #ffffff !important; color: #1a1a1a !important; }
-        h1, h2, h3, h4, h5, h6, p, span, label, .stMarkdown {
-            color: #1a3c6d !important; font-family: 'Inter', sans-serif;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        
+        /* Force White Background on App and Sidebar */
+        .stApp, [data-testid="stSidebar"], [data-testid="stHeader"] {
+            background-color: #ffffff !important;
         }
-        [data-testid="stHeader"] { display: none !important; }
-        .stTabs [data-baseweb="tab-list"] { gap: 24px; }
+
+        /* Force Dark Navy Text for all standard elements */
+        h1, h2, h3, h4, h5, h6, p, label, .stMarkdown, [data-testid="stWidgetLabel"] p {
+            color: #0f172a !important; 
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Input Fields: Light background with Dark Text */
+        .stTextInput input, .stSelectbox div {
+            background-color: #f8fafc !important;
+            color: #0f172a !important;
+            border: 1px solid #cbd5e1 !important;
+        }
+
+        /* Metric Cards / Containers */
+        div[data-testid="stVerticalBlock"] > div[style*="border"] {
+            background-color: #f8fafc !important;
+            border: 1px solid #e2e8f0 !important;
+        }
+
+        /* Tabs Styling */
+        .stTabs [data-baseweb="tab-list"] {
+            gap: 10px;
+            background-color: #ffffff;
+        }
         .stTabs [data-baseweb="tab"] {
-            height: 50px; background-color: #f1f5f9; border-radius: 8px 8px 0 0;
-            padding: 10px 20px; font-weight: 600;
+            background-color: #f1f5f9;
+            border-radius: 4px;
+            color: #475569 !important;
+            padding: 8px 16px;
         }
-        .stTabs [aria-selected="true"] { background-color: #1a3c6d !important; color: white !important; }
+        .stTabs [aria-selected="true"] {
+            background-color: #1a3c6d !important;
+            color: #ffffff !important;
+        }
+        
+        /* Hide Streamlit default header for a cleaner POS look */
+        [data-testid="stHeader"] { visibility: hidden; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -105,7 +137,7 @@ if not st.session_state.authenticated:
     with col_mid:
         st.markdown("<br><br><br>", unsafe_allow_html=True)
         st.markdown("<h1 style='text-align:center;'>ULP DIGITAL VAULT</h1>", unsafe_allow_html=True)
-        st.markdown("<p style='text-align:center; color:#64748b;'>SECURE POINT-OF-SALE INTERFACE</p>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align:center; color:#475569;'>SECURE POINT-OF-SALE INTERFACE</p>", unsafe_allow_html=True)
         
         u_id_input = st.text_input("ACCESS ID", placeholder="Username").strip().lower()
         u_pwd_input = st.text_input("SECURITY KEY", type="password", placeholder="••••••••").strip()
@@ -125,7 +157,7 @@ else:
     role = st.session_state.user_role
     u_id = st.session_state.user_id
 
-    st.sidebar.markdown(f"**Operator:** {u_id.upper()}")
+    st.sidebar.markdown(f"### **Operator:** {u_id.upper()}")
     st.sidebar.markdown(f"**Role:** {role}")
     if st.sidebar.button("Terminal Logout"):
         st.session_state.authenticated = False
@@ -137,27 +169,18 @@ else:
 
         with t1:
             st.subheader("TotalExpert Pipeline Intelligence")
-            # Filter only buyers
             buyers = [u for u in USER_DB if USER_DB[u].get('role') == 'Buyer']
-            
             for buyer in buyers:
                 col1, col2, col3 = st.columns([1, 2, 1])
-                col1.write(f"**{buyer}**")
+                col1.markdown(f"**{buyer.upper()}**")
                 
-                # SAFE INDEX LOGIC
                 current_val = get_pipeline(buyer)
                 try:
                     current_idx = STAGES.index(current_val)
                 except ValueError:
-                    current_idx = 0 # Default to 'Application' if value in JSON is weird
+                    current_idx = 0
                 
-                stage = col2.selectbox(
-                    "Deal Stage", 
-                    STAGES, 
-                    key=f"pipe_{buyer}", 
-                    index=current_idx
-                )
-                
+                stage = col2.selectbox("Deal Stage", STAGES, key=f"pipe_{buyer}", index=current_idx)
                 if col3.button("Update", key=f"btn_{buyer}"):
                     update_pipeline(buyer, stage)
                     st.toast(f"Updated {buyer} to {stage}")
@@ -176,7 +199,7 @@ else:
         with t3:
             st.subheader("DocMagic eClose Status")
             inbox_path = os.path.join(VAULT_BASE, "admin_inbox")
-            buyer_uploads = os.listdir(inbox_path)
+            buyer_uploads = os.listdir(inbox_path) if os.path.exists(inbox_path) else []
             if buyer_uploads:
                 for b_file in buyer_uploads:
                     st.write(f"📩 **Incoming:** {b_file}")
@@ -184,7 +207,7 @@ else:
                     if raw_data:
                         st.download_button("Review Document", raw_data, file_name=b_file, key=f"dl_{b_file}")
             else:
-                st.write("No pending documents in SNapp Inbox.")
+                st.write("No pending documents.")
 
         with t4:
             if os.path.exists(AUDIT_FILE):
@@ -192,11 +215,9 @@ else:
 
     elif role == "Buyer":
         st.title("SNapp Home Portal")
-        
         current_stage = get_pipeline(u_id)
         st.markdown(f"### Current Deal Status: `{current_stage}`")
         
-        # Safe progress calculation
         try:
             prog_val = STAGES.index(current_stage) / (len(STAGES) - 1)
         except:
@@ -204,11 +225,10 @@ else:
         st.progress(prog_val)
 
         col_a, col_b = st.columns([2, 1])
-        
         with col_a:
             st.subheader("Secure Documents")
             doc_dir = os.path.join(VAULT_BASE, "buyer_docs")
-            user_docs = [f for f in os.listdir(doc_dir) if f.startswith(f"ENCR_{u_id}_")]
+            user_docs = [f for f in os.listdir(doc_dir) if f.startswith(f"ENCR_{u_id}_")] if os.path.exists(doc_dir) else []
             if user_docs:
                 for i, d in enumerate(user_docs):
                     clean_name = d.replace(f"ENCR_{u_id}_", "")
