@@ -5,11 +5,7 @@ import streamlit as st
 from PIL import Image
 
 # --- 1. CONFIG & REFRESH ---
-st.set_page_config(
-    page_title="Utah Land & Property", 
-    layout="wide", 
-    initial_sidebar_state="collapsed"
-)
+st.set_page_config(page_title="Utah Land & Property", layout="wide", initial_sidebar_state="collapsed")
 st_autorefresh(interval=10000, key="ulp_sync_ping")
 
 # --- 2. DATA PERSISTENCE ---
@@ -17,60 +13,39 @@ if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
     st.session_state.user_role = None
 
-# Initialize the Deal Dictionary with ALL keys to prevent Errors
 if "current_deal" not in st.session_state:
     st.session_state.current_deal = {
         "deal_id": "DEAL-PRIMARY",
         "address": "4646 S Quail Park Drive #C, Millcreek Utah 84117",
-        "seller_name": "John Doe",
-        "buyer_name": "Jane Smith",
-        "price": 330000.00,
-        "seller_equity": 20000.00,
+        "seller_name": "Douglas Stewart",
+        "buyer_name": "Ashley Adams",
+        "price": 455000.00,
+        "seller_equity": 40000.00,
         "assignment_fee": 15000.00,
         "instr_title": "Standard Title Search Required.", 
         "instr_escrow": "Hold Earnest Money in neutral account.", 
         "instr_servicer": "AITD Servicing setup through [Company Name].",
         "disclosures": ["Property sold As-Is."],
-        "vault": [], 
-        "images": []
+        "vault": [], "images": []
     }
 
-# Safety check for images key
-if "images" not in st.session_state.current_deal:
-    st.session_state.current_deal["images"] = []
-
-# --- 3. THE "DEEP CLEAN" & INSTITUTIONAL CSS ---
+# --- 3. CSS (DEEP CLEAN & INSTITUTIONAL) ---
 st.markdown("""
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Oswald:wght@500;700&display=swap');
-        
-        /* HIDE ALL STREAMLIT & GITHUB BRANDING */
-        #MainMenu {visibility: hidden;}
-        footer {visibility: hidden;}
-        header {visibility: hidden;}
-        .stDeployButton {display:none;}
-        [data-testid="stHeader"] {background: rgba(0,0,0,0);}
+        #MainMenu {visibility: hidden;} footer {visibility: hidden;} header {visibility: hidden;}
+        .stDeployButton {display:none;} [data-testid="stHeader"] {background: rgba(0,0,0,0);}
         .stApp { background-color: #ffffff !important; }
-
-        /* Branding & Blinking Indicator */
         .branding-container { text-align: center; margin-bottom: 20px; }
         .branding-text { color: #1d428a !important; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 18px; text-transform: uppercase; letter-spacing: 1.5px; display: inline-block; vertical-align: middle; }
         .blink-indicator { height: 12px; width: 12px; background-color: #00ff00; border-radius: 50%; display: inline-block; margin-right: 12px; vertical-align: middle; box-shadow: 0 0 10px #00ff00; animation: blink 1.2s infinite; }
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
-
-        /* Precision Login & Admin Inputs */
-        div.stButton > button { background-color: #1d428a !important; color: white !important; border: 2px solid #1d428a !important; border-radius: 4px !important; height: 56px !important; width: 100% !important; font-family: 'Oswald', sans-serif !important; font-weight: 700 !important; text-transform: uppercase !important; letter-spacing: 2px !important; }
+        div.stButton > button { background-color: #1d428a !important; color: white !important; border: 2px solid #1d428a !important; border-radius: 4px !important; height: 56px !important; width: 100% !important; font-family: 'Oswald', sans-serif !important; font-weight: 700 !important; text-transform: uppercase !important; }
         [data-testid="stTextInput"] input { height: 56px !important; background-color: #1d428a !important; border: 2px solid #1d428a !important; border-radius: 4px !important; text-align: center !important; font-size: 18px !important; font-weight: 700 !important; color: white !important; }
-        
-        /* Admin Terminal Styling */
         .admin-header-bar { background-color: #1d428a; color: white !important; padding: 16px; text-align: center; border-radius: 4px; font-family: 'Inter', sans-serif; font-weight: 900; font-size: 22px; text-transform: uppercase; margin-bottom: 30px; }
         .admin-label { font-family: 'Oswald', sans-serif !important; color: #1d428a !important; font-weight: 700 !important; text-transform: uppercase !important; font-size: 13px !important; margin-bottom: 8px; margin-top: 18px; display: block !important; }
-
-        /* Classy Buyer Dashboard Elements */
         .buyer-card { background: #f1f5f9; padding: 20px; border-left: 5px solid #1d428a; border-radius: 4px; margin-bottom: 10px; }
-        .buyer-label { font-family: 'Oswald', sans-serif; color: #1d428a; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+        .buyer-label { font-family: 'Oswald', sans-serif; color: #1d428a; font-size: 11px; text-transform: uppercase; }
         .buyer-value { font-family: 'Inter', sans-serif; color: #1d428a; font-size: 26px; font-weight: 900; }
-        
         .disclosure-item { background: #f1f5f9; color: #1d428a; padding: 12px; border-left: 5px solid #1d428a; margin-bottom: 8px; font-family: 'Inter', sans-serif; font-weight: 700; }
     </style>
 """, unsafe_allow_html=True)
@@ -91,7 +66,7 @@ if not st.session_state.authenticated:
                         st.session_state.user_role = str(profile["role"]).lower()
                         st.rerun()
                 st.error("ACCESS DENIED")
-            except: st.error("Configuration Missing")
+            except: st.error("Config Error")
     st.stop()
 
 # --- 5. DATA SYNC ---
@@ -127,19 +102,24 @@ if role == "admin":
         up_files = st.file_uploader("Upload", accept_multiple_files=True, type=['png', 'jpg', 'jpeg'], label_visibility="collapsed")
         if up_files: D["images"] = [Image.open(x) for x in up_files]
 
+        st.markdown('<span class="admin-label">Title / Escrow / Servicing Instructions</span>', unsafe_allow_html=True)
+        i1, i2, i3 = st.columns(3)
+        a_title = i1.text_area("Title", value=D["instr_title"], label_visibility="collapsed")
+        a_escrow = i2.text_area("Escrow", value=D["instr_escrow"], label_visibility="collapsed")
+        a_servicer = i3.text_area("Servicer", value=D["instr_servicer"], label_visibility="collapsed")
+
         st.markdown('<span class="admin-label">Buyer Disclosures</span>', unsafe_allow_html=True)
         updated_discs = []
         for i, d in enumerate(D["disclosures"]):
             updated_discs.append(st.text_input(f"D{i}", value=d, key=f"d_adm_{i}", label_visibility="collapsed"))
         if st.button("Add Disclosure Line +"):
-            D["disclosures"].append("")
-            st.rerun()
+            D["disclosures"].append(""); st.rerun()
 
         if st.button("UPDATE MASTER DASHBOARD"):
-            D.update({"address": a_addr, "deal_id": a_id, "seller_name": a_seller, "buyer_name": a_buyer, "price": a_price, "seller_equity": a_equity, "assignment_fee": a_fee, "disclosures": updated_discs})
+            D.update({"address": a_addr, "deal_id": a_id, "seller_name": a_seller, "buyer_name": a_buyer, "price": a_price, "seller_equity": a_equity, "assignment_fee": a_fee, "instr_title": a_title, "instr_escrow": a_escrow, "instr_servicer": a_servicer, "disclosures": updated_discs})
             st.rerun()
 
-# --- 7. BUYER PERSPECTIVE & DASHBOARD ---
+# --- 7. DASHBOARD & SETTLEMENT VAULT ---
 st.markdown("---")
 st.markdown(f'<div style="font-family:Inter; font-size:36px; font-weight:900; color:#1d428a; text-transform:uppercase;">{D["address"]}</div>', unsafe_allow_html=True)
 
@@ -164,7 +144,42 @@ with col_docs:
         st.markdown('<div style="font-family:Oswald; font-size:14px; color:#1d428a; font-weight:700;">SETTLEMENT VAULT</div>', unsafe_allow_html=True)
         if role == "admin" and st.button("📄 GENERATE MASTER DEAL SHEET"):
             d_list = "\n".join([f"- {x}" for x in D["disclosures"] if x])
-            report = f"UTAH LAND & PROPERTY\nADDRESS: {D['address']}\nSELLER: {D['seller_name']}\nBUYER: {D['buyer_name']}\nPRICE: ${D['price']:,.2f}\nAITD: ${AITD_BAL:,.2f}\n------------------\nDISCLOSURES:\n{d_list}"
+            report = f"""UTAH LAND & PROPERTY: MASTER SETTLEMENT SHEET
+--------------------------------------------------
+DATE: {datetime.now().strftime('%Y-%m-%d %H:%M')}
+DEAL ID: {D['deal_id']}
+ADDRESS: {D['address']}
+
+PARTIES:
+SELLER: {D['seller_name']}
+BUYER:  {D['buyer_name']}
+
+FINANCIAL STRUCTURE:
+CONTRACT PRICE:   ${D['price']:,.2f}
+SELLER EQUITY:    ${D['seller_equity']:,.2f}
+ASSIGNMENT FEE:   ${D['assignment_fee']:,.2f}
+--------------------------------------------------
+AITD PRINCIPAL:   ${AITD_BAL:,.2f}
+--------------------------------------------------
+
+INSTRUCTIONS:
+TITLE:    {D['instr_title']}
+ESCROW:   {D['instr_escrow']}
+SERVICER: {D['instr_servicer']}
+
+DISCLOSURES:
+{d_list}
+
+--------------------------------------------------
+SIGNATURES:
+
+X_________________________________
+BUYER: {D['buyer_name']}
+
+X_________________________________
+SELLER: {D['seller_name']}
+
+DOCUMENT PREPARED BY UTAH LAND & PROPERTY, LLC."""
             D["vault"].append({"name": f"Deal_{D['deal_id']}_{datetime.now().strftime('%H%M')}.txt", "content": report})
             st.rerun()
         for doc in D["vault"]:
@@ -174,5 +189,4 @@ with col_docs:
             v2.markdown(f'<a href="data:file/txt;base64,{b64}" download="{doc["name"]}" style="color:#1d428a; font-weight:900; font-size:12px; text-decoration:underline;">PRINT</a>', unsafe_allow_html=True)
 
 if st.sidebar.button("TERMINATE SESSION"):
-    st.session_state.authenticated = False
-    st.rerun()
+    st.session_state.authenticated = False; st.rerun()
