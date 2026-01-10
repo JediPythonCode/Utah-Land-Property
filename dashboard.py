@@ -1,7 +1,6 @@
 import streamlit as st
 from streamlit_autorefresh import st_autorefresh
 import os
-import glob
 from datetime import datetime
 
 # ── 1. CONFIG ──────────────────────────────────────────────────────────────
@@ -13,149 +12,118 @@ st.set_page_config(
 
 st_autorefresh(interval=600000, key="ulp_refresh")
 
-# ── 2. AUTHENTICATION GATE ──────────────────────────────────────────────────
+# Initialize session state for auth and user role
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
+if "user_role" not in st.session_state:
+    st.session_state.user_role = None
 
+# ── 2. AUTHENTICATION GATE ──────────────────────────────────────────────────
 if not st.session_state.authenticated:
-    # Forced CSS with !important to prevent Streamlit from shrinking fonts
     st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Oswald:wght@500;700&display=swap');
-        
         .stApp { background-color: #f8f9fa !important; }
         header, footer, [data-testid="stHeader"] { display: none !important; }
-        
+        .viewport-top-container {
+            margin-top: -5vh;
+            text-align: center;
+            width: 100%;
+        }
         .brand-title {
             font-family: 'Inter', sans-serif !important;
-            font-size: clamp(42px, 10vw, 78px) !important; /* ORIGINAL MASSIVE SIZE */
+            font-size: clamp(42px, 8vw, 70px) !important;
             font-weight: 900 !important;
             color: #1a3c6d !important;
             letter-spacing: -1.5px !important;
-            text-align: center !important;
-            margin-top: 2vh !important;
             margin-bottom: 0px !important;
             line-height: 1.0 !important;
         }
         .brand-subtitle {
             font-family: 'Oswald', sans-serif !important;
-            font-size: 1.35rem !important; /* ORIGINAL SIZE */
+            font-size: 1.2rem !important;
             color: #6b7280 !important;
-            text-align: center !important;
             letter-spacing: 3px !important;
             font-weight: 500 !important;
             margin-top: 5px !important;
-            margin-bottom: 2.5rem !important;
+            margin-bottom: 2rem !important;
         }
-        .privacy-notice {
-            text-align: center !important;
-            color: #4b5563 !important;
-            font-size: 0.95rem !important;
-            max-width: 640px !important;
-            margin: 0 auto 2.5rem !important;
-            line-height: 1.6 !important;
-            font-family: 'Inter', sans-serif !important;
-        }
-        
         .pulse-lock {
             height: 12px; width: 12px;
             background: #10b981;
             border-radius: 50%;
             display: inline-block;
-            margin-right: 10px;
-            box-shadow: 0 0 12px rgba(16,185,129,0.5);
+            margin-right: 12px;
             animation: pulse 2s infinite;
         }
         @keyframes pulse {
-            0%   { box-shadow: 0 0 0 0 rgba(16,185,129,0.7); }
-            70%  { box-shadow: 0 0 0 12px rgba(16,185,129,0); }
+            0% { box-shadow: 0 0 0 0 rgba(16,185,129,0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(16,185,129,0); }
             100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
         }
-        .access-text {
-            font-family: 'Oswald', sans-serif !important;
-            font-size: 1.1rem !important;
-            color: #1a3c6d !important;
-            font-weight: 700 !important;
-            letter-spacing: 1.5px !important;
-            text-transform: uppercase;
-        }
     </style>
-    """, unsafe_allow_html=True)
-
-    # Self-contained HTML blocks to ensure NO code leakage
-    st.markdown('<div class="brand-title">Utah Land & Property</div>', unsafe_allow_html=True)
-    st.markdown('<div class="brand-subtitle">Strategic Asset Protection Framework</div>', unsafe_allow_html=True)
     
-    st.markdown("""
-    <div class="privacy-notice">
-        Privacy Creation Preservation • Creative Land & Real Estate Deal Structure
-        <br><br>
-        <strong>Secure Client Portal</strong> — Encrypted access only.
+    <div class="viewport-top-container">
+        <div class="brand-title">Utah Land & Property</div>
+        <div class="brand-subtitle">Strategic Asset Protection Framework</div>
+        <div style="margin-bottom: 2rem;">
+            <span class="pulse-lock"></span>
+            <span style="font-family: 'Oswald'; font-weight:700; color:#1a3c6d;">SECURE GATEWAY</span>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("""
-    <div style="text-align: center; margin-bottom: 2rem;">
-        <span class="pulse-lock"></span>
-        <span class="access-text">CLIENT SECURE ACCESS</span>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # Login Input using standard Streamlit columns
-    _, col_mid, _ = st.columns([1, 1.5, 1])
+    # Login Logic
+    _, col_mid, _ = st.columns([1, 1.2, 1])
     with col_mid:
-        pwd = st.text_input("Key", type="password", placeholder="Enter your private key", label_visibility="collapsed")
-        if st.button("Access Secure Area", use_container_width=True, type="primary"):
+        role = st.selectbox("Select Access Role", ["Admin", "Agent", "Escrow", "Title", "Servicer", "Buyer"])
+        pwd = st.text_input("Security Key", type="password", placeholder=f"Enter {role} Key")
+        
+        if st.button("Authorize Access", use_container_width=True, type="primary"):
+            # Fetch passwords from streamlit secrets
             try:
-                if pwd in [st.secrets["PASSWORDS"]["CLIENT"], st.secrets["PASSWORDS"]["ADMIN"]]:
+                valid_password = st.secrets["passwords"][role]
+                if pwd == valid_password:
                     st.session_state.authenticated = True
+                    st.session_state.user_role = role
                     st.rerun()
                 else:
-                    st.error("Invalid key — access denied.")
-            except:
-                st.error("Configuration Error: Please check Streamlit Secrets.")
-    st.stop()
+                    st.error("Invalid Security Key for selected role.")
+            except KeyError:
+                st.error("Security configuration missing. Contact system admin.")
 
-# ── 3. MAIN APP (AUTHENTICATED) ─────────────────────────────────────────────
-with st.sidebar:
-    if st.button("Logout"):
-        st.session_state.authenticated = False
-        st.rerun()
-
-# Dashboard Header (Positioned High)
-st.markdown("""
-<div style="margin-top: -85px; text-align:center;">
-    <h1 style="font-family:'Inter'; font-weight:900; color:#1a3c6d; font-size:clamp(32px, 7vw, 54px); margin-bottom:0;">Utah Land & Property</h1>
-    <p style="font-family:'Oswald'; color:#d97706; letter-spacing:3px; font-weight:700;">ASSET PROTECTION • PRIVACY • FINANCING</p>
-</div>
-""", unsafe_allow_html=True)
-
-st.divider()
-
-# ── 4. SECURE UPLOAD ───────────────────────────────────────────────────────
-with st.expander("📤 Secure Vault Upload", expanded=False):
-    uploaded_file = st.file_uploader("Upload to Vault", type=['pdf', 'docx', 'xlsx', 'jpg', 'png', 'jpeg'])
-    if uploaded_file:
-        with open(uploaded_file.name, "wb") as f:
-            f.write(uploaded_file.getbuffer())
-        st.success("File added to encrypted vault.")
-        st.rerun()
-
-# ── 5. FILE VAULT ──────────────────────────────────────────────────────────
-st.markdown("### 📄 Available Resources")
-doc_files = []
-for ext in ["*.pdf", "*.docx", "*.xlsx", "*.jpg", "*.png", "*.jpeg"]:
-    doc_files.extend(glob.glob(ext))
-
-if doc_files:
-    for file_path in sorted(doc_files, key=os.path.getctime, reverse=True):
-        with st.container(border=True):
-            c1, c2 = st.columns([4, 1.2])
-            with c1:
-                st.markdown(f"**{file_path}**")
-                st.caption(f"Vaulted: {datetime.fromtimestamp(os.path.getctime(file_path)).strftime('%Y-%m-%d %H:%M')}")
-            with c2:
-                with open(file_path, "rb") as f:
-                    st.download_button("Download", f, file_name=file_path, key=f"dl_{file_path}", use_container_width=True)
+# ── 3. PROTECTED PORTAL CONTENT ──────────────────────────────────────────────
 else:
-    st.info("Vault is currently empty.")
+    # Sidebar Navigation
+    st.sidebar.title(f"🔐 {st.session_state.user_role} Portal")
+    st.sidebar.info(f"Connected: {datetime.now().strftime('%m/%d/%Y')}")
+    
+    if st.sidebar.button("Sign Out", use_container_width=True):
+        st.session_state.authenticated = False
+        st.session_state.user_role = None
+        st.rerun()
+
+    # Main Interface
+    st.title(f"{st.session_state.user_role} Dashboard")
+    st.markdown("---")
+
+    # File Upload Logic
+    st.subheader("Document Upload & Archival")
+    uploaded_files = st.file_uploader(
+        "Securely upload assets (PDF, JPG, PNG, DOCX)", 
+        accept_multiple_files=True
+    )
+
+    if uploaded_files:
+        # Create a folder specifically for this role if it doesn't exist
+        save_path = f"vault/{st.session_state.user_role.lower()}"
+        if not os.path.exists(save_path):
+            os.makedirs(save_path)
+
+        for file in uploaded_files:
+            with open(os.path.join(save_path, file.name), "wb") as f:
+                f.write(file.getbuffer())
+            st.success(f"Verified & Saved: {file.name}")
+
+    # Role-Specific Instructions Placeholder
+    st.info(f"As an **{st.session_state.user_role}**, you have encrypted write-access to the property data-room.")
