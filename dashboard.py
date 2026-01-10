@@ -4,14 +4,13 @@ import os
 import glob
 from datetime import datetime
 
-# ── 1. CONFIG & AUTO-REFRESH ───────────────────────────────────────────────
+# ── 1. CONFIG & REFRESH ────────────────────────────────────────────────────
 st.set_page_config(
     page_title="Utah Land & Property",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# Gentle refresh (every 10 min)
 st_autorefresh(interval=600000, key="ulp_refresh")
 
 # ── 2. AUTHENTICATION GATE ──────────────────────────────────────────────────
@@ -19,34 +18,63 @@ if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 
 if not st.session_state.authenticated:
-    # --- YOUR LOCK SCREEN CSS/HTML ---
     st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Oswald:wght@500;700&display=swap');
+        
+        /* SHIFT CONTENT UP 35% */
         .stApp { background-color: #f8f9fa !important; }
         header, footer, [data-testid="stHeader"] { display: none !important; }
-        .brand-title { font-family: 'Inter', sans-serif; font-size: clamp(42px, 10vw, 78px); font-weight: 900; color: #1a3c6d; letter-spacing: -1.5px; text-align: center; margin: 0.4em 0 0.1em; }
-        .brand-subtitle { font-family: 'Oswald', sans-serif; font-size: 1.35rem; color: #6b7280; text-align: center; letter-spacing: 3px; font-weight: 500; margin-bottom: 2.5rem; }
-        .privacy-notice { text-align: center; color: #4b5563; font-size: 0.95rem; max-width: 640px; margin: 0 auto 2.5rem; line-height: 1.6; }
-        .lock-container { max-width: 480px; margin: 0 auto; padding: 2.5rem 1.5rem; background: white; border-radius: 12px; box-shadow: 0 10px 35px rgba(0,0,0,0.08); border: 1px solid #e5e7eb; }
-        .pulse-lock { height: 12px; width: 12px; background: #10b981; border-radius: 50%; display: inline-block; margin-right: 10px; box-shadow: 0 0 12px rgba(16,185,129,0.5); animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(16,185,129,0.7); } 70% { box-shadow: 0 0 0 12px rgba(16,185,129,0); } 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); } }
+        
+        .main-container {
+            margin-top: -8vh; /* Pulls everything toward the top */
+            text-align: center;
+        }
+
+        .brand-title {
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(42px, 10vw, 78px);
+            font-weight: 900;
+            color: #1a3c6d;
+            letter-spacing: -1.5px;
+            margin-bottom: 0;
+        }
+        .brand-subtitle {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.35rem;
+            color: #6b7280;
+            letter-spacing: 3px;
+            font-weight: 500;
+            margin-bottom: 2rem;
+        }
+        
+        /* CLIENT SECURE ACCESS - NO BOX, 30% LARGER */
+        .access-text {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.75rem; /* Increased size */
+            color: #1a3c6d;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .input-wrapper {
+            max-width: 400px;
+            margin: 0 auto;
+        }
     </style>
-    <div style="padding: 12vh 5% 4vh;">
+    
+    <div class="main-container">
         <div class="brand-title">Utah Land & Property</div>
         <div class="brand-subtitle">Strategic Asset Framework</div>
-        <div class="privacy-notice">
-            Asset Protection • Privacy Preservation • Creative Land Financing Solutions<br><br>
-            <strong>Secure Client Portal</strong> — Encrypted access only.
-        </div>
-        <div class="lock-container">
-            <div style="text-align:center; margin-bottom:1.8rem;">
-                <span class="pulse-lock"></span>
-                <span style="font-family:Oswald; color:#1a3c6d; font-weight:700; letter-spacing:1.5px;">CLIENT SECURE ACCESS</span>
-            </div>
+        
+        <span class="access-text">CLIENT SECURE ACCESS</span>
+        
+        <div class="input-wrapper">
     """, unsafe_allow_html=True)
 
-    pwd = st.text_input("Access Key", type="password", placeholder="Enter private key", label_visibility="collapsed")
+    pwd = st.text_input("Access Key", type="password", placeholder="Enter your private key", label_visibility="collapsed")
 
     if st.button("Access Secure Area", use_container_width=True, type="primary"):
         passwords = st.secrets.get("PASSWORDS", {})
@@ -55,14 +83,59 @@ if not st.session_state.authenticated:
             st.rerun()
         else:
             st.error("Invalid key — access denied.")
+
     st.markdown("</div></div>", unsafe_allow_html=True)
     st.stop()
 
-# ── LOGOUT BUTTON (Optional) ────────────────────────────────────────────────
+# ── 3. MAIN APP (AUTHENTICATED) ─────────────────────────────────────────────
 with st.sidebar:
+    st.title("System Control")
     if st.button("Logout"):
         st.session_state.authenticated = False
         st.rerun()
 
-# ── 3. MAIN APP — AUTHENTICATED ─────────────────────────────────────────────
-# (Continue with the rest of your UI code here...)
+# Dashboard Header (Shifted Up)
+st.markdown("""
+<div style="margin-top: -70px; text-align:center;">
+    <h1 style="font-family:'Inter'; font-weight:900; color:#1a3c6d; font-size:3.5rem; margin-bottom:0;">Utah Land & Property</h1>
+    <p style="font-family:'Oswald'; color:#d97706; letter-spacing:4px; font-weight:700;">ASSET PROTECTION • PRIVACY • CREATIVE FINANCING</p>
+</div>
+""", unsafe_allow_html=True)
+
+st.divider()
+
+# ── 4. SECURE FILE UPLOAD ──────────────────────────────────────────────────
+st.markdown("### 📁 Vault Management")
+col_up1, col_up2 = st.columns([2, 1])
+
+with col_up1:
+    uploaded_file = st.file_uploader("Upload legal or property documents to the secure vault", type=['pdf', 'docx', 'xlsx', 'png', 'jpg'])
+    if uploaded_file is not None:
+        with open(uploaded_file.name, "wb") as f:
+            f.write(uploaded_file.getbuffer())
+        st.success(f"File '{uploaded_file.name}' successfully encrypted and vaulted.")
+        st.rerun()
+
+# ── 5. DOCUMENT LISTING ────────────────────────────────────────────────────
+st.markdown("### 📄 Available Resources")
+doc_files = glob.glob("*.pdf") + glob.glob("*.docx") + glob.glob("*.xlsx")
+
+if doc_files:
+    for file_path in sorted(doc_files, key=os.path.getctime, reverse=True):
+        with st.container(border=True):
+            c1, c2 = st.columns([4, 1])
+            with c1:
+                st.markdown(f"**{file_path}**")
+                st.caption(f"Vaulted on: {datetime.fromtimestamp(os.path.getctime(file_path)).strftime('%Y-%m-%d %H:%M')}")
+            with c2:
+                with open(file_path, "rb") as f:
+                    st.download_button("Download", f, file_name=file_path, key=f"dl_{file_path}", use_container_width=True)
+else:
+    st.info("The secure vault is currently empty. Use the uploader above to add documents.")
+
+# Footer
+st.markdown(f"""
+<div style="text-align:center; color:#64748b; font-size:0.85rem; margin-top:5rem;">
+    © 2026 Utah Land & Property • Secure Client Portal • {datetime.now().year}
+</div>
+""", unsafe_allow_html=True)
