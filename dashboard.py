@@ -7,7 +7,7 @@ from streamlit_autorefresh import st_autorefresh
 st.set_page_config(page_title="Utah Land & Property", layout="wide", initial_sidebar_state="collapsed")
 st_autorefresh(interval=10000, key="ulp_sync_ping")
 
-# --- 2. AUTHENTICATION GATE & MULTI-USER LOGIC ---
+# --- 2. AUTHENTICATION GATE & STYLING ---
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
     st.session_state.user_role = None
@@ -43,7 +43,12 @@ if not st.session_state.authenticated:
         @keyframes pulse-green {{ 0% {{ box-shadow: 0 0 0px 0px rgba(0, 255, 65, 0.7); }} 70% {{ box-shadow: 0 0 0px 10px rgba(0, 255, 65, 0); }} 100% {{ box-shadow: 0 0 0px 0px rgba(0, 255, 65, 0); }} }}
         .sync-label {{ font-family: "Oswald", sans-serif; font-size: 15px; color: #1d428a; letter-spacing: 2px; font-weight: bold; }}
 
-        /* BUTTON HOVER: BLUE TO WHITE FLIP */
+        /* EXACT BUTTON HOVER & CENTERING */
+        div.stButton {{
+            display: flex;
+            justify-content: center;
+        }}
+        
         div.stButton > button {{
             background-color: #1d428a !important;
             color: #FFFFFF !important;
@@ -51,11 +56,13 @@ if not st.session_state.authenticated:
             font-weight: 700 !important;
             text-transform: uppercase !important;
             letter-spacing: 2px !important;
-            padding: 18px !important;
+            padding: 18px 40px !important;
             border: 2px solid #1d428a !important;
             transition: all 0.3s ease-in-out !important;
-            width: 100% !important;
+            margin: 0 auto !important;
+            display: block !important;
         }}
+        
         div.stButton > button:hover {{
             background-color: #FFFFFF !important;
             color: #1d428a !important;
@@ -66,7 +73,7 @@ if not st.session_state.authenticated:
     <div style="padding: 10vh 5% 0 5%; text-align: center;">
         <div class="ulp-auth-title">Utah Land & Property</div>
         <div class="logo-container">{icon_stack}</div>
-        <div class="sync-box"><span class="pulse-dot"></span><span class="sync-label">WEALTH PRESERVATION TERMINAL</span></div>
+        <div class="sync-box"><span class="pulse-dot"></span><span class="sync-label">Maximum privacy. Maximum protection. Strategic land ownership in Utah.</span></div>
     </div>
     ''', unsafe_allow_html=True)
 
@@ -74,13 +81,13 @@ if not st.session_state.authenticated:
     with col_mid:
         with st.container(border=True):
             input_key = st.text_input("Security Key", type="password", placeholder="ENTER PRIVATE ACCESS KEY", label_visibility="collapsed")
-            if st.button("Access Secure Transaction Terminal"):
-                found_user = False
+            # The button is now CSS-centered within this container
+            if st.button(" Secure Access Terminal"):
                 try:
-                    # Iterate through the [users] table in secrets
                     user_db = st.secrets["users"]
+                    found_user = False
                     for username, profile in user_db.items():
-                        if input_key == profile["key"]:
+                        if input_key == str(profile["key"]):
                             st.session_state.authenticated = True
                             st.session_state.user_role = profile["role"]
                             found_user = True
@@ -106,7 +113,7 @@ st.markdown("""
 
 # --- 4. DASHBOARD CONTENT ---
 role = st.session_state.user_role
-st.markdown(f'''<div style="text-align: center;"><h1 class="ulp-header">Utah Land & Property</h1><div style="font-family: 'Oswald'; color: #1d428a;">TERMINAL ACCESS: {role} LEVEL</div></div>''', unsafe_allow_html=True)
+st.markdown(f'''<div style="text-align: center;"><h1 class="ulp-header">Utah Land & Property</h1><div style="font-family: 'Oswald'; color: #1d428a; letter-spacing: 2px;">TERMINAL ACCESS: {role} LEVEL</div></div>''', unsafe_allow_html=True)
 
 st.markdown("""<div style="text-align:center; padding: 40px 0;"><h1 class="intel-header">Asset Intelligence</h1></div>""", unsafe_allow_html=True)
 
@@ -127,6 +134,6 @@ with col1:
     ''', unsafe_allow_html=True)
 
 # --- 5. LOGOUT ---
-if st.sidebar.button("Terminiate Session"):
+if st.sidebar.button("Terminate Session"):
     st.session_state.authenticated = False
     st.rerun()
