@@ -31,14 +31,15 @@ if not st.session_state.authenticated:
         .stApp { background-color: #f8f9fa !important; }
         header, footer, [data-testid="stHeader"] { display: none !important; }
         
-        /* Centering the login container and adjusting vertical balance */
+        /* Adjusting vertical position: pulled up significantly */
         .viewport-top-container { 
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 60vh; /* Reduced from 80vh to pull the bottom up */
-            padding-top: 10%; /* Brings the top text up by roughly 20% */
+            min-height: 30vh; /* Reduced to pull the floor up */
+            padding-top: 5%; 
+            padding-bottom: 250px; /* Large bottom buffer to push content UP */
             text-align: center; 
             width: 100%; 
             padding-left: 20px;
@@ -53,7 +54,7 @@ if not st.session_state.authenticated:
         .access-text { font-family: 'Oswald', sans-serif !important; font-size: 0.9rem !important; color: #1a3c6d !important; font-weight: 700 !important; letter-spacing: 2px !important; vertical-align: middle; }
         
         /* Mobile adjustment */
-        @media (max-width: 600px) { .viewport-top-container { min-height: 50vh; padding-top: 5%; } }
+        @media (max-width: 600px) { .viewport-top-container { min-height: 20vh; padding-bottom: 100px; } }
     </style>
     """, unsafe_allow_html=True)
 
