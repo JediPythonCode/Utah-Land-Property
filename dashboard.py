@@ -13,7 +13,7 @@ if "authenticated" not in st.session_state:
     st.session_state.user_role = None
 
 if not st.session_state.authenticated:
-    pillars = ["🛡️", "⚖️", "🔒", "🏔️", "💼", "📜"]
+    pillars = ["🛡️", "⚖️", "🔒", "💼", "📜"]
     icon_stack = "".join([f'<div class="flip-logo" style="animation-delay: {i * 3}s; font-size: 80px;">{p}</div>' for i, p in enumerate(pillars)])
 
     st.markdown(f'''
