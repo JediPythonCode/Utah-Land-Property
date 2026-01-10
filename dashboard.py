@@ -15,7 +15,6 @@ st.set_page_config(
 
 st_autorefresh(interval=600000, key="ulp_refresh")
 
-# Initialize Encryption logic
 if "secret_key" not in st.secrets:
     ENCR_KEY = b'6_Wb7R-5N5_W_h_Z9F-4Qp3o9-G7_X_z1H-8I_w_9k0=' 
 else:
@@ -23,28 +22,50 @@ else:
 
 fernet = Fernet(ENCR_KEY)
 
-# ── 2. BRANDING & STYLING (GLOBAL - FORCED DARK TEXT) ───────────────────────
+# ── 2. BRANDING & STYLING (HIGH CONTRAST / NO DARK BG) ──────────────────────
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Oswald:wght@500;700&display=swap');
         
-        /* Force background and global text color */
+        /* 1. Global Reset to Light Mode */
         .stApp { 
-            background-color: #f8f9fa !important; 
+            background-color: #ffffff !important; 
             color: #1a1a1a !important; 
         }
         
-        /* Force all headers to Black */
-        h1, h2, h3, h4, p, span, label, .stMarkdown {
-            color: #1a1a1a !important;
+        /* 2. Force Headers and Labels to Dark Blue/Black */
+        h1, h2, h3, h4, h5, h6, p, span, label, .stMarkdown {
+            color: #1a3c6d !important;
             font-family: 'Inter', sans-serif;
+            font-weight: 600;
         }
 
+        /* 3. Input Fields & File Uploader: Light BG with Dark Text */
+        input, textarea, [data-baseweb="select"] {
+            background-color: #f9fafb !important;
+            color: #1a1a1a !important;
+            border: 1px solid #d1d5db !important;
+        }
+
+        /* Target the File Uploader specifically */
+        [data-testid="stFileUploader"] {
+            background-color: #f3f4f6 !important;
+            border: 2px dashed #1a3c6d !important;
+            border-radius: 10px;
+            padding: 10px;
+        }
+        
+        /* Fix the "Drag and Drop" text visibility */
+        [data-testid="stFileUploader"] section {
+            color: #1a1a1a !important;
+        }
+
+        /* 4. Branding Elements */
         header, footer, [data-testid="stHeader"] { display: none !important; }
         
         .viewport-top-container { 
             display: flex; flex-direction: column; justify-content: center; 
-            align-items: center; min-height: 40vh; padding-top: 50px; 
+            align-items: center; min-height: 35vh; padding-top: 40px; 
             text-align: center; width: 100%; 
         }
         
@@ -55,8 +76,8 @@ st.markdown("""
         }
         
         .brand-subtitle { 
-            font-family: 'Oswald', sans-serif !important; font-size: clamp(1rem, 3vw, 1.35rem) !important; 
-            color: #4b5563 !important; letter-spacing: 3px !important; font-weight: 500 !important; 
+            font-family: 'Oswald', sans-serif !important; font-size: 1.25rem !important; 
+            color: #6b7280 !important; letter-spacing: 3px !important; font-weight: 500 !important; 
             margin-top: 10px !important; margin-bottom: 1.5rem !important; 
         }
 
@@ -72,23 +93,17 @@ st.markdown("""
             100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); } 
         }
         
-        /* Card Styling for Activity Feed */
-        .recent-file-card { 
-            background: #ffffff; padding: 15px; border-radius: 12px; 
-            border: 1px solid #d1d5db; margin-bottom: 12px; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: left;
-            color: #1a1a1a !important;
+        /* Tab Navigation Labels */
+        button[data-baseweb="tab"] p {
+            color: #1a3c6d !important;
+            font-size: 1rem !important;
         }
 
-        /* Fix visibility of Tab labels */
-        button[data-baseweb="tab"] p {
-            color: #1a1a1a !important;
-            font-weight: 600 !important;
-        }
-        
-        /* Fix Input Text Color */
-        input {
-            color: #1a1a1a !important;
+        /* Cards in Activity Feed */
+        .recent-file-card { 
+            background: #ffffff; padding: 15px; border-radius: 10px; 
+            border: 1px solid #e5e7eb; margin-bottom: 10px; 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
         }
     </style>
 """, unsafe_allow_html=True)
@@ -115,7 +130,7 @@ def read_encrypted(file_path):
 def load_disclosure():
     if os.path.exists(DISCLOSURE_FILE):
         with open(DISCLOSURE_FILE, "r") as f: return f.read()
-    return "Standard Disclosure: Secure Underwriting in Progress."
+    return "Standard Disclosure: All deals subject to underwriting."
 
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
@@ -126,14 +141,17 @@ if not st.session_state.authenticated:
         <div class="viewport-top-container">
             <div class="brand-title">Utah Land & Property</div>
             <div class="brand-subtitle">Strategic Asset Protection Framework</div>
-            <div style="margin-bottom: 2rem;"><span class="pulse-lock"></span><span class="access-text" style="color:#1a3c6d;">SECURE CLIENT PORTAL ENCRYPTED ACCESS ONLY</span></div>
+            <div style="margin-bottom: 2rem;">
+                <span class="pulse-lock"></span>
+                <span class="access-text" style="color:#1a3c6d; font-family:'Oswald'; letter-spacing:2px;">SECURE CLIENT PORTAL ENCRYPTED ACCESS ONLY</span>
+            </div>
         </div>
     """, unsafe_allow_html=True)
     
     _, col_mid, _ = st.columns([1, 1.6, 1])
     with col_mid:
-        u_id = st.text_input("User ID", placeholder="Username", label_visibility="collapsed")
-        u_pwd = st.text_input("Key", type="password", placeholder="Access Key", label_visibility="collapsed")
+        u_id = st.text_input("User ID", placeholder="Enter Username", label_visibility="collapsed")
+        u_pwd = st.text_input("Key", type="password", placeholder="Enter Access Key", label_visibility="collapsed")
         if st.button("Access Portal", use_container_width=True, type="primary"):
             users = st.secrets.get("users", {})
             if u_id in users and str(users[u_id]["key"]) == u_pwd:
@@ -150,15 +168,14 @@ else:
     user_id = st.session_state.user_id
 
     st.title(f"{role} Portal")
-    st.warning(f"🔔 **Deal Structure:** {load_disclosure()}")
+    st.warning(f"🔔 **Deal Structure Disclosure:** {load_disclosure()}")
     
-    # Logout in sidebar for clean UI
     if st.sidebar.button("Secure Logout"):
         st.session_state.authenticated = False
         st.rerun()
 
     # --- SHARED ACTIVITY VIEW ---
-    st.subheader("Latest Activity")
+    st.subheader("Global Activity Feed")
     all_files = []
     for root, dirs, files in os.walk("vault"):
         for f in files:
@@ -173,8 +190,8 @@ else:
             dt = datetime.fromtimestamp(ftime).strftime('%Y-%m-%d %H:%M')
             feed_cols[i].markdown(f'''
                 <div class="recent-file-card">
-                    <strong>{fname[:22]}...</strong><br>
-                    <small style="color:#4b5563;">{ftype.title()} | {dt}</small>
+                    <strong style="color:#1a3c6d;">{fname[:22]}...</strong><br>
+                    <small style="color:#6b7280;">{ftype.title()} | {dt}</small>
                 </div>
             ''', unsafe_allow_html=True)
 
@@ -185,27 +202,27 @@ else:
         t1, t2, t3 = st.tabs(["Push Disclosure", "Assign Files", "System Audit"])
         
         with t1:
-            st.write("### Update Deal Structure Text")
+            st.markdown("### Update Global Disclosure")
             new_disc = st.text_area("Disclosure Content", value=load_disclosure(), height=150)
-            if st.button("Update Everyone"):
+            if st.button("Update Portal Feed"):
                 with open(DISCLOSURE_FILE, "w") as f: f.write(new_disc)
                 st.success("Disclosure updated.")
                 st.rerun()
 
         with t2:
-            st.write("### Encrypt & Assign Files")
-            target = st.text_input("Target User ID (Must match exactly)")
+            st.markdown("### Encrypt & Assign Files")
+            target = st.text_input("Target User ID (e.g., buyer_smith)")
             up_files = st.file_uploader("Upload Docs for Buyer", accept_multiple_files=True)
-            if st.button("Secure & Assign") and up_files and target:
+            if st.button("Secure & Assign Document") and up_files and target:
                 for f in up_files:
                     save_encrypted(os.path.join("vault/buyer_docs", f"ENCR_{target}_{f.name}"), f.getbuffer())
-                st.success(f"Files assigned to {target}")
+                st.success(f"Files encrypted and assigned to {target}")
                 logger(user_id, "Admin Upload", f"To: {target}")
 
         with t3:
-            st.write("### Security Log")
+            st.markdown("### Access Log")
             if os.path.exists(AUDIT_FILE):
-                st.table(pd.read_csv(AUDIT_FILE).tail(15))
+                st.dataframe(pd.read_csv(AUDIT_FILE).tail(15), use_container_width=True)
 
     elif role == "Buyer":
         with st.expander("📊 Financial Underwriting Pre-Screen", expanded=True):
@@ -213,17 +230,16 @@ else:
             debt = st.number_input("Monthly Debt", value=1500, min_value=0)
             if st.button("Log Analysis"):
                 logger(user_id, "Underwriting", f"DTI: {(debt/inc)*100:.1f}%")
-                st.success("Analysis captured for review.")
+                st.success("Analysis captured.")
         
         st.subheader("Your Secure Documents")
-        # Isolation: Only show files with this user's ID
         docs = [f for f in os.listdir("vault/buyer_docs") if user_id in f]
         if docs:
             for d in docs:
                 data = read_encrypted(os.path.join("vault/buyer_docs", d))
                 st.download_button(f"📄 Download {d.split('_', 2)[-1]}", data, file_name=d)
         else:
-            st.info("No documents released for your ID yet.")
+            st.info("Awaiting document release from management.")
 
     # Property Visuals Section
     st.markdown("---")
