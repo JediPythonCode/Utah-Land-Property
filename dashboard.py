@@ -8,9 +8,9 @@ from streamlit_autorefresh import st_autorefresh
 from reportlab.lib.pagesizes import LETTER
 from reportlab.pdfgen import canvas
 
-# --------------------------------------------------
+# ==================================================
 # 1. CONFIG
-# --------------------------------------------------
+# ==================================================
 st.set_page_config(
     page_title="Utah Land & Property",
     layout="wide",
@@ -19,9 +19,9 @@ st.set_page_config(
 
 st_autorefresh(interval=10000, key="ulp_sync_ping")
 
-# --------------------------------------------------
+# ==================================================
 # 2. SESSION + SHARED DEAL STORE
-# --------------------------------------------------
+# ==================================================
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
     st.session_state.user_role = None
@@ -51,43 +51,62 @@ if st.session_state.active_deal_id not in st.session_state.shared_deals:
 
 D = st.session_state.shared_deals[st.session_state.active_deal_id]
 
-# --------------------------------------------------
-# 3. AUTH TERMINAL (FIXED CENTER + SINGLE CLICK)
-# --------------------------------------------------
+# ==================================================
+# 3. AUTH TERMINAL (WHITE + CENTERED)
+# ==================================================
 if not st.session_state.authenticated:
 
     st.markdown("""
     <style>
     @import url("https://fonts.googleapis.com/css2?family=Inter:wght@900&family=Oswald:wght@700&display=swap");
-    header, footer { display:none !important; }
 
-    section.main > div { padding-top: 0 !important; }
-    [data-testid="stVerticalBlock"] { gap: 0 !important; }
+    html, body, .stApp {
+        background-color: #ffffff !important;
+    }
 
-    .main-auth-container {
+    header, footer {
+        display: none !important;
+    }
+
+    section.main > div {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+    }
+
+    .auth-wrapper {
         min-height: 100vh;
         display: flex;
-        flex-direction: column;
         justify-content: center;
         align-items: center;
+    }
+
+    .auth-card {
+        max-width: 420px;
+        width: 100%;
+        padding: 40px 32px;
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.06);
         text-align: center;
     }
 
-    .ulp-auth-title {
+    .auth-title {
         font-family: Inter;
-        font-size: clamp(36px, 8vw, 84px);
+        font-size: 36px;
         font-weight: 900;
         color: #1d428a;
-        letter-spacing: -4px;
-        margin-bottom: 10px;
+        letter-spacing: -2px;
         text-transform: uppercase;
+        margin-bottom: 10px;
     }
 
-    .sync-box {
-        margin: 20px 0;
+    .secure-row {
         display: flex;
+        justify-content: center;
         align-items: center;
         gap: 8px;
+        margin-bottom: 25px;
     }
 
     .pulse-dot {
@@ -100,34 +119,51 @@ if not st.session_state.authenticated:
     }
 
     @keyframes pulse {
-        0% { box-shadow: 0 0 0 0 rgba(0,255,65,.7); }
+        0% { box-shadow: 0 0 0 0 rgba(0,255,65,.6); }
         70% { box-shadow: 0 0 0 10px rgba(0,255,65,0); }
         100% { box-shadow: 0 0 0 0 rgba(0,255,65,0); }
     }
 
+    .secure-label {
+        font-family: Oswald;
+        font-size: 12px;
+        letter-spacing: 2px;
+        color: #1d428a;
+        text-transform: uppercase;
+        font-weight: 700;
+    }
+
+    input {
+        text-align: center !important;
+        font-size: 16px !important;
+    }
+
     div.stButton > button {
-        background:#1d428a;
-        color:white;
-        font-family:Oswald;
-        letter-spacing:2px;
-        text-transform:uppercase;
-        padding:14px;
-        width:100%;
+        background-color: #1d428a !important;
+        color: white !important;
+        font-family: Oswald !important;
+        letter-spacing: 2px !important;
+        text-transform: uppercase !important;
+        padding: 14px !important;
+        width: 100%;
+        border-radius: 6px !important;
     }
     </style>
     """, unsafe_allow_html=True)
 
     st.markdown("""
-    <div class="main-auth-container">
-        <div class="ulp-auth-title">Utah Land & Property</div>
-        <div class="sync-box">
-            <span class="pulse-dot"></span>
-            <span style="font-family:Oswald;letter-spacing:2px;">Secure Access Terminal</span>
+    <div class="auth-wrapper">
+        <div class="auth-card">
+            <div class="auth-title">Utah Land & Property</div>
+            <div class="secure-row">
+                <span class="pulse-dot"></span>
+                <span class="secure-label">Secure Access Terminal</span>
+            </div>
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-    _, col, _ = st.columns([1.3, 1, 1.3])
+    _, col, _ = st.columns([1.5, 1, 1.5])
     with col:
         key_input = st.text_input(
             "Security Key",
@@ -145,6 +181,7 @@ if not st.session_state.authenticated:
                         st.session_state.user_role = profile["role"]
                         st.session_state.auth_lock = False
                         st.rerun()
+
                 st.error("ACCESS DENIED")
                 st.session_state.auth_lock = False
             except:
@@ -153,9 +190,9 @@ if not st.session_state.authenticated:
 
     st.stop()
 
-# --------------------------------------------------
+# ==================================================
 # 4. USER AUTO-SYNC
-# --------------------------------------------------
+# ==================================================
 role = st.session_state.user_role
 if role != "admin":
     if "local_version" not in st.session_state:
@@ -166,11 +203,11 @@ if role != "admin":
         st.toast("🔄 Deal Updated by Admin")
         st.rerun()
 
-# --------------------------------------------------
-# 5. ADMIN DEAL CONTROL
-# --------------------------------------------------
+# ==================================================
+# 5. ADMIN DEAL MANAGEMENT
+# ==================================================
 if role == "admin":
-    with st.expander("🛡️ ADMIN DEAL MANAGEMENT", expanded=False):
+    with st.expander("🛡️ ADMIN: DEAL MANAGEMENT", expanded=False):
         c1, c2, c3 = st.columns(3)
         p = c1.number_input("Sales Price", value=D["price"])
         e = c2.number_input("Seller Equity", value=D["seller_equity"])
@@ -182,23 +219,21 @@ if role == "admin":
             st.toast("Deal pushed live")
             st.rerun()
 
-# --------------------------------------------------
-# 6. CORE DASHBOARD
-# --------------------------------------------------
+# ==================================================
+# 6. DASHBOARD
+# ==================================================
 AITD = D["price"] - D["seller_equity"]
 
-st.markdown(f"## Utah Land & Property")
+st.markdown("## Utah Land & Property")
 st.caption(f"SESSION: {D['deal_id']} | ROLE: {role.upper()}")
 
 c1, c2 = st.columns([2, 1])
-with c1:
-    st.metric("AITD Principal Balance", f"${AITD:,.2f}")
-with c2:
-    st.metric("ULP Assignment Fee", f"${D['assignment_fee']:,.2f}")
+c1.metric("AITD Principal Balance", f"${AITD:,.2f}")
+c2.metric("ULP Assignment Fee", f"${D['assignment_fee']:,.2f}")
 
-# --------------------------------------------------
+# ==================================================
 # 7. TRANSACTION HUB
-# --------------------------------------------------
+# ==================================================
 st.markdown("### Transaction Hub")
 
 v_col, n_col = st.columns([1.5, 1])
@@ -253,9 +288,10 @@ with n_col:
     for n in D["notes"]:
         st.markdown(f"- {n}")
 
-# --------------------------------------------------
+# ==================================================
 # 8. LOGOUT
-# --------------------------------------------------
+# ==================================================
 if st.sidebar.button("LOGOUT"):
     st.session_state.authenticated = False
     st.rerun()
+s
