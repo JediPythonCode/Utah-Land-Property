@@ -4,4 +4,3 @@ import os
 import glob
 import textwrap
 from datetime import datetime
-from streamlit_autorefresh import st_autorefresh
