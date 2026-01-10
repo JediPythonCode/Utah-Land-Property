@@ -13,10 +13,9 @@ if "authenticated" not in st.session_state:
     st.session_state.user_role = None
 
 if not st.session_state.authenticated:
-    # --- PROFESSIONAL ICON SET (4 PILLARS) ---
+    # --- PROFESSIONAL ICON SET (3 PILLARS: Shield, Lock, Briefcase) ---
     pillar_icons = [
         '<svg viewBox="0 0 24 24" width="80" height="80" stroke="#1d428a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>',
-        '<svg viewBox="0 0 24 24" width="80" height="80" stroke="#1d428a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M16 16s3-2 3-5V4l-7-3-7 3v7c0 3 3 5 3 5"></path><path d="M12 22V16"></path><path d="M8 17h8"></path></svg>',
         '<svg viewBox="0 0 24 24" width="80" height="80" stroke="#1d428a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>',
         '<svg viewBox="0 0 24 24" width="80" height="80" stroke="#1d428a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>'
     ]
@@ -50,8 +49,8 @@ if not st.session_state.authenticated:
         @keyframes logoFlip {{ 
             0% {{ opacity: 0; transform: scale(0.8); }} 
             1% {{ opacity: 1; transform: scale(1); }} 
-            23% {{ opacity: 1; }} 
-            25% {{ opacity: 0; transform: scale(1.05); }} 
+            30% {{ opacity: 1; }} 
+            33% {{ opacity: 0; transform: scale(1.05); }} 
             100% {{ opacity: 0; }} 
         }}
         
@@ -60,19 +59,18 @@ if not st.session_state.authenticated:
         @keyframes pulse-green {{ 0% {{ box-shadow: 0 0 0px 0px rgba(0, 255, 65, 0.7); }} 70% {{ box-shadow: 0 0 0px 10px rgba(0, 255, 65, 0); }} 100% {{ box-shadow: 0 0 0px 0px rgba(0, 255, 65, 0); }} }}
         .sync-label {{ font-family: "Oswald", sans-serif; font-size: 15px; color: #1d428a; letter-spacing: 2px; font-weight: bold; }}
 
-        /* FORCED BUTTON ALIGNMENT */
-        div[data-testid="stVerticalBlock"] > div:has(div.stButton) {{
-            display: flex !important;
-            justify-content: center !important;
-            width: 100% !important;
+        /* FORCE CENTERED ALIGNMENT FOR BUTTON AND INPUT */
+        [data-testid="stColumn"] {{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }}
 
         div.stButton {{
-            text-align: center !important;
-            margin: 0 auto !important;
-            width: 100% !important;
-            display: flex !important;
-            justify-content: center !important;
+            display: flex;
+            justify-content: center;
+            width: 100%;
         }}
 
         div.stButton > button {{
@@ -85,7 +83,7 @@ if not st.session_state.authenticated:
             padding: 18px 40px !important;
             border: 2px solid #1d428a !important;
             transition: all 0.3s ease-in-out !important;
-            margin: 0 auto !important;
+            margin: 20px auto 0 auto !important;
         }}
         
         div.stButton > button:hover {{
