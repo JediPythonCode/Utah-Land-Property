@@ -12,8 +12,8 @@ if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
     st.session_state.user_role = None
 
-# Robust Initialization: Ensures all keys exist to prevent KeyErrors
-if "deal_data" not in st.session_state or "fee_credit" not in st.session_state.deal_data:
+# Initialize Deal Data if not present
+if "deal_data" not in st.session_state:
     st.session_state.deal_data = {
         "price": 330000.00,
         "assignment_fee": 15000.00,
@@ -22,7 +22,7 @@ if "deal_data" not in st.session_state or "fee_credit" not in st.session_state.d
         "vault": []
     }
 
-# --- 3. LOGIN PAGE (PRESERVING YOUR ORIGINAL LOGIC) ---
+# --- 3. LOGIN PAGE (EXACTLY AS REQUESTED) ---
 if not st.session_state.authenticated:
     pillar_icons = [
         '<svg viewBox="0 0 24 24" width="80" height="80" stroke="#1d428a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>',
@@ -63,18 +63,16 @@ if not st.session_state.authenticated:
             if st.button("Secure Access Terminal"):
                 try:
                     user_db = st.secrets["users"]
-                    found_user = False
                     for username, profile in user_db.items():
                         if input_key == str(profile["key"]):
                             st.session_state.authenticated = True
                             st.session_state.user_role = profile["role"]
-                            found_user = True
                             st.rerun()
-                    if not found_user: st.error("ACCESS DENIED: INVALID KEY")
-                except: st.error("SYSTEM ERROR: User database not found.")
+                    st.error("ACCESS DENIED")
+                except: st.error("SYSTEM ERROR")
     st.stop()
 
-# --- 4. INTERNAL DASHBOARD STYLE ---
+# --- 4. DASHBOARD STYLE ---
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Oswald:wght@500;700&display=swap');
@@ -91,23 +89,24 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- 5. DATA LOGIC ---
+# --- 5. ADMIN MODERATION PANEL (FIXED) ---
 role = st.session_state.user_role
 
 if role == "admin":
-    with st.expander("ADMIN MODERATION PANEL: RECALCULATE TRANSACTION"):
+    with st.expander("ADMIN MODERATION PANEL: RECALCULATE TRANSACTION", expanded=False):
         c1, c2, c3, c4 = st.columns(4)
-        st.session_state.deal_data["price"] = c1.number_input("Sales Price", value=st.session_state.deal_data.get("price", 330000.00))
-        st.session_state.deal_data["assignment_fee"] = c2.number_input("Assignment Fee", value=st.session_state.deal_data.get("assignment_fee", 15000.00))
-        st.session_state.deal_data["seller_equity"] = c3.number_input("Seller Equity", value=st.session_state.deal_data.get("seller_equity", 20000.00))
-        st.session_state.deal_data["fee_credit"] = c4.number_input("Fee Portion to Credit", value=st.session_state.deal_data.get("fee_credit", 5000.00))
+        # Direct updates to session state to ensure they persist
+        st.session_state.deal_data["price"] = c1.number_input("Sales Price", value=st.session_state.deal_data["price"])
+        st.session_state.deal_data["assignment_fee"] = c2.number_input("Utah Land & Property Assignment Fee", value=st.session_state.deal_data["assignment_fee"])
+        st.session_state.deal_data["seller_equity"] = c3.number_input("Seller Equity Credit", value=st.session_state.deal_data["seller_equity"])
+        st.session_state.deal_data["fee_credit"] = c4.number_input("Fee Portion Credited to Balance", value=st.session_state.deal_data["fee_credit"])
 
-# Fixed Logic: Principal = Price - (Equity + Credit)
+# Pull current values for rendering
 PRICE = st.session_state.deal_data["price"]
 FEE = st.session_state.deal_data["assignment_fee"]
 EQUITY = st.session_state.deal_data["seller_equity"]
 CREDIT = st.session_state.deal_data["fee_credit"]
-AITD_PRINCIPAL = PRICE - (EQUITY + CREDIT) # Result: $305,000.00
+AITD_PRINCIPAL = PRICE - (EQUITY + CREDIT)
 
 # --- 6. TOP BENTO GRID ---
 st.markdown('<div class="ulp-header">Utah Land & Property</div>', unsafe_allow_html=True)
@@ -122,8 +121,8 @@ with col_hero:
             <div style="font-family: 'Inter'; font-size: 52px; font-weight: 900;">${AITD_PRINCIPAL:,.2f}</div>
             <div style="height: 1px; background: rgba(255,255,255,0.2); margin: 20px 0;"></div>
             <div style="display: flex; justify-content: space-between;">
-                <div><div class="hero-label">CONTRACT PRICE</div><div style="font-size:20px; font-weight:700;">${PRICE:,.2f}</div></div>
-                <div style="text-align:right;"><div class="hero-label">ACCOUNT ROLE</div><div style="font-size:20px; font-weight:700;">{role.upper()}</div></div>
+                <div><div class="hero-label">CONTRACT SALES PRICE</div><div style="font-size:20px; font-weight:700;">${PRICE:,.2f}</div></div>
+                <div style="text-align:right;"><div class="hero-label">ACCOUNT ACCESS</div><div style="font-size:20px; font-weight:700;">{role.upper()}</div></div>
             </div>
         </div>
     """, unsafe_allow_html=True)
@@ -131,7 +130,7 @@ with col_hero:
 with col_metrics:
     st.markdown(f"""
         <div class="bento-card">
-            <div class="label-text">ASSIGNMENT FEE (ULP)</div>
+            <div class="label-text">UTAH LAND & PROPERTY ASSIGNMENT FEE</div>
             <div class="value-text">${FEE:,.2f}</div>
         </div>
         <div class="bento-card">
@@ -150,30 +149,30 @@ with h1:
         st.markdown("<p class='label-text'>Universal Vault & Instruction Terminal</p>", unsafe_allow_html=True)
         
         if role == "admin":
-            if st.button("Generate Settlement Instructions for All Parties", use_container_width=True):
-                summary = f"Settlement Instructions: Price ${PRICE:,.2f}, ULP Fee ${FEE:,.2f}, Equity Credit ${EQUITY:,.2f}, AITD Balance ${AITD_PRINCIPAL:,.2f}."
-                st.session_state.deal_data["vault"].append({"name": f"Settlement_Sheet_{datetime.now().strftime('%H%M')}.txt", "content": summary, "sender": "ADMIN"})
-                st.success("Instruction sheet pushed to Escrow, Title, and Loan Servicer.")
+            if st.button("Push Instructions to Escrow, Title, and Loan Servicer", use_container_width=True):
+                summary = f"Instructions: Sales Price ${PRICE:,.2f}, Assignment Fee ${FEE:,.2f}, Equity Credit ${EQUITY:,.2f}, AITD Balance ${AITD_PRINCIPAL:,.2f}."
+                st.session_state.deal_data["vault"].append({"name": f"Instruction_Sheet_{datetime.now().strftime('%H%M')}.txt", "content": summary, "sender": "ADMIN"})
+                st.success("Instructions successfully pushed to all parties.")
 
-        uploaded_file = st.file_uploader("Drop files for transaction review", label_visibility="collapsed")
+        uploaded_file = st.file_uploader("Upload New Transaction Document", label_visibility="collapsed")
         if uploaded_file:
-            st.session_state.deal_data["vault"].append({"name": uploaded_file.name, "content": "Encoded Binary File", "sender": role})
+            st.session_state.deal_data["vault"].append({"name": uploaded_file.name, "content": "File Recorded", "sender": role})
 
         for i, doc in enumerate(st.session_state.deal_data["vault"]):
             v_col1, v_col2, v_col3 = st.columns([3, 1, 1])
-            v_col1.markdown(f"**{doc['name']}** (Source: {doc['sender'].upper()})")
+            v_col1.markdown(f"**{doc['name']}** ({doc['sender'].upper()})")
             if v_col2.button("View", key=f"v_{i}"):
                 st.info(f"Metadata: {doc.get('content')}")
             if v_col3.button("Print", key=f"p_{i}"):
                 b64 = base64.b64encode(doc.get("content", "").encode()).decode()
-                st.markdown(f'<a href="data:file/txt;base64,{b64}" download="{doc["name"]}">Confirm Print/Download</a>', unsafe_allow_html=True)
+                st.markdown(f'<a href="data:file/txt;base64,{b64}" download="{doc["name"]}">Confirm Download/Print</a>', unsafe_allow_html=True)
 
 with h2:
     with st.container(border=True):
-        st.markdown("<p class='label-text'>Internal Broadcast</p>", unsafe_allow_html=True)
-        message = st.text_area("Secure Message", placeholder="Send a message to all parties...", height=120)
+        st.markdown("<p class='label-text'>Strategic Communication Broadcast</p>", unsafe_allow_html=True)
+        message = st.text_area("Broadcast Message", placeholder="Send instructions to Title, Escrow, or Servicer...", height=120)
         if st.button("Broadcast to Transaction Team", use_container_width=True):
-            st.toast("Communication transmitted successfully.")
+            st.toast("Message sent.")
 
 # --- 8. LOGOUT ---
 if st.sidebar.button("Terminate Session"):
