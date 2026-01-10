@@ -13,25 +13,59 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Fix for StreamlitDuplicateElementKey: Only initialize refresh once per session
 if "refresh_initialized" not in st.session_state:
     st_autorefresh(interval=600000, key="ulp_refresh")
     st.session_state.refresh_initialized = True
 
-def initialize_encryption():
-    """Validates presence of key and initializes Fernet."""
+def initialize_system():
+    """Checks for both Encryption Key and User Database."""
     try:
-        # App will ONLY run if 'secret_key' is in your secrets.toml
+        # 1. Check Encryption Key
         key = st.secrets.get("secret_key")
-        if not key:
-            st.error("🚨 SYSTEM CRITICAL: Encryption Key Missing. Access Disabled.")
+        
+        # 2. Check User Database
+        users = st.secrets.get("users")
+        
+        if not key or not users:
+            st.error("🚨 SYSTEM ERROR: secrets.toml is missing 'secret_key' or 'users' section.")
             st.stop()
-        return Fernet(key.encode())
+            
+        return Fernet(key.encode()), users
     except Exception:
-        st.error("🚨 SYSTEM CRITICAL: Security Initialization Failed.")
+        st.error("🚨 SYSTEM CRITICAL: Could not read secrets.toml file.")
         st.stop()
 
-fernet = initialize_encryption()
+# Load both at the start
+fernet, USER_DB = initialize_system()
+
+# ... (Styling and Logic remain the same) ...
+
+# ── 4. THE UI FLOW (Updated Login Logic) ─────────────────────────────────────
+if not st.session_state.authenticated:
+    # (Branding HTML remains the same)
+    
+    _, col_mid, _ = st.columns([1, 5, 1]) 
+    with col_mid:
+        u_id = st.text_input("User ID", placeholder="Username", label_visibility="collapsed")
+        u_pwd = st.text_input("Key", type="password", placeholder="Access Key", label_visibility="collapsed")
+        
+        if st.button("Access Portal", use_container_width=True, type="primary"):
+            # Check against the USER_DB we loaded in Section 1
+            if u_id in USER_DB:
+                # Ensure we compare strings to strings
+                correct_pwd = str(USER_DB[u_id]["key"])
+                if u_pwd == correct_pwd:
+                    st.session_state.authenticated = True
+                    st.session_state.user_id = u_id
+                    st.session_state.user_role = USER_DB[u_id]["role"]
+                    logger(u_id, "Login", "Success")
+                    st.rerun()
+                else:
+                    st.error("Invalid Access Key")
+                    logger(u_id, "Login Attempt", "Incorrect Password")
+            else: 
+                st.error("User ID Not Recognized")
+                logger("Unknown", "Login Attempt", f"ID: {u_id}")
 
 # ── 2. BRANDING & STYLING (MOBILE OPTIMIZED) ────────────────────────────────
 st.markdown("""
