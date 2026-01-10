@@ -31,7 +31,6 @@ if not st.session_state.authenticated:
         .stApp { background-color: #f8f9fa !important; }
         header, footer, [data-testid="stHeader"] { display: none !important; }
         
-        /* Adjusted height and padding to move content UP by ~15% */
         .viewport-top-container { 
             display: flex;
             flex-direction: column;
@@ -150,7 +149,7 @@ else:
     st.markdown("---")
 
     # --- 3c. ROLE-SPECIFIC UPLOAD/DOWNLOAD ---
- if role == "Buyer":
+    if role == "Buyer":
         # UNDERWRITING AUTOMATION
         st.subheader("Step 1: Underwriting Pre-Screen")
         with st.expander("📊 Analyze Financial Ratios", expanded=True):
@@ -172,7 +171,6 @@ else:
         st.subheader("Step 2: Property Aspects & Vetting")
         st.info("Submit your Proof of Funds or ID below to unlock the full signature vault.")
         
-        # Buyer-only File Upload
         vet_file = st.file_uploader("Upload Vetting Docs", key="buyer_vet")
         if vet_file:
             with open(os.path.join("vault/general", f"VETTING_{vet_file.name}"), "wb") as f:
@@ -190,6 +188,7 @@ else:
                     st.download_button(f"📄 Download {d}", f, file_name=d)
         else:
             st.warning("Locked: No signature documents have been released for your profile yet.")
+            
     else:
         st.subheader("Management: Document Archival")
         c1, c2 = st.columns([1, 1])
