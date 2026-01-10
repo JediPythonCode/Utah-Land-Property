@@ -88,7 +88,7 @@ if not st.session_state.authenticated:
     
     st.markdown("""
     <div class="privacy-notice">
-        Privacy Creation & Preservation • Creative Land & Real Estate Deal Structure
+        Privacy Creation Preservation • Creative Land & Real Estate Deal Structure
         <br><br>
         <strong>Secure Client Portal</strong> — Encrypted access only.
     </div>
