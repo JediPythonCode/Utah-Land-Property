@@ -84,11 +84,11 @@ if not st.session_state.authenticated:
 
     # Self-contained HTML blocks to ensure NO code leakage
     st.markdown('<div class="brand-title">Utah Land & Property</div>', unsafe_allow_html=True)
-    st.markdown('<div class="brand-subtitle">Strategic Asset Framework</div>', unsafe_allow_html=True)
+    st.markdown('<div class="brand-subtitle">Strategic Asset Protection Framework</div>', unsafe_allow_html=True)
     
     st.markdown("""
     <div class="privacy-notice">
-        Professional Asset Protection • Privacy Creattion & Preservation • Creative Land Financing Solutions • Creative Financing Deal Structure
+        Privacy Creation & Preservation • Creative Land Financing Solutions • Creative Financing Deal Structure
         <br><br>
         <strong>Secure Client Portal</strong> — Encrypted access only.
     </div>
