@@ -25,7 +25,7 @@ if "current_deal" not in st.session_state:
 if "deal_history" not in st.session_state:
     st.session_state.deal_history = []
 
-# --- 3. ORIGINAL ALIGNED PILLAR LOGIN (RESTORED TO ORIGINAL BLUE) ---
+# --- 3. ORIGINAL ALIGNED PILLAR LOGIN (RESTORED BLUE & CENTERED) ---
 if not st.session_state.authenticated:
     pillar_icons = [
         '<svg viewBox="0 0 24 24" width="80" height="80" stroke="#1d428a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>',
@@ -47,7 +47,6 @@ if not st.session_state.authenticated:
         @keyframes pulse-green {{ 0% {{ box-shadow: 0 0 0px 0px rgba(0, 255, 65, 0.7); }} 70% {{ box-shadow: 0 0 0px 10px rgba(0, 255, 65, 0); }} 100% {{ box-shadow: 0 0 0px 0px rgba(0, 255, 65, 0); }} }}
         .sync-label {{ font-family: "Oswald", sans-serif; font-size: 15px; color: #1d428a; letter-spacing: 2px; font-weight: bold; }}
         
-        /* RESTORED BLUE BUTTON AND ALIGNMENT */
         div.stButton > button {{ 
             background-color: #1d428a !important; 
             color: #FFFFFF !important; 
@@ -58,10 +57,9 @@ if not st.session_state.authenticated:
             padding: 18px 45px !important; 
             border: 2px solid #1d428a !important; 
             width: 100% !important; 
-            margin: 0 auto !important;
-            display: block !important;
+            margin-top: 20px !important;
         }}
-        input {{ text-align: center !important; font-size: 20px !important; border: 1px solid #1d428a !important; color: #1d428a !important; }}
+        input {{ text-align: center !important; font-size: 20px !important; border: 2px solid #1d428a !important; color: #1d428a !important; }}
         </style>
         <div style="padding: 10vh 5% 0 5%; text-align: center;">
             <div class="ulp-auth-title">Utah Land & Property</div>
@@ -75,7 +73,6 @@ if not st.session_state.authenticated:
     
     _, col_mid, _ = st.columns([1, 1.5, 1])
     with col_mid:
-        # Secure Form logic to prevent double-click and maintain alignment
         with st.form("secure_login_form", clear_on_submit=False):
             input_key = st.text_input("Security Key", type="password", placeholder="ENTER PRIVATE ACCESS KEY", label_visibility="collapsed")
             submit = st.form_submit_button("Secure Access Terminal")
@@ -130,7 +127,7 @@ if role == "admin":
             st.rerun()
             
         if m2.button("SAVE ACTIVE SESSION"):
-            st.toast("Deal data archived")
+            st.toast("Current session data cached in history.")
             
         if m3.button("RECALL LAST SESSION"): 
             if st.session_state.deal_history:
@@ -175,7 +172,7 @@ with col_side:
         </div>
     """, unsafe_allow_html=True)
 
-# --- 7. TRANSACTION HUB & DOCUMENTATION ---
+# --- 7. TRANSACTION HUB & PRINTABLE DOCUMENTATION ---
 st.markdown('<div class="hub-header">Transaction Communication Hub</div>', unsafe_allow_html=True)
 v_col, n_col = st.columns([1.6, 1])
 
@@ -198,7 +195,7 @@ with v_col:
                     f"Instructions: Pay ${D['seller_equity']:,.2f} to Seller. Pay ${D['assignment_fee']:,.2f} to Utah Land & Property, LLC."
                 )
                 D["vault"].append({"name": f"Settlement_{D['deal_id']}.txt", "content": instr})
-                st.success("Settlement instructions generated.")
+                st.success("Instructions generated and pushed to vault.")
 
         for i, doc in enumerate(D["vault"]):
             v1, v2 = st.columns([4, 1.5])
