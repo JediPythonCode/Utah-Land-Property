@@ -3,11 +3,11 @@ import base64
 from datetime import datetime
 from streamlit_autorefresh import st_autorefresh
 
-# --- 1. CONFIG & REFRESH ---
+# --- 1. SYSTEM CONFIGURATION & SYNC ---
 st.set_page_config(page_title="Utah Land & Property", layout="wide", initial_sidebar_state="collapsed")
 st_autorefresh(interval=10000, key="ulp_sync_ping")
 
-# --- 2. DATA PERSISTENCE ---
+# --- 2. DATA PERSISTENCE LAYER ---
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
     st.session_state.user_role = None
@@ -25,7 +25,7 @@ if "current_deal" not in st.session_state:
 if "deal_history" not in st.session_state:
     st.session_state.deal_history = []
 
-# --- 3. RESTORED & ALIGNED PILLAR LOGIN PAGE ---
+# --- 3. ORIGINAL ALIGNED PILLAR LOGIN (RESTORED TO ORIGINAL BLUE) ---
 if not st.session_state.authenticated:
     pillar_icons = [
         '<svg viewBox="0 0 24 24" width="80" height="80" stroke="#1d428a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>',
@@ -46,8 +46,22 @@ if not st.session_state.authenticated:
         .pulse-dot {{ height: 10px; width: 10px; background-color: #00ff41; border-radius: 50%; display: inline-block; margin-right: 8px; box-shadow: 0 0 10px #00ff41; animation: pulse-green 1.5s infinite; }}
         @keyframes pulse-green {{ 0% {{ box-shadow: 0 0 0px 0px rgba(0, 255, 65, 0.7); }} 70% {{ box-shadow: 0 0 0px 10px rgba(0, 255, 65, 0); }} 100% {{ box-shadow: 0 0 0px 0px rgba(0, 255, 65, 0); }} }}
         .sync-label {{ font-family: "Oswald", sans-serif; font-size: 15px; color: #1d428a; letter-spacing: 2px; font-weight: bold; }}
-        div.stButton > button {{ background-color: #1d428a !important; color: #FFFFFF !important; font-family: 'Oswald', sans-serif !important; font-weight: 700 !important; text-transform: uppercase !important; letter-spacing: 2px !important; padding: 18px 45px !important; border: 2px solid #1d428a !important; width: 100%; }}
-        input {{ text-align: center !important; font-size: 20px !important; }}
+        
+        /* RESTORED BLUE BUTTON AND ALIGNMENT */
+        div.stButton > button {{ 
+            background-color: #1d428a !important; 
+            color: #FFFFFF !important; 
+            font-family: 'Oswald', sans-serif !important; 
+            font-weight: 700 !important; 
+            text-transform: uppercase !important; 
+            letter-spacing: 2px !important; 
+            padding: 18px 45px !important; 
+            border: 2px solid #1d428a !important; 
+            width: 100% !important; 
+            margin: 0 auto !important;
+            display: block !important;
+        }}
+        input {{ text-align: center !important; font-size: 20px !important; border: 1px solid #1d428a !important; color: #1d428a !important; }}
         </style>
         <div style="padding: 10vh 5% 0 5%; text-align: center;">
             <div class="ulp-auth-title">Utah Land & Property</div>
@@ -61,6 +75,7 @@ if not st.session_state.authenticated:
     
     _, col_mid, _ = st.columns([1, 1.5, 1])
     with col_mid:
+        # Secure Form logic to prevent double-click and maintain alignment
         with st.form("secure_login_form", clear_on_submit=False):
             input_key = st.text_input("Security Key", type="password", placeholder="ENTER PRIVATE ACCESS KEY", label_visibility="collapsed")
             submit = st.form_submit_button("Secure Access Terminal")
@@ -77,7 +92,7 @@ if not st.session_state.authenticated:
                         st.session_state.user_role = found_user["role"]
                         st.rerun()
                     else:
-                        st.error("ACCESS DENIED")
+                        st.error("ACCESS DENIED: INVALID KEY")
                 except: 
                     st.error("SYSTEM ERROR: DATABASE NOT FOUND")
     st.stop()
@@ -98,7 +113,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- 5. ACTIVE ADMIN COMMAND CENTER ---
+# --- 5. ACTIVE ADMIN DEAL MANAGEMENT TERMINAL ---
 role = st.session_state.user_role
 D = st.session_state.current_deal
 
@@ -115,7 +130,7 @@ if role == "admin":
             st.rerun()
             
         if m2.button("SAVE ACTIVE SESSION"):
-            st.toast("Current Deal Data Saved")
+            st.toast("Deal data archived")
             
         if m3.button("RECALL LAST SESSION"): 
             if st.session_state.deal_history:
@@ -131,7 +146,7 @@ if role == "admin":
         if st.button("PUSH DATA TO ALL USERS", use_container_width=True):
             st.rerun()
 
-# --- 6. MATH & UI ---
+# --- 6. CORE MATH & DASHBOARD ---
 AITD_PRINCIPAL = D["price"] - D["seller_equity"]
 
 st.markdown('<div class="ulp-header">Utah Land & Property</div>', unsafe_allow_html=True)
@@ -160,8 +175,8 @@ with col_side:
         </div>
     """, unsafe_allow_html=True)
 
-# --- 7. TRANSACTION HUB & PDF GENERATION ---
-st.markdown('<div class="hub-header"><b>Transaction Communication Hub</b></div>', unsafe_allow_html=True)
+# --- 7. TRANSACTION HUB & DOCUMENTATION ---
+st.markdown('<div class="hub-header">Transaction Communication Hub</div>', unsafe_allow_html=True)
 v_col, n_col = st.columns([1.6, 1])
 
 with v_col:
@@ -183,24 +198,24 @@ with v_col:
                     f"Instructions: Pay ${D['seller_equity']:,.2f} to Seller. Pay ${D['assignment_fee']:,.2f} to Utah Land & Property, LLC."
                 )
                 D["vault"].append({"name": f"Settlement_{D['deal_id']}.txt", "content": instr})
-                st.success("Settlement Instructions generated.")
+                st.success("Settlement instructions generated.")
 
         for i, doc in enumerate(D["vault"]):
-            v1, v2 = st.columns([4, 1])
+            v1, v2 = st.columns([4, 1.5])
             v1.write(f"FILE: {doc['name']}")
             b64 = base64.b64encode(doc['content'].encode()).decode()
-            v2.markdown(f'<a href="data:file/txt;base64,{b64}" download="{doc["name"]}" style="text-decoration:none; padding:5px 10px; background:#1d428a; color:white; border-radius:5px; font-weight:bold; font-size:12px;">DOWNLOAD / PRINT</a>', unsafe_allow_html=True)
+            v2.markdown(f'<a href="data:file/txt;base64,{b64}" download="{doc["name"]}" style="text-decoration:none; padding:8px 12px; background:#1d428a; color:white; border-radius:5px; font-weight:bold; font-size:11px; text-transform:uppercase;">Download / Print</a>', unsafe_allow_html=True)
 
 with n_col:
     with st.container(border=True):
         st.markdown("<p class='label-text'>Live Deal Notes</p>", unsafe_allow_html=True)
-        new_note = st.text_input("Enter update", key="note_in")
+        new_note = st.text_input("Enter update", key="note_in", label_visibility="collapsed")
         if st.button("Post Note") and new_note:
             D["notes"].insert(0, f"{datetime.now().strftime('%H:%M')} ({role.upper()}): {new_note}")
             st.rerun()
         for n in D["notes"]:
             st.markdown(f"<p style='font-size:12px; border-bottom:1px solid #eee; padding:5px;'>{n}</p>", unsafe_allow_html=True)
 
-if st.sidebar.button("TERMINATE SESSION"):
+if st.sidebar.button("TERMINATE SECURE SESSION"):
     st.session_state.authenticated = False
     st.rerun()
