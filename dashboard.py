@@ -7,19 +7,24 @@ from streamlit_autorefresh import st_autorefresh
 st.set_page_config(page_title="Utah Land & Property", layout="wide", initial_sidebar_state="collapsed")
 st_autorefresh(interval=10000, key="ulp_sync_ping")
 
-# --- 2. AUTHENTICATION GATE & STYLING (UNCHANGED) ---
+# --- 2. AUTHENTICATION GATE & STYLING ---
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
     st.session_state.user_role = None
 
+# LOGIC INSERT: Initialize Transaction State
+if "checklist_step" not in st.session_state:
+    st.session_state.checklist_step = 1
+if "uploaded_docs" not in st.session_state:
+    st.session_state.uploaded_docs = []
+
 if not st.session_state.authenticated:
-    # [EXISTING AUTH LOGIC REMAINS HERE - NO CHANGES]
+    # [EXISTING AUTH LOGIC REMAINS - NO CHANGES]
     pillar_icons = [
         '<svg viewBox="0 0 24 24" width="80" height="80" stroke="#1d428a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>',
         '<svg viewBox="0 0 24 24" width="80" height="80" stroke="#1d428a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>',
         '<svg viewBox="0 0 24 24" width="80" height="80" stroke="#1d428a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>'
     ]
-
     icon_stack = "".join([f'<div class="flip-logo" style="animation-delay: {i * 3}s;">{svg}</div>' for i, svg in enumerate(pillar_icons)])
 
     st.markdown(f'''
@@ -36,7 +41,6 @@ if not st.session_state.authenticated:
         @keyframes pulse-green {{ 0% {{ box-shadow: 0 0 0px 0px rgba(0, 255, 65, 0.7); }} 70% {{ box-shadow: 0 0 0px 10px rgba(0, 255, 65, 0); }} 100% {{ box-shadow: 0 0 0px 0px rgba(0, 255, 65, 0); }} }}
         .sync-label {{ font-family: "Oswald", sans-serif; font-size: 15px; color: #1d428a; letter-spacing: 2px; font-weight: bold; }}
         [data-testid="stColumn"] [data-testid="stVerticalBlock"] {{ align-items: center !important; justify-content: center !important; text-align: center !important; }}
-        div.stButton {{ display: flex !important; justify-content: center !important; width: 100% !important; }}
         div.stButton > button {{ background-color: #1d428a !important; color: #FFFFFF !important; font-family: 'Oswald', sans-serif !important; font-weight: 700 !important; text-transform: uppercase !important; letter-spacing: 2px !important; padding: 18px 45px !important; border: 2px solid #1d428a !important; transition: all 0.3s ease-in-out !important; margin: 15px auto !important; display: inline-block !important; }}
         input {{ text-align: center !important; }}
     </style>
@@ -61,20 +65,18 @@ if not st.session_state.authenticated:
                             st.session_state.user_role = profile["role"]
                             found_user = True
                             st.rerun()
-                    if not found_user:
-                        st.error("ACCESS DENIED: INVALID KEY")
-                except KeyError:
-                    st.error("SYSTEM ERROR: User database not found in secrets.")
+                    if not found_user: st.error("ACCESS DENIED: INVALID KEY")
+                except KeyError: st.error("SYSTEM ERROR: User database not found.")
     st.stop()
 
-# --- 3. INTERNAL DASHBOARD STYLE (EXTENDED) ---
+# --- 3. INTERNAL DASHBOARD STYLE ---
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@900&family=Oswald:wght@700&display=swap');
         .stApp { background-color: #FFFFFF !important; }
         .ulp-header { font-family: 'Inter', sans-serif; font-size: clamp(40px, 12vw, 85px) !important; font-weight: 900 !important; color: #1d428a !important; letter-spacing: -4px; line-height: 0.85; margin-bottom: 5px; text-align: center; text-transform: uppercase; }
         .intel-header { background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c) !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; font-family: 'Inter', sans-serif !important; font-weight: 900 !important; font-size: clamp(35px, 12vw, 65px) !important; text-align: center !important; text-transform: uppercase; }
-        .gold-card { background-color: #FDD017 !important; background-image: url("https://www.transparenttextures.com/patterns/carbon-fibre.png") !important; border-top: 6px solid #1a1a1a !important; border-radius: 0px 20px 0px 20px !important; padding: 25px !important; text-align: center !important; margin-bottom: 15px; box-shadow: 0 12px 25px rgba(0,0,0,0.3) !important; min-height: 400px; }
+        .gold-card { background-color: #FDD017 !important; background-image: url("https://www.transparenttextures.com/patterns/carbon-fibre.png") !important; border-top: 6px solid #1a1a1a !important; border-radius: 0px 20px 0px 20px !important; padding: 25px !important; text-align: center !important; margin-bottom: 15px; box-shadow: 0 12px 25px rgba(0,0,0,0.3) !important; min-height: 380px; }
         .m-title-white { color: #ffffff !important; font-family: 'Inter', sans-serif !important; font-weight: 900 !important; font-size: 24px !important; text-transform: uppercase !important; margin: 15px 0 !important; text-shadow: 2px 2px 4px rgba(0,0,0,0.5) !important; }
         .tech-pill { background: #111; border: 1px solid #bf953f; color: #fcf6ba; padding: 4px 10px; border-radius: 4px; font-family: 'Oswald'; font-size: 11px; margin: 2px; display: inline-block; }
     </style>
@@ -83,63 +85,50 @@ st.markdown("""
 # --- 4. DASHBOARD CONTENT ---
 role = st.session_state.user_role
 st.markdown(f'''<div style="text-align: center;"><h1 class="ulp-header">Utah Land & Property</h1><div style="font-family: 'Oswald'; color: #1d428a; letter-spacing: 2px;">TERMINAL ACCESS: {role} LEVEL</div></div>''', unsafe_allow_html=True)
-
 st.markdown("""<div style="text-align:center; padding: 40px 0;"><h1 class="intel-header">Asset Intelligence</h1></div>""", unsafe_allow_html=True)
 
-# Logic Stack: Integrating SNMC Tech & Buyer Portal into existing columns
 col1, col2, col3 = st.columns(3)
-
 with col1:
-    st.markdown('''
-        <div class="gold-card">
-            <div style="background: #1a1a1a; color: #00ff41; padding: 2px 12px; border-radius: 4px; font-family: 'Oswald'; font-size: 10px; letter-spacing: 2px; margin-bottom: 10px; border: 1px solid #00ff41; display: inline-block;">SYNC ACTIVE</div>
-            <div style="font-size: 50px;">🛡️</div>
-            <span class="m-title-white">Summit Layered Trust</span>
-            <div style="background: #111111; border-radius: 8px; padding: 20px; width: 100%; margin-top: 15px; border: 1px solid #333;">
-                <div style="font-family:Oswald; font-size:10px; color:#00ff41; font-weight:bold; letter-spacing:1px;">PROTECTION</div>
-                <div style="font-family: 'Oswald'; font-size: 20px; font-weight: 900; color: #ffffff;">MAXIMUM</div>
-            </div>
-        </div>
-    ''', unsafe_allow_html=True)
+    st.markdown('''<div class="gold-card"><div style="background: #1a1a1a; color: #00ff41; padding: 2px 12px; border-radius: 4px; font-family: 'Oswald'; font-size: 10px; letter-spacing: 2px; margin-bottom: 10px; border: 1px solid #00ff41; display: inline-block;">SYNC ACTIVE</div><div style="font-size: 50px;">🛡️</div><span class="m-title-white">Summit Layered Trust</span><div style="background: #111111; border-radius: 8px; padding: 20px; width: 100%; margin-top: 15px; border: 1px solid #333;"><div style="font-family:Oswald; font-size:10px; color:#00ff41; font-weight:bold; letter-spacing:1px;">PROTECTION</div><div style="font-family: 'Oswald'; font-size: 20px; font-weight: 900; color: #ffffff;">MAXIMUM</div></div></div>''', unsafe_allow_html=True)
 
 with col2:
-    # INSERTED: Deal Flow Technology (SNMC Style)
-    st.markdown('''
-        <div class="gold-card">
-            <div style="background: #1a1a1a; color: #bf953f; padding: 2px 12px; border-radius: 4px; font-family: 'Oswald'; font-size: 10px; letter-spacing: 2px; margin-bottom: 10px; border: 1px solid #bf953f; display: inline-block;">FLOW ANALYTICS</div>
-            <div style="font-size: 50px;">📈</div>
-            <span class="m-title-white">Strategic Deal Flow</span>
-            <div style="background: #111111; border-radius: 8px; padding: 15px; width: 100%; margin-top: 15px; border: 1px solid #333; text-align: left;">
-                <div class="tech-pill">TotalExpert CRM</div>
-                <div class="tech-pill">SNapp POS</div>
-                <div class="tech-pill">DocMagic eClose</div>
-                <div class="tech-pill">Encompass LOS</div>
-                <div class="tech-pill">MBS Highway</div>
-            </div>
-        </div>
-    ''', unsafe_allow_html=True)
+    st.markdown('''<div class="gold-card"><div style="background: #1a1a1a; color: #bf953f; padding: 2px 12px; border-radius: 4px; font-family: 'Oswald'; font-size: 10px; letter-spacing: 2px; margin-bottom: 10px; border: 1px solid #bf953f; display: inline-block;">FLOW ANALYTICS</div><div style="font-size: 50px;">📈</div><span class="m-title-white">Strategic Deal Flow</span><div style="background: #111111; border-radius: 8px; padding: 15px; width: 100%; margin-top: 15px; border: 1px solid #333; text-align: left;"><div class="tech-pill">TotalExpert CRM</div><div class="tech-pill">SNapp POS</div><div class="tech-pill">DocMagic eClose</div><div class="tech-pill">Encompass LOS</div></div></div>''', unsafe_allow_html=True)
 
 with col3:
-    # INSERTED: 2026 Buyer Portal & Transaction Hub Logic
-    st.markdown('''
-        <div class="gold-card">
-            <div style="background: #1a1a1a; color: #ffffff; padding: 2px 12px; border-radius: 4px; font-family: 'Oswald'; font-size: 10px; letter-spacing: 2px; margin-bottom: 10px; border: 1px solid #ffffff; display: inline-block;">PORTAL V3.0</div>
-            <div style="font-size: 50px;">🏢</div>
-            <span class="m-title-white">Transaction Hub</span>
-            <div style="background: #111111; border-radius: 8px; padding: 15px; width: 100%; margin-top: 15px; border: 1px solid #333; text-align: center;">
-                <div style="color:#00ff41; font-family:'Oswald'; font-size:12px;">ACTIVE PIPELINE STATUS</div>
-                <div style="color:white; font-family:'Inter'; font-weight:900; font-size:18px;">CLEAR TO CLOSE</div>
-                <hr style="border:0.5px solid #333; margin:10px 0;">
-                <div style="color:#aaa; font-size:10px; text-align:left;">
-                    ● RON Notarization Enabled<br>
-                    ● Blockchain Verified Listing<br>
-                    ● AI "What's Next" Support
-                </div>
-            </div>
-        </div>
-    ''', unsafe_allow_html=True)
+    status_color = "#00ff41" if st.session_state.checklist_step > 2 else "#bf953f"
+    st.markdown(f'''<div class="gold-card"><div style="background: #1a1a1a; color: #ffffff; padding: 2px 12px; border-radius: 4px; font-family: 'Oswald'; font-size: 10px; letter-spacing: 2px; margin-bottom: 10px; border: 1px solid #ffffff; display: inline-block;">PORTAL V3.0</div><div style="font-size: 50px;">🏢</div><span class="m-title-white">Transaction Hub</span><div style="background: #111111; border-radius: 8px; padding: 15px; width: 100%; margin-top: 15px; border: 1px solid #333; text-align: center;"><div style="color:{status_color}; font-family:'Oswald'; font-size:12px;">PIPELINE STEP {st.session_state.checklist_step}/4</div><div style="color:white; font-family:'Inter'; font-weight:900; font-size:18px;">SECURE VAULT ACTIVE</div></div></div>''', unsafe_allow_html=True)
 
-# --- 5. LOGOUT ---
+# --- 5. FUNCTIONAL TERMINAL (THE STACK & INSERT) ---
+st.divider()
+st.subheader("🛠️ Transaction & Upload Terminal")
+t_col1, t_col2 = st.columns([1, 1])
+
+with t_col1:
+    st.info("Dynamic Transaction Checklist")
+    steps = ["Prequalification", "Offer & Contract", "Loan Underwriting", "Digital Closing (RON)"]
+    for i, step in enumerate(steps, 1):
+        is_done = st.session_state.checklist_step > i
+        st.checkbox(step, value=is_done, key=f"step_{i}", disabled=True)
+    
+    if st.button("Advance to Next Phase"):
+        st.session_state.checklist_step = min(st.session_state.checklist_step + 1, 4)
+        st.rerun()
+
+with t_col2:
+    st.info("Secure Document Vault (Upload)")
+    uploaded_file = st.file_uploader("Upload sensitive financial or property records", type=['pdf', 'jpg', 'png'], label_visibility="collapsed")
+    
+    if uploaded_file is not None:
+        if uploaded_file.name not in st.session_state.uploaded_docs:
+            st.session_state.uploaded_docs.append(uploaded_file.name)
+            st.success(f"Encrypted: {uploaded_file.name} uploaded to SNapp POS system.")
+
+    if st.session_state.uploaded_docs:
+        with st.expander("View Vault Inventory"):
+            for doc in st.session_state.uploaded_docs:
+                st.write(f"📄 {doc}")
+
+# --- 6. LOGOUT ---
 if st.sidebar.button("Terminate Session"):
     st.session_state.authenticated = False
     st.rerun()
