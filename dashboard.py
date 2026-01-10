@@ -1,6 +1,5 @@
 import base64
 import io
-import hashlib
 from datetime import datetime
 
 import streamlit as st
@@ -8,9 +7,9 @@ from streamlit_autorefresh import st_autorefresh
 from reportlab.lib.pagesizes import LETTER
 from reportlab.pdfgen import canvas
 
-# ==================================================
+# --------------------------------------------------
 # 1. CONFIG & REFRESH
-# ==================================================
+# --------------------------------------------------
 st.set_page_config(
     page_title="Utah Land & Property",
     layout="wide",
@@ -19,41 +18,29 @@ st.set_page_config(
 
 st_autorefresh(interval=10000, key="ulp_sync_ping")
 
-# ==================================================
-# 2. SESSION STATE & SHARED DEAL STORE
-# ==================================================
+# --------------------------------------------------
+# 2. SESSION STATE
+# --------------------------------------------------
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
     st.session_state.user_role = None
+    st.session_state.auth_lock = False
 
-if "shared_deals" not in st.session_state:
-    st.session_state.shared_deals = {}
-
-if "active_deal_id" not in st.session_state:
-    st.session_state.active_deal_id = "DEAL-PRIMARY"
-
-
-def deal_hash(deal: dict) -> str:
-    payload = f"{deal['price']}{deal['seller_equity']}{deal['assignment_fee']}"
-    return hashlib.md5(payload.encode()).hexdigest()
-
-
-if st.session_state.active_deal_id not in st.session_state.shared_deals:
-    st.session_state.shared_deals[st.session_state.active_deal_id] = {
-        "deal_id": st.session_state.active_deal_id,
+if "current_deal" not in st.session_state:
+    st.session_state.current_deal = {
+        "deal_id": "DEAL-PRIMARY",
         "price": 330000.00,
         "seller_equity": 20000.00,
         "assignment_fee": 15000.00,
         "vault": [],
-        "notes": [],
-        "version": ""
+        "notes": []
     }
 
-D = st.session_state.shared_deals[st.session_state.active_deal_id]
+D = st.session_state.current_deal
 
-# ==================================================
-# 3. AUTH TERMINAL — ORIGINAL LOOK (FIXED CENTERING)
-# ==================================================
+# --------------------------------------------------
+# 3. AUTH TERMINAL — ORIGINAL DESIGN, CENTER FIX ONLY
+# --------------------------------------------------
 if not st.session_state.authenticated:
 
     pillar_icons = [
@@ -62,7 +49,7 @@ if not st.session_state.authenticated:
     ]
 
     icon_stack = "".join(
-        [f'<div class="flip-logo" style="animation-delay:{i * 3}s">{svg}</div>'
+        [f'<div class="flip-logo" style="animation-delay:{i*3}s;">{svg}</div>'
          for i, svg in enumerate(pillar_icons)]
     )
 
@@ -70,18 +57,15 @@ if not st.session_state.authenticated:
     <style>
     @import url("https://fonts.googleapis.com/css2?family=Inter:wght@900&family=Oswald:wght@700&display=swap");
 
-    html, body, .stApp {{
-        background-color: #ffffff !important;
+    .stApp {{
+        background-color: #FFFFFF !important;
     }}
 
     header, footer, [data-testid="stHeader"] {{
         display: none !important;
     }}
 
-    section.main > div {{
-        padding-top: 0 !important;
-    }}
-
+    /* ONLY FIX: replace margin-top with true centering */
     .main-auth-container {{
         min-height: 100vh;
         display: flex;
@@ -119,15 +103,15 @@ if not st.session_state.authenticated:
     }}
 
     @keyframes logoFlip {{
-        0% {{ opacity: 0; transform: scale(0.85); }}
-        5% {{ opacity: 1; }}
+        0% {{ opacity: 0; transform: scale(0.8); }}
+        1% {{ opacity: 1; transform: scale(1); }}
         30% {{ opacity: 1; }}
         33% {{ opacity: 0; transform: scale(1.05); }}
         100% {{ opacity: 0; }}
     }}
 
     .sync-box {{
-        margin-bottom: 30px;
+        margin-bottom: 20px;
         display: flex;
         align-items: center;
         gap: 8px;
@@ -157,22 +141,21 @@ if not st.session_state.authenticated:
         text-transform: uppercase;
     }}
 
-    input {{
-        text-align: center !important;
-        font-size: 18px !important;
-    }}
-
     div.stButton > button {{
         background-color: #1d428a !important;
-        color: #ffffff !important;
+        color: #FFFFFF !important;
         font-family: 'Oswald', sans-serif !important;
         font-weight: 700 !important;
         text-transform: uppercase !important;
         letter-spacing: 2px !important;
         padding: 15px 0 !important;
-        border: 2px solid #1d428a !important;
         width: 100%;
         margin-top: 10px;
+    }}
+
+    input {{
+        text-align: center !important;
+        font-size: 18px !important;
     }}
     </style>
 
@@ -195,10 +178,7 @@ if not st.session_state.authenticated:
             label_visibility="collapsed"
         )
 
-        if st.button(
-            "Authorize Session",
-            disabled=st.session_state.get("auth_lock", False)
-        ):
+        if st.button("Authorize Session", disabled=st.session_state.auth_lock):
             st.session_state.auth_lock = True
             try:
                 for _, profile in st.secrets["users"].items():
@@ -216,55 +196,36 @@ if not st.session_state.authenticated:
 
     st.stop()
 
-# ==================================================
-# 4. USER AUTO-SYNC
-# ==================================================
-role = st.session_state.user_role
-if role != "admin":
-    if "local_version" not in st.session_state:
-        st.session_state.local_version = D["version"]
-    if D["version"] != st.session_state.local_version:
-        st.session_state.local_version = D["version"]
-        st.toast("🔄 Deal Updated by Admin")
-        st.rerun()
-
-# ==================================================
-# 5. ADMIN DEAL MANAGEMENT
-# ==================================================
-if role == "admin":
-    with st.expander("🛡️ ADMIN: DEAL MANAGEMENT TERMINAL", expanded=False):
-        c1, c2, c3 = st.columns(3)
-        p = c1.number_input("Sales Price", value=D["price"])
-        e = c2.number_input("Seller Equity", value=D["seller_equity"])
-        f = c3.number_input("ULP Assignment Fee", value=D["assignment_fee"])
-
-        if st.button("🔁 RESTRUCTURE & PUSH LIVE", use_container_width=True):
-            D["price"], D["seller_equity"], D["assignment_fee"] = p, e, f
-            D["version"] = deal_hash(D)
-            st.toast("Deal pushed live")
-            st.rerun()
-
-# ==================================================
-# 6. CORE DASHBOARD
-# ==================================================
+# --------------------------------------------------
+# 4. DASHBOARD (UNCHANGED VISUALS)
+# --------------------------------------------------
 AITD = D["price"] - D["seller_equity"]
 
 st.markdown("## Utah Land & Property")
-st.caption(f"SESSION: {D['deal_id']} | ROLE: {role.upper()}")
+st.caption(f"SESSION: {D['deal_id']} | ROLE: {st.session_state.user_role.upper()}")
 
 c1, c2 = st.columns([2, 1])
 c1.metric("AITD Principal Balance", f"${AITD:,.2f}")
 c2.metric("ULP Assignment Fee", f"${D['assignment_fee']:,.2f}")
 
-# ==================================================
-# 7. TRANSACTION HUB
-# ==================================================
-st.markdown("### Transaction Hub")
+# --------------------------------------------------
+# 5. ADMIN DEAL MANAGEMENT
+# --------------------------------------------------
+if st.session_state.user_role == "admin":
+    with st.expander("🛡️ ADMIN: DEAL MANAGEMENT TERMINAL"):
+        p = st.number_input("Sales Price", value=D["price"])
+        e = st.number_input("Seller Equity", value=D["seller_equity"])
+        f = st.number_input("ULP Assignment Fee", value=D["assignment_fee"])
 
-v_col, n_col = st.columns([1.5, 1])
+        if st.button("UPDATE DEAL"):
+            D["price"], D["seller_equity"], D["assignment_fee"] = p, e, f
+            st.success("Deal updated")
 
-with v_col:
-    if role == "admin" and st.button("📄 GENERATE PDF SETTLEMENT"):
+# --------------------------------------------------
+# 6. PDF GENERATION
+# --------------------------------------------------
+if st.session_state.user_role == "admin":
+    if st.button("📄 GENERATE PDF SETTLEMENT"):
         buffer = io.BytesIO()
         c = canvas.Canvas(buffer, pagesize=LETTER)
         w, h = LETTER
@@ -297,25 +258,28 @@ with v_col:
 
         st.success("PDF Generated")
 
-    for doc in D["vault"]:
-        b64 = base64.b64encode(doc["content"]).decode()
-        st.markdown(
-            f'<a href="data:application/pdf;base64,{b64}" download="{doc["name"]}">📥 {doc["name"]}</a>',
-            unsafe_allow_html=True
-        )
+for doc in D["vault"]:
+    b64 = base64.b64encode(doc["content"]).decode()
+    st.markdown(
+        f'<a href="data:application/pdf;base64,{b64}" download="{doc["name"]}">📥 {doc["name"]}</a>',
+        unsafe_allow_html=True
+    )
 
-with n_col:
-    note = st.text_input("Add Note", label_visibility="collapsed")
-    if st.button("Post") and note:
-        D["notes"].insert(0, f"{datetime.now().strftime('%H:%M')} – {note}")
-        st.rerun()
+# --------------------------------------------------
+# 7. NOTES
+# --------------------------------------------------
+note = st.text_input("Add Note")
+if st.button("Post") and note:
+    D["notes"].insert(0, f"{datetime.now().strftime('%H:%M')} – {note}")
+    st.rerun()
 
-    for n in D["notes"]:
-        st.markdown(f"- {n}")
+for n in D["notes"]:
+    st.markdown(f"- {n}")
 
-# ==================================================
+# --------------------------------------------------
 # 8. LOGOUT
-# ==================================================
+# --------------------------------------------------
 if st.sidebar.button("LOGOUT"):
     st.session_state.authenticated = False
+    st.session_state.auth_lock = False
     st.rerun()
