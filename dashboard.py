@@ -3,8 +3,6 @@ import json
 import os
 import glob
 from datetime import datetime
-from streamlit_autorefresh import st_autorefresh
-import textwrap
 
 # ── 1. CONFIG & AUTO-REFRESH ───────────────────────────────────────────────
 st.set_page_config(
