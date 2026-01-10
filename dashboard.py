@@ -13,20 +13,19 @@ if "authenticated" not in st.session_state:
     st.session_state.user_role = None
 
 if not st.session_state.authenticated:
-   # --- PROFESSIONAL ICON SET (Monochromatic SVGs) ---
-# Using standard professional symbols: Shield, Scale, Lock, Briefcase, FileText
-pillar_icons = [
-    '<svg viewBox="0 0 24 24" width="80" height="80" stroke="#1d428a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>',
-    '<svg viewBox="0 0 24 24" width="80" height="80" stroke="#1d428a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M16 16s3-2 3-5V4l-7-3-7 3v7c0 3 3 5 3 5"></path><path d="M12 22V16"></path><path d="M8 17h8"></path></svg>',
-    '<svg viewBox="0 0 24 24" width="80" height="80" stroke="#1d428a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>',
-    '<svg viewBox="0 0 24 24" width="80" height="80" stroke="#1d428a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>',
-    '<svg viewBox="0 0 24 24" width="80" height="80" stroke="#1d428a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>'
-]
+    # --- PROFESSIONAL ICON SET (Monochromatic SVGs) ---
+    pillar_icons = [
+        '<svg viewBox="0 0 24 24" width="80" height="80" stroke="#1d428a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>',
+        '<svg viewBox="0 0 24 24" width="80" height="80" stroke="#1d428a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M16 16s3-2 3-5V4l-7-3-7 3v7c0 3 3 5 3 5"></path><path d="M12 22V16"></path><path d="M8 17h8"></path></svg>',
+        '<svg viewBox="0 0 24 24" width="80" height="80" stroke="#1d428a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>',
+        '<svg viewBox="0 0 24 24" width="80" height="80" stroke="#1d428a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>',
+        '<svg viewBox="0 0 24 24" width="80" height="80" stroke="#1d428a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>'
+    ]
 
-icon_stack = "".join([
-    f'<div class="flip-logo" style="animation-delay: {i * 3}s;">{svg}</div>' 
-    for i, svg in enumerate(pillar_icons)
-])
+    icon_stack = "".join([
+        f'<div class="flip-logo" style="animation-delay: {i * 3}s;">{svg}</div>' 
+        for i, svg in enumerate(pillar_icons)
+    ])
 
     st.markdown(f'''
     <style>
@@ -47,8 +46,16 @@ icon_stack = "".join([
         }}
         
         .logo-container {{ position: relative; height: 140px; display: flex; justify-content: center; align-items: center; margin: 10px 0; }}
-        .flip-logo {{ position: absolute; opacity: 0; animation: logoFlip {len(pillars)*3}s infinite; }}
-        @keyframes logoFlip {{ 0% {{ opacity: 0; transform: scale(0.8); }} 1% {{ opacity: 1; transform: scale(1); }} 15% {{ opacity: 1; }} 20% {{ opacity: 0; transform: scale(1.05); }} 100% {{ opacity: 0; }} }}
+        
+        /* UPDATED ANIMATION LOGIC */
+        .flip-logo {{ position: absolute; opacity: 0; animation: logoFlip {len(pillar_icons)*3}s infinite; }}
+        @keyframes logoFlip {{ 
+            0% {{ opacity: 0; transform: scale(0.8); }} 
+            1% {{ opacity: 1; transform: scale(1); }} 
+            15% {{ opacity: 1; }} 
+            20% {{ opacity: 0; transform: scale(1.05); }} 
+            100% {{ opacity: 0; }} 
+        }}
         
         .sync-box {{ text-align: center; margin-bottom: 30px; }}
         .pulse-dot {{ height: 10px; width: 10px; background-color: #00ff41; border-radius: 50%; display: inline-block; margin-right: 8px; box-shadow: 0 0 10px #00ff41; animation: pulse-green 1.5s infinite; }}
@@ -82,7 +89,6 @@ icon_stack = "".join([
             border: 2px solid #1d428a !important;
         }}
 
-        /* Center the text input placeholder and text */
         input {{
             text-align: center !important;
         }}
@@ -100,7 +106,6 @@ icon_stack = "".join([
         with st.container(border=True):
             input_key = st.text_input("Security Key", type="password", placeholder="ENTER PRIVATE ACCESS KEY", label_visibility="collapsed")
             
-            # The button is now centered via the CSS block above
             if st.button("Secure Access Terminal"):
                 try:
                     user_db = st.secrets["users"]
