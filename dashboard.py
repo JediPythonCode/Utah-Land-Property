@@ -27,7 +27,7 @@ if not st.session_state.authenticated:
         '<svg viewBox="0 0 24 24" width="80" height="80" stroke="#1d428a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>',
     
     ]
-    icon_stack = "".join([f'<div class="flip-logo" style="animation-delay: {i * 2}s;">{svg}</div>' for i, svg in enumerate(pillar_icons)])
+    icon_stack = "".join([f'<div class="flip-logo" style="animation-delay: {i * 3}s;">{svg}</div>' for i, svg in enumerate(pillar_icons)])
 
     st.markdown(f'''
     <style>
