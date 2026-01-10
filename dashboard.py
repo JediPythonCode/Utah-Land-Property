@@ -7,28 +7,24 @@ from datetime import datetime
 from cryptography.fernet import Fernet
 from collections.abc import Mapping
 
-# ── 1. CONFIG & SECURE ENCRYPTION ────────────────────────────────────────────
+# ── 1. CONFIG & SECURE ENCRYPTION (LOS SOURCE OF TRUTH) ──────────────────────
 st.set_page_config(
-    page_title="Utah Land & Property",
+    page_title="Utah Land & Property | Deal-Flow",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# Auto-refresh to keep session alive
 if "refresh_initialized" not in st.session_state:
     st_autorefresh(interval=600000, key="ulp_refresh")
     st.session_state.refresh_initialized = True
 
 def initialize_system():
-    """Initializes encryption and loads the user database from secrets."""
     try:
         key = st.secrets.get("secret_key")
         users_data = st.secrets.get("users")
-
         if not key or users_data is None:
-            st.error("🚨 SYSTEM ERROR: secrets.toml is missing 'secret_key' or '[users]'.")
+            st.error("🚨 SYSTEM ERROR: secrets.toml missing 'secret_key' or '[users]'.")
             st.stop()
-
         return Fernet(key.encode()), dict(users_data)
     except Exception as e:
         st.error(f"🚨 SYSTEM CRITICAL: Secrets unreachable. {e}")
@@ -36,59 +32,36 @@ def initialize_system():
 
 fernet, USER_DB = initialize_system()
 
-# ── 2. BRANDING & STYLING ──────────────────────────────────────────────────
+# ── 2. BRANDING & STYLING (SNapp UI INSPIRATION) ──────────────────────────────
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Oswald:wght@500;700&display=swap');
         .stApp { background-color: #ffffff !important; color: #1a1a1a !important; }
         h1, h2, h3, h4, h5, h6, p, span, label, .stMarkdown {
-            color: #1a3c6d !important; font-family: 'Inter', sans-serif; font-weight: 600;
+            color: #1a3c6d !important; font-family: 'Inter', sans-serif;
         }
-        input, textarea, [data-baseweb="select"] {
-            background-color: #f9fafb !important; color: #1a1a1a !important;
-            border: 1px solid #d1d5db !important;
+        .metric-card {
+            background: #f8fafc; border: 1px solid #e2e8f0; padding: 20px;
+            border-radius: 12px; text-align: center;
         }
-        [data-testid="stFileUploader"] {
-            background-color: #f3f4f6 !important;
-            border: 2px dashed #1a3c6d !important;
-            border-radius: 10px; padding: 10px;
+        [data-testid="stHeader"] { display: none !important; }
+        .stTabs [data-baseweb="tab-list"] { gap: 24px; }
+        .stTabs [data-baseweb="tab"] {
+            height: 50px; background-color: #f1f5f9; border-radius: 8px 8px 0 0;
+            padding: 10px 20px; font-weight: 600;
         }
-        header, footer, [data-testid="stHeader"] { display: none !important; }
-        .viewport-top-container {
-            display: flex; flex-direction: column; justify-content: center;
-            align-items: center; min-height: 35vh; padding-top: 40px;
-            text-align: center; width: 100%;
-        }
-        .brand-title {
-            font-family: 'Inter', sans-serif !important; font-size: clamp(38px, 8vw, 78px) !important;
-            font-weight: 900 !important; color: #1a3c6d !important; letter-spacing: -1.5px !important;
-            margin-bottom: 0px !important; line-height: 1.0 !important;
-        }
-        .brand-subtitle {
-            font-family: 'Oswald', sans-serif !important; font-size: 1.25rem !important;
-            color: #6b7280 !important; letter-spacing: 3px !important; font-weight: 500 !important;
-            margin-top: 10px !important; margin-bottom: 1.5rem !important;
-        }
-        .pulse-lock {
-            height: 12px; width: 12px; background: #10b981; border-radius: 50%;
-            display: inline-block; margin-right: 12px;
-            box-shadow: 0 0 12px rgba(16,185,129,0.5); animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(16,185,129,0.7); }
-            70% { box-shadow: 0 0 0 12px rgba(16,185,129,0); }
-            100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
-        }
+        .stTabs [aria-selected="true"] { background-color: #1a3c6d !important; color: white !important; }
     </style>
 """, unsafe_allow_html=True)
 
-# ── 3. CORE LOGIC (VAULT OPERATIONS) ─────────────────────────────────────────
+# ── 3. CORE LOGIC & VAULT ─────────────────────────────────────────────────────
 VAULT_BASE = "vault"
+FOLDERS = ["general", "buyer_docs", "admin_inbox", "metadata", "pipeline"]
+for folder in FOLDERS:
+    os.makedirs(os.path.join(VAULT_BASE, folder), exist_ok=True)
+
 AUDIT_FILE = os.path.join(VAULT_BASE, "general", "audit_log.csv")
 DISCLOSURE_FILE = os.path.join(VAULT_BASE, "general", "deal_structure.txt")
-
-for folder in ["general", "buyer_docs", "property_images", "metadata"]:
-    os.makedirs(os.path.join(VAULT_BASE, folder), exist_ok=True)
 
 def logger(user, action, details):
     try:
@@ -98,12 +71,12 @@ def logger(user, action, details):
         log_entry.to_csv(AUDIT_FILE, mode='a', header=not os.path.exists(AUDIT_FILE), index=False)
     except: pass
 
-def save_encrypted(file_path, data, description=""):
+def save_encrypted(file_path, data, description="", folder="buyer_docs"):
     encrypted_data = fernet.encrypt(data)
     with open(file_path, "wb") as f: f.write(encrypted_data)
-    # Save Metadata (Zoho/Monday style notes)
-    meta_path = os.path.join(VAULT_BASE, "metadata", os.path.basename(file_path) + ".json")
-    with open(meta_path, "w") as f: 
+    meta_name = os.path.basename(file_path) + ".json"
+    meta_path = os.path.join(VAULT_BASE, "metadata", meta_name)
+    with open(meta_path, "w") as f:
         json.dump({"description": description, "timestamp": str(datetime.now())}, f)
 
 def read_encrypted(file_path):
@@ -111,133 +84,123 @@ def read_encrypted(file_path):
         with open(file_path, "rb") as f: return fernet.decrypt(f.read())
     except: return None
 
-def get_meta(file_path):
-    meta_path = os.path.join(VAULT_BASE, "metadata", os.path.basename(file_path) + ".json")
-    if os.path.exists(meta_path):
-        with open(meta_path, "r") as f:
-            return json.load(f).get("description", "No additional notes.")
-    return "No description available."
+def update_pipeline(u_id, stage):
+    pipe_path = os.path.join(VAULT_BASE, "pipeline", f"{u_id}.json")
+    with open(pipe_path, "w") as f:
+        json.dump({"stage": stage, "updated": str(datetime.now())}, f)
 
+def get_pipeline(u_id):
+    pipe_path = os.path.join(VAULT_BASE, "pipeline", f"{u_id}.json")
+    if os.path.exists(pipe_path):
+        with open(pipe_path, "r") as f: return json.load(f).get("stage", "Initial Contact")
+    return "Initial Contact"
+
+# ── 4. UI FLOW (TOTALEXPERT INSPIRED AUTH) ────────────────────────────────────
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 
-# ── 4. UI FLOW (ROBUST LOGIN) ────────────────────────────────────────────────
 if not st.session_state.authenticated:
-    st.markdown("""
-        <div class="viewport-top-container">
-            <div class="brand-title">Utah Land & Property</div>
-            <div class="brand-subtitle">Strategic Asset Protection Framework</div>
-            <div style="margin-bottom: 2rem;">
-                <span class="pulse-lock"></span>
-                <span style="color:#1a3c6d; font-family:'Oswald'; letter-spacing:2px;">SECURE CLIENT PORTAL</span>
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
-
-    _, col_mid, _ = st.columns([1, 1.6, 1])
+    _, col_mid, _ = st.columns([1, 1.5, 1])
     with col_mid:
-        u_id_input = st.text_input("User ID", placeholder="Enter Username", label_visibility="collapsed").strip().lower()
-        u_pwd_input = st.text_input("Key", type="password", placeholder="Enter Access Key", label_visibility="collapsed").strip()
-
-        if st.button("Access Portal", use_container_width=True, type="primary"):
-            if u_id_input in USER_DB:
-                user_info = USER_DB[u_id_input]
-                # str() comparison to handle numeric passwords like '28773151'
-                if str(user_info.get("key")) == u_pwd_input:
-                    st.session_state.authenticated = True
-                    st.session_state.user_id = u_id_input
-                    st.session_state.user_role = user_info.get("role", "Buyer")
-                    logger(u_id_input, "Login", "Success")
-                    st.rerun()
-                else:
-                    st.error("Access Denied: Incorrect Key")
+        st.markdown("<br><br><br>", unsafe_allow_html=True)
+        st.markdown("<h1 style='text-align:center;'>ULP DIGITAL VAULT</h1>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align:center; color:#64748b;'>SECURE POINT-OF-SALE INTERFACE</p>", unsafe_allow_html=True)
+        
+        u_id_input = st.text_input("ACCESS ID", placeholder="Username").strip().lower()
+        u_pwd_input = st.text_input("SECURITY KEY", type="password", placeholder="••••••••").strip()
+        
+        if st.button("ENTER SECURE PORTAL", use_container_width=True, type="primary"):
+            if u_id_input in USER_DB and str(USER_DB[u_id_input].get("key")) == u_pwd_input:
+                st.session_state.authenticated = True
+                st.session_state.user_id = u_id_input
+                st.session_state.user_role = USER_DB[u_id_input].get("role", "Buyer")
+                logger(u_id_input, "Auth", "Success")
+                st.rerun()
             else:
-                st.error("Access Denied: Invalid User ID")
+                st.error("Authentication Failed")
 
 else:
-    # ── 5. DASHBOARD (RESTORING ZOHO/MONDAY FEATURES) ─────────────────────────
+    # ── 5. DASHBOARD (TECH STACK INTEGRATION) ─────────────────────────────────
     role = st.session_state.user_role
-    user_id = st.session_state.user_id
-    
-    st.sidebar.title("Navigation")
-    if st.sidebar.button("Secure Logout"):
+    u_id = st.session_state.user_id
+
+    st.sidebar.markdown(f"**Operator:** {u_id.upper()}")
+    st.sidebar.markdown(f"**Role:** {role}")
+    if st.sidebar.button("Termnal Logout"):
         st.session_state.authenticated = False
         st.rerun()
 
-    st.title(f"{role} Portal")
-
     if role == "Admin":
-        # Restoration of the multi-functional dashboard
-        t1, t2, t3, t4 = st.tabs(["Push Disclosure", "Assign Files", "System Audit", "User Management"])
-        
+        st.title("Admin Deal-Flow Command")
+        t1, t2, t3, t4 = st.tabs(["Pipeline (CRM)", "Distribution (POS)", "Total eClose", "Audit"])
+
         with t1:
-            st.subheader("Project Disclosure & Structure")
-            current_disc = ""
-            if os.path.exists(DISCLOSURE_FILE):
-                with open(DISCLOSURE_FILE, "r") as f: current_disc = f.read()
-            
-            new_disc = st.text_area("Update Deal Structure / Disclosures", value=current_disc, height=300)
-            if st.button("Broadcast Update"):
-                with open(DISCLOSURE_FILE, "w") as f: f.write(new_disc)
-                logger(user_id, "Update Disclosure", "Broadcasting new structure")
-                st.success("Disclosure updated for all users.")
+            st.subheader("TotalExpert Pipeline Intelligence")
+            for buyer in [u for u in USER_DB if USER_DB[u]['role'] == 'Buyer']:
+                col1, col2, col3 = st.columns([1, 2, 1])
+                col1.write(f"**{buyer}**")
+                stage = col2.selectbox("Deal Stage", ["Application", "Processing", "Underwriting", "Approved", "Closed"], key=f"pipe_{buyer}", index=["Application", "Processing", "Underwriting", "Approved", "Closed"].index(get_pipeline(buyer)))
+                if col3.button("Update", key=f"btn_{buyer}"):
+                    update_pipeline(buyer, stage)
+                    st.toast(f"Updated {buyer} to {stage}")
 
         with t2:
-            st.subheader("Secure Document Distribution")
-            col1, col2 = st.columns(2)
-            with col1:
-                target = st.selectbox("Assign to User", options=list(USER_DB.keys()))
-                desc = st.text_input("Note / Status (e.g., 'Awaiting Signature')")
-            with col2:
-                up_files = st.file_uploader("Upload Docs", accept_multiple_files=True)
-            
-            if st.button("Secure & Assign") and up_files:
-                for f in up_files:
+            st.subheader("SNapp Document Distribution")
+            target = st.selectbox("Select Target Account", options=list(USER_DB.keys()))
+            note = st.text_input("Note for Buyer (Visible in POS)")
+            files = st.file_uploader("Upload Assets", accept_multiple_files=True)
+            if st.button("Encrypt & Transmit") and files:
+                for f in files:
                     path = os.path.join(VAULT_BASE, "buyer_docs", f"ENCR_{target}_{f.name}")
-                    save_encrypted(path, f.getbuffer(), desc)
-                logger(user_id, "Assign Files", f"Sent to {target}")
-                st.success(f"Files encrypted and sent to {target}.")
+                    save_encrypted(path, f.getvalue(), note)
+                st.success("Assets Delivered.")
 
         with t3:
-            st.subheader("Audit Trail")
-            if os.path.exists(AUDIT_FILE):
-                df = pd.read_csv(AUDIT_FILE)
-                st.dataframe(df.sort_values(by="Timestamp", ascending=False), use_container_width=True)
+            st.subheader("DocMagic eClose Status")
+            st.info("Tracking hybrid and full eNote notarization progress.")
+            # Admin can view documents buyers uploaded (POS logic)
+            inbox_path = os.path.join(VAULT_BASE, "admin_inbox")
+            buyer_uploads = os.listdir(inbox_path)
+            if buyer_uploads:
+                for b_file in buyer_uploads:
+                    st.write(f"📩 **Incoming:** {b_file}")
+                    st.download_button("Review Document", read_encrypted(os.path.join(inbox_path, b_file)), file_name=b_file, key=b_file)
             else:
-                st.info("No audit logs yet.")
+                st.write("No pending documents in SNapp Inbox.")
 
         with t4:
-            st.subheader("Authorized Users")
-            st.table(pd.DataFrame.from_dict(USER_DB, orient='index')[['role']])
+            if os.path.exists(AUDIT_FILE):
+                st.dataframe(pd.read_csv(AUDIT_FILE).sort_values(by="Timestamp", ascending=False), use_container_width=True)
 
     elif role == "Buyer":
-        # Restoration of the clean, actionable buyer view
-        st.subheader("Strategic Assets & Documents")
+        st.title("SNapp Home Portal")
         
-        # Display the deal disclosure from Admin
-        if os.path.exists(DISCLOSURE_FILE):
-            with st.expander("📄 View Deal Structure & Disclosures", expanded=True):
-                with open(DISCLOSURE_FILE, "r") as f:
-                    st.markdown(f.read())
+        # CRM Style Status Tracker
+        current_stage = get_pipeline(u_id)
+        st.markdown(f"### Current Deal Status: `{current_stage}`")
+        st.progress(["Application", "Processing", "Underwriting", "Approved", "Closed"].index(current_stage) / 4)
+
+        col_a, col_b = st.columns([2, 1])
+        
+        with col_a:
+            st.subheader("Secure Documents")
+            doc_dir = os.path.join(VAULT_BASE, "buyer_docs")
+            user_docs = [f for f in os.listdir(doc_dir) if f.startswith(f"ENCR_{u_id}_")]
+            for i, d in enumerate(user_docs):
+                clean_name = d.replace(f"ENCR_{u_id}_", "")
+                data = read_encrypted(os.path.join(doc_dir, d))
+                st.download_button(f"📥 Download {clean_name}", data, file_name=clean_name, key=f"b_dl_{i}")
+
+        with col_b:
+            st.subheader("SNapp Upload (POS)")
+            st.caption("Securely scan/upload documents to your LO.")
+            b_up = st.file_uploader("Upload required docs", accept_multiple_files=False)
+            if st.button("Submit to Admin"):
+                if b_up:
+                    path = os.path.join(VAULT_BASE, "admin_inbox", f"FROM_{u_id}_{b_up.name}")
+                    save_encrypted(path, b_up.getvalue(), "Buyer Uploaded")
+                    st.success("Successfully Transmitted.")
 
         st.divider()
-
-        doc_dir = os.path.join(VAULT_BASE, "buyer_docs")
-        docs = [f for f in os.listdir(doc_dir) if f.startswith(f"ENCR_{user_id}_")]
-        
-        if not docs:
-            st.info("Your vault is currently empty. Assets will appear here once assigned.")
-        
-        for i, d in enumerate(docs):
-            note = get_meta(d)
-            data = read_encrypted(os.path.join(doc_dir, d))
-            clean_name = d.replace(f"ENCR_{user_id}_", "")
-            
-            with st.container():
-                c1, c2 = st.columns([3, 1])
-                with c1:
-                    st.write(f"**{clean_name}**")
-                    st.caption(f"Status/Note: {note}")
-                with c2:
-                    st.download_button("Download", data, file_name=clean_name, key=f"dl_{i}", use_container_width=True)
-                st.markdown("---")
+        st.subheader("Market Intelligence (MBS Highway)")
+        st.info("Live Update: Rate lock recommendations and bid-over-ask insights are updated daily.")
