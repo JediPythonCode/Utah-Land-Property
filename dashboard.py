@@ -6,170 +6,256 @@ import pandas as pd
 from datetime import datetime
 from cryptography.fernet import Fernet
 
-# ── 1. SYSTEM CONFIG & STYLING ────────────────────────────────────────────────
+# ── 1. CONFIG & SECURE ENCRYPTION (RESTORING SOURCE OF TRUTH) ────────────────
 st.set_page_config(
-    page_title="ULP | 2026 Transaction Hub",
+    page_title="Utah Land & Property | Deal-Flow",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
 STAGES = ["Application", "Processing", "Underwriting", "Approved", "Closed"]
 
+if "refresh_initialized" not in st.session_state:
+    st_autorefresh(interval=600000, key="ulp_refresh")
+    st.session_state.refresh_initialized = True
+
+def initialize_system():
+    try:
+        key = st.secrets.get("secret_key")
+        users_data = st.secrets.get("users")
+        if not key or users_data is None:
+            st.error("🚨 SYSTEM ERROR: secrets.toml missing 'secret_key' or '[users]'.")
+            st.stop()
+        return Fernet(key.encode()), dict(users_data)
+    except Exception as e:
+        st.error(f"🚨 SYSTEM CRITICAL: Secrets unreachable. {e}")
+        st.stop()
+
+fernet, USER_DB = initialize_system()
+
+# ── 2. BRANDING & STYLING (FORCED LIGHT MODE & BENTO GRID) ──────────────────
 st.markdown("""
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Oswald:wght@500;700&display=swap');
+        
         .stApp { background-color: #ffffff !important; }
-        [data-testid="stHeader"] { visibility: hidden; }
-        .bento-card {
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 20px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        
+        /* Original Header Style */
+        h1, h2, h3, h4, h5, h6, p, span, label, .stMarkdown {
+            color: #1a3c6d !important; font-family: 'Inter', sans-serif;
         }
-        h1, h2, h3, p, label, .stMarkdown { color: #0f172a !important; font-family: 'Inter', sans-serif; }
-        .trust-pill {
-            background: #f0fdf4; color: #166534;
-            padding: 4px 12px; border-radius: 100px;
-            font-size: 0.75rem; font-weight: 700; border: 1px solid #bbf7d0;
-            margin-right: 8px;
+
+        /* 2026 Bento Grid Cards */
+        .bento-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 24px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        /* Original Tab Styling */
+        [data-testid="stHeader"] { display: none !important; }
+        .stTabs [data-baseweb="tab-list"] { gap: 24px; }
+        .stTabs [data-baseweb="tab"] {
+            height: 50px; background-color: #f1f5f9; border-radius: 8px 8px 0 0;
+            padding: 10px 20px; font-weight: 600;
+        }
+        .stTabs [aria-selected="true"] { background-color: #1a3c6d !important; color: white !important; }
+        
+        .trust-badge {
+            background-color: #ecfdf5; color: #065f46;
+            padding: 4px 12px; border-radius: 99px;
+            font-size: 12px; font-weight: 600; border: 1px solid #10b981;
         }
     </style>
 """, unsafe_allow_html=True)
 
-# ── 2. CORE BACKEND LOGIC ─────────────────────────────────────────────────────
-def initialize_system():
-    try:
-        # Check secrets. Use placeholders ONLY if local development
-        key = st.secrets.get("secret_key", "L-9_W7_m6m_kE6pX-7m_fX-p_m6m_kE6pX-7m_fX-p=")
-        users = dict(st.secrets.get("users", {"admin": {"key": "1234", "role": "Admin"}}))
-        return Fernet(key.encode()), users
-    except:
-        st.error("🚨 Configuration Error: Check your secrets.toml")
-        st.stop()
-
-fernet, USER_DB = initialize_system()
+# ── 3. CORE LOGIC & VAULT ─────────────────────────────────────────────────────
 VAULT_BASE = "vault"
-for f in ["buyer_docs", "admin_inbox", "pipeline"]:
-    os.makedirs(os.path.join(VAULT_BASE, f), exist_ok=True)
+FOLDERS = ["general", "buyer_docs", "admin_inbox", "metadata", "pipeline"]
+for folder in FOLDERS:
+    os.makedirs(os.path.join(VAULT_BASE, folder), exist_ok=True)
 
-def get_pipeline_stage(u_id):
-    path = os.path.join(VAULT_BASE, "pipeline", f"{u_id}.json")
-    if os.path.exists(path):
-        try:
-            with open(path, "r") as f: return json.load(f).get("stage", STAGES[0])
-        except: return STAGES[0]
+AUDIT_FILE = os.path.join(VAULT_BASE, "general", "audit_log.csv")
+
+def logger(user, action, details):
+    try:
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        log_entry = pd.DataFrame([[timestamp, user, action, str(details)]], 
+                                columns=["Timestamp", "User", "Action", "Details"])
+        log_entry.to_csv(AUDIT_FILE, mode='a', header=not os.path.exists(AUDIT_FILE), index=False)
+    except: pass
+
+def save_encrypted(file_path, data, description=""):
+    encrypted_data = fernet.encrypt(data)
+    with open(file_path, "wb") as f: f.write(encrypted_data)
+    meta_name = os.path.basename(file_path) + ".json"
+    meta_path = os.path.join(VAULT_BASE, "metadata", meta_name)
+    with open(meta_path, "w") as f:
+        json.dump({"description": description, "timestamp": str(datetime.now())}, f)
+
+def read_encrypted(file_path):
+    try:
+        with open(file_path, "rb") as f: return fernet.decrypt(f.read())
+    except: return None
+
+def get_pipeline(u_id):
+    pipe_path = os.path.join(VAULT_BASE, "pipeline", f"{u_id}.json")
+    if os.path.exists(pipe_path):
+        with open(pipe_path, "r") as f: return json.load(f).get("stage", STAGES[0])
     return STAGES[0]
 
-def update_pipeline_stage(u_id, stage):
-    path = os.path.join(VAULT_BASE, "pipeline", f"{u_id}.json")
-    with open(path, "w") as f:
+def update_pipeline(u_id, stage):
+    pipe_path = os.path.join(VAULT_BASE, "pipeline", f"{u_id}.json")
+    with open(pipe_path, "w") as f:
         json.dump({"stage": stage, "updated": str(datetime.now())}, f)
 
-# ── 3. AUTHENTICATION LOGIC ──────────────────────────────────────────────────
+# ── 4. UI FLOW (TOTALEXPERT INSPIRED AUTH) ────────────────────────────────────
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 
 if not st.session_state.authenticated:
-    _, col_auth, _ = st.columns([1, 1.2, 1])
-    with col_auth:
+    _, col_mid, _ = st.columns([1, 1.5, 1])
+    with col_mid:
         st.markdown("<br><br><br>", unsafe_allow_html=True)
         st.markdown("<h1 style='text-align:center;'>ULP DIGITAL VAULT</h1>", unsafe_allow_html=True)
-        st.markdown("<p style='text-align:center; color:#64748b;'>SECURE 2026 TRANSACTION HUB</p>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align:center; color:#64748b;'>SECURE POINT-OF-SALE INTERFACE</p>", unsafe_allow_html=True)
         
-        input_uid = st.text_input("ACCESS ID", placeholder="Username").strip().lower()
-        input_pwd = st.text_input("SECURITY KEY", type="password", placeholder="••••••••").strip()
+        u_id_input = st.text_input("ACCESS ID", placeholder="Username").strip().lower()
+        u_pwd_input = st.text_input("SECURITY KEY", type="password", placeholder="••••••••").strip()
         
-        if st.button("AUTHORIZE ACCESS", use_container_width=True, type="primary"):
-            if input_uid in USER_DB and str(USER_DB[input_uid].get("key")) == input_pwd:
+        if st.button("ENTER SECURE PORTAL", use_container_width=True, type="primary"):
+            if u_id_input in USER_DB and str(USER_DB[u_id_input].get("key")) == u_pwd_input:
                 st.session_state.authenticated = True
-                st.session_state.user_id = input_uid
-                st.session_state.role = USER_DB[input_uid].get("role", "Buyer")
+                st.session_state.user_id = u_id_input
+                st.session_state.user_role = USER_DB[u_id_input].get("role", "Buyer")
+                logger(u_id_input, "Auth", "Success")
                 st.rerun()
             else:
-                st.error("Invalid Credentials")
-    st.stop()  # <--- CRITICAL: Prevents the rest of the script from running if not authed
+                st.error("Authentication Failed")
+    st.stop()
 
-# ── 4. DASHBOARD (ONLY REACHED IF AUTHENTICATED) ─────────────────────────────
-# Now it is safe to access these variables
-role = st.session_state.role
+# ── 5. DASHBOARD (TECH STACK INTEGRATION) ─────────────────────────────────────
+role = st.session_state.user_role
 u_id = st.session_state.user_id
 
-with st.sidebar:
-    st.markdown(f"### **{role.upper()} PORTAL**")
-    st.write(f"Operator: `{u_id.upper()}`")
-    if st.button("Terminate Session"):
-        st.session_state.authenticated = False
-        st.rerun()
+st.sidebar.markdown(f"**Operator:** {u_id.upper()}")
+st.sidebar.markdown(f"**Role:** {role}")
+if st.sidebar.button("Terminal Logout"):
+    st.session_state.authenticated = False
+    st.rerun()
 
-# ── ADMIN INTERFACE ──────────────────────────────────────────────────────────
 if role == "Admin":
-    st.title("Admin Pipeline Command")
-    tab1, tab2 = st.tabs(["Pipeline Management", "Document Inbox"])
-    
-    with tab1:
-        st.subheader("TotalExpert Integration")
-        buyers = [u for u in USER_DB if USER_DB[u].get('role') == 'Buyer']
-        for b in buyers:
-            c1, c2, c3 = st.columns([1, 2, 1])
-            c1.markdown(f"**{b.upper()}**")
-            current = get_pipeline_stage(b)
-            idx = STAGES.index(current) if current in STAGES else 0
-            new_stage = c2.selectbox("Change Stage", STAGES, index=idx, key=f"sel_{b}")
-            if c3.button("Push Update", key=f"btn_{b}"):
-                update_pipeline_stage(b, new_stage)
-                st.toast(f"Updated {b} to {new_stage}")
+    st.title("Admin Deal-Flow Command")
+    t1, t2, t3, t4 = st.tabs(["Pipeline (CRM)", "Distribution (POS)", "Total eClose", "Audit"])
 
-    with tab2:
-        st.subheader("Incoming Document Stream")
+    with t1:
+        st.subheader("TotalExpert Pipeline Intelligence")
+        buyers = [u for u in USER_DB if USER_DB[u]['role'] == 'Buyer']
+        for buyer in buyers:
+            col1, col2, col3 = st.columns([1, 2, 1])
+            col1.write(f"**{buyer}**")
+            current_stage = get_pipeline(buyer)
+            idx = STAGES.index(current_stage) if current_stage in STAGES else 0
+            stage = col2.selectbox("Deal Stage", STAGES, key=f"pipe_{buyer}", index=idx)
+            if col3.button("Update", key=f"btn_{buyer}"):
+                update_pipeline(buyer, stage)
+                st.toast(f"Updated {buyer} to {stage}")
+
+    with t2:
+        st.subheader("SNapp Document Distribution")
+        target = st.selectbox("Select Target Account", options=list(USER_DB.keys()))
+        note = st.text_input("Note for Buyer (Visible in POS)")
+        files = st.file_uploader("Upload Assets", accept_multiple_files=True)
+        if st.button("Encrypt & Transmit") and files:
+            for f in files:
+                path = os.path.join(VAULT_BASE, "buyer_docs", f"ENCR_{target}_{f.name}")
+                save_encrypted(path, f.getvalue(), note)
+            st.success("Assets Delivered.")
+
+    with t3:
+        st.subheader("DocMagic eClose Status")
         inbox_path = os.path.join(VAULT_BASE, "admin_inbox")
-        uploads = os.listdir(inbox_path)
-        if uploads:
-            for f in uploads: st.write(f"📩 {f}")
-        else: st.info("Inbox clear.")
+        if os.path.exists(inbox_path):
+            buyer_uploads = os.listdir(inbox_path)
+            for b_file in buyer_uploads:
+                st.write(f"📩 **Incoming:** {b_file}")
+                data = read_encrypted(os.path.join(inbox_path, b_file))
+                if data:
+                    st.download_button("Review Document", data, file_name=b_file, key=b_file)
+        else:
+            st.write("No pending documents.")
 
-# ── BUYER INTERFACE (2026 BENTO HUB) ──────────────────────────────────────────
-else:
-    st.markdown(f"<h1>Welcome to your Hub, {u_id.title()}</h1>", unsafe_allow_html=True)
-    st.markdown('<span class="trust-pill">🛡️ SOC-2 SECURE</span> <span class="trust-pill">⛓️ BLOCKCHAIN VERIFIED</span>', unsafe_allow_html=True)
+    with t4:
+        if os.path.exists(AUDIT_FILE):
+            st.dataframe(pd.read_csv(AUDIT_FILE).sort_values(by="Timestamp", ascending=False), use_container_width=True)
+
+elif role == "Buyer":
+    # ── 2026 INTERACTIVE HUB (BENTO GRID) ─────────────────────────────────────
+    st.markdown(f"<h1>ULP DIGITAL VAULT | {u_id.upper()}</h1>", unsafe_allow_html=True)
+    st.markdown('<span class="trust-badge">🛡️ Blockchain-Verified Listing</span>', unsafe_allow_html=True)
     
-    # Milestone Tracker
-    current_s = get_pipeline_stage(u_id)
+    # Pizza Tracker UI
+    current_stage = get_pipeline(u_id)
     cols = st.columns(len(STAGES))
     for i, s in enumerate(STAGES):
-        active = STAGES.index(current_s) >= i
+        active = STAGES.index(current_stage) >= i
         color = "#1a3c6d" if active else "#cbd5e1"
-        cols[i].markdown(f"<p style='text-align:center; color:{color}; font-size:0.8rem;'>{'✅' if active else '○'}<br><b>{s}</b></p>", unsafe_allow_html=True)
-    st.progress(STAGES.index(current_s) / (len(STAGES)-1))
+        cols[i].markdown(f"<p style='text-align:center; color:{color}; font-size:0.85rem;'>{'✅' if active else '○'}<br><b>{s}</b></p>", unsafe_allow_html=True)
+    st.progress(STAGES.index(current_stage) / (len(STAGES)-1))
 
-    # Bento Grid Layout
     st.markdown("<br>", unsafe_allow_html=True)
-    col_l, col_r = st.columns([1.5, 1])
+    
+    col_a, col_b = st.columns([1.5, 1])
 
-    with col_l:
+    with col_a:
+        # BENTO CARD: DYNAMIC CHECKLIST
         st.markdown('<div class="bento-card">', unsafe_allow_html=True)
-        st.subheader("📌 Transaction Checklist")
-        st.checkbox("Prequalification: Completed", value=True)
-        st.checkbox("Purchase Agreement: Signed", value=True)
-        st.checkbox("Appraisal: In Progress", value=(current_s in ["Underwriting", "Approved", "Closed"]))
-        st.checkbox("Closing Prep: Verify Wire", value=(current_s == "Closed"))
+        st.subheader("📌 Dynamic Transaction Checklist")
+        st.checkbox("Prequalification: Store pre-approval letter", value=True)
+        st.checkbox("Offer & Contract: E-sign purchase agreement", value=True)
+        st.checkbox("Inspections & Appraisals: Track repair contingencies", value=(STAGES.index(current_stage) >= 2))
+        st.checkbox("Closing Prep: Verify wire instructions", value=(STAGES.index(current_stage) >= 4))
         st.markdown('</div>', unsafe_allow_html=True)
 
+        # BENTO CARD: SECURE VAULT
         st.markdown('<div class="bento-card">', unsafe_allow_html=True)
-        st.subheader("🔐 Secure Vault")
-        st.caption("Centralized storage with end-to-end encryption for sensitive financial records.")
-        st.info("No documents shared by LO yet.")
+        st.subheader("🔐 Secure Document Vault")
+        doc_dir = os.path.join(VAULT_BASE, "buyer_docs")
+        user_docs = [f for f in os.listdir(doc_dir) if f.startswith(f"ENCR_{u_id}_")]
+        if user_docs:
+            for i, d in enumerate(user_docs):
+                clean_name = d.replace(f"ENCR_{u_id}_", "")
+                data = read_encrypted(os.path.join(doc_dir, d))
+                if data:
+                    st.download_button(f"📥 Download {clean_name}", data, file_name=clean_name, key=f"b_dl_{i}")
+        else:
+            st.info("No documents shared in vault.")
         st.markdown('</div>', unsafe_allow_html=True)
 
-    with col_r:
+    with col_b:
+        # BENTO CARD: SNapp POS UPLOAD
         st.markdown('<div class="bento-card">', unsafe_allow_html=True)
         st.subheader("📤 SNapp Upload (POS)")
-        st.file_uploader("Drop document to transmit", label_visibility="collapsed")
-        st.button("Secure Send", use_container_width=True)
+        st.caption("Securely scan/upload documents directly to your LO.")
+        b_up = st.file_uploader("Upload required docs", label_visibility="collapsed")
+        if st.button("Submit to Admin", use_container_width=True):
+            if b_up:
+                path = os.path.join(VAULT_BASE, "admin_inbox", f"FROM_{u_id}_{b_up.name}")
+                save_encrypted(path, b_up.getvalue(), "Buyer Uploaded")
+                st.success("Successfully Transmitted.")
         st.markdown('</div>', unsafe_allow_html=True)
 
-        st.markdown('<div class="bento-card" style="background:#eff6ff;">', unsafe_allow_html=True)
+        # BENTO CARD: AI SUPPORT
+        st.markdown('<div class="bento-card" style="background-color:#eff6ff;">', unsafe_allow_html=True)
         st.subheader("🤖 Conversational AI")
-        st.text_input("Ask: 'What is my current status?'")
+        st.text_input("What's next in my transaction?", placeholder="Ask a question...")
         st.markdown('</div>', unsafe_allow_html=True)
+
+    # Footer Intelligence
+    st.markdown('<div class="bento-card" style="text-align:center;">', unsafe_allow_html=True)
+    st.subheader("Market Intelligence (MBS Highway)")
+    st.info("Live Update: Rate lock recommendations and bid-over-ask insights are updated daily.")
+    st.markdown('</div>', unsafe_allow_html=True)
