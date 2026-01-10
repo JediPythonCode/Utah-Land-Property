@@ -31,48 +31,48 @@ if not st.session_state.authenticated:
         .stApp { background-color: #f8f9fa !important; }
         header, footer, [data-testid="stHeader"] { display: none !important; }
         
-        /* Adjusting vertical position: pulled up significantly */
+        /* Forces everything to start higher up and stay together */
         .viewport-top-container { 
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 30vh; /* Reduced to pull the floor up */
-            padding-top: 5%; 
-            padding-bottom: 250px; /* Large bottom buffer to push content UP */
             text-align: center; 
             width: 100%; 
-            padding-left: 20px;
-            padding-right: 20px;
+            margin-top: 5vh; /* Shifts the whole group up */
+            padding: 20px;
         }
 
         .brand-title { font-family: 'Inter', sans-serif !important; font-size: clamp(38px, 8vw, 78px) !important; font-weight: 900 !important; color: #1a3c6d !important; letter-spacing: -1.5px !important; margin-bottom: 0px !important; line-height: 1.0 !important; }
         .brand-subtitle { font-family: 'Oswald', sans-serif !important; font-size: clamp(1rem, 3vw, 1.35rem) !important; color: #6b7280 !important; letter-spacing: 3px !important; font-weight: 500 !important; margin-top: 10px !important; margin-bottom: 2rem !important; }
-        .framework-text { color: #4b5563 !important; font-size: 1.05rem !important; max-width: 800px !important; margin: 0 auto 2.5rem !important; line-height: 1.7 !important; font-family: 'Inter', sans-serif !important; }
+        .framework-text { color: #4b5563 !important; font-size: 1.05rem !important; max-width: 800px !important; margin: 0 auto 1.5rem !important; line-height: 1.7 !important; font-family: 'Inter', sans-serif !important; }
         .pulse-lock { height: 12px; width: 12px; background: #10b981; border-radius: 50%; display: inline-block; margin-right: 12px; box-shadow: 0 0 12px rgba(16,185,129,0.5); animation: pulse 2s infinite; vertical-align: middle; }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(16,185,129,0.7); } 70% { box-shadow: 0 0 0 12px rgba(16,185,129,0); } 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); } }
         .access-text { font-family: 'Oswald', sans-serif !important; font-size: 0.9rem !important; color: #1a3c6d !important; font-weight: 700 !important; letter-spacing: 2px !important; vertical-align: middle; }
         
-        /* Mobile adjustment */
-        @media (max-width: 600px) { .viewport-top-container { min-height: 20vh; padding-bottom: 100px; } }
+        /* Tightening the login input layout */
+        [data-testid="stVerticalBlock"] > div:has(input) {
+            margin-top: -10px !important;
+        }
     </style>
     """, unsafe_allow_html=True)
 
-    hero_html = """
-    <div class="viewport-top-container">
-        <div class="brand-title">Utah Land & Property</div>
-        <div class="brand-subtitle">Strategic Asset Protection Framework</div>
+    # Opening container
+    st.markdown('<div class="viewport-top-container">', unsafe_allow_html=True)
+    
+    st.markdown('<div class="brand-title">Utah Land & Property</div>', unsafe_allow_html=True)
+    st.markdown('<div class="brand-subtitle">Strategic Asset Protection Framework</div>', unsafe_allow_html=True)
+    st.markdown("""
         <div class="framework-text">
             <strong>Privacy Creation Preservation • Creative Land & Real Estate Deal Structure</strong>
         </div>
-        <div style="margin-bottom: 2rem;">
+        """, unsafe_allow_html=True)
+    
+    st.markdown("""
+        <div style="margin-bottom: 1.5rem;">
             <span class="pulse-lock"></span>
             <span class="access-text">SECURE CLIENT PORTAL ENCRYPTED ACCESS ONLY</span>
         </div>
-    """
-    st.markdown(hero_html, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
 
-    _, col_mid, _ = st.columns([1, 1.6, 1])
+    # Login Field - now following directly below the text
+    _, col_mid, _ = st.columns([1, 1.4, 1])
     with col_mid:
         pwd = st.text_input("Key", type="password", placeholder="Enter Access Key", label_visibility="collapsed")
         if st.button("Access Portal", use_container_width=True, type="primary"):
@@ -83,7 +83,9 @@ if not st.session_state.authenticated:
                 st.rerun()
             else:
                 st.error("Invalid Security Key")
-    st.markdown("</div>", unsafe_allow_html=True)
+    
+    # Closing container
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # ── 3. PROTECTED CONTENT ──────────────────────────────────────────────────
 else:
