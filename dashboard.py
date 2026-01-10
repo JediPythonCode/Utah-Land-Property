@@ -18,6 +18,7 @@ if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 
 if not st.session_state.authenticated:
+    # All HTML/CSS in one block to prevent code leakage
     st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Oswald:wght@500;700&display=swap');
@@ -25,32 +26,36 @@ if not st.session_state.authenticated:
         .stApp { background-color: #f8f9fa !important; }
         header, footer, [data-testid="stHeader"] { display: none !important; }
         
-        /* CENTERED MOBILE-FRIENDLY CONTAINER */
         .main-login-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
             text-align: center;
-            padding: 15vh 5% 0; /* Shifts everything to center-top */
+            padding: 8vh 5% 0; /* Positioned high on page */
             width: 100%;
         }
 
         .brand-title {
             font-family: 'Inter', sans-serif;
-            font-size: clamp(32px, 8vw, 60px);
+            font-size: clamp(42px, 10vw, 78px); /* Keep large */
             font-weight: 900;
             color: #1a3c6d;
             letter-spacing: -1.5px;
-            margin-bottom: 5px;
+            margin-bottom: 0;
         }
         .brand-subtitle {
             font-family: 'Oswald', sans-serif;
-            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+            font-size: 1.35rem;
             color: #6b7280;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
             font-weight: 500;
-            margin-bottom: 3rem;
+            margin-bottom: 1.5rem;
+        }
+        .privacy-notice {
+            text-align: center;
+            color: #4b5563;
+            font-size: 1rem;
+            max-width: 640px;
+            margin: 0 auto 2.5rem;
+            line-height: 1.6;
+            font-family: 'Inter', sans-serif;
         }
         
         /* GREEN STROBE INDICATOR */
@@ -60,8 +65,7 @@ if not st.session_state.authenticated:
             background: #10b981;
             border-radius: 50%;
             display: inline-block;
-            margin-right: 12px;
-            vertical-align: middle;
+            margin-right: 10px;
             box-shadow: 0 0 12px rgba(16,185,129,0.5);
             animation: pulse 2s infinite;
         }
@@ -73,16 +77,12 @@ if not st.session_state.authenticated:
 
         .access-text {
             font-family: 'Oswald', sans-serif;
-            font-size: 1.2rem; /* Decreased font size */
+            font-size: 1.1rem; /* Decreased font size */
             color: #1a3c6d;
             font-weight: 700;
             letter-spacing: 1.5px;
             display: inline-block;
             vertical-align: middle;
-        }
-
-        .status-wrapper {
-            margin-bottom: 1.5rem;
         }
     </style>
     
@@ -90,76 +90,74 @@ if not st.session_state.authenticated:
         <div class="brand-title">Utah Land & Property</div>
         <div class="brand-subtitle">Strategic Asset Framework</div>
         
-        <div class="status-wrapper">
+        <div class="privacy-notice">
+            Asset Protection • Privacy Preservation • Creative Land Financing Solutions
+            <br><br>
+            <strong>Secure Client Portal</strong> — Encrypted access only.
+        </div>
+
+        <div style="margin-bottom: 2rem;">
             <span class="pulse-lock"></span>
             <span class="access-text">CLIENT SECURE ACCESS</span>
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-    # Centered Input Box
-    _, col_mid, _ = st.columns([1, 2, 1])
+    # Input columns (Pure Streamlit to avoid leakage)
+    _, col_mid, _ = st.columns([1, 1.5, 1])
     with col_mid:
         pwd = st.text_input("Key", type="password", placeholder="Access Key", label_visibility="collapsed")
         if st.button("Access Portal", use_container_width=True, type="primary"):
             try:
-                # Direct check from secrets
                 if pwd in [st.secrets["PASSWORDS"]["CLIENT"], st.secrets["PASSWORDS"]["ADMIN"]]:
                     st.session_state.authenticated = True
                     st.rerun()
                 else:
-                    st.error("Invalid Access Key")
+                    st.error("Invalid Key")
             except:
-                st.error("Configuration Error: Secrets not found.")
+                st.error("System Error: Secrets not configured.")
     st.stop()
 
-# ── 3. MAIN DASHBOARD (AUTHENTICATED) ───────────────────────────────────────
+# ── 3. MAIN APP (AUTHENTICATED) ─────────────────────────────────────────────
 with st.sidebar:
     if st.button("Logout"):
         st.session_state.authenticated = False
         st.rerun()
 
+# Dashboard Header (Shifted Up)
 st.markdown("""
-<div style="margin-top: -80px; text-align:center; padding: 0 10px;">
-    <h2 style="font-family:'Inter'; font-weight:900; color:#1a3c6d; font-size:clamp(28px, 6vw, 42px); margin-bottom:0;">Utah Land & Property</h2>
-    <p style="font-family:'Oswald'; color:#d97706; letter-spacing:2px; font-weight:700; font-size:0.85rem;">ASSET PROTECTION • PRIVACY • FINANCING</p>
+<div style="margin-top: -80px; text-align:center;">
+    <h1 style="font-family:'Inter'; font-weight:900; color:#1a3c6d; font-size:clamp(32px, 7vw, 54px); margin-bottom:0;">Utah Land & Property</h1>
+    <p style="font-family:'Oswald'; color:#d97706; letter-spacing:3px; font-weight:700;">ASSET PROTECTION • PRIVACY • FINANCING</p>
 </div>
 """, unsafe_allow_html=True)
 
-# ── 4. MOBILE-FRIENDLY UPLOAD ──────────────────────────────────────────────
-with st.expander("📤 Upload New Document", expanded=False):
-    st.info("Supported: PDF, Images, Excel, Word")
-    uploaded_file = st.file_uploader(
-        "Secure Upload", 
-        type=['pdf', 'docx', 'xlsx', 'jpg', 'png'],
-        label_visibility="collapsed"
-    )
+# ── 4. MOBILE UPLOAD ───────────────────────────────────────────────────────
+with st.expander("📤 Secure Document Upload", expanded=False):
+    uploaded_file = st.file_uploader("Upload to Vault", type=['pdf', 'docx', 'xlsx', 'jpg', 'png', 'jpeg'])
     if uploaded_file:
-        # Saving file locally in the vault
         with open(uploaded_file.name, "wb") as f:
             f.write(uploaded_file.getbuffer())
-        st.success("File added to vault.")
+        st.success("Document Encrypted & Vaulted.")
         st.rerun()
 
 st.divider()
 
-# ── 5. FILE LISTING ────────────────────────────────────────────────────────
-st.markdown("### 📄 Secure Vault")
-doc_types = ["*.pdf", "*.docx", "*.xlsx", "*.jpg", "*.png", "*.jpeg"]
+# ── 5. FILE VAULT ──────────────────────────────────────────────────────────
+st.markdown("### 📄 Available Resources")
 doc_files = []
-for t in doc_types:
-    doc_files.extend(glob.glob(t))
+for ext in ["*.pdf", "*.docx", "*.xlsx", "*.jpg", "*.png", "*.jpeg"]:
+    doc_files.extend(glob.glob(ext))
 
 if doc_files:
-    # Sort by newest first
     for file_path in sorted(doc_files, key=os.path.getctime, reverse=True):
         with st.container(border=True):
-            c1, c2 = st.columns([3, 1])
+            c1, c2 = st.columns([4, 1.2])
             with c1:
                 st.markdown(f"**{file_path}**")
                 st.caption(f"Sync: {datetime.fromtimestamp(os.path.getctime(file_path)).strftime('%Y-%m-%d %H:%M')}")
             with c2:
                 with open(file_path, "rb") as f:
-                    st.download_button("Get", f, file_name=file_path, key=f"dl_{file_path}", use_container_width=True)
+                    st.download_button("Download", f, file_name=file_path, key=f"dl_{file_path}", use_container_width=True)
 else:
-    st.info("No documents found in vault.")
+    st.info("Vault is currently empty.")
