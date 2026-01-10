@@ -88,7 +88,7 @@ if not st.session_state.authenticated:
     
     st.markdown("""
     <div class="privacy-notice">
-        Asset Protection • Privacy Preservation • Creative Land Financing Solutions
+        Professional Asset Protection • Privacy Creattion & Preservation • Creative Land Financing Solutions • Creative Financing Deal Structure
         <br><br>
         <strong>Secure Client Portal</strong> — Encrypted access only.
     </div>
