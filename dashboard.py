@@ -8,16 +8,15 @@ from cryptography.fernet import Fernet
 
 # ── 1. CONFIG & SECURE ENCRYPTION ─────────────────────────────────────────────
 st.set_page_config(
-    page_title="ULP | Secure Terminal",
-    layout="wide",
+    page_title="Utah Land & Property", 
+    layout="wide", 
     initial_sidebar_state="collapsed"
 )
 
 STAGES = ["Application", "Processing", "Underwriting", "Approved", "Closed"]
 
-if "refresh_initialized" not in st.session_state:
-    st_autorefresh(interval=600000, key="ulp_refresh")
-    st.session_state.refresh_initialized = True
+# Live heartbeat refresh (10 seconds)
+st_autorefresh(interval=10000, key="ulp_live_ping")
 
 def initialize_system():
     try:
@@ -33,85 +32,101 @@ def initialize_system():
 
 fernet, USER_DB = initialize_system()
 
-# ── 2. BRANDING & ADVANCED UI (TERMINAL STYLE) ────────────────────────────────
+# ── 2. CORE CSS (MIMICKING QXTRADE TERMINAL) ──────────────────────────────────
 st.markdown("""
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Oswald:wght@500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@900&family=Oswald:wght@700&display=swap');
         
-        /* Global Background & Reset */
-        .stApp { background-color: #ffffff !important; }
-        [data-testid="stHeader"] { display: none !important; }
+        /* Layout Resets */
+        .stApp { background-color: #FFFFFF !important; }
+        header, [data-testid="stHeader"] { display: none !important; }
         .block-container { padding-top: 2rem !important; }
 
-        /* Typography */
-        .ulp-title { 
-            font-family: 'Inter', sans-serif; 
-            font-size: clamp(35px, 8vw, 75px) !important; 
-            font-weight: 900 !important; 
-            color: #1a3c6d !important; 
-            letter-spacing: -3px; 
+        /* Massive Terminal Typography */
+        .ulp-terminal-title { 
+            font-family: "Inter", sans-serif; 
+            font-size: clamp(32px, 12vw, 85px); 
+            font-weight: 900; 
+            color: #1a3c6d; 
+            letter-spacing: -4px; 
             line-height: 0.85; 
-            margin-bottom: 5px; 
             text-align: center; 
             text-transform: uppercase;
-        }
-        
-        /* Status Pulse Indicator */
-        .sync-container { text-align: center; margin-bottom: 30px; }
-        .green-pulse { 
-            height: 10px; width: 10px; background-color: #10b981; 
-            border-radius: 50%; display: inline-block; margin-right: 8px; 
-            box-shadow: 0 0 10px #10b981; animation: pulse-green 1.5s infinite; 
-        }
-        @keyframes pulse-green { 
-            0% { box-shadow: 0 0 0px 0px rgba(16, 185, 129, 0.7); } 
-            70% { box-shadow: 0 0 0px 10px rgba(16, 185, 129, 0); } 
-            100% { box-shadow: 0 0 0px 0px rgba(16, 185, 129, 0); } 
-        }
-        .sync-text { 
-            font-family: 'Oswald', sans-serif; font-size: 14px; 
-            color: #64748b; letter-spacing: 2px; font-weight: bold;
+            margin-bottom: 10px;
         }
 
-        /* Bento Cards */
+        /* Pulse Sync Box */
+        .sync-box { text-align: center; margin-bottom: 30px; }
+        .pulse-dot { 
+            height: 10px; width: 10px; background-color: #00ff41; 
+            border-radius: 50%; display: inline-block; margin-right: 8px; 
+            box-shadow: 0 0 12px #00ff41; animation: pulse-green 1.5s infinite; 
+        }
+        @keyframes pulse-green { 
+            0% { box-shadow: 0 0 0px 0px rgba(0, 255, 65, 0.7); } 
+            70% { box-shadow: 0 0 0px 10px rgba(0, 255, 65, 0); } 
+            100% { box-shadow: 0 0 0px 0px rgba(0, 255, 65, 0); } 
+        }
+        .sync-label { 
+            font-family: "Oswald", sans-serif; font-size: 14px; 
+            color: #1a3c6d; letter-spacing: 3px; font-weight: bold; 
+        }
+
+        /* Bento Card Styling */
         .bento-card {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            padding: 24px;
-            border-radius: 16px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            background: #f8fafc; border: 1px solid #e2e8f0;
+            padding: 24px; border-radius: 16px; margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
         }
         
-        /* Tabs Styling */
-        .stTabs [data-baseweb="tab-list"] { gap: 8px; justify-content: center; }
+        /* Tab Navigation */
+        .stTabs [data-baseweb="tab-list"] { gap: 10px; justify-content: center; }
         .stTabs [data-baseweb="tab"] {
             font-family: 'Oswald', sans-serif; background-color: #f1f5f9;
-            border-radius: 8px 8px 0 0; padding: 10px 20px;
+            padding: 10px 25px; border-radius: 8px 8px 0 0;
         }
         .stTabs [aria-selected="true"] { background-color: #1a3c6d !important; color: white !important; }
     </style>
 """, unsafe_allow_html=True)
 
-# ── 3. CORE LOGIC & VAULT ─────────────────────────────────────────────────────
+# ── 3. AUTHENTICATION GATE ────────────────────────────────────────────────────
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+
+if not st.session_state.authenticated:
+    st.markdown(f'''
+    <div style="padding: 10vh 5% 0 5%; text-align: center;">
+        <div style="font-size: 60px; margin-bottom: 10px;">🔐</div>
+        <div class="ulp-terminal-title">Utah Land<br>& Property</div>
+        <div class="sync-box">
+            <span class="pulse-dot"></span>
+            <span class="sync-label">SECURE ENTRY POINT</span>
+        </div>
+    </div>
+    ''', unsafe_allow_html=True)
+
+    _, col_mid, _ = st.columns([1, 4, 1])
+    with col_mid:
+        with st.container(border=True):
+            u_id_input = st.text_input("ID", placeholder="ENTER ACCESS ID", label_visibility="collapsed").strip().lower()
+            u_pwd_input = st.text_input("KEY", type="password", placeholder="ENTER PRIVATE KEY", label_visibility="collapsed").strip()
+            if st.button("CONTINUE TO TERMINAL", use_container_width=True):
+                if u_id_input in USER_DB and str(USER_DB[u_id_input].get("key")) == u_pwd_input:
+                    st.session_state.authenticated = True
+                    st.session_state.user_id = u_id_input
+                    st.session_state.user_role = USER_DB[u_id_input].get("role", "Buyer")
+                    st.rerun()
+                else:
+                    st.error("ACCESS DENIED")
+    st.stop()
+
+# ── 4. LOGIC ENGINE ───────────────────────────────────────────────────────────
 VAULT_BASE = "vault"
-FOLDERS = ["general", "buyer_docs", "admin_inbox", "metadata", "pipeline"]
-for folder in FOLDERS:
+for folder in ["general", "buyer_docs", "admin_inbox", "pipeline"]:
     os.makedirs(os.path.join(VAULT_BASE, folder), exist_ok=True)
 
-def logger(user, action, details):
-    try:
-        path = os.path.join(VAULT_BASE, "general", "audit_log.csv")
-        ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        df = pd.DataFrame([[ts, user, action, str(details)]], columns=["Timestamp", "User", "Action", "Details"])
-        df.to_csv(path, mode='a', header=not os.path.exists(path), index=False)
-    except: pass
-
-def save_encrypted(file_path, data, description=""):
+def save_encrypted(file_path, data):
     with open(file_path, "wb") as f: f.write(fernet.encrypt(data))
-    meta_path = os.path.join(VAULT_BASE, "metadata", os.path.basename(file_path) + ".json")
-    with open(meta_path, "w") as f:
-        json.dump({"description": description, "timestamp": str(datetime.now())}, f)
 
 def read_encrypted(file_path):
     try:
@@ -129,153 +144,93 @@ def update_pipeline(u_id, stage):
     with open(path, "w") as f:
         json.dump({"stage": stage, "updated": str(datetime.now())}, f)
 
-# ── 4. AUTHENTICATION GATE ────────────────────────────────────────────────────
-if "authenticated" not in st.session_state:
-    st.session_state.authenticated = False
-
-if not st.session_state.authenticated:
-    st.markdown(f'''
-    <div style="padding: 10vh 5% 0 5%; text-align: center;">
-        <div class="ulp-title">Utah Land <br>& Property</div>
-        <div class="sync-container">
-            <span class="green-pulse"></span>
-            <span class="sync-text">SECURE ACCESS POINT</span>
-        </div>
-    </div>
-    ''', unsafe_allow_html=True)
-
-    _, col_mid, _ = st.columns([1, 1.2, 1])
-    with col_mid:
-        with st.container(border=True):
-            u_id_input = st.text_input("ID", placeholder="USERNAME", label_visibility="collapsed").strip().lower()
-            u_pwd_input = st.text_input("KEY", type="password", placeholder="PASSWORD", label_visibility="collapsed").strip()
-            if st.button("AUTHENTICATE", use_container_width=True, type="primary"):
-                if u_id_input in USER_DB and str(USER_DB[u_id_input].get("key")) == u_pwd_input:
-                    st.session_state.authenticated = True
-                    st.session_state.user_id = u_id_input
-                    st.session_state.user_role = USER_DB[u_id_input].get("role", "Buyer")
-                    logger(u_id_input, "Auth", "Success")
-                    st.rerun()
-                else:
-                    st.error("INVALID CREDENTIALS")
-    st.stop()
-
-# ── 5. DASHBOARD HEADER ───────────────────────────────────────────────────────
+# ── 5. TERMINAL HEADER ────────────────────────────────────────────────────────
 role, u_id = st.session_state.user_role, st.session_state.user_id
 
 st.markdown(f'''
-    <div style="text-align: center; margin-top: -30px;">
-        <h1 class="ulp-title">Utah Land & Property</h1>
-        <div class="sync-container">
-            <span class="green-pulse"></span>
-            <span class="sync-text">STATION ACTIVE | {u_id.upper()} | {datetime.now().strftime("%H:%M:%S")}</span>
+    <div style="text-align: center;">
+        <h1 class="ulp-terminal-title">Utah Land & Property</h1>
+        <div class="sync-box">
+            <span class="pulse-dot"></span>
+            <span class="sync-label">STATION SYNC: {datetime.now().strftime("%H:%M:%S")} | {u_id.upper()}</span>
         </div>
     </div>
 ''', unsafe_allow_html=True)
 
-st.sidebar.markdown(f"**Operator:** {u_id.upper()}")
-st.sidebar.markdown(f"**Role:** {role}")
-if st.sidebar.button("Terminal Logout"):
-    st.session_state.authenticated = False
-    st.rerun()
-
-# ── 6. INTERFACE LOGIC ────────────────────────────────────────────────────────
+# ── 6. ROLE INTERFACES ────────────────────────────────────────────────────────
 if role == "Admin":
-    t1, t2, t3, t4 = st.tabs(["PIPELINE", "DISTRIBUTION", "VAULT INBOX", "AUDIT LOG"])
-
+    t1, t2, t3 = st.tabs(["PIPELINE CONTROL", "VAULT INBOX", "AUDIT LOG"])
+    
     with t1:
-        st.subheader("Deal-Flow Intelligence")
+        st.subheader("Transaction Pipeline")
         buyers = [u for u in USER_DB if USER_DB[u]['role'] == 'Buyer']
         for buyer in buyers:
-            col1, col2, col3 = st.columns([1, 2, 1])
-            col1.write(f"**{buyer.upper()}**")
-            current = get_pipeline(buyer)
-            idx = STAGES.index(current) if current in STAGES else 0
-            stage = col2.selectbox("Update Stage", STAGES, key=f"pipe_{buyer}", index=idx)
-            if col3.button("Push", key=f"btn_{buyer}"):
-                update_pipeline(buyer, stage)
-                st.toast(f"Updated {buyer}")
+            with st.container(border=True):
+                c1, c2, c3 = st.columns([1, 2, 1])
+                c1.write(f"**{buyer.upper()}**")
+                curr = get_pipeline(buyer)
+                stage = c2.selectbox("Update Stage", STAGES, index=STAGES.index(curr), key=f"p_{buyer}")
+                if c3.button("Push Update", key=f"b_{buyer}"):
+                    update_pipeline(buyer, stage)
+                    st.toast(f"Updated {buyer}")
 
     with t2:
-        st.subheader("Secure Transmission")
-        target = st.selectbox("Select Recipient", options=list(USER_DB.keys()))
-        note = st.text_input("Transaction Note")
-        files = st.file_uploader("Select Assets", accept_multiple_files=True)
-        if st.button("ENCRYPT & SEND") and files:
+        st.subheader("Admin Inbox")
+        inbox_dir = os.path.join(VAULT_BASE, "admin_inbox")
+        files = os.listdir(inbox_dir)
+        if files:
             for f in files:
-                path = os.path.join(VAULT_BASE, "buyer_docs", f"ENCR_{target}_{f.name}")
-                save_encrypted(path, f.getvalue(), note)
-            st.success("Assets Delivered.")
-
-    with t3:
-        st.subheader("Inbound Documents")
-        inbox = os.path.join(VAULT_BASE, "admin_inbox")
-        if os.path.exists(inbox):
-            for b_file in os.listdir(inbox):
-                with st.container(border=True):
-                    st.write(f"📩 {b_file}")
-                    data = read_encrypted(os.path.join(inbox, b_file))
-                    if data: st.download_button("Decrypt & View", data, file_name=b_file, key=b_file)
-
-    with t4:
-        audit_path = os.path.join(VAULT_BASE, "general", "audit_log.csv")
-        if os.path.exists(audit_path):
-            st.dataframe(pd.read_csv(audit_path).sort_values(by="Timestamp", ascending=False), use_container_width=True)
+                data = read_encrypted(os.path.join(inbox_dir, f))
+                if data: st.download_button(f"Decrypt & Review: {f}", data, file_name=f)
+        else:
+            st.info("No documents in inbox.")
 
 elif role == "Buyer":
-    # Pizza Tracker
     current_stage = get_pipeline(u_id)
+    
+    # 2026 Progress Tracker
     cols = st.columns(len(STAGES))
     for i, s in enumerate(STAGES):
         active = STAGES.index(current_stage) >= i
         color = "#1a3c6d" if active else "#cbd5e1"
-        cols[i].markdown(f"<p style='text-align:center; color:{color}; font-size:0.8rem;'>{'✅' if active else '○'}<br><b>{s.upper()}</b></p>", unsafe_allow_html=True)
+        cols[i].markdown(f"<p style='text-align:center; color:{color}; font-size:0.75rem;'>{'✅' if active else '○'}<br><b>{s.upper()}</b></p>", unsafe_allow_html=True)
     st.progress(STAGES.index(current_stage) / (len(STAGES)-1))
 
     st.markdown("<br>", unsafe_allow_html=True)
-    col_a, col_b = st.columns([1.5, 1])
+    col_l, col_r = st.columns([1.5, 1])
 
-    with col_a:
-        st.markdown('<div class="bento-card">', unsafe_allow_html=True)
-        st.subheader("📌 Transaction Checklist")
-        st.checkbox("Prequalification", value=True)
-        st.checkbox("Contract Signed", value=(STAGES.index(current_stage) >= 1))
-        st.checkbox("Appraisal Complete", value=(STAGES.index(current_stage) >= 2))
-        st.checkbox("Closing Set", value=(STAGES.index(current_stage) >= 4))
-        st.markdown('</div>', unsafe_allow_html=True)
-
-        st.markdown('<div class="bento-card">', unsafe_allow_html=True)
-        st.subheader("🔐 Encrypted Vault")
+    with col_l:
+        st.markdown('<div class="bento-card"><h3>Secure Document Vault</h3>', unsafe_allow_html=True)
         doc_dir = os.path.join(VAULT_BASE, "buyer_docs")
         user_docs = [f for f in os.listdir(doc_dir) if f.startswith(f"ENCR_{u_id}_")]
         if user_docs:
-            for i, d in enumerate(user_docs):
+            for d in user_docs:
                 data = read_encrypted(os.path.join(doc_dir, d))
-                if data: st.download_button(f"📥 DOWNLOAD: {d.split('_')[-1]}", data, key=f"b_{i}", use_container_width=True)
-        else: st.info("Vault is currently empty.")
+                if data: st.download_button(f"📥 DOWNLOAD: {d.replace(f'ENCR_{u_id}_', '')}", data, key=d)
+        else:
+            st.write("Your secure vault is currently empty.")
         st.markdown('</div>', unsafe_allow_html=True)
 
-    with col_b:
-        st.markdown('<div class="bento-card">', unsafe_allow_html=True)
-        st.subheader("📤 Document Upload")
-        b_up = st.file_uploader("Upload", label_visibility="collapsed")
-        if st.button("Submit to Portal", use_container_width=True):
-            if b_up:
-                save_encrypted(os.path.join(VAULT_BASE, "admin_inbox", f"FROM_{u_id}_{b_up.name}"), b_up.getvalue())
-                st.success("Securely Transmitted.")
+    with col_r:
+        st.markdown('<div class="bento-card"><h3>Submit Documents</h3>', unsafe_allow_html=True)
+        up = st.file_uploader("Upload", label_visibility="collapsed")
+        if st.button("TRANSMIT TO AGENT", use_container_width=True) and up:
+            save_encrypted(os.path.join(VAULT_BASE, "admin_inbox", f"FROM_{u_id}_{up.name}"), up.getvalue())
+            st.success("Securely Transmitted.")
         st.markdown('</div>', unsafe_allow_html=True)
 
-        st.markdown('<div class="bento-card" style="background-color:#eff6ff;">', unsafe_allow_html=True)
-        st.subheader("🤖 Support AI")
-        st.text_input("Ask about your status...", placeholder="What's next?")
-        st.markdown('</div>', unsafe_allow_html=True)
-
-# ── 7. FOOTER ─────────────────────────────────────────────────────────────────
-st.markdown("<br><hr>", unsafe_allow_html=True)
+# ── 7. PRODUCTION FOOTER ──────────────────────────────────────────────────────
 st.markdown(f"""
-    <div style="display: flex; justify-content: center; gap: 30px; opacity: 0.6; font-size: 11px; font-family: 'Oswald'; color: #1a3c6d;">
-        <div style="display: flex; align-items: center;"><span class="green-pulse" style="height:6px; width:6px; margin-right:5px;"></span>SYSTEM: PRIMARY NODE</div>
-        <div>STATUS: ENCRYPTED</div>
-        <div style="font-weight: bold;">© 2026 UTAH LAND & PROPERTY</div>
+    <br><hr>
+    <div style="display: flex; justify-content: center; gap: 30px; opacity: 0.8; font-size: 11px; font-family: 'Oswald'; color: #1a3c6d;">
+        <div style="display: flex; align-items: center;"><span class="green-pulse" style="height:6px; width:6px; margin-right:5px;"></span>SYSTEM: ENCRYPTED NODE</div>
+        <div>STATION: LOCAL_SYNC</div>
+        <div style="font-weight: bold;">© 2026 UTAH LAND & PROPERTY | TRANSACTION TERMINAL</div>
     </div>
 """, unsafe_allow_html=True)
+
+with st.sidebar:
+    st.markdown(f"**Operator:** {u_id.upper()}")
+    if st.button("TERMINAL LOGOUT"):
+        st.session_state.authenticated = False
+        st.rerun()
