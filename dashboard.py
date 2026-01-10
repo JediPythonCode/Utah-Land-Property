@@ -11,19 +11,21 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# Refresh every 10 minutes to sync files across parties
 st_autorefresh(interval=600000, key="ulp_refresh")
 
-# Initialize directories
+# Ensure persistent storage structure exists
 for folder in ["vault/general", "vault/buyer_docs", "vault/property_images"]:
     if not os.path.exists(folder):
-        os.makedirs(folder)
+        os.makedirs(folder, exist_ok=True)
 
+# Initialize Session States
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 if "user_role" not in st.session_state:
     st.session_state.user_role = None
 
-# ── 2. AUTHENTICATION GATE (RESTORED DESIGN) ────────────────────────────────
+# ── 2. AUTHENTICATION GATE (RECENTERED DESIGN) ─────────────────────────────
 if not st.session_state.authenticated:
     st.markdown("""
     <style>
@@ -33,7 +35,7 @@ if not st.session_state.authenticated:
         header, footer, [data-testid="stHeader"] { display: none !important; }
         
         .viewport-top-container {
-            margin-top: 5vh;
+            margin-top: 8vh;
             text-align: center;
             width: 100%;
         }
@@ -107,84 +109,91 @@ if not st.session_state.authenticated:
     </div>
     """, unsafe_allow_html=True)
 
-    # Login Input
+    # Login Logic
     _, col_mid, _ = st.columns([1, 1.4, 1])
     with col_mid:
         pwd = st.text_input("Key", type="password", placeholder="Enter Private Access Key", label_visibility="collapsed")
         if st.button("Authorize Portal Access", use_container_width=True, type="primary"):
-            keys_dict = st.secrets.get("access_keys", {})
-            if pwd in keys_dict:
+            # Check secrets for key match
+            access_map = st.secrets.get("access_keys", {})
+            if pwd in access_map:
                 st.session_state.authenticated = True
-                st.session_state.user_role = keys_dict[pwd]
+                st.session_state.user_role = access_map[pwd]
                 st.rerun()
             else:
-                st.error("Invalid Security Key")
+                st.error("Access Denied: Invalid Security Key")
 
 # ── 3. PROTECTED CONTENT ──────────────────────────────────────────────────
 else:
     role = st.session_state.user_role
     
-    # Simple Navigation / Header
-    col_title, col_logout = st.columns([0.8, 0.2])
-    with col_title:
-        st.title(f"{role} Dashboard")
-    with col_logout:
-        if st.sidebar.button("Secure Logout"):
-            st.session_state.authenticated = False
-            st.rerun()
+    # Header & Logout
+    st.title(f"{role} Dashboard")
+    if st.sidebar.button("Secure Logout"):
+        st.session_state.authenticated = False
+        st.session_state.user_role = None
+        st.rerun()
 
-    # --- PROPERTY GALLERY (Visuals Above) ---
-    st.subheader("Property Images")
-    img_list = glob.glob("vault/property_images/*")
-    if img_list:
-        cols = st.columns(3)
-        for idx, img_p in enumerate(img_list):
-            cols[idx % 3].image(img_p, use_container_width=True)
+    # --- PROPERTY GALLERY (Visual Content Above) ---
+    st.subheader("Property Assets")
+    images = glob.glob("vault/property_images/*")
+    if images:
+        cols = st.columns(4)
+        for idx, img_path in enumerate(images):
+            cols[idx % 4].image(img_path, use_container_width=True)
     else:
-        st.info("No property images available.")
+        st.info("No property images available in the vault.")
 
     st.markdown("---")
 
-    # --- ROLE-SPECIFIC ACCESS ---
+    # --- ACTION AREA ---
     if role == "Buyer":
         st.subheader("Action Required: Documents for Signature")
         buyer_docs = os.listdir("vault/buyer_docs")
         if buyer_docs:
             for f_name in buyer_docs:
                 with open(f"vault/buyer_docs/{f_name}", "rb") as f_obj:
-                    st.download_button(f"📄 Review & Sign: {f_name}", f_obj, file_name=f_name)
+                    st.download_button(f"📄 Download & Sign: {f_name}", f_obj, file_name=f_name)
         else:
-            st.success("No pending documents for signature.")
+            st.success("No pending documents. You are all caught up.")
 
     else:
-        # Admin, Agent, Escrow, Title, Servicer View
+        # Admin / Agent / Professional Parties Dashboard
         st.subheader("Document Upload & Archival")
-        
-        # 1. Image Upload (Admin/Agent Only)
-        if role in ["Admin", "Agent"]:
-            with st.expander("Upload Property Images"):
-                imgs = st.file_uploader("Upload photos for gallery", type=["jpg","png","jpeg"], accept_multiple_files=True)
-                if imgs:
-                    for img in imgs:
-                        with open(f"vault/property_images/{img.name}", "wb") as f:
-                            f.write(img.getbuffer())
-                    st.rerun()
-
-        # 2. General Document Upload
         st.markdown(f"> **Notice:** As an **{role}**, you have encrypted write-access to the property data-room.")
-        
-        target = st.radio("Destination Folder", ["General Vault", "Buyer's Signature Folder"], horizontal=True)
-        docs = st.file_uploader("Securely upload assets (PDF, JPG, PNG, DOCX)", accept_multiple_files=True)
 
-        if docs:
-            dest = "vault/buyer_docs" if target == "Buyer's Signature Folder" else "vault/general"
-            for d in docs:
-                with open(os.path.join(dest, d.name), "wb") as f:
-                    f.write(d.getbuffer())
-            st.success(f"Successfully uploaded {len(docs)} files to {target}.")
+        # Configuration for Upload
+        col_dest, col_type = st.columns(2)
+        with col_dest:
+            target = st.radio("Destination Folder", ["General Vault", "Buyer's Signature Folder"], horizontal=True)
+        with col_type:
+            # Only Admin/Agents can add to the gallery
+            if role in ["Admin", "Agent"]:
+                upload_kind = st.radio("Asset Category", ["Legal/Financial Doc", "Property Image"], horizontal=True)
+            else:
+                upload_kind = "Legal/Financial Doc"
 
-    # 3. Master View for Admin
+        uploaded_files = st.file_uploader("Securely upload assets (Limit 200MB)", accept_multiple_files=True)
+
+        if uploaded_files:
+            for file in uploaded_files:
+                # Determine folder path
+                if upload_kind == "Property Image":
+                    dest_path = "vault/property_images"
+                elif target == "Buyer's Signature Folder":
+                    dest_path = "vault/buyer_docs"
+                else:
+                    dest_path = "vault/general"
+                
+                # Save file
+                with open(os.path.join(dest_path, file.name), "wb") as f:
+                    f.write(file.getbuffer())
+            
+            st.success(f"Archived {len(uploaded_files)} files to {dest_path}")
+            st.rerun()
+
+    # Admin Audit Log
     if role == "Admin":
-        with st.expander("View All Vault Files"):
-            st.write("Current files in storage:")
-            st.write(glob.glob("vault/**/*", recursive=True))
+        with st.expander("System Audit: View All Vault Contents"):
+            all_files = glob.glob("vault/**/*", recursive=True)
+            st.json(all_files)
