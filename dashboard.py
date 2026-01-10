@@ -150,15 +150,46 @@ else:
     st.markdown("---")
 
     # --- 3c. ROLE-SPECIFIC UPLOAD/DOWNLOAD ---
-    if role == "Buyer":
-        st.subheader("Vault Access: Signature Documents")
-        buyer_docs = os.listdir("vault/buyer_docs")
-        if buyer_docs:
-            for f_name in buyer_docs:
-                with open(f"vault/buyer_docs/{f_name}", "rb") as f_obj:
-                    st.download_button(f"📄 Download: {f_name}", f_obj, file_name=f_name)
+ if role == "Buyer":
+        # UNDERWRITING AUTOMATION
+        st.subheader("Step 1: Underwriting Pre-Screen")
+        with st.expander("📊 Analyze Financial Ratios", expanded=True):
+            v1, v2 = st.columns(2)
+            inc = v1.number_input("Monthly Income ($)", min_value=1, value=5000)
+            debt = v1.number_input("Monthly Debt ($)", min_value=0, value=1500)
+            price = v2.number_input("Property Price ($)", min_value=1, value=400000)
+            down = v2.number_input("Down Payment ($)", min_value=0, value=80000)
+
+            dti = (debt / inc) * 100
+            ltv = ((price - down) / price) * 100
+
+            st.markdown("---")
+            r1, r2 = st.columns(2)
+            r1.metric("DTI Ratio", f"{dti:.1f}%", delta="Pass" if dti <= 43 else "High", delta_color="normal" if dti <= 43 else "inverse")
+            r2.metric("LTV Ratio", f"{ltv:.1f}%", delta="Pass" if ltv <= 80 else "High", delta_color="normal" if ltv <= 80 else "inverse")
+
+        # PERSPECTIVE BUYER VIEW
+        st.subheader("Step 2: Property Aspects & Vetting")
+        st.info("Submit your Proof of Funds or ID below to unlock the full signature vault.")
+        
+        # Buyer-only File Upload
+        vet_file = st.file_uploader("Upload Vetting Docs", key="buyer_vet")
+        if vet_file:
+            with open(os.path.join("vault/general", f"VETTING_{vet_file.name}"), "wb") as f:
+                f.write(vet_file.getbuffer())
+            st.success("File archived for Admin review.")
+
+        st.markdown("---")
+
+        # THE SIGNATURE VAULT (VETTING GATE)
+        st.subheader("Step 3: Signature Vault")
+        docs = os.listdir("vault/buyer_docs")
+        if docs:
+            for d in docs:
+                with open(f"vault/buyer_docs/{d}", "rb") as f:
+                    st.download_button(f"📄 Download {d}", f, file_name=d)
         else:
-            st.success("Documents verified. No pending items.")
+            st.warning("Locked: No signature documents have been released for your profile yet.")
     else:
         st.subheader("Management: Document Archival")
         c1, c2 = st.columns([1, 1])
