@@ -18,7 +18,7 @@ if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 
 if not st.session_state.authenticated:
-    # All HTML/CSS in one block to prevent code leakage
+    # 1. Inject CSS First (Global Styles)
     st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Oswald:wght@500;700&display=swap');
@@ -26,19 +26,15 @@ if not st.session_state.authenticated:
         .stApp { background-color: #f8f9fa !important; }
         header, footer, [data-testid="stHeader"] { display: none !important; }
         
-        .main-login-container {
-            text-align: center;
-            padding: 8vh 5% 0; /* Positioned high on page */
-            width: 100%;
-        }
-
+        /* Typography & Centering */
         .brand-title {
             font-family: 'Inter', sans-serif;
-            font-size: clamp(42px, 10vw, 78px); /* Keep large */
+            font-size: clamp(42px, 10vw, 78px);
             font-weight: 900;
             color: #1a3c6d;
             letter-spacing: -1.5px;
-            margin-bottom: 0;
+            text-align: center;
+            margin-top: 5vh;
         }
         .brand-subtitle {
             font-family: 'Oswald', sans-serif;
@@ -46,6 +42,7 @@ if not st.session_state.authenticated:
             color: #6b7280;
             letter-spacing: 3px;
             font-weight: 500;
+            text-align: center;
             margin-bottom: 1.5rem;
         }
         .privacy-notice {
@@ -53,15 +50,14 @@ if not st.session_state.authenticated:
             color: #4b5563;
             font-size: 1rem;
             max-width: 640px;
-            margin: 0 auto 2.5rem;
+            margin: 0 auto 2rem;
             line-height: 1.6;
             font-family: 'Inter', sans-serif;
         }
         
-        /* GREEN STROBE INDICATOR */
+        /* Strobe Animation */
         .pulse-lock {
-            height: 10px;
-            width: 10px;
+            height: 10px; width: 10px;
             background: #10b981;
             border-radius: 50%;
             display: inline-block;
@@ -74,39 +70,39 @@ if not st.session_state.authenticated:
             70%  { box-shadow: 0 0 0 10px rgba(16,185,129,0); }
             100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
         }
-
         .access-text {
             font-family: 'Oswald', sans-serif;
-            font-size: 1.1rem; /* Decreased font size */
+            font-size: 1.1rem;
             color: #1a3c6d;
             font-weight: 700;
             letter-spacing: 1.5px;
-            display: inline-block;
-            vertical-align: middle;
         }
     </style>
-    
-    <div class="main-login-container">
-        <div class="brand-title">Utah Land & Property</div>
-        <div class="brand-subtitle">Strategic Asset Framework</div>
-        
-        <div class="privacy-notice">
-            Asset Protection • Privacy Preservation • Creative Land Financing Solutions
-            <br><br>
-            <strong>Secure Client Portal</strong> — Encrypted access only.
-        </div>
+    """, unsafe_allow_html=True)
 
-        <div style="margin-bottom: 2rem;">
-            <span class="pulse-lock"></span>
-            <span class="access-text">CLIENT SECURE ACCESS</span>
-        </div>
+    # 2. Render Content using standard Markdown (Prevents Leakage)
+    st.markdown('<p class="brand-title">Utah Land & Property</p>', unsafe_allow_html=True)
+    st.markdown('<p class="brand-subtitle">Strategic Asset Framework</p>', unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div class="privacy-notice">
+        Asset Protection • Privacy Preservation • Creative Land Financing Solutions
+        <br><br>
+        <strong>Secure Client Portal</strong> — Encrypted access only.
     </div>
     """, unsafe_allow_html=True)
 
-    # Input columns (Pure Streamlit to avoid leakage)
+    # Centered Strobe & Access Text
+    st.markdown("""
+    <div style="text-align: center; margin-bottom: 1.5rem;">
+        <span class="pulse-lock"></span><span class="access-text">CLIENT SECURE ACCESS</span>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # 3. Input Area (Centered)
     _, col_mid, _ = st.columns([1, 1.5, 1])
     with col_mid:
-        pwd = st.text_input("Key", type="password", placeholder="Access Key", label_visibility="collapsed")
+        pwd = st.text_input("Key", type="password", placeholder="Enter access key", label_visibility="collapsed")
         if st.button("Access Portal", use_container_width=True, type="primary"):
             try:
                 if pwd in [st.secrets["PASSWORDS"]["CLIENT"], st.secrets["PASSWORDS"]["ADMIN"]]:
@@ -115,7 +111,7 @@ if not st.session_state.authenticated:
                 else:
                     st.error("Invalid Key")
             except:
-                st.error("System Error: Secrets not configured.")
+                st.error("Secrets not configured.")
     st.stop()
 
 # ── 3. MAIN APP (AUTHENTICATED) ─────────────────────────────────────────────
@@ -124,7 +120,6 @@ with st.sidebar:
         st.session_state.authenticated = False
         st.rerun()
 
-# Dashboard Header (Shifted Up)
 st.markdown("""
 <div style="margin-top: -80px; text-align:center;">
     <h1 style="font-family:'Inter'; font-weight:900; color:#1a3c6d; font-size:clamp(32px, 7vw, 54px); margin-bottom:0;">Utah Land & Property</h1>
@@ -138,7 +133,7 @@ with st.expander("📤 Secure Document Upload", expanded=False):
     if uploaded_file:
         with open(uploaded_file.name, "wb") as f:
             f.write(uploaded_file.getbuffer())
-        st.success("Document Encrypted & Vaulted.")
+        st.success("Document Vaulted.")
         st.rerun()
 
 st.divider()
