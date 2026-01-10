@@ -13,7 +13,7 @@ st.set_page_config(
 )
 st_autorefresh(interval=10000, key="ulp_sync_ping")
 
-# --- 2. DATA PERSISTENCE ---
+# --- 2. DATA PERSISTENCE & CRASH PROTECTION ---
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
     st.session_state.user_role = None
@@ -24,11 +24,11 @@ if "current_deal" not in st.session_state:
         "address": "4646 S Quail Park Drive #C, Millcreek Utah 84117",
         "seller_name": "Douglas Stewart",
         "buyer_name": "Ashley Adams",
-        "price": 455000.00,
-        "seller_equity": 40000.00,
+        "price": 330000.00,
+        "seller_equity": 20000.00,
         "assignment_fee": 15000.00,
         "interest_rate": 6.5,
-        "hoa_monthly": 250.00, # Added HOA Default
+        "hoa_monthly": 300.00,
         "instr_title": "Standard Title Search Required.", 
         "instr_escrow": "Hold Earnest Money in neutral account.", 
         "instr_servicer": "AITD Servicing setup through [Company Name].",
@@ -36,6 +36,12 @@ if "current_deal" not in st.session_state:
         "vault": [], 
         "images": []
     }
+
+# Safety Sync for session persistence
+D = st.session_state.current_deal
+fields = {"hoa_monthly": 300.00, "images": [], "interest_rate": 6.5, "assignment_fee": 15000.00}
+for field, val in fields.items():
+    if field not in D: D[field] = val
 
 # --- 3. THE "DEEP CLEAN" & BLUE HEADER CSS ---
 st.markdown("""
@@ -47,20 +53,19 @@ st.markdown("""
         .stApp { background-color: #ffffff !important; }
 
         .branding-container { text-align: center; margin-bottom: 20px; }
-        .branding-text { color: #1d428a !important; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 18px; text-transform: uppercase; letter-spacing: 1.5px; display: inline-block; vertical-align: middle; }
-        .blink-indicator { height: 12px; width: 12px; background-color: #00ff00; border-radius: 50%; display: inline-block; margin-right: 12px; vertical-align: middle; box-shadow: 0 0 10px #00ff00; animation: blink 1.2s infinite; }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
+        .branding-text { color: #1d428a !important; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 18px; text-transform: uppercase; letter-spacing: 1.5px; }
 
         .admin-header-bar { background-color: #1d428a; color: white !important; padding: 16px; text-align: center; border-radius: 4px; font-family: 'Inter', sans-serif; font-weight: 900; font-size: 22px; text-transform: uppercase; margin-bottom: 30px; }
         
         /* FORCE ALL HEADERS/LABELS TO BLUE */
-        .admin-label, label, [data-testid="stWidgetLabel"] p { 
+        .admin-label, label, [data-testid="stWidgetLabel"] p, .stMarkdown h3 { 
             font-family: 'Oswald', sans-serif !important; 
             color: #1d428a !important; 
             font-weight: 700 !important; 
             text-transform: uppercase !important; 
             font-size: 14px !important; 
             letter-spacing: 1px;
+            margin-bottom: 5px;
         }
 
         div.stButton > button { background-color: #1d428a !important; color: white !important; border: 2px solid #1d428a !important; border-radius: 4px !important; height: 56px !important; width: 100% !important; font-family: 'Oswald', sans-serif !important; font-weight: 700 !important; text-transform: uppercase !important; }
@@ -77,7 +82,7 @@ st.markdown("""
 # --- 4. AUTH PAGE ---
 if not st.session_state.authenticated:
     st.markdown('<div style="height: 15vh;"></div><div style="font-family:Inter; font-size:clamp(40px, 10vw, 75px); font-weight:900; color:#1d428a; text-align:center; line-height:0.9; margin-bottom:15px;">UTAH LAND & PROPERTY</div>', unsafe_allow_html=True)
-    st.markdown('<div class="branding-container"><span class="blink-indicator"></span><span class="branding-text">Asset protection ● Maximum privacy ● Anonymous holdings</span></div>', unsafe_allow_html=True)
+    st.markdown('<div class="branding-container"><span class="branding-text">Asset protection ● Maximum privacy ● Anonymous holdings</span></div>', unsafe_allow_html=True)
     _, col_mid, _ = st.columns([1, 0.45, 1])
     with col_mid:
         input_key = st.text_input("Access Key", type="password", placeholder="ENTER ACCESS KEY", label_visibility="collapsed")
@@ -93,8 +98,6 @@ if not st.session_state.authenticated:
     st.stop()
 
 # --- 5. CALCULATIONS ---
-role = st.session_state.user_role
-D = st.session_state.current_deal
 AITD_BAL = D["price"] - D["seller_equity"]
 
 def calc_monthly_pmt(principal, annual_rate, years):
@@ -107,7 +110,7 @@ total_15 = pi_15 + D["hoa_monthly"]
 total_30 = pi_30 + D["hoa_monthly"]
 
 # --- 6. ADMIN TERMINAL ---
-if role == "admin":
+if st.session_state.user_role == "admin":
     st.markdown('<div class="admin-header-bar">ADMIN: STRATEGIC DEAL JACKET</div>', unsafe_allow_html=True)
     with st.container(border=True):
         c1, c2, c3, c4 = st.columns([2, 1, 0.7, 0.7])
@@ -179,9 +182,50 @@ with col_pmt:
     
     with st.container(border=True):
         st.markdown('<div style="font-family:Oswald; font-size:14px; color:#1d428a; font-weight:700;">SETTLEMENT VAULT</div>', unsafe_allow_html=True)
-        if role == "admin" and st.button("📄 GENERATE MASTER DEAL SHEET"):
-            d_list = "\n".join([f"- {x}" for x in D["disclosures"] if x])
-            report = f"UTAH LAND & PROPERTY: MASTER SETTLEMENT SHEET\n--------------------------------------------------\nDATE: {datetime.now().strftime('%Y-%m-%d %H:%M')}\nDEAL ID: {D['deal_id']}\nADDRESS: {D['address']}\n\nFINANCIALS:\nPRICE: ${D['price']:,.2f}\nEQUITY: ${D['seller_equity']:,.2f}\nFEE: ${D['assignment_fee']:,.2f}\nAITD BAL: ${AITD_BAL:,.2f}\n--------------------------------------------------\nMONTHLY:\nHOA: ${D['hoa_monthly']:,.2f}\n15-YR TOTAL: ${total_15:,.2f}\n30-YR TOTAL: ${total_30:,.2f}\n\nSIGNATURES:\n\nX_________________________________\nBUYER: {D['buyer_name']}\n\nX_________________________________\nSELLER: {D['seller_name']}"
+        if st.session_state.user_role == "admin" and st.button("📄 GENERATE MASTER DEAL SHEET"):
+            d_list = "\n".join([f"✔️ {x}" for x in D["disclosures"] if x])
+            report = f"""UTAH LAND & PROPERTY: MASTER SETTLEMENT SHEET
+--------------------------------------------------
+DATE: {datetime.now().strftime('%Y-%m-%d %H:%M')}
+DEAL ID: {D['deal_id']}
+ADDRESS: {D['address']}
+
+PARTIES:
+SELLER: {D['seller_name']}
+BUYER:  {D['buyer_name']}
+
+FINANCIAL STRUCTURE:
+CONTRACT PRICE:   ${D['price']:,.2f}
+SELLER EQUITY:    ${D['seller_equity']:,.2f}
+ASSIGNMENT FEE:   ${D['assignment_fee']:,.2f}
+--------------------------------------------------
+AITD PRINCIPAL:   ${AITD_BAL:,.2f}
+AITD RATE:        {D['interest_rate']}%
+--------------------------------------------------
+ESTIMATED MONTHLY OBLIGATIONS:
+HOA MONTHLY:      ${D['hoa_monthly']:,.2f}
+
+15-YEAR OPTION:   ${total_15:,.2f} (P&I: ${pi_15:,.2f})
+30-YEAR OPTION:   ${total_30:,.2f} (P&I: ${pi_30:,.2f})
+
+INSTRUCTIONS:
+TITLE:    {D['instr_title']}
+ESCROW:   {D['instr_escrow']}
+SERVICER: {D['instr_servicer']}
+
+DISCLOSURES:
+{d_list}
+
+--------------------------------------------------
+SIGNATURES:
+
+X_________________________________
+BUYER: {D['buyer_name']}
+
+X_________________________________
+SELLER: {D['seller_name']}
+
+DOCUMENT PREPARED BY UTAH LAND & PROPERTY, LLC."""
             D["vault"].append({"name": f"Deal_{D['deal_id']}_{datetime.now().strftime('%H%M')}.txt", "content": report})
             st.rerun()
         for doc in D["vault"]:
