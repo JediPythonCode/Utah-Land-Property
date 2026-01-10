@@ -27,15 +27,13 @@ if "current_deal" not in st.session_state:
         "vault": [], "notes": []
     }
 
-# --- 3. CLEAN CSS (OVERLAP FIX & STEADY-BLUE BUTTONS) ---
+# --- 3. REFINED CSS ---
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Oswald:wght@500;700&display=swap');
-        
-        /* Global Background */
         .stApp { background-color: #ffffff !important; }
 
-        /* Button Conformity & Hover Effect */
+        /* Buttons: Steady Blue with White Boundary Hover */
         div.stButton > button {
             background-color: #1d428a !important;
             color: white !important;
@@ -46,16 +44,14 @@ st.markdown("""
             font-family: 'Oswald', sans-serif !important;
             font-weight: 700 !important;
             text-transform: uppercase !important;
-            transition: all 0.2s ease;
         }
         div.stButton > button:hover {
-            background-color: #1d428a !important;
+            border: 2px solid white !important;
+            box-shadow: 0 0 0 2px #1d428a !important;
             color: white !important;
-            border: 2px solid white !important; /* White boundary on hover */
-            box-shadow: inset 0 0 0 2px #1d428a;
         }
 
-        /* Label legibility (Prevents Overlapping) */
+        /* Label legibility */
         .admin-label {
             font-family: 'Oswald', sans-serif !important;
             color: #1d428a !important;
@@ -67,7 +63,7 @@ st.markdown("""
             display: block !important;
         }
 
-        /* Admin Header Bar */
+        /* Centered Admin Title Bar */
         .admin-header-bar {
             background-color: #1d428a;
             color: white;
@@ -77,31 +73,32 @@ st.markdown("""
             font-family: 'Inter', sans-serif;
             font-weight: 900;
             font-size: 20px;
-            letter-spacing: 1px;
-            margin-bottom: 25px;
             text-transform: uppercase;
+            margin-bottom: 25px;
         }
 
-        /* Input Conformity */
-        input {
-            height: 52px !important;
-            border: 2px solid #e2e8f0 !important;
-            border-radius: 4px !important;
+        /* Disclosure List Styling */
+        .disclosure-item {
+            background: #f1f5f9;
+            color: #1d428a;
+            padding: 10px;
+            border-left: 4px solid #1d428a;
+            margin-bottom: 5px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
         }
         
-        /* Auth Screen Centering */
-        [data-testid="stAppViewBlockContainer"] {
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-        }
+        input { height: 52px !important; }
     </style>
 """, unsafe_allow_html=True)
 
 # --- 4. LOGIN ---
 if not st.session_state.authenticated:
-    st.markdown('<div style="font-family:Inter; font-size:60px; font-weight:900; color:#1d428a; text-align:center; margin-bottom:20px;">UTAH LAND & PROPERTY</div>', unsafe_allow_html=True)
+    st.markdown('<div style="font-family:Inter; font-size:50px; font-weight:900; color:#1d428a; text-align:center; margin-top:100px;">UTAH LAND & PROPERTY</div>', unsafe_allow_html=True)
     _, col_mid, _ = st.columns([1, 0.6, 1])
     with col_mid:
-        input_key = st.text_input("Key", type="password", placeholder="ENTER ACCESS KEY", label_visibility="collapsed")
+        input_key = st.text_input("Access Key", type="password", placeholder="ENTER KEY", label_visibility="collapsed")
         if st.button("Authorize Session"):
             try:
                 for user, profile in st.secrets["users"].items():
@@ -109,8 +106,8 @@ if not st.session_state.authenticated:
                         st.session_state.authenticated = True
                         st.session_state.user_role = str(profile["role"]).lower()
                         st.rerun()
-                st.error("ACCESS DENIED")
-            except: st.error("Config Error")
+                st.error("DENIED")
+            except: st.error("Config Missing")
     st.stop()
 
 # --- 5. ADMIN TERMINAL ---
@@ -135,16 +132,16 @@ if role == "admin":
         f3.markdown('<span class="admin-label">Assignment Fee</span>', unsafe_allow_html=True)
         a_fee = f3.number_input("Fee", value=float(D["assignment_fee"]), label_visibility="collapsed")
 
-        st.markdown('<span class="admin-label">Instructions: Title | Escrow | Servicer</span>', unsafe_allow_html=True)
+        st.markdown('<span class="admin-label">Title / Escrow / Servicing Instructions</span>', unsafe_allow_html=True)
         i1, i2, i3 = st.columns(3)
-        a_title = i1.text_area("Title", value=D["instr_title"], placeholder="Title Instructions", label_visibility="collapsed")
-        a_escrow = i2.text_area("Escrow", value=D["instr_escrow"], placeholder="Escrow Instructions", label_visibility="collapsed")
-        a_servicer = i3.text_area("Servicer", value=D["instr_servicer"], placeholder="Servicer Instructions", label_visibility="collapsed")
+        a_title = i1.text_area("Title", value=D["instr_title"], placeholder="Title...", label_visibility="collapsed")
+        a_escrow = i2.text_area("Escrow", value=D["instr_escrow"], placeholder="Escrow...", label_visibility="collapsed")
+        a_servicer = i3.text_area("Servicer", value=D["instr_servicer"], placeholder="Servicer...", label_visibility="collapsed")
 
         st.markdown('<span class="admin-label">Buyer Disclosures</span>', unsafe_allow_html=True)
         updated_discs = []
         for i, d in enumerate(D["disclosures"]):
-            updated_discs.append(st.text_input(f"Disc {i}", value=d, key=f"d_in_{i}", label_visibility="collapsed"))
+            updated_discs.append(st.text_input(f"D{i}", value=d, key=f"d_adm_{i}", label_visibility="collapsed"))
         
         if st.button("Add Disclosure Line +"):
             D["disclosures"].append("")
@@ -159,25 +156,50 @@ if role == "admin":
             })
             st.rerun()
 
-# --- 6. DASHBOARD VIEW ---
+# --- 6. DASHBOARD & VAULT ---
 AITD_PRINCIPAL = D["price"] - D["seller_equity"]
-st.markdown(f'<div style="font-family:Inter; font-size:32px; font-weight:900; color:#1d428a; margin-top:20px;">{D["address"]}</div>', unsafe_allow_html=True)
+st.markdown(f'<div style="font-family:Inter; font-size:36px; font-weight:900; color:#1d428a; margin-top:20px; text-transform:uppercase;">{D["address"]}</div>', unsafe_allow_html=True)
 
-col_main, col_side = st.columns([2, 1])
-with col_main:
+col_data, col_docs = st.columns([2, 1])
+
+with col_data:
     st.markdown(f"""
-        <div style="background:#1d428a; padding:30px; border-radius:8px; color:white;">
+        <div style="background:#1d428a; padding:30px; border-radius:8px; color:white; margin-bottom:20px;">
             <div style="font-family:Oswald; font-size:12px; opacity:0.8;">AITD PRINCIPAL BALANCE</div>
             <div style="font-family:Inter; font-size:48px; font-weight:900;">${AITD_PRINCIPAL:,.2f}</div>
         </div>
     """, unsafe_allow_html=True)
+    
+    st.markdown('<div style="font-family:Oswald; font-size:14px; color:#1d428a; margin-bottom:10px;">ACTIVE DISCLOSURES</div>', unsafe_allow_html=True)
+    for disc in D["disclosures"]:
+        if disc:
+            st.markdown(f'<div class="disclosure-item">✔️ {disc}</div>', unsafe_allow_html=True)
 
-with col_side:
+with col_docs:
     with st.container(border=True):
-        st.markdown('<div style="font-family:Oswald; font-size:12px; color:#1d428a;">DISCLOSURES</div>', unsafe_allow_html=True)
-        for disc in D["disclosures"]:
-            if disc: st.markdown(f"• {disc}")
+        st.markdown('<div style="font-family:Oswald; font-size:14px; color:#1d428a;">SETTLEMENT VAULT</div>', unsafe_allow_html=True)
+        if role == "admin" and st.button("📄 GENERATE MASTER DEAL SHEET"):
+            d_list = "\n".join([f"- {x}" for x in D["disclosures"] if x])
+            report = f"""UTAH LAND & PROPERTY: MASTER DEAL SHEET
+ADDRESS: {D['address']}
+AITD PRINCIPAL: ${AITD_PRINCIPAL:,.2f}
+--------------------------------------------------
+TITLE INSTRUCTIONS: {D['instr_title']}
+ESCROW INSTRUCTIONS: {D['instr_escrow']}
+SERVICER INSTRUCTIONS: {D['instr_servicer']}
+--------------------------------------------------
+DISCLOSURES:
+{d_list}
+"""
+            D["vault"].append({"name": f"Deal_{D['deal_id']}_{datetime.now().strftime('%H%M')}.txt", "content": report})
+            st.rerun()
+        
+        for doc in D["vault"]:
+            v1, v2 = st.columns([2, 1])
+            v1.markdown(f"<span style='font-size:12px; font-weight:bold;'>{doc['name']}</span>", unsafe_allow_html=True)
+            b64 = base64.b64encode(doc['content'].encode()).decode()
+            v2.markdown(f'<a href="data:file/txt;base64,{b64}" download="{doc["name"]}" style="color:#1d428a; font-weight:900; font-size:12px;">PRINT</a>', unsafe_allow_html=True)
 
-if st.sidebar.button("LOGOUT"):
+if st.sidebar.button("EXIT TERMINAL"):
     st.session_state.authenticated = False
     st.rerun()
