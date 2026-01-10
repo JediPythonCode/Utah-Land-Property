@@ -9,7 +9,7 @@ from reportlab.lib.pagesizes import LETTER
 from reportlab.pdfgen import canvas
 
 # ==================================================
-# 1. CONFIG
+# 1. CONFIG & REFRESH
 # ==================================================
 st.set_page_config(
     page_title="Utah Land & Property",
@@ -20,7 +20,7 @@ st.set_page_config(
 st_autorefresh(interval=10000, key="ulp_sync_ping")
 
 # ==================================================
-# 2. SESSION + SHARED DEAL STORE
+# 2. SESSION STATE & SHARED DEAL STORE
 # ==================================================
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
@@ -33,7 +33,7 @@ if "active_deal_id" not in st.session_state:
     st.session_state.active_deal_id = "DEAL-PRIMARY"
 
 
-def deal_hash(deal: dict):
+def deal_hash(deal: dict) -> str:
     payload = f"{deal['price']}{deal['seller_equity']}{deal['assignment_fee']}"
     return hashlib.md5(payload.encode()).hexdigest()
 
@@ -41,9 +41,9 @@ def deal_hash(deal: dict):
 if st.session_state.active_deal_id not in st.session_state.shared_deals:
     st.session_state.shared_deals[st.session_state.active_deal_id] = {
         "deal_id": st.session_state.active_deal_id,
-        "price": 330000.0,
-        "seller_equity": 20000.0,
-        "assignment_fee": 15000.0,
+        "price": 330000.00,
+        "seller_equity": 20000.00,
+        "assignment_fee": 15000.00,
         "vault": [],
         "notes": [],
         "version": ""
@@ -52,131 +52,157 @@ if st.session_state.active_deal_id not in st.session_state.shared_deals:
 D = st.session_state.shared_deals[st.session_state.active_deal_id]
 
 # ==================================================
-# 3. AUTH TERMINAL (WHITE + CENTERED)
+# 3. AUTH TERMINAL — ORIGINAL LOOK (FIXED CENTERING)
 # ==================================================
 if not st.session_state.authenticated:
 
-    st.markdown("""
+    pillar_icons = [
+        '<svg viewBox="0 0 24 24" width="80" height="80" stroke="#1d428a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>',
+        '<svg viewBox="0 0 24 24" width="80" height="80" stroke="#1d428a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>',
+    ]
+
+    icon_stack = "".join(
+        [f'<div class="flip-logo" style="animation-delay:{i * 3}s">{svg}</div>'
+         for i, svg in enumerate(pillar_icons)]
+    )
+
+    st.markdown(f"""
     <style>
     @import url("https://fonts.googleapis.com/css2?family=Inter:wght@900&family=Oswald:wght@700&display=swap");
 
-    html, body, .stApp {
+    html, body, .stApp {{
         background-color: #ffffff !important;
-    }
+    }}
 
-    header, footer {
+    header, footer, [data-testid="stHeader"] {{
         display: none !important;
-    }
+    }}
 
-    section.main > div {
+    section.main > div {{
         padding-top: 0 !important;
-        padding-bottom: 0 !important;
-    }
+    }}
 
-    .auth-wrapper {
+    .main-auth-container {{
         min-height: 100vh;
         display: flex;
-        justify-content: center;
+        flex-direction: column;
         align-items: center;
-    }
-
-    .auth-card {
-        max-width: 420px;
-        width: 100%;
-        padding: 40px 32px;
-        background: #ffffff;
-        border-radius: 12px;
-        border: 1px solid #e5e7eb;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+        justify-content: center;
         text-align: center;
-    }
+    }}
 
-    .auth-title {
-        font-family: Inter;
-        font-size: 36px;
+    .ulp-auth-title {{
+        font-family: "Inter", sans-serif;
+        font-size: clamp(32px, 8vw, 80px);
         font-weight: 900;
         color: #1d428a;
-        letter-spacing: -2px;
-        text-transform: uppercase;
+        letter-spacing: -4px;
+        line-height: 1.0;
         margin-bottom: 10px;
-    }
+        text-transform: uppercase;
+    }}
 
-    .secure-row {
+    .logo-container {{
+        position: relative;
+        height: 100px;
+        width: 100%;
         display: flex;
         justify-content: center;
         align-items: center;
+        margin: 20px 0;
+    }}
+
+    .flip-logo {{
+        position: absolute;
+        opacity: 0;
+        animation: logoFlip {len(pillar_icons)*3}s infinite;
+    }}
+
+    @keyframes logoFlip {{
+        0% {{ opacity: 0; transform: scale(0.85); }}
+        5% {{ opacity: 1; }}
+        30% {{ opacity: 1; }}
+        33% {{ opacity: 0; transform: scale(1.05); }}
+        100% {{ opacity: 0; }}
+    }}
+
+    .sync-box {{
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
         gap: 8px;
-        margin-bottom: 25px;
-    }
+    }}
 
-    .pulse-dot {
-        width: 10px;
+    .pulse-dot {{
         height: 10px;
+        width: 10px;
+        background-color: #00ff41;
         border-radius: 50%;
-        background: #00ff41;
         box-shadow: 0 0 10px #00ff41;
-        animation: pulse 1.5s infinite;
-    }
+        animation: pulse-green 1.5s infinite;
+    }}
 
-    @keyframes pulse {
-        0% { box-shadow: 0 0 0 0 rgba(0,255,65,.6); }
-        70% { box-shadow: 0 0 0 10px rgba(0,255,65,0); }
-        100% { box-shadow: 0 0 0 0 rgba(0,255,65,0); }
-    }
+    @keyframes pulse-green {{
+        0% {{ box-shadow: 0 0 0px 0px rgba(0,255,65,0.7); }}
+        70% {{ box-shadow: 0 0 0px 10px rgba(0,255,65,0); }}
+        100% {{ box-shadow: 0 0 0px 0px rgba(0,255,65,0); }}
+    }}
 
-    .secure-label {
-        font-family: Oswald;
-        font-size: 12px;
-        letter-spacing: 2px;
+    .sync-label {{
+        font-family: "Oswald", sans-serif;
+        font-size: 14px;
         color: #1d428a;
+        letter-spacing: 2px;
+        font-weight: bold;
         text-transform: uppercase;
-        font-weight: 700;
-    }
+    }}
 
-    input {
+    input {{
         text-align: center !important;
-        font-size: 16px !important;
-    }
+        font-size: 18px !important;
+    }}
 
-    div.stButton > button {
+    div.stButton > button {{
         background-color: #1d428a !important;
-        color: white !important;
-        font-family: Oswald !important;
-        letter-spacing: 2px !important;
+        color: #ffffff !important;
+        font-family: 'Oswald', sans-serif !important;
+        font-weight: 700 !important;
         text-transform: uppercase !important;
-        padding: 14px !important;
+        letter-spacing: 2px !important;
+        padding: 15px 0 !important;
+        border: 2px solid #1d428a !important;
         width: 100%;
-        border-radius: 6px !important;
-    }
+        margin-top: 10px;
+    }}
     </style>
-    """, unsafe_allow_html=True)
 
-    st.markdown("""
-    <div class="auth-wrapper">
-        <div class="auth-card">
-            <div class="auth-title">Utah Land & Property</div>
-            <div class="secure-row">
-                <span class="pulse-dot"></span>
-                <span class="secure-label">Secure Access Terminal</span>
-            </div>
+    <div class="main-auth-container">
+        <div class="ulp-auth-title">Utah Land & Property</div>
+        <div class="logo-container">{icon_stack}</div>
+        <div class="sync-box">
+            <span class="pulse-dot"></span>
+            <span class="sync-label">Secure Access Terminal</span>
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-    _, col, _ = st.columns([1.5, 1, 1.5])
-    with col:
-        key_input = st.text_input(
+    _, col_mid, _ = st.columns([1.2, 1, 1.2])
+    with col_mid:
+        input_key = st.text_input(
             "Security Key",
             type="password",
             placeholder="ENTER PRIVATE ACCESS KEY",
             label_visibility="collapsed"
         )
 
-        if st.button("Authorize Session", disabled=st.session_state.get("auth_lock", False)):
+        if st.button(
+            "Authorize Session",
+            disabled=st.session_state.get("auth_lock", False)
+        ):
             st.session_state.auth_lock = True
             try:
                 for _, profile in st.secrets["users"].items():
-                    if key_input == str(profile["key"]):
+                    if input_key == str(profile["key"]):
                         st.session_state.authenticated = True
                         st.session_state.user_role = profile["role"]
                         st.session_state.auth_lock = False
@@ -197,7 +223,6 @@ role = st.session_state.user_role
 if role != "admin":
     if "local_version" not in st.session_state:
         st.session_state.local_version = D["version"]
-
     if D["version"] != st.session_state.local_version:
         st.session_state.local_version = D["version"]
         st.toast("🔄 Deal Updated by Admin")
@@ -207,7 +232,7 @@ if role != "admin":
 # 5. ADMIN DEAL MANAGEMENT
 # ==================================================
 if role == "admin":
-    with st.expander("🛡️ ADMIN: DEAL MANAGEMENT", expanded=False):
+    with st.expander("🛡️ ADMIN: DEAL MANAGEMENT TERMINAL", expanded=False):
         c1, c2, c3 = st.columns(3)
         p = c1.number_input("Sales Price", value=D["price"])
         e = c2.number_input("Seller Equity", value=D["seller_equity"])
@@ -220,7 +245,7 @@ if role == "admin":
             st.rerun()
 
 # ==================================================
-# 6. DASHBOARD
+# 6. CORE DASHBOARD
 # ==================================================
 AITD = D["price"] - D["seller_equity"]
 
@@ -294,4 +319,3 @@ with n_col:
 if st.sidebar.button("LOGOUT"):
     st.session_state.authenticated = False
     st.rerun()
-s
