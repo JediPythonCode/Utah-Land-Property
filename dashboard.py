@@ -11,6 +11,9 @@ st.set_page_config(
     layout="wide", 
     initial_sidebar_state="collapsed"
 )
+
+# This component can sometimes glitch on first load; if it does, 
+# a simple browser refresh usually seats the connection.
 st_autorefresh(interval=10000, key="ulp_sync_ping")
 
 # --- 2. DATA PERSISTENCE & CRASH PROTECTION ---
@@ -58,7 +61,7 @@ st.markdown("""
         .admin-header-bar { background-color: #1d428a; color: white !important; padding: 16px; text-align: center; border-radius: 4px; font-family: 'Inter', sans-serif; font-weight: 900; font-size: 22px; text-transform: uppercase; margin-bottom: 30px; }
         
         /* FORCE ALL HEADERS/LABELS TO BLUE */
-        .admin-label, label, [data-testid="stWidgetLabel"] p, .stMarkdown h3 { 
+        .admin-label, label, [data-testid="stWidgetLabel"] p, .stMarkdown h3, [data-testid="stFileUploader"] section > label { 
             font-family: 'Oswald', sans-serif !important; 
             color: #1d428a !important; 
             font-weight: 700 !important; 
@@ -131,13 +134,13 @@ if st.session_state.user_role == "admin":
         up_files = st.file_uploader("Media Vault (Property Images)", accept_multiple_files=True, type=['png', 'jpg', 'jpeg'])
         if up_files: D["images"] = [Image.open(x) for x in up_files]
 
-        st.write("### INSTRUCTIONS")
+        st.markdown("### INSTRUCTIONS")
         i1, i2, i3 = st.columns(3)
         a_title = i1.text_area("Title", value=D["instr_title"])
         a_escrow = i2.text_area("Escrow", value=D["instr_escrow"])
         a_servicer = i3.text_area("Servicer", value=D["instr_servicer"])
 
-        st.write("### DISCLOSURES")
+        st.markdown("### DISCLOSURES")
         updated_discs = []
         for i, d in enumerate(D["disclosures"]):
             updated_discs.append(st.text_input(f"Line {i+1}", value=d, key=f"d_adm_{i}"))
