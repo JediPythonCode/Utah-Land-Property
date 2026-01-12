@@ -4,7 +4,7 @@ from streamlit_autorefresh import st_autorefresh
 import streamlit as st
 import io
 
-# --- 1. SECURITY UTILITIES ---
+# --- 1. SECURITY UTILITIES (Industry Standard) ---
 def get_verified_file_type(content):
     if content.startswith(b'%PDF'): return 'pdf'
     if content.startswith(b'\xff\xd8\xff'): return 'jpg'
@@ -39,25 +39,26 @@ if "current_deal" not in st.session_state:
 
 D = st.session_state.current_deal
 
-# --- 4. CSS (LOCKED ORIGINAL STYLE) ---
+# --- 4. CSS (LOCKED ORIGINAL STYLE - NO CARDS, NO BOXES) ---
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Oswald:wght@500;700&display=swap');
+        
         .stApp { background-color: #ffffff !important; }
         
         /* HEADER BRANDING */
         .main-header { font-family: 'Inter', sans-serif; font-size: 75px; font-weight: 900; color: #1d428a; text-align: center; line-height: 0.8; margin-bottom: 10px; }
         .sub-header { font-family: 'Oswald', sans-serif; font-size: 20px; font-weight: 700; color: #1d428a; text-align: center; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 40px; }
         
-        /* TEXT STYLING */
-        .blue-label { color: #1d428a !important; font-family: 'Oswald', sans-serif; font-weight: 700; text-transform: uppercase; font-size: 14px; margin-bottom: 5px; display: block; }
-        .big-value { color: #1d428a !important; font-family: 'Inter', sans-serif; font-weight: 900; font-size: 38px; line-height: 1; margin-bottom: 20px; display: block; }
-        .checklist-item { color: #1d428a !important; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 18px; margin-bottom: 12px; }
+        /* TEXT VISIBILITY - DARK BLUE */
+        .blue-label { color: #1d428a !important; font-family: 'Oswald', sans-serif; font-weight: 700; text-transform: uppercase; font-size: 16px; display: block; margin-top: 20px; }
+        .big-value { color: #1d428a !important; font-family: 'Inter', sans-serif; font-weight: 900; font-size: 42px; line-height: 1.1; display: block; }
+        .checklist-item { color: #1d428a !important; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 20px; margin-bottom: 15px; }
         
         /* BUTTONS */
-        div.stButton > button { background-color: #1d428a !important; color: white !important; font-family: 'Oswald', sans-serif !important; font-weight: 700; height: 60px !important; border-radius: 4px; border: none; width: 100%; }
+        div.stButton > button { background-color: #1d428a !important; color: white !important; font-family: 'Oswald', sans-serif !important; font-weight: 700; height: 60px !important; border-radius: 4px; border: none; }
         
-        /* FORMS */
+        /* FORM INPUTS */
         label, [data-testid="stWidgetLabel"] p { color: #1d428a !important; font-weight: 700 !important; font-family: 'Oswald', sans-serif !important; }
     </style>
 """, unsafe_allow_html=True)
@@ -89,13 +90,12 @@ uploaded_types = [doc['type'] for doc in D['vault']]
 # --- 7. ADMIN TERMINAL ---
 if st.session_state.user_role == "admin":
     with st.sidebar:
-        st.markdown('<p class="blue-label">Admin Control Panel</p>', unsafe_allow_html=True)
+        st.markdown('<p class="blue-label">Admin Control</p>', unsafe_allow_html=True)
         D["price"] = st.number_input("Sale Price", value=float(D["price"]))
         D["seller_equity"] = st.number_input("Seller Equity", value=float(D["seller_equity"]))
         st.divider()
-        st.markdown('<p class="blue-label">Upload Property Images</p>', unsafe_allow_html=True)
-        img_up = st.file_uploader("Select Photos", type=['jpg', 'png'], accept_multiple_files=True)
-        if st.button("SAVE CHANGES & PHOTOS"):
+        img_up = st.file_uploader("Upload Property Images", type=['jpg', 'png'], accept_multiple_files=True)
+        if st.button("SAVE MASTER DATA"):
             if img_up:
                 D["property_images"] = [img.getvalue() for img in img_up]
             st.rerun()
@@ -104,11 +104,11 @@ if st.session_state.user_role == "admin":
 st.markdown('<div class="main-header">UTAH LAND & PROPERTY</div>', unsafe_allow_html=True)
 st.markdown('<div class="sub-header">Asset Protection ● Maximum Privacy ● Anonymous Holdings</div>', unsafe_allow_html=True)
 
-# PROPERTY GALLERY (TOP REVEAL)
+# IMAGES AT TOP
 if D["property_images"]:
-    cols = st.columns(len(D["property_images"]) if len(D["property_images"]) < 4 else 4)
+    img_cols = st.columns(len(D["property_images"]) if len(D["property_images"]) < 4 else 4)
     for i, img in enumerate(D["property_images"]):
-        cols[i % 4].image(img, use_container_width=True)
+        img_cols[i % 4].image(img, use_container_width=True)
     st.divider()
 
 col_left, col_right = st.columns([2, 1], gap="large")
@@ -131,6 +131,7 @@ with col_right:
     completed = sum(1 for req in REQUIRED_DOCS if req in uploaded_types)
     st.progress(completed / len(REQUIRED_DOCS))
     
+    # CHECKLIST VISIBILITY
     for req in REQUIRED_DOCS:
         status = "✅" if req in uploaded_types else "❌"
         st.markdown(f'<div class="checklist-item">{status} {req}</div>', unsafe_allow_html=True)
