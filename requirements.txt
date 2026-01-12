@@ -1,4 +1,5 @@
 streamlit
-streamlit-autorefresh
 numpy-financial
+PyPDF2
 Pillow
+streamlit-autorefresh
