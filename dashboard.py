@@ -41,7 +41,7 @@ st.markdown("""
         .stApp { background-color: #ffffff !important; }
         
         .main-header { font-family: 'Inter', sans-serif; font-size: 75px; font-weight: 900; color: #1d428a; text-align: center; line-height: 0.8; margin-bottom: 10px; user-select: none; }
-        .sub-header { font-family: 'Oswald', sans-serif; font-size: 20px; font-weight: 700; color: #1d428a; text-align: center; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 40px; }
+        .sub-header { font-family: 'Oswald', sans-serif; font-size: 20px; font-weight: 700; color: #1d428a; text-align: center; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 40px; user-select: none; }
         
         .blue-label { color: #1d428a !important; font-family: 'Oswald', sans-serif; font-weight: 700; text-transform: uppercase; font-size: 14px; }
         .big-value { color: #1d428a !important; font-family: 'Inter', sans-serif; font-weight: 900; font-size: 45px; line-height: 1; user-select: none; }
@@ -59,6 +59,7 @@ st.markdown("""
 if not st.session_state.authenticated:
     st.markdown('<div style="height: 10vh;"></div>', unsafe_allow_html=True)
     st.markdown('<div class="main-header">UTAH LAND & PROPERTY</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sub-header">Asset Protection ● Maximum Privacy ● Anonymous Holdings</div>', unsafe_allow_html=True)
     
     _, col_mid, _ = st.columns([1, 0.4, 1])
     with col_mid:
@@ -76,16 +77,9 @@ if not st.session_state.authenticated:
     st.stop()
 
 # --- 6. LOGIC & MATH ---
-# $330,000 - $20,000 = $310,000 Equity Buyer Balance
 EQ_BUYER_BAL = D["price"] - D["seller_equity"]
 REQUIRED_DOCS = ["Government ID", "Proof of Funds", "Bank Statement (Last 2 Mo)", "Purchase Agreement (Signed)"]
 uploaded_types = [doc['type'] for doc in D['vault']]
-
-def calc_pmt(principal, rate, years):
-    if rate <= 0 or years <= 0: return principal / (years * 12) if (years*12) > 0 else 0
-    return abs(npf.pmt(rate/100/12, years*12, principal))
-
-t30 = calc_pmt(EQ_BUYER_BAL, D["interest_rate"], 30) + D["hoa_monthly"]
 
 # --- 7. ADMIN TERMINAL ---
 if st.session_state.user_role == "admin":
@@ -94,8 +88,15 @@ if st.session_state.user_role == "admin":
         D["address"] = st.text_input("Address", value=D["address"])
         D["price"] = st.number_input("Price", value=float(D["price"]))
         D["seller_equity"] = st.number_input("Seller Equity", value=float(D["seller_equity"]))
-        D["interest_rate"] = st.number_input("Rate %", value=float(D["interest_rate"]))
-        if st.button("SAVE CHANGES"): st.rerun()
+        
+        st.divider()
+        st.markdown('<p class="blue-label">Property Gallery</p>', unsafe_allow_html=True)
+        img_up = st.file_uploader("Upload Photos", type=['jpg','png'], accept_multiple_files=True)
+        if st.button("SAVE PHOTOS & DATA"):
+            if img_up:
+                for img in img_up:
+                    D["property_images"].append({"content": img.getvalue()})
+            st.rerun()
 
 # --- 8. DASHBOARD ---
 st.markdown('<div class="main-header">UTAH LAND & PROPERTY</div>', unsafe_allow_html=True)
@@ -105,7 +106,7 @@ col_left, col_right = st.columns([2, 1], gap="large")
 
 with col_left:
     st.markdown('<p class="blue-label">Financial Structure</p>', unsafe_allow_html=True)
-    st.markdown(f'<div class="data-card"><span class="blue-label">Price</span><br><span class="big-value">${D["price"]:,.2f}</span></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="data-card"><span class="blue-label">Sale Price</span><br><span class="big-value">${D["price"]:,.2f}</span></div>', unsafe_allow_html=True)
     
     st.markdown(f'''
         <div class="equity-box">
@@ -117,6 +118,12 @@ with col_left:
     c1, c2 = st.columns(2)
     c1.markdown(f'<div class="data-card"><span class="blue-label">Downpayment (Seller Equity)</span><br><span class="big-value">${D["seller_equity"]:,.0f}</span></div>', unsafe_allow_html=True)
     c2.markdown(f'<div class="data-card"><span class="blue-label">Assignment Fee</span><br><span class="big-value">${D["assignment_fee"]:,.0f}</span></div>', unsafe_allow_html=True)
+
+    if D["property_images"]:
+        st.markdown('<p class="blue-label">Secure Property Preview</p>', unsafe_allow_html=True)
+        g1, g2, g3 = st.columns(3)
+        for i, img in enumerate(D["property_images"]):
+            [g1, g2, g3][i % 3].image(img["content"], use_container_width=True)
 
 with col_right:
     st.markdown('<p class="blue-label">Onboarding Tracker</p>', unsafe_allow_html=True)
