@@ -22,34 +22,41 @@ st_autorefresh(interval=10000, key="ulp_sync_ping")
 # --- 3. SESSION & DATA ---
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
+if "user_role" not in st.session_state:
     st.session_state.user_role = None
 
 if "current_deal" not in st.session_state:
     st.session_state.current_deal = {
-        "address": "PRIVATE ASSET: UNVETTED", "deal_id": "ULP-001",
-        "price": 330000.0, "seller_equity": 20000.0, 
-        "assignment_fee": 15000.0, "interest_rate": 6.5, "hoa_monthly": 0.0,
-        "vault": [], "property_images": []
+        "address": "PRIVATE ASSET: UNVETTED", 
+        "price": 330000.0, 
+        "seller_equity": 20000.0, 
+        "assignment_fee": 15000.0, 
+        "interest_rate": 6.5, 
+        "hoa_monthly": 0.0,
+        "vault": [], 
+        "property_images": []
     }
 
 D = st.session_state.current_deal
 
-# --- 4. CSS (LOCKED BRANDING & VISIBILITY) ---
+# --- 4. CSS (ORIGINAL STYLE: DARK BLUE & BOLD) ---
 st.markdown("""
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@900&family=Oswald:wght@700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Oswald:wght@500;700&display=swap');
         .stApp { background-color: #ffffff !important; }
         
-        .main-header { font-family: 'Inter', sans-serif; font-size: 75px; font-weight: 900; color: #1d428a; text-align: center; line-height: 0.8; margin-bottom: 10px; user-select: none; }
-        .sub-header { font-family: 'Oswald', sans-serif; font-size: 20px; font-weight: 700; color: #1d428a; text-align: center; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 40px; user-select: none; }
+        /* HEADER BRANDING */
+        .main-header { font-family: 'Inter', sans-serif; font-size: 75px; font-weight: 900; color: #1d428a; text-align: center; line-height: 0.8; margin-bottom: 10px; }
+        .sub-header { font-family: 'Oswald', sans-serif; font-size: 20px; font-weight: 700; color: #1d428a; text-align: center; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 40px; }
         
+        /* ORIGINAL TEXT STYLE */
         .blue-label { color: #1d428a !important; font-family: 'Oswald', sans-serif; font-weight: 700; text-transform: uppercase; font-size: 14px; }
-        .big-value { color: #1d428a !important; font-family: 'Inter', sans-serif; font-weight: 900; font-size: 45px; line-height: 1; user-select: none; }
+        .big-value { color: #1d428a !important; font-family: 'Inter', sans-serif; font-weight: 900; font-size: 38px; line-height: 1; }
         .checklist-item { color: #1d428a !important; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 18px; margin-bottom: 12px; }
         
+        /* BUTTONS & CARDS */
         div.stButton > button { background-color: #1d428a !important; color: white !important; font-family: 'Oswald', sans-serif !important; font-weight: 700; height: 60px !important; border-radius: 4px; }
         .data-card { background: #f1f5f9; padding: 25px; border-left: 8px solid #1d428a; border-radius: 4px; margin-bottom: 15px; }
-        .equity-box { background: #1d428a; color: white !important; padding: 25px; border-radius: 4px; margin-bottom: 15px; }
         
         label, [data-testid="stWidgetLabel"] p { color: #1d428a !important; font-weight: 700 !important; }
     </style>
@@ -65,18 +72,17 @@ if not st.session_state.authenticated:
     with col_mid:
         access_key = st.text_input("Access Key", type="password", label_visibility="collapsed", placeholder="ENTER KEY")
         if st.button("AUTHORIZE SESSION"):
-            try:
+            if "users" in st.secrets:
                 for user, profile in st.secrets["users"].items():
                     if access_key == str(profile["key"]):
                         st.session_state.authenticated = True
                         st.session_state.user_role = str(profile["role"]).lower()
                         st.rerun()
-                st.error("INVALID KEY")
-            except:
-                st.error("Secrets Missing.")
+            st.error("INVALID KEY")
     st.stop()
 
 # --- 6. LOGIC & MATH ---
+# $330k - $20k = $310k
 EQ_BUYER_BAL = D["price"] - D["seller_equity"]
 REQUIRED_DOCS = ["Government ID", "Proof of Funds", "Bank Statement (Last 2 Mo)", "Purchase Agreement (Signed)"]
 uploaded_types = [doc['type'] for doc in D['vault']]
@@ -85,45 +91,43 @@ uploaded_types = [doc['type'] for doc in D['vault']]
 if st.session_state.user_role == "admin":
     with st.sidebar:
         st.markdown('<p class="blue-label">Admin Management</p>', unsafe_allow_html=True)
-        D["address"] = st.text_input("Address", value=D["address"])
         D["price"] = st.number_input("Price", value=float(D["price"]))
-        D["seller_equity"] = st.number_input("Seller Equity", value=float(D["seller_equity"]))
-        
+        D["seller_equity"] = st.number_input("Downpayment (Equity)", value=float(D["seller_equity"]))
         st.divider()
-        st.markdown('<p class="blue-label">Property Gallery</p>', unsafe_allow_html=True)
-        img_up = st.file_uploader("Upload Photos", type=['jpg','png'], accept_multiple_files=True)
-        if st.button("SAVE PHOTOS & DATA"):
+        st.markdown('<p class="blue-label">Gallery Upload</p>', unsafe_allow_html=True)
+        img_up = st.file_uploader("Select Property Photos", type=['jpg', 'png'], accept_multiple_files=True)
+        if st.button("UPDATE PORTAL"):
             if img_up:
-                for img in img_up:
-                    D["property_images"].append({"content": img.getvalue()})
+                D["property_images"] = [img.getvalue() for img in img_up]
             st.rerun()
 
 # --- 8. DASHBOARD ---
 st.markdown('<div class="main-header">UTAH LAND & PROPERTY</div>', unsafe_allow_html=True)
 st.markdown('<div class="sub-header">Asset Protection ● Maximum Privacy ● Anonymous Holdings</div>', unsafe_allow_html=True)
 
+# GALLERY REVEAL (TOP)
+if D["property_images"]:
+    cols = st.columns(len(D["property_images"]) if len(D["property_images"]) < 4 else 4)
+    for i, img in enumerate(D["property_images"]):
+        cols[i % 4].image(img, use_container_width=True)
+    st.divider()
+
 col_left, col_right = st.columns([2, 1], gap="large")
 
 with col_left:
     st.markdown('<p class="blue-label">Financial Structure</p>', unsafe_allow_html=True)
+    
+    # PRICE
     st.markdown(f'<div class="data-card"><span class="blue-label">Sale Price</span><br><span class="big-value">${D["price"]:,.2f}</span></div>', unsafe_allow_html=True)
     
-    st.markdown(f'''
-        <div class="equity-box">
-            <span style="color:white; font-family:Oswald; font-weight:700;">EQUITY BUYER BALANCE</span><br>
-            <span class="big-value" style="color:white !important; font-size:55px;">${EQ_BUYER_BAL:,.2f}</span>
-        </div>
-    ''', unsafe_allow_html=True)
+    # DOWNPAYMENT
+    st.markdown(f'<div class="data-card"><span class="blue-label">Downpayment (Seller Equity)</span><br><span class="big-value">${D["seller_equity"]:,.2f}</span></div>', unsafe_allow_html=True)
     
-    c1, c2 = st.columns(2)
-    c1.markdown(f'<div class="data-card"><span class="blue-label">Downpayment (Seller Equity)</span><br><span class="big-value">${D["seller_equity"]:,.0f}</span></div>', unsafe_allow_html=True)
-    c2.markdown(f'<div class="data-card"><span class="blue-label">Assignment Fee</span><br><span class="big-value">${D["assignment_fee"]:,.0f}</span></div>', unsafe_allow_html=True)
-
-    if D["property_images"]:
-        st.markdown('<p class="blue-label">Secure Property Preview</p>', unsafe_allow_html=True)
-        g1, g2, g3 = st.columns(3)
-        for i, img in enumerate(D["property_images"]):
-            [g1, g2, g3][i % 3].image(img["content"], use_container_width=True)
+    # EQUITY BUYER BALANCE (ORIGINAL CARD STYLE)
+    st.markdown(f'<div class="data-card"><span class="blue-label">Equity Buyer Balance</span><br><span class="big-value">${EQ_BUYER_BAL:,.2f}</span></div>', unsafe_allow_html=True)
+    
+    # ASSIGNMENT FEE
+    st.markdown(f'<div class="data-card"><span class="blue-label">Assignment Fee</span><br><span class="big-value">${D["assignment_fee"]:,.2f}</span></div>', unsafe_allow_html=True)
 
 with col_right:
     st.markdown('<p class="blue-label">Onboarding Tracker</p>', unsafe_allow_html=True)
@@ -140,14 +144,11 @@ with col_right:
         st.markdown('<p class="blue-label">Secure Document Upload</p>', unsafe_allow_html=True)
         dtype = st.selectbox("Category", REQUIRED_DOCS)
         file = st.file_uploader("Choose File", type=['pdf','jpg','png'])
-        
         if st.form_submit_button("VALIDATE & SUBMIT"):
             if file:
                 fb = file.getvalue()
-                if get_verified_file_type(fb) is None or not scan_for_malware(fb):
-                    st.error("Security Violation Detected.")
-                else:
-                    D["vault"].append({"type": dtype, "name": file.name, "content": fb})
+                if get_verified_file_type(fb) and scan_for_malware(fb):
+                    D["vault"].append({"type": dtype, "content": fb})
                     st.rerun()
 
 if st.sidebar.button("LOGOUT"):
