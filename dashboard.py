@@ -34,24 +34,45 @@ if "current_deal" not in st.session_state:
 
 D = st.session_state.current_deal
 
-# --- 4. CSS (LOCKED BRANDING & VISIBILITY) ---
+# --- 4. CSS (MODIFIED FOR MOBILE & WHITE TEXT) ---
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@900&family=Oswald:wght@700&display=swap');
         .stApp { background-color: #ffffff !important; }
         
-        .main-header { font-family: 'Inter', sans-serif; font-size: 75px; font-weight: 900; color: #1d428a; text-align: center; line-height: 0.8; margin-bottom: 10px; user-select: none; }
-        .sub-header { font-family: 'Oswald', sans-serif; font-size: 20px; font-weight: 700; color: #1d428a; text-align: center; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 40px; user-select: none; }
+        /* FIX 1: Mobile Friendly Header (Scaled Font) */
+        .main-header { 
+            font-family: 'Inter', sans-serif; 
+            font-size: clamp(30px, 8vw, 75px); 
+            font-weight: 900; 
+            color: #1d428a; 
+            text-align: center; 
+            line-height: 1; 
+            margin-bottom: 10px; 
+            user-select: none;
+            white-space: nowrap; 
+        }
+        
+        .sub-header { font-family: 'Oswald', sans-serif; font-size: 16px; font-weight: 700; color: #1d428a; text-align: center; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 40px; user-select: none; }
         
         .blue-label { color: #1d428a !important; font-family: 'Oswald', sans-serif; font-weight: 700; text-transform: uppercase; font-size: 14px; }
         .big-value { color: #1d428a !important; font-family: 'Inter', sans-serif; font-weight: 900; font-size: 45px; line-height: 1; user-select: none; }
         .checklist-item { color: #1d428a !important; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 18px; margin-bottom: 12px; }
         
-        div.stButton > button { background-color: #1d428a !important; color: white !important; font-family: 'Oswald', sans-serif !important; font-weight: 700; height: 60px !important; border-radius: 4px; }
+        div.stButton > button { background-color: #1d428a !important; color: white !important; font-family: 'Oswald', sans-serif !important; font-weight: 700; height: 60px !important; border-radius: 4px; width: 100%; }
         .data-card { background: #f1f5f9; padding: 25px; border-left: 8px solid #1d428a; border-radius: 4px; margin-bottom: 15px; }
+        
+        /* FIX 3: Equity Balance Displayed in White */
         .equity-box { background: #1d428a; color: white !important; padding: 25px; border-radius: 4px; margin-bottom: 15px; }
+        .equity-box * { color: white !important; }
         
         label, [data-testid="stWidgetLabel"] p { color: #1d428a !important; font-weight: 700 !important; }
+        
+        /* Mobile adjustment for login columns */
+        @media (max-width: 640px) {
+            .main-header { font-size: 28px; }
+            [data-testid="column"] { width: 100% !important; flex: 1 1 100% !important; }
+        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -61,7 +82,8 @@ if not st.session_state.authenticated:
     st.markdown('<div class="main-header">UTAH LAND & PROPERTY</div>', unsafe_allow_html=True)
     st.markdown('<div class="sub-header">Asset Protection ● Maximum Privacy ● Anonymous Holdings</div>', unsafe_allow_html=True)
     
-    _, col_mid, _ = st.columns([1, 0.4, 1])
+    # Fix 1: Adjusted column ratios for better mobile centering
+    _, col_mid, _ = st.columns([0.1, 0.8, 0.1] if st.get_option("browser.gatherUsageStats") else [1, 0.4, 1])
     with col_mid:
         access_key = st.text_input("Access Key", type="password", label_visibility="collapsed", placeholder="ENTER KEY")
         if st.button("AUTHORIZE SESSION"):
@@ -96,7 +118,18 @@ if st.session_state.user_role == "admin":
             if img_up:
                 for img in img_up:
                     D["property_images"].append({"content": img.getvalue()})
-            st.rerun()
+                st.success("APPROVED: Image(s) Uploaded Successfully")
+            else:
+                st.rerun()
+        
+        # NEW: DELETE PHOTO OVERRIDE
+        if D["property_images"]:
+            st.markdown('<p class="blue-label">Manage Uploads</p>', unsafe_allow_html=True)
+            for idx, img in enumerate(D["property_images"]):
+                st.image(img["content"], width=100)
+                if st.button(f"DELETE PHOTO {idx+1}", key=f"del_{idx}"):
+                    D["property_images"].pop(idx)
+                    st.rerun()
 
 # --- 8. DASHBOARD ---
 st.markdown('<div class="main-header">UTAH LAND & PROPERTY</div>', unsafe_allow_html=True)
@@ -108,9 +141,10 @@ with col_left:
     st.markdown('<p class="blue-label">Financial Structure</p>', unsafe_allow_html=True)
     st.markdown(f'<div class="data-card"><span class="blue-label">Sale Price</span><br><span class="big-value">${D["price"]:,.2f}</span></div>', unsafe_allow_html=True)
     
+    # FIX 3: Forced white color for text
     st.markdown(f'''
         <div class="equity-box">
-            <span style="color:white; font-family:Oswald; font-weight:700;">EQUITY BUYER BALANCE</span><br>
+            <span style="color:white !important; font-family:Oswald; font-weight:700;">EQUITY BUYER BALANCE</span><br>
             <span class="big-value" style="color:white !important; font-size:55px;">${EQ_BUYER_BAL:,.2f}</span>
         </div>
     ''', unsafe_allow_html=True)
