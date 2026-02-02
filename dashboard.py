@@ -158,7 +158,7 @@ with c1:
 with c2:
     st.markdown("<p style='letter-spacing: 3px; font-size: 0.7rem; color: #85714D; font-weight: 600;'>RECENT ACTIVITY</p>", unsafe_allow_html=True)
     activities = [
-        ("Jan 28", "Property Tax Assessment", "Completed"),
+        ("Feb 02", "Tax Assessment Finalized", "Success"),
         ("Jan 15", "Q4 Yield Distribution", "Processed"),
         ("Jan 02", "Land Title Verification", "Verified"),
         ("Dec 20", "Annual Portfolio Review", "Finalized")
