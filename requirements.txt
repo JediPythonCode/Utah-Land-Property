@@ -1,5 +1,7 @@
 streamlit
 numpy-financial
+pandas
+numpy
 PyPDF2
 Pillow
 streamlit-autorefresh
