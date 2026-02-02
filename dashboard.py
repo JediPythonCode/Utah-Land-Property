@@ -2,8 +2,8 @@ from flask import Flask, render_template_string
 
 app = Flask(__name__)
 
-# This is the HTML code we designed, stored as a Python string
-DASHBOARD_HTML = """
+# We use a raw string and carefully escape any potential conflicts
+DASHBOARD_HTML = r"""
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -112,6 +112,5 @@ def home():
     return render_template_string(DASHBOARD_HTML)
 
 if __name__ == '__main__':
-    # You will need to install flask first: pip install flask
-    app.run(debug=True, port=5000)
-"""
+    # Make sure you have flask installed: pip install flask
+    app.run(host='0.0.0.0', port=5000, debug=True)
