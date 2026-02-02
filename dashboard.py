@@ -1,236 +1,224 @@
 import streamlit as st
-import base64
 from streamlit_autorefresh import st_autorefresh
-import io
 
-# --- 1. CONFIG & STYLING ---
-st.set_page_config(page_title="Utah Land & Property | Sovereign Portal", layout="wide", initial_sidebar_state="collapsed")
-st_autorefresh(interval=30000, key="ulp_sync_ping")
+# --- 1. CONFIG ---
+st.set_page_config(
+    page_title="Utah Land & Property", 
+    layout="wide", 
+    initial_sidebar_state="collapsed"
+)
+st_autorefresh(interval=60000, key="ulp_sync_ping")
 
-# --- 2. PREMIUM CSS (THE "WOW" FACTOR) ---
+# --- 2. BHHS LUXURY CSS ---
 st.markdown("""
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Oswald:wght@300;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,900&family=Montserrat:wght@300;400;600&display=swap');
         
-        /* Base Theme */
-        .stApp {
-            background-color: #020617 !important;
-            color: #f8fafc;
+        /* BHHS Color Palette */
+        :root {
+            --bhhs-cabernet: #631D33;
+            --bhhs-gold: #85714D;
+            --bhhs-grey: #F4F4F4;
+            --text-dark: #2D2D2D;
         }
 
-        /* Cinematic Background */
-        .stApp::before {
-            content: "";
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 20% 30%, rgba(30, 58, 138, 0.15) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 70%, rgba(67, 56, 202, 0.1) 0%, transparent 50%);
-            z-index: -1;
+        .stApp {
+            background-color: white !important;
+            color: var(--text-dark);
         }
 
         /* Typography */
-        .hero-title {
-            font-family: 'Inter', sans-serif;
-            font-size: clamp(40px, 10vw, 100px);
-            font-weight: 900;
-            line-height: 0.85;
-            letter-spacing: -0.05em;
-            text-align: center;
-            background: linear-gradient(to right, #ffffff, #64748b);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-style: italic;
-            margin-bottom: 10px;
-        }
-
-        .hero-subtitle {
-            font-family: 'Oswald', sans-serif;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 0.5em;
-            text-transform: uppercase;
-            text-align: center;
-            color: #3b82f6;
-            margin-bottom: 50px;
-        }
-
-        /* Glassmorphism Cards */
-        .glass-card {
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            padding: 30px;
-            margin-bottom: 20px;
-            transition: all 0.3s ease;
+        h1, h2, h3, .serif {
+            font-family: 'Playfair Display', serif !important;
         }
         
-        .glass-card:hover {
-            border-color: rgba(59, 130, 246, 0.5);
-            background: rgba(15, 23, 42, 0.8);
+        p, div, span, label {
+            font-family: 'Montserrat', sans-serif !important;
         }
 
-        /* Stats & Labels */
-        .stat-label {
-            font-family: 'Oswald', sans-serif;
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.2em;
-            color: #64748b;
-        }
-
-        .stat-value {
-            font-family: 'Inter', sans-serif;
-            font-size: 42px;
-            font-weight: 900;
-            letter-spacing: -0.02em;
-            color: #ffffff;
-        }
-
-        .equity-value {
-            color: #3b82f6;
-        }
-
-        /* Form Styling */
-        div.stButton > button {
-            background: #ffffff !important;
-            color: #020617 !important;
-            font-family: 'Inter', sans-serif !important;
-            font-weight: 900 !important;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            border-radius: 12px !important;
-            border: none !important;
-            height: 55px !important;
+        /* Top Luxury Bar */
+        .luxury-nav {
+            background-color: var(--bhhs-cabernet);
+            height: 5px;
             width: 100%;
-            transition: all 0.2s ease !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 999;
+        }
+
+        /* Hero Section */
+        .main-header {
+            font-family: 'Playfair Display', serif;
+            font-size: 52px;
+            font-weight: 700;
+            color: var(--bhhs-cabernet);
+            text-align: center;
+            letter-spacing: -1px;
+            margin-top: 50px;
+        }
+
+        .sub-header {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: var(--bhhs-gold);
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        /* Property Card */
+        .prop-card {
+            border: 1px solid #E0E0E0;
+            padding: 40px;
+            border-radius: 0px; /* BHHS uses sharp corners for luxury */
+            background: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+        }
+
+        .label-gold {
+            color: var(--bhhs-gold);
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+
+        .price-display {
+            font-family: 'Playfair Display', serif;
+            font-size: 48px;
+            color: var(--bhhs-cabernet);
+            font-weight: 700;
+        }
+
+        /* Buttons */
+        div.stButton > button {
+            background-color: var(--bhhs-cabernet) !important;
+            color: white !important;
+            border-radius: 0px !important;
+            border: none !important;
+            font-family: 'Montserrat', sans-serif !important;
+            font-weight: 600 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 2px !important;
+            padding: 20px !important;
+            height: auto !important;
+            transition: 0.3s all;
         }
 
         div.stButton > button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+            background-color: #4a1526 !important;
+            box-shadow: 0 4px 12px rgba(99, 29, 51, 0.3);
         }
 
-        /* Inputs */
+        /* Form Inputs */
         .stTextInput input {
-            background-color: rgba(0,0,0,0.4) !important;
-            border: 1px solid rgba(255,255,255,0.1) !important;
-            color: white !important;
-            border-radius: 12px !important;
-            text-align: center;
+            border-radius: 0px !important;
+            border: 1px solid #CCC !important;
+            padding: 12px !important;
         }
 
-        /* Hide Streamlit Branding */
-        header, footer {visibility: hidden;}
+        /* Sidebar Customization */
+        [data-testid="stSidebar"] {
+            background-color: var(--bhhs-grey);
+            border-right: 1px solid #E0E0E0;
+        }
+
+        hr {
+            border-top: 1px solid #E0E0E0;
+        }
     </style>
+    <div class="luxury-nav"></div>
 """, unsafe_allow_html=True)
 
 # --- 3. SESSION STATE ---
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 
-if "deal" not in st.session_state:
-    st.session_state.deal = {
-        "address": "4402 SOUTH WASATCH BLVD",
-        "price": 330000.0,
-        "equity": 20000.0,
-        "fee": 15000.0,
-        "vault": []
-    }
+D = {
+    "address": "4402 SOUTH WASATCH BLVD, SALT LAKE CITY",
+    "price": 330000.0,
+    "equity": 20000.0,
+    "fee": 15000.0,
+}
 
-D = st.session_state.deal
-
-# --- 4. AUTHENTICATION (LOGIN PAGE) ---
+# --- 4. LOGIN INTERFACE ---
 if not st.session_state.authenticated:
-    st.markdown('<div style="height: 15vh;"></div>', unsafe_allow_html=True)
-    st.markdown('<div class="hero-title">UTAH LAND<br>& PROPERTY</div>', unsafe_allow_html=True)
-    st.markdown('<div class="hero-subtitle">Sovereign Asset Protection • Private Acquisition</div>', unsafe_allow_html=True)
+    st.markdown('<div style="height: 10vh;"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="main-header">Utah Land & Property</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sub-header">A Member of the Luxury Collection</div>', unsafe_allow_html=True)
     
-    _, col_mid, _ = st.columns([1, 0.4, 1])
+    _, col_mid, _ = st.columns([1, 0.5, 1])
     with col_mid:
-        access_key = st.text_input("AUTHORIZATION KEY", type="password", placeholder="••••••••", label_visibility="collapsed")
-        if st.button("INITIALIZE SESSION"):
-            if access_key.upper() in ["ADMIN2026", "CLIENT"]:
-                st.session_state.authenticated = True
-                st.rerun()
-            else:
-                st.error("ACCESS DENIED")
+        key = st.text_input("CLIENT ACCESS KEY", type="password")
+        if st.button("ENTER PORTAL"):
+            st.session_state.authenticated = True
+            st.rerun()
     st.stop()
 
 # --- 5. DASHBOARD ---
-# Header
-st.markdown("""
-    <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px 0;">
-        <div>
-            <div class="stat-label">System Terminal</div>
-            <div style="font-weight: 900; font-style: italic; letter-spacing: -1px;">ULP ACTIVE SESSION</div>
-        </div>
-        <div style="text-align: right;">
-            <div class="stat-label">Asset Location</div>
-            <div style="font-weight: 700;">SALT LAKE CITY, UT</div>
-        </div>
-    </div>
-    <hr style="opacity: 0.1; margin-bottom: 40px;">
-""", unsafe_allow_html=True)
+st.markdown('<div class="main-header">Utah Land & Property</div>', unsafe_allow_html=True)
+st.markdown('<div class="sub-header">Exclusive Asset Portfolio</div>', unsafe_allow_html=True)
 
-col_main, col_side = st.columns([2, 1], gap="large")
+col_info, col_assets = st.columns([1.5, 1], gap="large")
 
-with col_main:
-    st.markdown('<div class="hero-title" style="text-align: left; font-size: 60px;">ASSET BRIEFING</div>', unsafe_allow_html=True)
-    st.markdown(f'<div style="color: #64748b; font-weight: 700; margin-bottom: 30px;">{D["address"]}</div>', unsafe_allow_html=True)
-
-    # Financial Matrix
+with col_info:
     st.markdown(f"""
-        <div class="glass-card">
-            <div class="stat-label">Purchase Consideration</div>
-            <div class="stat-value">${D["price"]:,.2f}</div>
+        <div class="prop-card">
+            <div class="label-gold">Current Offering</div>
+            <h2 class="serif" style="margin-top:0;">{D["address"]}</h2>
+            <hr>
+            <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+                <div>
+                    <div class="label-gold">Listing Price</div>
+                    <div class="price-display">${D["price"]:,.0f}</div>
+                </div>
+                <div style="text-align: right;">
+                    <div class="label-gold">Property Status</div>
+                    <div style="font-weight: 600; color: #27ae60;">ACTIVE / PRIVATE</div>
+                </div>
+            </div>
         </div>
     """, unsafe_allow_html=True)
 
     c1, c2 = st.columns(2)
     with c1:
         st.markdown(f"""
-            <div class="glass-card">
-                <div class="stat-label">Required Down (Equity)</div>
-                <div class="stat-value equity-value">${D["equity"]:,.0f}</div>
+            <div class="prop-card" style="padding: 25px;">
+                <div class="label-gold">Seller Equity</div>
+                <div class="serif" style="font-size: 28px; color: var(--bhhs-cabernet);">${D["equity"]:,.0f}</div>
             </div>
         """, unsafe_allow_html=True)
     with c2:
         st.markdown(f"""
-            <div class="glass-card">
-                <div class="stat-label">Assignment Fee</div>
-                <div class="stat-value">${D["fee"]:,.0f}</div>
+            <div class="prop-card" style="padding: 25px;">
+                <div class="label-gold">Assignment Fee</div>
+                <div class="serif" style="font-size: 28px; color: var(--bhhs-cabernet);">${D["fee"]:,.0f}</div>
             </div>
         """, unsafe_allow_html=True)
 
-    # Logic Balance
-    st.markdown(f"""
-        <div style="background: #3b82f6; padding: 40px; border-radius: 24px; color: white; margin-top: 20px;">
-            <div class="stat-label" style="color: rgba(255,255,255,0.6)">Equity Buyer Balance</div>
-            <div class="stat-value" style="font-size: 60px;">${(D["price"] - D["equity"]):,.2f}</div>
-        </div>
-    """, unsafe_allow_html=True)
-
-with col_side:
-    st.markdown('<div class="stat-label" style="margin-bottom: 20px;">Vault Onboarding</div>', unsafe_allow_html=True)
+with col_assets:
+    st.markdown('<div class="label-gold" style="margin-bottom:20px;">Secure Client Documents</div>', unsafe_allow_html=True)
     
-    docs = ["Government ID", "Proof of Funds", "Bank Statements", "Signed Agreement"]
-    for doc in docs:
+    # Checkbox style list
+    for item in ["Government Identification", "Verification of Funds", "Purchase Addendum"]:
         st.markdown(f"""
-            <div style="display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.03); padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05);">
-                <div style="color: #3b82f6;">◈</div>
-                <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">{doc}</div>
+            <div style="padding: 15px; border-bottom: 1px solid #EEE; display: flex; align-items: center;">
+                <span style="color: var(--bhhs-cabernet); margin-right: 15px;">◈</span>
+                <span style="font-size: 13px; font-weight: 400;">{item}</span>
             </div>
         """, unsafe_allow_html=True)
     
     st.markdown("<br>", unsafe_allow_html=True)
     with st.container():
-        st.markdown('<div class="glass-card" style="padding: 20px;">', unsafe_allow_html=True)
-        st.file_uploader("Upload to Vault", label_visibility="collapsed")
-        st.button("ENCRYPT & UPLOAD")
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.file_uploader("Upload Document", label_visibility="collapsed")
+        st.button("SUBMIT TO VAULT")
 
-    if st.button("TERMINATE SESSION"):
-        st.session_state.authenticated = False
-        st.rerun()
+st.sidebar.markdown('<div class="label-gold">Session Management</div>', unsafe_allow_html=True)
+if st.sidebar.button("LOGOUT"):
+    st.session_state.authenticated = False
+    st.rerun()
