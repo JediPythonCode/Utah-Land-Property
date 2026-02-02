@@ -1,120 +1,145 @@
-import subprocess
-import sys
+import streamlit as st
+import streamlit.components.v1 as components
 
-# Automatically handle installation of missing dependencies
-def install_requirements():
-    try:
-        from flask import Flask, render_template_string
-    except ImportError:
-        print("Flask not found. Installing...")
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "flask"])
-        print("Flask installed successfully.")
+# Set page configuration for a premium feel
+st.set_page_config(
+    page_title="Utah Land & Property | Secure Asset Portal",
+    page_icon="🏔️",
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
 
-# Run installation check before main logic
-install_requirements()
-
-from flask import Flask, render_template_string
-
-app = Flask(__name__)
-
-# Dashboard UI Content
-# Using a raw string (r""") to prevent backslash escaping issues
-DASHBOARD_HTML = r"""
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Utah Land & Property | Secure Asset Portal</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+# Custom CSS for high-end branding
+st.markdown("""
     <style>
-        :root { --bhhs-cabernet: #631D33; --bhhs-gold: #85714D; }
-        body { font-family: 'Montserrat', sans-serif; background-color: #fcfcfc; }
-        .hero-bg { 
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
-            url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=2070');
-            background-size: cover; background-position: center;
-        }
-        .font-serif-custom { font-family: 'Playfair Display', serif; }
-        .secure-input { border-bottom: 2px solid var(--bhhs-cabernet) !important; }
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@300;400;600&display=swap');
+    
+    .stApp {
+        background-color: #fcfcfc;
+    }
+    
+    .main-title {
+        font-family: 'Playfair Display', serif;
+        color: #631D33;
+        font-size: 3rem;
+        margin-bottom: 0;
+    }
+    
+    .sub-title {
+        font-family: 'Montserrat', sans-serif;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        color: #85714D;
+        margin-bottom: 2rem;
+    }
+
+    .metric-card {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 4px;
+        border-left: 4px solid #631D33;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+    
+    .stButton>button {
+        background-color: #631D33;
+        color: white;
+        border-radius: 0;
+        width: 100%;
+        border: none;
+        padding: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        transition: all 0.3s;
+    }
+    
+    .stButton>button:hover {
+        background-color: #000;
+        color: white;
+    }
     </style>
-</head>
-<body class="overflow-x-hidden">
-    <!-- Header/Hero -->
-    <div id="hero" class="hero-bg h-screen flex flex-col justify-center items-center text-white text-center transition-all duration-700">
-        <div class="absolute top-10 left-10 flex flex-col items-start">
-            <span class="font-serif-custom text-2xl tracking-widest">UTAH LAND & PROPERTY</span>
-            <span class="text-[10px] tracking-[4px] opacity-70">PRIVATE ASSET MANAGEMENT</span>
-        </div>
+""", unsafe_allow_html=True)
+
+# Initialize Session State for Authentication
+if 'authenticated' not in st.session_state:
+    st.session_state.authenticated = False
+
+# --- LOGIN VIEW ---
+if not st.session_state.authenticated:
+    # Hero Section
+    cols = st.columns([1, 2, 1])
+    with cols[1]:
+        st.markdown("<div style='text-align: center; margin-top: 100px;'>", unsafe_allow_html=True)
+        st.markdown("<h1 class='main-title'>The Gold Standard.</h1>", unsafe_allow_html=True)
+        st.markdown("<p class='sub-title'>Utah Land & Property Private Portal</p>", unsafe_allow_html=True)
         
-        <h1 class="font-serif-custom text-6xl mb-4">The Gold Standard.</h1>
-        <p class="tracking-[6px] uppercase text-sm mb-12 opacity-90">Secure Portfolio Access</p>
+        auth_code = st.text_input("Enter Portfolio Access ID", type="password", help="Enter your secure client ID")
         
-        <div class="bg-white p-2 flex w-full max-w-lg shadow-2xl">
-            <input type="text" id="auth-code" placeholder="Enter Portfolio Access ID" class="flex-1 p-4 text-black outline-none">
-            <button onclick="unlock()" class="bg-[#631D33] px-8 py-4 font-bold tracking-widest text-xs uppercase hover:bg-black transition">Access</button>
-        </div>
-    </div>
+        if st.button("Access Portfolio"):
+            if auth_code: # You can add specific logic here: if auth_code == "SECRET":
+                st.session_state.authenticated = True
+                st.session_state.client_id = auth_code.upper()
+                st.rerun()
+            else:
+                st.error("Invalid Access ID")
+        st.markdown("</div>", unsafe_allow_html=True)
 
-    <!-- Hidden Dashboard -->
-    <div id="dashboard" class="hidden opacity-0 transition-opacity duration-1000 min-h-screen bg-white">
-        <nav class="p-8 border-b flex justify-between items-center bg-white sticky top-0 z-50">
-            <div>
-                <h2 class="font-serif-custom text-xl text-[#631D33]">CLIENT PORTFOLIO</h2>
-                <p id="client-id" class="text-[9px] tracking-[3px] text-gray-400 uppercase font-bold"></p>
+# --- DASHBOARD VIEW ---
+else:
+    # Header
+    head_l, head_r = st.columns([4, 1])
+    with head_l:
+        st.markdown(f"<h2 style='font-family: Playfair Display; color: #631D33; margin-bottom:0;'>CLIENT PORTFOLIO</h2>", unsafe_allow_html=True)
+        st.markdown(f"<p style='letter-spacing: 2px; font-size: 10px; color: #aaa;'>ACCOUNT ID: {st.session_state.client_id}</p>", unsafe_allow_html=True)
+    
+    with head_r:
+        if st.button("Logout"):
+            st.session_state.authenticated = False
+            st.rerun()
+
+    st.divider()
+
+    # Metrics
+    m1, m2, m3 = st.columns(3)
+    
+    with m1:
+        st.markdown("""
+            <div class="metric-card">
+                <p style="font-size: 10px; letter-spacing: 2px; color: #888; text-transform: uppercase;">Portfolio Valuation</p>
+                <h2 style="font-family: Playfair Display; margin: 0;">$12,450,000</h2>
             </div>
-            <button onclick="location.reload()" class="text-gray-300 hover:text-black transition text-xl"><i class="fa-solid fa-power-off"></i></button>
-        </nav>
+        """, unsafe_allow_html=True)
 
-        <main class="max-w-7xl mx-auto p-10">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-                <div class="p-8 border-l-4 border-[#631D33] shadow-sm bg-gray-50">
-                    <p class="text-[10px] tracking-widest text-gray-400 uppercase mb-2">Portfolio Valuation</p>
-                    <h3 class="text-3xl font-serif-custom">$12,450,000</h3>
-                </div>
-                <div class="p-8 border shadow-sm bg-white">
-                    <p class="text-[10px] tracking-widest text-gray-400 uppercase mb-2">Total Acreage</p>
-                    <h3 class="text-3xl font-serif-custom">42.85 AC</h3>
-                </div>
-                <div class="p-8 border shadow-sm bg-white">
-                    <p class="text-[10px] tracking-widest text-gray-400 uppercase mb-2">Portfolio Status</p>
-                    <h3 class="text-3xl font-serif-custom">Active</h3>
-                </div>
+    with m2:
+        st.markdown("""
+            <div class="metric-card" style="border-left: 1px solid #eee;">
+                <p style="font-size: 10px; letter-spacing: 2px; color: #888; text-transform: uppercase;">Total Acreage</p>
+                <h2 style="font-family: Playfair Display; margin: 0;">42.85 AC</h2>
             </div>
+        """, unsafe_allow_html=True)
 
-            <div class="bg-white border p-12 text-center">
-                <i class="fa-solid fa-lock text-4xl text-gray-200 mb-4"></i>
-                <h4 class="font-serif-custom text-2xl mb-2">Property Documentation</h4>
-                <p class="text-gray-500 max-w-md mx-auto text-sm">Detailed legal descriptions, tax assessments, and topographical maps are being synced for this ID.</p>
+    with m3:
+        st.markdown("""
+            <div class="metric-card" style="border-left: 1px solid #eee;">
+                <p style="font-size: 10px; letter-spacing: 2px; color: #888; text-transform: uppercase;">Portfolio Status</p>
+                <h2 style="font-family: Playfair Display; margin: 0; color: #2ecc71;">ACTIVE</h2>
             </div>
-        </main>
-    </div>
+        """, unsafe_allow_html=True)
 
-    <script>
-        function unlock() {
-            const code = document.getElementById('auth-code').value;
-            if(!code) return;
-            
-            document.getElementById('hero').classList.add('-translate-y-full');
-            setTimeout(() => {
-                document.getElementById('hero').style.display = 'none';
-                const dash = document.getElementById('dashboard');
-                dash.classList.remove('hidden');
-                document.getElementById('client-id').innerText = "Account ID: " + code.toUpperCase();
-                setTimeout(() => dash.classList.add('opacity-100'), 50);
-            }, 700);
-        }
-    </script>
-</body>
-</html>
-"""
+    st.markdown("<br>", unsafe_allow_html=True)
 
-@app.route('/')
-def home():
-    return render_template_string(DASHBOARD_HTML)
-
-if __name__ == '__main__':
-    # Using 0.0.0.0 ensures accessibility if deployed in a container/VM
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    # Content Area
+    tab1, tab2 = st.tabs(["Property Overview", "Secure Documents"])
+    
+    with tab1:
+        st.info("Map interface and asset list loading...")
+        st.image("https://images.unsplash.com/photo-1506443332154-b1a99b57ad64?auto=format&fit=crop&q=80&w=2070", caption="Zion Vicinity Asset #042")
+        
+    with tab2:
+        st.markdown("""
+            <div style="text-align: center; padding: 50px; border: 1px dashed #ccc; background: #fff;">
+                <h4 style="font-family: Playfair Display;">Document Vault Locked</h4>
+                <p style="color: #666; font-size: 14px;">Detailed legal descriptions and tax assessments are encrypted.<br>Contact your representative for one-time decryption keys.</p>
+            </div>
+        """, unsafe_allow_html=True)
