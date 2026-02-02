@@ -1,224 +1,232 @@
-import streamlit as st
-from streamlit_autorefresh import st_autorefresh
-
-# --- 1. CONFIG ---
-st.set_page_config(
-    page_title="Utah Land & Property", 
-    layout="wide", 
-    initial_sidebar_state="collapsed"
-)
-st_autorefresh(interval=60000, key="ulp_sync_ping")
-
-# --- 2. BHHS LUXURY CSS ---
-st.markdown("""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Utah Land & Property</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,900&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,900&family=Montserrat:wght@300;400;600&display=swap');
-        
-        /* BHHS Color Palette */
         :root {
             --bhhs-cabernet: #631D33;
             --bhhs-gold: #85714D;
-            --bhhs-grey: #F4F4F4;
-            --text-dark: #2D2D2D;
+            --overlay: rgba(0, 0, 0, 0.3);
         }
 
-        .stApp {
-            background-color: white !important;
-            color: var(--text-dark);
-        }
-
-        /* Typography */
-        h1, h2, h3, .serif {
-            font-family: 'Playfair Display', serif !important;
-        }
-        
-        p, div, span, label {
-            font-family: 'Montserrat', sans-serif !important;
-        }
-
-        /* Top Luxury Bar */
-        .luxury-nav {
-            background-color: var(--bhhs-cabernet);
-            height: 5px;
-            width: 100%;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 999;
-        }
-
-        /* Hero Section */
-        .main-header {
-            font-family: 'Playfair Display', serif;
-            font-size: 52px;
-            font-weight: 700;
-            color: var(--bhhs-cabernet);
-            text-align: center;
-            letter-spacing: -1px;
-            margin-top: 50px;
-        }
-
-        .sub-header {
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
             font-family: 'Montserrat', sans-serif;
-            font-size: 14px;
-            font-weight: 400;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            color: var(--bhhs-gold);
+            overflow-x: hidden;
+        }
+
+        /* Hero Background Section */
+        .hero-container {
+            position: relative;
+            height: 100vh;
+            width: 100%;
+            background-image: linear-gradient(var(--overlay), var(--overlay)), 
+                              url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=2070');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
             text-align: center;
-            margin-bottom: 60px;
         }
 
-        /* Property Card */
-        .prop-card {
-            border: 1px solid #E0E0E0;
-            padding: 40px;
-            border-radius: 0px; /* BHHS uses sharp corners for luxury */
+        /* Navigation Header */
+        .header-nav {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            padding: 2rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 50;
+        }
+
+        .logo-text {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+            line-height: 1.1;
+        }
+
+        .logo-subtext {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-weight: 400;
+        }
+
+        /* Main Hero Text */
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .hero-subtitle {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            margin-bottom: 3rem;
+            font-weight: 300;
+        }
+
+        /* The BHHS Action Bar (Search Bar) */
+        .action-bar {
             background: white;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-            margin-bottom: 25px;
+            padding: 0.5rem;
+            display: flex;
+            width: 90%;
+            max-width: 900px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border-radius: 2px;
         }
 
-        .label-gold {
-            color: var(--bhhs-gold);
-            font-weight: 600;
-            font-size: 12px;
+        .action-input {
+            flex-grow: 1;
+            border: none;
+            padding: 1.2rem 2rem;
+            font-size: 1rem;
+            color: #333;
+            outline: none;
+        }
+
+        .action-button {
+            background: var(--bhhs-cabernet);
+            color: white;
+            padding: 0 2.5rem;
             text-transform: uppercase;
             letter-spacing: 2px;
-            margin-bottom: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: background 0.3s;
+            cursor: pointer;
+            border: none;
         }
 
-        .price-display {
-            font-family: 'Playfair Display', serif;
-            font-size: 48px;
-            color: var(--bhhs-cabernet);
-            font-weight: 700;
+        .action-button:hover {
+            background: #4a1526;
         }
 
-        /* Buttons */
-        div.stButton > button {
-            background-color: var(--bhhs-cabernet) !important;
-            color: white !important;
-            border-radius: 0px !important;
-            border: none !important;
-            font-family: 'Montserrat', sans-serif !important;
-            font-weight: 600 !important;
-            text-transform: uppercase !important;
-            letter-spacing: 2px !important;
-            padding: 20px !important;
-            height: auto !important;
-            transition: 0.3s all;
+        /* Client Portal Overlay */
+        #portal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(99, 29, 51, 0.95);
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            backdrop-filter: blur(5px);
         }
 
-        div.stButton > button:hover {
-            background-color: #4a1526 !important;
-            box-shadow: 0 4px 12px rgba(99, 29, 51, 0.3);
+        .portal-card {
+            background: white;
+            padding: 3rem;
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+            color: #333;
         }
 
-        /* Form Inputs */
-        .stTextInput input {
-            border-radius: 0px !important;
-            border: 1px solid #CCC !important;
-            padding: 12px !important;
+        .btn-cabernet {
+            background: var(--bhhs-cabernet);
+            color: white;
+            width: 100%;
+            padding: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+            margin-top: 1rem;
         }
 
-        /* Sidebar Customization */
-        [data-testid="stSidebar"] {
-            background-color: var(--bhhs-grey);
-            border-right: 1px solid #E0E0E0;
-        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: var(--bhhs-cabernet); }
 
-        hr {
-            border-top: 1px solid #E0E0E0;
-        }
     </style>
-    <div class="luxury-nav"></div>
-""", unsafe_allow_html=True)
+</head>
+<body>
 
-# --- 3. SESSION STATE ---
-if "authenticated" not in st.session_state:
-    st.session_state.authenticated = False
+    <!-- Top Accent Bar -->
+    <div style="height: 6px; background: var(--bhhs-cabernet); position: fixed; top:0; width: 100%; z-index: 100;"></div>
 
-D = {
-    "address": "4402 SOUTH WASATCH BLVD, SALT LAKE CITY",
-    "price": 330000.0,
-    "equity": 20000.0,
-    "fee": 15000.0,
-}
-
-# --- 4. LOGIN INTERFACE ---
-if not st.session_state.authenticated:
-    st.markdown('<div style="height: 10vh;"></div>', unsafe_allow_html=True)
-    st.markdown('<div class="main-header">Utah Land & Property</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-header">A Member of the Luxury Collection</div>', unsafe_allow_html=True)
-    
-    _, col_mid, _ = st.columns([1, 0.5, 1])
-    with col_mid:
-        key = st.text_input("CLIENT ACCESS KEY", type="password")
-        if st.button("ENTER PORTAL"):
-            st.session_state.authenticated = True
-            st.rerun()
-    st.stop()
-
-# --- 5. DASHBOARD ---
-st.markdown('<div class="main-header">Utah Land & Property</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-header">Exclusive Asset Portfolio</div>', unsafe_allow_html=True)
-
-col_info, col_assets = st.columns([1.5, 1], gap="large")
-
-with col_info:
-    st.markdown(f"""
-        <div class="prop-card">
-            <div class="label-gold">Current Offering</div>
-            <h2 class="serif" style="margin-top:0;">{D["address"]}</h2>
-            <hr>
-            <div style="display: flex; justify-content: space-between; margin-top: 20px;">
-                <div>
-                    <div class="label-gold">Listing Price</div>
-                    <div class="price-display">${D["price"]:,.0f}</div>
-                </div>
-                <div style="text-align: right;">
-                    <div class="label-gold">Property Status</div>
-                    <div style="font-weight: 600; color: #27ae60;">ACTIVE / PRIVATE</div>
-                </div>
-            </div>
+    <header class="header-nav">
+        <div class="flex flex-col">
+            <div class="logo-text">UTAH LAND & PROPERTY</div>
+            <div class="logo-subtext">Luxury Asset Management</div>
         </div>
-    """, unsafe_allow_html=True)
+        <div class="hidden md:flex gap-8 text-[11px] uppercase tracking-[3px] font-medium">
+            <a href="#" class="hover:text-gray-300 transition">Portfolio</a>
+            <a href="#" class="hover:text-gray-300 transition">Market Data</a>
+            <a href="javascript:void(0)" onclick="togglePortal()" class="border-b border-white pb-1">Client Access</a>
+        </div>
+    </header>
 
-    c1, c2 = st.columns(2)
-    with c1:
-        st.markdown(f"""
-            <div class="prop-card" style="padding: 25px;">
-                <div class="label-gold">Seller Equity</div>
-                <div class="serif" style="font-size: 28px; color: var(--bhhs-cabernet);">${D["equity"]:,.0f}</div>
-            </div>
-        """, unsafe_allow_html=True)
-    with c2:
-        st.markdown(f"""
-            <div class="prop-card" style="padding: 25px;">
-                <div class="label-gold">Assignment Fee</div>
-                <div class="serif" style="font-size: 28px; color: var(--bhhs-cabernet);">${D["fee"]:,.0f}</div>
-            </div>
-        """, unsafe_allow_html=True)
+    <main class="hero-container">
+        <h1 class="hero-title">Experience Elevated.</h1>
+        <p class="hero-subtitle">Utah's Premier Land & Estate Portfolio</p>
 
-with col_assets:
-    st.markdown('<div class="label-gold" style="margin-bottom:20px;">Secure Client Documents</div>', unsafe_allow_html=True)
-    
-    # Checkbox style list
-    for item in ["Government Identification", "Verification of Funds", "Purchase Addendum"]:
-        st.markdown(f"""
-            <div style="padding: 15px; border-bottom: 1px solid #EEE; display: flex; align-items: center;">
-                <span style="color: var(--bhhs-cabernet); margin-right: 15px;">◈</span>
-                <span style="font-size: 13px; font-weight: 400;">{item}</span>
-            </div>
-        """, unsafe_allow_html=True)
-    
-    st.markdown("<br>", unsafe_allow_html=True)
-    with st.container():
-        st.file_uploader("Upload Document", label_visibility="collapsed")
-        st.button("SUBMIT TO VAULT")
+        <div class="action-bar">
+            <input type="text" class="action-input" placeholder="Enter address, city, or zip code...">
+            <button class="action-button">Search</button>
+        </div>
 
-st.sidebar.markdown('<div class="label-gold">Session Management</div>', unsafe_allow_html=True)
-if st.sidebar.button("LOGOUT"):
-    st.session_state.authenticated = False
-    st.rerun()
+        <div class="mt-12 flex gap-10 text-[10px] uppercase tracking-[4px] font-semibold">
+            <div class="cursor-pointer hover:opacity-70">Residential</div>
+            <div class="cursor-pointer hover:opacity-70">Commercial</div>
+            <div class="cursor-pointer hover:opacity-70">Luxury Land</div>
+        </div>
+    </main>
+
+    <!-- Secure Portal Modal -->
+    <div id="portal-overlay">
+        <div class="portal-card shadow-2xl">
+            <div class="text-[var(--bhhs-cabernet)] font-serif text-3xl mb-2">Private Client Access</div>
+            <p class="text-[10px] uppercase tracking-[2px] text-gray-500 mb-8">Asset Verification Required</p>
+            
+            <div class="text-left mb-4">
+                <label class="text-[10px] uppercase tracking-[1px] font-bold text-gray-400">Access Token</label>
+                <input type="password" id="token" class="w-full border-b border-gray-300 py-2 outline-none focus:border-[var(--bhhs-cabernet)] transition-all">
+            </div>
+
+            <button onclick="handleLogin()" class="btn-cabernet">Enter Secure Portal</button>
+            <button onclick="togglePortal()" class="mt-4 text-[10px] uppercase tracking-[2px] text-gray-400 hover:text-black">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        function togglePortal() {
+            const overlay = document.getElementById('portal-overlay');
+            overlay.style.display = (overlay.style.display === 'flex') ? 'none' : 'flex';
+        }
+
+        function handleLogin() {
+            const token = document.getElementById('token').value;
+            if(token) {
+                // In a real app, this would redirect or show the private dashboard
+                document.querySelector('.hero-title').innerText = "Welcome, Client.";
+                document.querySelector('.hero-subtitle').innerText = "4402 SOUTH WASATCH BLVD Portfolio";
+                togglePortal();
+            } else {
+                alert("Valid access token required.");
+            }
+        }
+    </script>
+</body>
+</html>
