@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Utah Land & Property</title>
-    <!-- Fonts -->
+    <title>Utah Land & Property | Secure Asset Portal</title>
+    <!-- Premium Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,900&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
             --bhhs-cabernet: #631D33;
             --bhhs-gold: #85714D;
-            --overlay: rgba(0, 0, 0, 0.3);
+            --overlay: rgba(0, 0, 0, 0.45);
         }
 
         body, html {
@@ -19,7 +20,9 @@
             padding: 0;
             height: 100%;
             font-family: 'Montserrat', sans-serif;
-            overflow-x: hidden;
+            background-color: #fcfcfc;
+            color: #1a1a1a;
+            scroll-behavior: smooth;
         }
 
         /* Hero Background Section */
@@ -37,6 +40,7 @@
             justify-content: center;
             color: white;
             text-align: center;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.6s ease;
         }
 
         /* Navigation Header */
@@ -44,7 +48,7 @@
             position: absolute;
             top: 0;
             width: 100%;
-            padding: 2rem 4rem;
+            padding: 2.5rem 4rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -83,14 +87,14 @@
             font-weight: 300;
         }
 
-        /* The BHHS Action Bar (Search Bar) */
+        /* The BHHS Action Bar */
         .action-bar {
             background: white;
             padding: 0.5rem;
             display: flex;
             width: 90%;
             max-width: 900px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
             border-radius: 2px;
         }
 
@@ -116,117 +120,274 @@
             border: none;
         }
 
-        .action-button:hover {
-            background: #4a1526;
-        }
+        .action-button:hover { background: #4a1526; }
 
-        /* Client Portal Overlay */
+        /* Secure Portal Overlay */
         #portal-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(99, 29, 51, 0.95);
+            background: rgba(99, 29, 51, 0.98);
             z-index: 100;
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             color: white;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(10px);
         }
 
         .portal-card {
             background: white;
-            padding: 3rem;
+            padding: 3.5rem;
             width: 100%;
-            max-width: 450px;
+            max-width: 480px;
             text-align: center;
             color: #333;
+            border-radius: 0px;
         }
 
         .btn-cabernet {
             background: var(--bhhs-cabernet);
             color: white;
             width: 100%;
-            padding: 1rem;
+            padding: 1.2rem;
             text-transform: uppercase;
             letter-spacing: 2px;
             font-weight: 600;
-            margin-top: 1rem;
+            margin-top: 1.5rem;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-cabernet:hover { opacity: 0.95; transform: translateY(-1px); }
+
+        /* Dashboard Styles */
+        #dashboard-view {
+            display: none;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .glass-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            border-radius: 0px;
+        }
+
+        .accent-border { border-left: 5px solid var(--bhhs-cabernet); }
+
+        .fade-out-up {
+            transform: translateY(-100%);
+            opacity: 0;
+        }
+
+        .visible {
+            display: block !important;
+            opacity: 1 !important;
         }
 
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: var(--bhhs-cabernet); }
-
     </style>
 </head>
 <body>
 
-    <!-- Top Accent Bar -->
-    <div style="height: 6px; background: var(--bhhs-cabernet); position: fixed; top:0; width: 100%; z-index: 100;"></div>
+    <!-- Top Branding Bar -->
+    <div style="height: 6px; background: var(--bhhs-cabernet); position: fixed; top:0; width: 100%; z-index: 1000;"></div>
 
-    <header class="header-nav">
-        <div class="flex flex-col">
-            <div class="logo-text">UTAH LAND & PROPERTY</div>
-            <div class="logo-subtext">Luxury Asset Management</div>
+    <!-- 1. LANDING PAGE (HERO) -->
+    <section id="hero-section" class="hero-container">
+        <header class="header-nav">
+            <div class="flex flex-col text-left">
+                <div class="logo-text">UTAH LAND & PROPERTY</div>
+                <div class="logo-subtext">Luxury Asset Management</div>
+            </div>
+            <div class="hidden md:flex gap-10 text-[11px] uppercase tracking-[3px] font-medium items-center">
+                <a href="#" class="hover:text-gray-300 transition">Portfolios</a>
+                <a href="#" class="hover:text-gray-300 transition">Valuations</a>
+                <button onclick="togglePortal()" class="border border-white px-8 py-2 hover:bg-white hover:text-black transition">Secure Login</button>
+            </div>
+        </header>
+
+        <div class="z-10 px-6">
+            <h1 class="hero-title">Experience Elevated.</h1>
+            <p class="hero-subtitle">The Gold Standard in Utah Real Estate Portfolio Management</p>
+
+            <div class="action-bar mx-auto">
+                <input type="text" id="main-search" class="action-input" placeholder="Enter Portfolio ID or Asset Address...">
+                <button onclick="togglePortal()" class="action-button">Access Vault</button>
+            </div>
+
+            <div class="mt-16 flex justify-center gap-12 text-[10px] uppercase tracking-[5px] font-semibold opacity-80">
+                <div class="flex items-center gap-2 cursor-default"><i class="fa-solid fa-mountain text-xs"></i> Acreage</div>
+                <div class="flex items-center gap-2 cursor-default"><i class="fa-solid fa-chart-line text-xs"></i> Stochastic Models</div>
+                <div class="flex items-center gap-2 cursor-default"><i class="fa-solid fa-shield-halved text-xs"></i> Encrypted</div>
+            </div>
         </div>
-        <div class="hidden md:flex gap-8 text-[11px] uppercase tracking-[3px] font-medium">
-            <a href="#" class="hover:text-gray-300 transition">Portfolio</a>
-            <a href="#" class="hover:text-gray-300 transition">Market Data</a>
-            <a href="javascript:void(0)" onclick="togglePortal()" class="border-b border-white pb-1">Client Access</a>
+    </section>
+
+    <!-- 2. SECURE DASHBOARD (HIDDEN UNTIL AUTHENTICATED) -->
+    <section id="dashboard-view" class="min-h-screen bg-[#FDFDFD] pb-24">
+        <!-- Dashboard Nav -->
+        <nav class="bg-white border-b border-gray-100 px-10 py-8 flex justify-between items-center sticky top-0 z-50">
+            <div class="flex flex-col">
+                <div class="text-[var(--bhhs-cabernet)] font-serif font-bold text-2xl tracking-tight">PRIVATE CLIENT PORTFOLIO</div>
+                <div class="text-[10px] uppercase tracking-[4px] text-gray-400 mt-1" id="active-id-display">ID: NOT_LOADED</div>
+            </div>
+            <div class="flex gap-8 items-center">
+                <div class="text-[10px] font-bold text-[var(--bhhs-gold)] tracking-[2px] uppercase">Stochastic Analysis: Active</div>
+                <button onclick="logout()" class="text-gray-400 hover:text-[var(--bhhs-cabernet)] transition text-lg"><i class="fa-solid fa-circle-xmark"></i></button>
+            </div>
+        </nav>
+
+        <div class="max-w-7xl mx-auto px-10 mt-16">
+            <!-- Asset Highlights -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-16">
+                <div class="glass-card accent-border p-10">
+                    <div class="text-[10px] uppercase tracking-[3px] text-gray-400 mb-2 font-bold">Projected Asset Value</div>
+                    <div class="text-4xl font-serif font-bold text-[var(--bhhs-cabernet)]">$8,740,200</div>
+                    <div class="text-[10px] text-emerald-600 mt-3 font-bold tracking-widest"><i class="fa-solid fa-arrow-trend-up mr-1"></i> +8.15% MODEL CONFIDENCE</div>
+                </div>
+                <div class="glass-card p-10">
+                    <div class="text-[10px] uppercase tracking-[3px] text-gray-400 mb-2 font-bold">Land Utilization</div>
+                    <div class="text-4xl font-serif font-bold">18.42 <span class="text-lg text-gray-400">AC</span></div>
+                    <div class="text-[10px] text-gray-500 mt-3 tracking-widest uppercase">Zoning: Luxury Residential</div>
+                </div>
+                <div class="glass-card p-10">
+                    <div class="text-[10px] uppercase tracking-[3px] text-gray-400 mb-2 font-bold">Market Liquidity</div>
+                    <div class="text-4xl font-serif font-bold">Premium</div>
+                    <div class="text-[10px] text-[var(--bhhs-gold)] mt-3 font-bold tracking-widest uppercase">High Demand Tier</div>
+                </div>
+            </div>
+
+            <!-- Deep Analytics Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                <div class="glass-card p-12 h-[500px] flex flex-col">
+                    <div class="flex justify-between items-center mb-8">
+                        <h2 class="font-serif text-3xl">Terrain Mapping</h2>
+                        <span class="text-[9px] uppercase tracking-[2px] font-bold text-gray-300">LiDAR Active</span>
+                    </div>
+                    <div class="flex-grow bg-gray-50 border border-gray-100 flex items-center justify-center relative">
+                         <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(#631D33 1px, transparent 1px); background-size: 30px 30px;"></div>
+                         <div class="text-center z-10">
+                            <i class="fa-solid fa-mountain-city text-5xl text-[var(--bhhs-cabernet)] opacity-10 mb-6"></i>
+                            <p class="text-[11px] uppercase tracking-[4px] text-gray-400">Building Topographic Projection...</p>
+                         </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-12 flex flex-col">
+                    <h2 class="font-serif text-3xl mb-8">Stochastic Breakdown</h2>
+                    <div class="space-y-8">
+                        <div>
+                            <div class="flex justify-between text-[11px] uppercase tracking-[2px] mb-2 font-bold">
+                                <span>Equity Stability</span>
+                                <span>94%</span>
+                            </div>
+                            <div class="w-full bg-gray-100 h-[3px]">
+                                <div class="bg-[var(--bhhs-cabernet)] h-[3px]" style="width: 94%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-[11px] uppercase tracking-[2px] mb-2 font-bold">
+                                <span>Market Momentum</span>
+                                <span>78%</span>
+                            </div>
+                            <div class="w-full bg-gray-100 h-[3px]">
+                                <div class="bg-[var(--bhhs-gold)] h-[3px]" style="width: 78%"></div>
+                            </div>
+                        </div>
+                        <div class="pt-6 space-y-4">
+                            <div class="flex justify-between text-sm py-2 border-b border-gray-50">
+                                <span class="text-gray-400 italic">Property Tax Est.</span>
+                                <span class="font-semibold">$24,192.00</span>
+                            </div>
+                            <div class="flex justify-between text-sm py-2 border-b border-gray-50">
+                                <span class="text-gray-400 italic">Assessed Value</span>
+                                <span class="font-semibold">$7,100,000</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn-cabernet mt-auto">Generate Audit Report</button>
+                </div>
+            </div>
         </div>
-    </header>
+    </section>
 
-    <main class="hero-container">
-        <h1 class="hero-title">Experience Elevated.</h1>
-        <p class="hero-subtitle">Utah's Premier Land & Estate Portfolio</p>
-
-        <div class="action-bar">
-            <input type="text" class="action-input" placeholder="Enter address, city, or zip code...">
-            <button class="action-button">Search</button>
-        </div>
-
-        <div class="mt-12 flex gap-10 text-[10px] uppercase tracking-[4px] font-semibold">
-            <div class="cursor-pointer hover:opacity-70">Residential</div>
-            <div class="cursor-pointer hover:opacity-70">Commercial</div>
-            <div class="cursor-pointer hover:opacity-70">Luxury Land</div>
-        </div>
-    </main>
-
-    <!-- Secure Portal Modal -->
+    <!-- SECURE PORTAL OVERLAY (LOGIN MODAL) -->
     <div id="portal-overlay">
         <div class="portal-card shadow-2xl">
-            <div class="text-[var(--bhhs-cabernet)] font-serif text-3xl mb-2">Private Client Access</div>
-            <p class="text-[10px] uppercase tracking-[2px] text-gray-500 mb-8">Asset Verification Required</p>
+            <div class="text-[var(--bhhs-cabernet)] font-serif text-3xl mb-3">Private Access Vault</div>
+            <p class="text-[10px] uppercase tracking-[3px] text-gray-400 mb-12">Authorized Client Entrance Only</p>
             
-            <div class="text-left mb-4">
-                <label class="text-[10px] uppercase tracking-[1px] font-bold text-gray-400">Access Token</label>
-                <input type="password" id="token" class="w-full border-b border-gray-300 py-2 outline-none focus:border-[var(--bhhs-cabernet)] transition-all">
+            <div class="text-left mb-8">
+                <label class="text-[10px] uppercase tracking-[2px] font-bold text-gray-400 block mb-2">Access Token / Parcel ID</label>
+                <input type="password" id="token" class="w-full border-b border-gray-300 py-3 outline-none focus:border-[var(--bhhs-cabernet)] transition-all text-xl tracking-[5px]" placeholder="••••••••">
             </div>
 
             <button onclick="handleLogin()" class="btn-cabernet">Enter Secure Portal</button>
-            <button onclick="togglePortal()" class="mt-4 text-[10px] uppercase tracking-[2px] text-gray-400 hover:text-black">Cancel</button>
+            <button onclick="togglePortal()" class="mt-8 text-[10px] uppercase tracking-[2px] text-gray-400 hover:text-black font-bold">Return to Search</button>
         </div>
     </div>
 
     <script>
+        // Toggle the Login Modal
         function togglePortal() {
             const overlay = document.getElementById('portal-overlay');
+            const searchVal = document.getElementById('main-search').value;
+            
+            // If user typed in the main search bar, pre-fill the token field
+            if (searchVal && overlay.style.display !== 'flex') {
+                document.getElementById('token').value = searchVal;
+            }
+
             overlay.style.display = (overlay.style.display === 'flex') ? 'none' : 'flex';
+            if (overlay.style.display === 'flex') document.getElementById('token').focus();
         }
 
+        // Logic to transition from Hero to Dashboard
         function handleLogin() {
             const token = document.getElementById('token').value;
-            if(token) {
-                // In a real app, this would redirect or show the private dashboard
-                document.querySelector('.hero-title').innerText = "Welcome, Client.";
-                document.querySelector('.hero-subtitle').innerText = "4402 SOUTH WASATCH BLVD Portfolio";
-                togglePortal();
+            if(token.length >= 2) {
+                // Animation phase
+                document.getElementById('portal-overlay').style.opacity = '0';
+                document.getElementById('hero-section').classList.add('fade-out-up');
+                
+                setTimeout(() => {
+                    document.getElementById('portal-overlay').style.display = 'none';
+                    document.getElementById('hero-section').style.display = 'none';
+                    
+                    const dashboard = document.getElementById('dashboard-view');
+                    dashboard.classList.add('visible');
+                    
+                    // Display the search query as the active ID in the dashboard
+                    document.getElementById('active-id-display').innerText = `ID: ${token.toUpperCase()}`;
+                    window.scrollTo(0,0);
+                }, 700);
             } else {
-                alert("Valid access token required.");
+                alert("Security Verification Failed. Please enter a valid Parcel ID or Access Token.");
             }
         }
+
+        // Logout/Reset logic
+        function logout() {
+            location.reload();
+        }
+
+        // Global Event Listeners for Keyboard
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const overlay = document.getElementById('portal-overlay');
+                if (overlay.style.display === 'flex') {
+                    handleLogin();
+                } else if (document.activeElement.id === 'main-search' || document.getElementById('main-search').value) {
+                    togglePortal();
+                }
+            }
+        });
     </script>
 </body>
 </html>
