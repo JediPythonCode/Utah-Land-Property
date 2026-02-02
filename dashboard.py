@@ -96,6 +96,7 @@ st.markdown("""
         letter-spacing: 2px !important;
         font-size: 0.8rem !important;
         transition: 0.4s all !important;
+        width: 100%;
     }
     
     .stButton > button:hover {
@@ -148,7 +149,7 @@ def show_login():
     
     _, col, _ = st.columns([1, 1, 1])
     with col:
-        st.markdown("<br><br>", unsafe_allow_html=True)
+        st.markdown("<br>", unsafe_allow_html=True)
         access_id = st.text_input("CLIENT ACCESS KEY", type="password", placeholder="••••••••")
         if st.button("Authenticate"):
             if access_id:
@@ -188,7 +189,7 @@ def show_dashboard():
     
     with col_a:
         st.markdown("<h3 style='border-left: 2px solid #d4af37; padding-left: 15px;'>Portfolio Allocation</h3>", unsafe_allow_html=True)
-        # Mocking a professional-looking chart
+        # Professional-looking chart
         chart_data = pd.DataFrame(
             np.random.randn(20, 3),
             columns=['Summit County', 'Wasatch Front', 'Southern Utah']
@@ -198,7 +199,7 @@ def show_dashboard():
     with col_b:
         st.markdown("<h3 style='border-left: 2px solid #d4af37; padding-left: 15px;'>Asset Status</h3>", unsafe_allow_html=True)
         st.markdown("""
-            <div style="background: #111; padding: 1.5rem; border-radius: 4px;">
+            <div style="background: #111; padding: 1.5rem; border-radius: 4px; border: 1px solid #222;">
                 <p style="font-size: 0.8rem; color: #d4af37; margin-bottom: 5px;">RECENT ACTIVITY</p>
                 <div style="border-bottom: 1px solid #222; padding: 10px 0;">
                     <span style="color: #eee; font-size: 0.9rem;">Park City Expansion</span><br>
@@ -208,12 +209,13 @@ def show_dashboard():
                     <span style="color: #eee; font-size: 0.9rem;">Heber Valley Parcel</span><br>
                     <span style="color: #555; font-size: 0.7rem;">Appraisal Updated • 1d ago</span>
                 </div>
-                <div style="padding: 10px 0;">
+                <div style="padding: 10px 0; margin-bottom: 20px;">
                     <span style="color: #eee; font-size: 0.9rem;">Moab Commercial</span><br>
                     <span style="color: #555; font-size: 0.7rem;">Under Contract • 3d ago</span>
                 </div>
             </div>
         """, unsafe_allow_html=True)
+        
         if st.button("Logout System"):
             st.session_state.logged_in = False
             st.rerun()
