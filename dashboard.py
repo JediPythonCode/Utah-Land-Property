@@ -1,229 +1,206 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import numpy as np
+import pandas as pd
+import json
 
-# --- Page Configuration ---
+# Set Page Config
 st.set_page_config(
-    page_title="Utah Land & Prop | Private Portal",
-    page_icon="🏠",
+    page_title="Utah Land & Property | Secure Asset Portal",
+    page_icon="🏔️",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# --- Custom CSS for the "Amazing Original" Aesthetic ---
+# Custom Styling to hide Streamlit header/footer and inject BHHS Branding
 st.markdown("""
     <style>
-    /* Hero Background */
-    .stApp {
-        background: linear-gradient(rgba(0, 0, 0, 0.65), rgba(99, 29, 51, 0.25)), 
-                    url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=2070');
-        background-size: cover;
-        background-attachment: fixed;
-        background-position: center;
-        color: #ffffff;
-    }
-    
-    /* Fonts */
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Montserrat:wght@200;300;400;600;700&display=swap');
-    
-    html, body, [class*="css"] {
-        font-family: 'Montserrat', sans-serif;
-    }
-
-    h1, h2, h3, .brand-font {
-        font-family: 'Playfair Display', serif !important;
-    }
-
-    /* Glassmorphism Metric Cards */
-    .metric-card {
-        background: rgba(255, 255, 255, 0.98);
-        border-left: 6px solid #631D33; /* BHHS Cabernet */
-        padding: 2rem;
-        border-radius: 2px;
-        color: #1a1a1a;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-        margin-bottom: 1rem;
-    }
-    
-    .gold-label {
-        color: #85714D; /* BHHS Gold */
-        letter-spacing: 0.35em;
-        text-transform: uppercase;
-        font-size: 0.75rem;
-        font-weight: 700;
-        margin-bottom: 0.75rem;
-    }
-
-    /* Input Styling */
-    .stTextInput input {
-        background-color: white !important;
-        border: none !important;
-        border-bottom: 3px solid #631D33 !important;
-        color: #1a1a1a !important;
-        text-align: center;
-        border-radius: 0px !important;
-        font-size: 1.2rem !important;
-        height: 3.5rem;
-    }
-    
-    .stButton button {
-        background-color: #631D33 !important;
-        color: white !important;
-        border-radius: 0px !important;
-        border: none !important;
-        letter-spacing: 4px !important;
-        font-weight: 700 !important;
-        padding: 1rem 3rem !important;
-        width: 100%;
-        text-transform: uppercase;
-        transition: all 0.4s ease;
-    }
-
-    .stButton button:hover {
-        background-color: #85714D !important;
-        color: white !important;
-        transform: translateY(-2px);
-    }
-
-    /* Custom Header Branding */
-    .header-branding {
-        border-bottom: 1px solid rgba(133, 113, 77, 0.4);
-        padding-bottom: 1rem;
-        margin-bottom: 3rem;
-    }
-
-    /* Hide Streamlit elements */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        header {visibility: hidden;}
+        .block-container {padding: 0;}
+        [data-testid="stAppViewContainer"] {
+            background-color: #fcfcfc;
+        }
     </style>
 """, unsafe_allow_html=True)
 
-# --- Authentication Logic ---
-if 'authenticated' not in st.session_state:
-    st.session_state['authenticated'] = False
+# Define the HTML/JS Logic for the Portal
+# This is wrapped in a single component to maintain the exact branding layout
+html_content = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,900&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bhhs-cabernet: #631D33;
+            --bhhs-gold: #85714D;
+            --overlay: rgba(0, 0, 0, 0.45);
+        }
+        body, html {
+            margin: 0; padding: 0; font-family: 'Montserrat', sans-serif;
+            background-color: #fcfcfc; color: #1a1a1a; overflow-x: hidden;
+        }
+        .hero-container {
+            position: relative; height: 100vh; width: 100%;
+            background-image: linear-gradient(var(--overlay), var(--overlay)), 
+                               url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=2070');
+            background-size: cover; background-position: center;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: white; text-align: center;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.6s ease;
+        }
+        .header-nav {
+            position: absolute; top: 0; width: 100%; padding: 2.5rem 4rem;
+            display: flex; justify-content: space-between; align-items: center; z-index: 50;
+        }
+        .logo-text { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.5rem; letter-spacing: 1px; }
+        .logo-subtext { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 3px; }
+        .hero-title { font-family: 'Playfair Display', serif; font-size: clamp(2.5rem, 6vw, 5rem); font-weight: 700; margin-bottom: 0.5rem; }
+        .hero-subtitle { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 6px; margin-bottom: 3rem; font-weight: 300; }
+        .action-bar { background: white; padding: 0.5rem; display: flex; width: 90%; max-width: 900px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); }
+        .action-input { flex-grow: 1; border: none; padding: 1.2rem 2rem; font-size: 1rem; color: #333; outline: none; }
+        .action-button { background: var(--bhhs-cabernet); color: white; padding: 0 2.5rem; text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: none; }
+        #portal-overlay {
+            position: fixed; inset: 0; background: rgba(99, 29, 51, 0.98);
+            z-index: 100; display: none; flex-direction: column; align-items: center; justify-content: center;
+            color: white; backdrop-filter: blur(10px);
+        }
+        .portal-card { background: white; padding: 3.5rem; width: 100%; max-width: 480px; text-align: center; color: #333; }
+        .btn-cabernet { background: var(--bhhs-cabernet); color: white; width: 100%; padding: 1.2rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 600; margin-top: 1.5rem; border: none; }
+        #dashboard-view { display: none; opacity: 0; transition: opacity 1s ease-in-out; }
+        .glass-card { background: white; border: 1px solid #e5e7eb; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        .accent-border { border-left: 5px solid var(--bhhs-cabernet); }
+        .fade-out-up { transform: translateY(-100%); opacity: 0; }
+        .visible { display: block !important; opacity: 1 !important; }
+    </style>
+</head>
+<body>
+    <div style="height: 6px; background: var(--bhhs-cabernet); position: fixed; top:0; width: 100%; z-index: 1000;"></div>
 
-if not st.session_state['authenticated']:
-    _, col2, _ = st.columns([1, 1.4, 1])
-    with col2:
-        st.markdown("<br><br><br><br>", unsafe_allow_html=True)
-        st.markdown("""
-            <div style='background: white; padding: 4.5rem 3rem; text-align: center; box-shadow: 0 30px 70px rgba(0,0,0,0.5);'>
-                <p style='letter-spacing: 6px; font-size: 0.7rem; color: #85714D; margin-bottom: 0.5rem; font-weight: 700;'>UTAH LAND & PROPERTY</p>
-                <h1 style='color: #631D33; font-size: 3rem; margin-top: 0; font-weight: 900; line-height: 1;'>Private Client Access</h1>
-                <div style='width: 40px; height: 2px; background: #85714D; margin: 1.5rem auto;'></div>
-                <p style='font-size: 0.8rem; color: #666; margin-bottom: 2.5rem; text-transform: uppercase; letter-spacing: 2px;'>Asset Verification Required</p>
+    <section id="hero-section" class="hero-container">
+        <header class="header-nav">
+            <div class="flex flex-col text-left">
+                <div class="logo-text">UTAH LAND & PROPERTY</div>
+                <div class="logo-subtext">Luxury Asset Management</div>
             </div>
-        """, unsafe_allow_html=True)
-        
-        passkey = st.text_input("", type="password", placeholder="ENTER SECURE ACCESS TOKEN")
-        if st.button("Access Portfolio"):
-            if len(passkey) >= 4:
-                st.session_state['authenticated'] = True
-                st.rerun()
-    st.stop()
-
-# --- Main Dashboard ---
-# Header Section with explicit branding
-st.markdown("""
-    <div class="header-branding" style='display: flex; justify-content: space-between; align-items: flex-end; padding-top: 2rem;'>
-        <div>
-            <p style='letter-spacing: 5px; font-size: 0.75rem; color: #85714D; font-weight: 700; margin:0;'>PORTFOLIO MANAGEMENT SYSTEM</p>
-            <h1 style='font-size: 4.5rem; margin:0; line-height: 0.9; color: white; font-weight: 900;'>Experience Elevated.</h1>
-            <p style='font-family: "Montserrat"; font-weight: 200; font-size: 1.2rem; margin-top: 10px; color: rgba(255,255,255,0.8);'>Utah Land & Property | Berkshire Hathaway HomeServices</p>
+        </header>
+        <div class="z-10 px-6">
+            <h1 class="hero-title">Experience Elevated.</h1>
+            <p class="hero-subtitle">The Gold Standard in Utah Real Estate Portfolio Management</p>
+            <div class="action-bar mx-auto">
+                <input type="text" id="main-search" class="action-input" placeholder="Enter Portfolio ID...">
+                <button onclick="togglePortal()" class="action-button">Access Vault</button>
+            </div>
         </div>
-        <div style='text-align: right; color: white;'>
-            <p style='margin:0; font-size: 1.1rem; font-weight: 400; letter-spacing: 1px;'>ASSET: 4402 S WASATCH BLVD</p>
-            <p style='margin:0; font-size: 0.65rem; letter-spacing: 3px; color: #85714D; font-weight: 700;'>SECURE ENCRYPTION: ACTIVE</p>
-        </div>
-    </div>
-""", unsafe_allow_html=True)
+    </section>
 
-# Stats Row
-m1, m2, m3 = st.columns(3)
-with m1:
-    st.markdown("""
-        <div class="metric-card">
-            <p class="gold-label">Consolidated Asset Value</p>
-            <h2 style="font-size: 2.8rem; margin: 0; color: #631D33; font-weight: 900;">$18,450,000</h2>
-            <p style="color: #10b981; font-size: 0.85rem; font-weight: 700; margin-top: 5px;">↑ 4.2% Market Appreciation</p>
-        </div>
-    """, unsafe_allow_html=True)
+    <section id="dashboard-view" class="min-h-screen bg-[#FDFDFD] pb-24">
+        <nav class="bg-white border-b border-gray-100 px-10 py-8 flex justify-between items-center sticky top-0 z-50">
+            <div class="flex flex-col">
+                <div class="text-[var(--bhhs-cabernet)] font-serif font-bold text-2xl tracking-tight">PRIVATE CLIENT PORTFOLIO</div>
+                <div class="text-[10px] uppercase tracking-[4px] text-gray-400 mt-1" id="active-id-display">ID: NOT_LOADED</div>
+            </div>
+            <button onclick="location.reload()" class="text-gray-400 hover:text-[var(--bhhs-cabernet)] transition text-lg"><i class="fa-solid fa-circle-xmark"></i></button>
+        </nav>
 
-with m2:
-    st.markdown("""
-        <div class="metric-card">
-            <p class="gold-label">Net Equity Position</p>
-            <h2 style="font-size: 2.8rem; margin: 0; color: #1a1a1a; font-weight: 900;">$12,100,000</h2>
-            <p style="color: #666; font-size: 0.85rem; margin-top: 5px; letter-spacing: 1px;">65.5% LOAN-TO-VALUE</p>
-        </div>
-    """, unsafe_allow_html=True)
-
-with m3:
-    st.markdown("""
-        <div class="metric-card">
-            <p class="gold-label">Portfolio Yield (Est.)</p>
-            <h2 style="font-size: 2.8rem; margin: 0; color: #85714D; font-weight: 900;">8.42%</h2>
-            <p style="color: #666; font-size: 0.85rem; margin-top: 5px; letter-spacing: 1px;">STOCHASTIC CONFIDENCE: HIGH</p>
-        </div>
-    """, unsafe_allow_html=True)
-
-st.markdown("<br>", unsafe_allow_html=True)
-
-# Main Body
-c1, c2 = st.columns([2, 1])
-with c1:
-    st.markdown("<p style='letter-spacing: 4px; font-size: 0.8rem; color: #85714D; font-weight: 700; margin-bottom: 1rem;'>STOCHASTIC GROWTH PROJECTION</p>", unsafe_allow_html=True)
-    
-    # Stochastic process for chart data
-    steps = 15
-    data = 16.5 + np.random.normal(0.1, 0.08, steps).cumsum()
-    st.line_chart(data, color="#631D33")
-    
-    st.markdown("""
-        <div style="background: rgba(255,255,255,0.08); padding: 1.5rem; border-left: 3px solid #85714D; margin-top: 1rem;">
-            <p style="font-size: 0.85rem; line-height: 1.6; font-weight: 300; margin: 0;">
-                <strong style="color: #85714D;">MANAGER'S NOTE:</strong> The valuation model above utilizes a 
-                stochastic movement analysis factoring in Salt Lake County luxury absorption rates and 
-                interest rate volatility. No coin-flip logic is applied; all trends are driven by 
-                quantitative macro-economic indicators.
-            </p>
-        </div>
-    """, unsafe_allow_html=True)
-
-with c2:
-    st.markdown("<p style='letter-spacing: 4px; font-size: 0.8rem; color: #85714D; font-weight: 700; margin-bottom: 1rem;'>PORTFOLIO ACTIVITY</p>", unsafe_allow_html=True)
-    
-    logs = [
-        ("FEB 02", "Tax Assessment Review", "SUCCESS"),
-        ("JAN 15", "Q4 Yield Distribution", "PROCESSED"),
-        ("JAN 02", "Land Title Verification", "VERIFIED"),
-        ("DEC 20", "Annual Portfolio Audit", "FINALIZED"),
-        ("DEC 01", "Asset Appreciation Adj.", "+1.4%")
-    ]
-    
-    for date, event, status in logs:
-        st.markdown(f"""
-            <div style="padding: 1rem 0; border-bottom: 1px solid rgba(255,255,255,0.15);">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <span style="font-size: 0.65rem; color: #85714D; font-weight: 700; letter-spacing: 1px;">{date}</span><br>
-                        <span style="font-weight: 400; font-size: 1rem; color: white;">{event}</span>
-                    </div>
-                    <span style="font-size: 0.7rem; color: #10b981; font-weight: 700; letter-spacing: 1px;">{status}</span>
+        <div class="max-w-7xl mx-auto px-10 mt-16">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-16">
+                <div class="glass-card accent-border p-10">
+                    <div class="text-[10px] uppercase tracking-[3px] text-gray-400 mb-2 font-bold">Projected Asset Value</div>
+                    <div class="text-4xl font-serif font-bold text-[var(--bhhs-cabernet)]" id="asset-value">$8,740,200</div>
+                    <div class="text-[10px] text-emerald-600 mt-3 font-bold tracking-widest">STOCHASTIC MODEL ACTIVE</div>
+                </div>
+                <div class="glass-card p-10">
+                    <div class="text-[10px] uppercase tracking-[3px] text-gray-400 mb-2 font-bold">Land Utilization</div>
+                    <div class="text-4xl font-serif font-bold">18.42 <span class="text-lg text-gray-400">AC</span></div>
+                </div>
+                <div class="glass-card p-10">
+                    <div class="text-[10px] uppercase tracking-[3px] text-gray-400 mb-2 font-bold">Market Liquidity</div>
+                    <div class="text-4xl font-serif font-bold">Premium</div>
                 </div>
             </div>
-        """, unsafe_allow_html=True)
 
-    st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("Download Full Asset Audit"):
-        st.toast("Encrypting Report...", icon="🔒")
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                <div class="glass-card p-12 h-[500px] flex flex-col">
+                    <h2 class="font-serif text-3xl mb-8">Stochastic Trajectory</h2>
+                    <div class="flex-grow"><canvas id="stochasticChart"></canvas></div>
+                </div>
+                <div class="glass-card p-12 flex flex-col">
+                    <h2 class="font-serif text-3xl mb-8">Asset Insights</h2>
+                    <div class="space-y-6">
+                         <div class="flex justify-between border-b pb-4"><span class="text-gray-400 italic">Equity Stability</span><span class="font-bold">94%</span></div>
+                         <div class="flex justify-between border-b pb-4"><span class="text-gray-400 italic">Assessed Value</span><span class="font-bold">$7,100,000</span></div>
+                         <div class="flex justify-between border-b pb-4"><span class="text-gray-400 italic">Model Variance</span><span class="font-bold">±2.4%</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-# Footer
-st.markdown("<br><br><br>", unsafe_allow_html=True)
-st.markdown("""
-    <div style='text-align: center; border-top: 1px solid rgba(133, 113, 77, 0.2); padding-top: 2rem; opacity: 0.7;'>
-        <p style='letter-spacing: 8px; font-size: 0.7rem; color: #85714D; font-weight: 700; margin-bottom: 0.5rem;'>UTAH LAND & PROPERTY</p>
-        <p style='letter-spacing: 2px; font-size: 0.6rem; color: white; margin-bottom: 0;'>A PRIVATE ASSET MANAGEMENT DIVISION OF BERKSHIRE HATHAWAY HOMESERVICES</p>
-        <p style='font-size: 0.5rem; color: white; margin-top: 1rem; opacity: 0.5;'>CONFIDENTIAL • PRIVILEGED ACCESS ONLY • © 2026</p>
+    <div id="portal-overlay">
+        <div class="portal-card shadow-2xl">
+            <div class="text-[var(--bhhs-cabernet)] font-serif text-3xl mb-3">Private Access Vault</div>
+            <p class="text-[10px] uppercase tracking-[3px] text-gray-400 mb-12">Authorized Client Entrance Only</p>
+            <input type="password" id="token" class="w-full border-b border-gray-300 py-3 outline-none mb-8 text-xl tracking-[5px]" placeholder="••••••••">
+            <button onclick="handleLogin()" class="btn-cabernet">Enter Secure Portal</button>
+            <button onclick="togglePortal()" class="mt-8 text-[10px] uppercase tracking-[2px] text-gray-400 hover:text-black font-bold">Return</button>
+        </div>
     </div>
-""", unsafe_allow_html=True)
+
+    <script>
+        function togglePortal() {
+            const overlay = document.getElementById('portal-overlay');
+            const searchVal = document.getElementById('main-search').value;
+            if (searchVal && overlay.style.display !== 'flex') document.getElementById('token').value = searchVal;
+            overlay.style.display = (overlay.style.display === 'flex') ? 'none' : 'flex';
+        }
+
+        function handleLogin() {
+            const token = document.getElementById('token').value;
+            if(token.length >= 2) {
+                document.getElementById('portal-overlay').style.opacity = '0';
+                document.getElementById('hero-section').classList.add('fade-out-up');
+                setTimeout(() => {
+                    document.getElementById('portal-overlay').style.display = 'none';
+                    document.getElementById('hero-section').style.display = 'none';
+                    document.getElementById('dashboard-view').classList.add('visible');
+                    document.getElementById('active-id-display').innerText = `ID: ${token.toUpperCase()}`;
+                    initStochasticChart();
+                }, 700);
+            }
+        }
+
+        function initStochasticChart() {
+            const ctx = document.getElementById('stochasticChart').getContext('2d');
+            let val = 8.74;
+            const data = [val];
+            for(let i=0; i<12; i++) {
+                val += 0.08 + (Math.random() * 0.08 - 0.04);
+                data.push(parseFloat(val.toFixed(2)));
+            }
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Now', 'M1', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7', 'M8', 'M9', 'M10', 'M11', 'M12'],
+                    datasets: [{
+                        data: data, borderColor: '#631D33', backgroundColor: 'rgba(99, 29, 51, 0.05)',
+                        fill: true, tension: 0.4, borderWidth: 3, pointRadius: 0
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+        }
+    </script>
+</body>
+</html>
+"""
+
+# Render the application
+components.html(html_content, height=1000, scrolling=True)
