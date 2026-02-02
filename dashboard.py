@@ -4,142 +4,180 @@ import datetime
 # --- Page Configuration ---
 st.set_page_config(
     page_title="Utah Land & Prop | Private Portal",
-    page_icon="🏔️",
+    page_icon="🏠",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# --- Custom CSS for Private Equity Aesthetic ---
+# --- Custom CSS for the "Amazing Original" Aesthetic ---
 st.markdown("""
     <style>
-    /* Main background */
+    /* Hero Background with the requested Architectural Image */
     .stApp {
-        background-color: #050505;
-        color: #e0e0e0;
+        background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(99, 29, 51, 0.1)), 
+                    url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=2070');
+        background-size: cover;
+        background-attachment: fixed;
+        background-position: center;
+        color: #ffffff;
     }
     
-    /* Custom Font styling */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
+    /* Fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@200;300;400;600&display=swap');
+    
     html, body, [class*="css"] {
-        font-family: 'Inter', sans-serif;
+        font-family: 'Montserrat', sans-serif;
     }
 
-    /* Gold Accents & Borders */
+    h1, h2, h3 {
+        font-family: 'Playfair Display', serif !important;
+    }
+
+    /* Glassmorphism Metric Cards */
     .metric-card {
-        background-color: #0f0f0f;
-        border: 1px solid rgba(212, 175, 55, 0.1);
-        padding: 2rem;
-        border-radius: 4px;
-        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.95);
+        border-left: 5px solid #631D33; /* BHHS Cabernet */
+        padding: 1.5rem;
+        border-radius: 2px;
+        color: #333;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
     }
-    .metric-card:hover {
-        border-color: rgba(212, 175, 55, 0.4);
-    }
-    .gold-text {
-        color: #d4af37;
+    
+    .gold-label {
+        color: #85714D; /* BHHS Gold */
         letter-spacing: 0.2em;
         text-transform: uppercase;
         font-size: 0.7rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
     }
-    .header-text {
-        font-size: 3rem;
-        font-weight: 300;
-        letter-spacing: -0.02em;
-        margin-bottom: 2rem;
+
+    /* Input Styling */
+    .stTextInput input {
+        background-color: white !important;
+        border: none !important;
+        border-bottom: 2px solid #631D33 !important;
+        color: #333 !important;
+        text-align: center;
+        border-radius: 0px !important;
     }
     
-    /* Sidebar/Nav cleanup */
-    section[data-testid="stSidebar"] {
-        background-color: #0a0a0a;
+    .stButton button {
+        background-color: #631D33 !important;
+        color: white !important;
+        border-radius: 0px !important;
+        border: none !important;
+        letter-spacing: 2px !important;
+        font-weight: 600 !important;
+        padding: 0.75rem 2rem !important;
     }
+
+    /* Hide Streamlit elements */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
     </style>
 """, unsafe_allow_html=True)
 
-# --- Authentication Logic (Simple) ---
+# --- Authentication Logic ---
 if 'authenticated' not in st.session_state:
     st.session_state['authenticated'] = False
 
 if not st.session_state['authenticated']:
-    col1, col2, col3 = st.columns([1, 2, 1])
+    _, col2, _ = st.columns([1, 1.2, 1])
     with col2:
-        st.markdown("<br><br><br>", unsafe_allow_html=True)
-        st.markdown("<p class='gold-text' style='text-align: center;'>Security Protocol Active</p>", unsafe_allow_html=True)
-        st.markdown("<h1 style='text-align: center; font-weight: 200;'>UTAH LAND & PROP</h1>", unsafe_allow_html=True)
+        st.markdown("<br><br><br><br><br>", unsafe_allow_html=True)
+        st.markdown("""
+            <div style='background: white; padding: 3rem; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.3);'>
+                <p style='color: #631D33; font-family: "Playfair Display"; font-size: 2.5rem; margin-bottom: 0;'>Private Client Access</p>
+                <p style='letter-spacing: 3px; font-size: 0.7rem; color: #85714D; margin-bottom: 2rem;'>ASSET VERIFICATION REQUIRED</p>
+            </div>
+        """, unsafe_allow_html=True)
         
-        passkey = st.text_input("ENTER ACCESS KEY", type="password")
-        if st.button("AUTHORIZE", use_container_width=True):
+        passkey = st.text_input("", type="password", placeholder="ENTER ACCESS TOKEN")
+        if st.button("ENTER SECURE PORTAL", use_container_width=True):
             if len(passkey) >= 4:
                 st.session_state['authenticated'] = True
                 st.rerun()
-        
-        st.markdown("<p style='text-align: center; opacity: 0.3; font-size: 0.6rem; letter-spacing: 0.3em; margin-top: 5rem;'>TIER IV ENCRYPTED ENVIRONMENT</p>", unsafe_allow_html=True)
     st.stop()
 
 # --- Main Dashboard ---
-# Top Bar
-t1, t2 = st.columns([3, 1])
-with t1:
-    st.markdown("<p class='gold-text'>Executive Summary</p>", unsafe_allow_html=True)
-    st.markdown("<h1 class='header-text'>Portfolio Performance</h1>", unsafe_allow_html=True)
-with t2:
-    st.markdown(f"<p style='text-align: right; opacity: 0.5; font-size: 0.8rem; margin-top: 2rem;'>{datetime.datetime.now().strftime('%H:%M:%S')} MST</p>", unsafe_allow_html=True)
+# Header Section
+st.markdown("""
+    <div style='display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3rem; padding-top: 2rem;'>
+        <div>
+            <p style='letter-spacing: 4px; font-size: 0.75rem; color: #85714D; font-weight: 600; margin:0;'>PORTFOLIO MANAGEMENT</p>
+            <h1 style='font-size: 3.5rem; margin:0; line-height: 1;'>Experience Elevated.</h1>
+        </div>
+        <div style='text-align: right;'>
+            <p style='margin:0; font-size: 1.1rem; font-weight: 300;'>Active Portfolio: 4402 S Wasatch Blvd</p>
+            <p style='margin:0; font-size: 0.7rem; letter-spacing: 2px; opacity: 0.8;'>SECURE SESSION: ACTIVE</p>
+        </div>
+    </div>
+""", unsafe_allow_html=True)
 
-# Metrics Row
+# Stats Row
 m1, m2, m3 = st.columns(3)
 with m1:
-    st.markdown("""
+    st.markdown(f"""
         <div class="metric-card">
-            <p class="gold-text">Assets Under Management</p>
-            <h2 style="font-size: 2.5rem; font-weight: 400;">$24.8M</h2>
-            <p style="color: #10b981; font-size: 0.8rem;">+12.4% YTD</p>
+            <p class="gold-label">Current Asset Value</p>
+            <h2 style="font-size: 2.2rem; margin: 0;">$18,450,000</h2>
+            <p style="color: #10b981; font-size: 0.8rem; margin:0;">↑ 4.2% YTD Market Growth</p>
         </div>
     """, unsafe_allow_html=True)
 
 with m2:
     st.markdown("""
         <div class="metric-card">
-            <p class="gold-text">Liquidity Position</p>
-            <h2 style="font-size: 2.5rem; font-weight: 400;">$4.2M</h2>
-            <p style="color: rgba(255,255,255,0.3); font-size: 0.8rem;">Cash & Equivalents</p>
+            <p class="gold-label">Equity Position</p>
+            <h2 style="font-size: 2.2rem; margin: 0;">$12,100,000</h2>
+            <p style="color: #666; font-size: 0.8rem; margin:0;">65.5% Loan-to-Value</p>
         </div>
     """, unsafe_allow_html=True)
 
 with m3:
     st.markdown("""
         <div class="metric-card">
-            <p class="gold-text">Active Holdings</p>
-            <h2 style="font-size: 2.5rem; font-weight: 400;">14 Assets</h2>
-            <p style="color: rgba(255,255,255,0.3); font-size: 0.8rem;">Summit & Wasatch Co.</p>
+            <p class="gold-label">Projected Annual ROI</p>
+            <h2 style="font-size: 2.2rem; margin: 0;">8.4%</h2>
+            <p style="color: #666; font-size: 0.8rem; margin:0;">Inclusive of short-term yields</p>
         </div>
     """, unsafe_allow_html=True)
 
-st.markdown("<br>", unsafe_allow_html=True)
+st.markdown("<br><br>", unsafe_allow_html=True)
 
-# Chart & Activity
+# Main Body
 c1, c2 = st.columns([2, 1])
 with c1:
-    st.markdown("<p class='gold-text' style='margin-bottom: 1rem;'>Growth Trajectory</p>", unsafe_allow_html=True)
-    # Mock data for chart
-    chart_data = [10, 15, 12, 18, 24, 22, 30, 28, 35, 40]
-    st.area_chart(chart_data, color="#d4af37")
+    st.markdown("<p style='letter-spacing: 3px; font-size: 0.7rem; color: #85714D; font-weight: 600;'>PORTFOLIO APPRECIATION</p>", unsafe_allow_html=True)
+    # Using a list to simulate historical data
+    chart_data = [15.2, 15.8, 16.1, 16.0, 16.5, 17.2, 17.8, 18.1, 18.4, 18.45]
+    st.line_chart(chart_data, color="#631D33")
 
 with c2:
-    st.markdown("<p class='gold-text' style='margin-bottom: 1rem;'>Access Logs</p>", unsafe_allow_html=True)
-    logs = [
-        {"Loc": "Salt Lake City, UT", "Time": "Just Now"},
-        {"Loc": "Park City, UT", "Time": "4h ago"},
-        {"Loc": "Secure Gateway", "Time": "1d ago"}
+    st.markdown("<p style='letter-spacing: 3px; font-size: 0.7rem; color: #85714D; font-weight: 600;'>RECENT ACTIVITY</p>", unsafe_allow_html=True)
+    activities = [
+        ("Jan 28", "Property Tax Assessment", "Completed"),
+        ("Jan 15", "Q4 Yield Distribution", "Processed"),
+        ("Jan 02", "Land Title Verification", "Verified"),
+        ("Dec 20", "Annual Portfolio Review", "Finalized")
     ]
-    for log in logs:
+    for date, desc, status in activities:
         st.markdown(f"""
-            <div style="border-bottom: 1px solid rgba(255,255,255,0.05); padding: 0.5rem 0;">
-                <p style="margin: 0; font-size: 0.9rem;">{log['Loc']}</p>
-                <p style="margin: 0; font-size: 0.7rem; color: #d4af37; opacity: 0.6;">{log['Time']}</p>
+            <div style="padding: 1rem 0; border-bottom: 1px solid rgba(255,255,255,0.2);">
+                <span style="font-size: 0.7rem; opacity: 0.7;">{date}</span><br>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="font-weight: 400;">{desc}</span>
+                    <span style="font-size: 0.7rem; color: #10b981;">{status}</span>
+                </div>
             </div>
         """, unsafe_allow_html=True)
 
 # Footer
-st.markdown("<br><br><br><br>", unsafe_allow_html=True)
-st.markdown("<div style='text-align: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 2rem;'>", unsafe_allow_html=True)
-st.markdown("<p class='gold-text' style='opacity: 0.5;'>Utah Land & Property Private Wealth Management</p>", unsafe_allow_html=True)
-st.markdown("</div>", unsafe_allow_html=True)
+st.markdown("<br><br><br>", unsafe_allow_html=True)
+st.markdown("""
+    <div style='text-align: center; opacity: 0.6;'>
+        <p style='letter-spacing: 5px; font-size: 0.6rem;'>UTAH LAND & PROPERTY • LUXURY ASSET MANAGEMENT</p>
+    </div>
+""", unsafe_allow_html=True)
