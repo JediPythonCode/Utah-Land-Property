@@ -97,8 +97,7 @@ html_content = """
             <div class="action-bar mx-auto">
                 <input type="text" id="main-search" class="action-input" placeholder="Enter Portfolio ID...">
                 <button onclick="togglePortal()" class="action-button">Access Vault</button>
-                <p class="hero-subtitle">DISCLOSURE & NOTICE:  Utah Land & Property Inc. is a private investment firm acting solely as a principal in all real estate transactions. Please be advised that Utah Land & Property Inc., its officers, and its employees are not licensed Real Estate Brokers or Agents in the State of Utah and do not represent third parties for a fee, commission, or other valuable consideration.
-                 In accordance with Utah Code § 61-2f, we hereby disclose that our business model involves the acquisition of equitable interest in real property and the potential assignment of contractual rights to third-party entities. Any offer, Letter of Intent (LOI), or communication issued by Utah Land & Property Inc. is as a buyer/principal and not as an agent or fiduciary.</p>
+                
             </div>
         </div>
     </section>
