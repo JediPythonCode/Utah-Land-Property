@@ -94,6 +94,9 @@ html_content = """
         <div class="z-10 px-6">
             <h1 class="hero-title">Precision Acquisition.</h1>
             <p class="hero-subtitle">The Gold Standard in Utah Land Asset Strategy.</p>
+            <p class="hero-subtitle">Notice: Utah Land & Property Inc. is a private investment firm and is not a licensed Real Estate Broker or Agent.</p>
+            
+We do not represent third parties in the sale or purchase of real estate.
             <div class="action-bar mx-auto">
                 <input type="text" id="main-search" class="action-input" placeholder="Enter Acquisition ID...">
                 <button onclick="togglePortal()" class="action-button">Access Vault</button>        
