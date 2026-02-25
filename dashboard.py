@@ -88,12 +88,12 @@ html_content = """
         <header class="header-nav">
             <div class="flex flex-col text-left">
                 <div class="logo-text">UTAH LAND & PROPERTY</div>
-                <div class="logo-subtext">Luxury Asset Management</div>
+                <div class="logo-subtext">Acquisition, Investment, and Development</div>
             </div>
         </header>
         <div class="z-10 px-6">
-            <h1 class="hero-title">Experience Elevated.</h1>
-            <p class="hero-subtitle">The Gold Standard in Utah Real Estate Portfolio Management</p>
+            <h1 class="hero-title">Precision Acquisition.</h1>
+            <p class="hero-subtitle">The Gold Standard in Utah Land Asset Strategy.</p>
             <div class="action-bar mx-auto">
                 <input type="text" id="main-search" class="action-input" placeholder="Enter Portfolio ID...">
                 <button onclick="togglePortal()" class="action-button">Access Vault</button>
