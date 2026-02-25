@@ -98,10 +98,7 @@ html_content = """
             <div class="action-bar mx-auto">
                 <input type="text" id="main-search" class="action-input" placeholder="Enter Acquisition ID...">
                 <button onclick="togglePortal()" class="action-button">Access Vault</button>   
-                <p class="hero-subtitle" style="font-size: 12px; opacity: 0.8; line-height: 1.4;"> Notice: Utah Land & Property Inc. is a private investment firm.</p>
-                <p class="hero-subtitle" style="font-size: 12px; opacity: 0.8; line-height: 1.4;"> We are not a licensed Real Estate Broker or Agent.</p>
-                <p class="hero-subtitle" style="font-size: 12px; opacity: 0.8; line-height: 1.4;"> We do not We do represent third parties in the sale or purchase of real estate.</p>
- 
+              
             </div>
         </div>
     </section>
