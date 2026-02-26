@@ -4,7 +4,7 @@ import os
 import pypdf
 from datetime import datetime, timedelta
 
-# --- 1. PAGE SETUP ---
+# --- 1. PAGE SETUP & CONFIG ---
 st.set_page_config(
     page_title="Utah Land & Property | Secure Asset Portal",
     page_icon="💰",
@@ -12,10 +12,10 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- 2. ENGINE (THE SERIOUS MATTER) ---
+# --- 2. THE PDF ENGINE (REPC & ADDENDUM) ---
 def generate_asset_packet(deal_data, selected_contracts):
     output_files = []
-    # Stochastic deadlines for 2026
+    # Stochastic deadlines (Section 24)
     today = datetime(2026, 2, 26)
     dd_deadline = (today + timedelta(days=14)).strftime("%m/%d/%Y")
     settlement = (today + timedelta(days=30)).strftime("%m/%d/%Y")
@@ -28,17 +28,13 @@ def generate_asset_packet(deal_data, selected_contracts):
         "Date": "02/26/2026",
         "Due Diligence Deadline": dd_deadline,
         "Settlement Deadline": settlement,
-        "Addendum No": "1"
     }
 
     for contract in selected_contracts:
-        # Use the exact paths you uploaded to GitHub
-        if "REPC" in contract:
-            template_path = "forms/utah_repc_template.pdf"
-        else:
-            template_path = "forms/utah_blank_addendum.pdf"
-
+        template_path = f"forms/{'utah_repc_template.pdf' if 'REPC' in contract else 'utah_blank_addendum.pdf'}"
+        
         if not os.path.exists(template_path):
+            st.error(f"Missing Template in GitHub: {template_path}")
             continue
 
         output_path = f"{contract}_{deal_data['seller_name'].replace(' ', '_')}.pdf"
@@ -56,20 +52,21 @@ def generate_asset_packet(deal_data, selected_contracts):
     
     return output_files[0] if output_files else None
 
-# --- 3. UI STYLE & AUTH ---
-SECRET_PASSWORD = st.secrets.get("acquisition_password", "gold2026")
-
+# --- 3. ORIGINAL STYLE (CABERNET & GOLD) ---
 st.markdown("""
     <style>
         #MainMenu, footer, header {visibility: hidden;}
         .block-container {padding: 0;}
         [data-testid="stAppViewContainer"] { background-color: #fcfcfc; }
         [data-testid="stSidebar"] { background-color: #1a1a1a; border-left: 1px solid #333; }
-        .stButton>button { background-color: #631D33 !important; color: white !important; width: 100%; border-radius: 0; height: 50px; font-weight: bold; }
+        .stButton>button { background-color: #631D33 !important; color: white !important; font-weight: bold; border-radius: 0; height: 48px; width: 100%; }
+        .stDownloadButton>button { background-color: #000 !important; color: #D4AF37 !important; border: 1px solid #D4AF37 !important; }
     </style>
 """, unsafe_allow_html=True)
 
-# --- 4. THE DESIGN (KEEPING YOUR EXACT HTML/CSS) ---
+# --- 4. THE RESTORED UI (HTML/CSS) ---
+SECRET_PASSWORD = st.secrets.get("acquisition_password", "gold2026")
+
 html_content = f"""
 <!DOCTYPE html>
 <html lang="en">
@@ -85,17 +82,18 @@ body, html {{ margin:0; padding:0; font-family:'Montserrat', sans-serif; backgro
 .action-input {{ flex-grow:1; border:none; padding:1.2rem 2rem; font-size:1rem; color:#333; outline:none; }}
 .action-button {{ background:var(--bhhs-cabernet); color:white; padding:0 2.5rem; text-transform:uppercase; letter-spacing:2px; font-size:0.8rem; font-weight:600; cursor:pointer; border:none; }}
 #dashboard-view {{ display:none; opacity:0; transition: opacity 1s ease-in-out; }}
-.glass-card {{ background:white; border:1px solid #e5e7eb; box-shadow:0 4px 15px rgba(0,0,0,0.03); padding: 3rem; }}
+.glass-card {{ background:white; border:1px solid #e5e7eb; box-shadow:0 4px 15px rgba(0,0,0,0.03); }}
+.fade-out-up {{ transform:translateY(-100%); opacity:0; }}
 .visible {{ display:block !important; opacity:1 !important; }}
 label {{ font-size:10px; text-transform:uppercase; font-weight:bold; color:#6b7280; }}
-input, select {{ font-size:14px; padding:0.5rem; border:1px solid #d1d5db; border-radius:5px; width:100%; color: black; }}
-.disclaimer {{ font-size:12px; font-weight:bold; color:white; }}
+input {{ font-size:14px; padding:0.5rem; border:1px solid #d1d5db; border-radius:4px; width:100%; color: black !important; }}
 </style>
 </head>
 <body>
 <section id="hero-section" class="hero-container">
     <header class="absolute top-0 left-0 p-10">
         <div class="text-2xl font-bold font-serif tracking-tight">UTAH LAND & PROPERTY</div>
+        <div class="text-[0.65rem] uppercase tracking-[3px]">Acquisition, Investment, Development</div>
     </header>
     <div class="z-10 px-6 text-center">
         <h1 class="text-7xl font-serif font-bold mb-2">Precision Acquisition.</h1>
@@ -105,78 +103,70 @@ input, select {{ font-size:14px; padding:0.5rem; border:1px solid #d1d5db; borde
             <button onclick="handleLogin()" class="action-button">Enter Vault</button>
         </div>
     </div>
-    <p class="mt-6 disclaimer">Utah Land & Property Inc. Activity monitored and compliant.</p>
 </section>
 
 <section id="dashboard-view" class="min-h-screen bg-[#FDFDFD] pb-24">
     <div class="max-w-7xl mx-auto px-10 mt-16 grid grid-cols-1 lg:grid-cols-2 gap-10">
-        <div class="glass-card flex flex-col">
-            <h2 class="font-serif text-3xl mb-8">Property & Contract Details</h2>
+        <div class="glass-card p-12">
+            <h2 class="font-serif text-3xl mb-8">Property & Contract</h2>
             <div class="space-y-4">
-                <div><label>Seller Name</label><input type="text" id="s-name" value="Owen"></div>
-                <div><label>Property Address</label><input type="text" id="s-addr" placeholder="Enter Utah Address"></div>
-                <div><label>Parcel ID</label><input type="text" id="s-parcel" placeholder="Enter Parcel ID"></div>
-                <div>
-                    <label>Select Contracts</label>
-                    <select id="s-contracts" multiple size="4">
-                        <option value="REPC" selected>REPC</option>
-                        <option value="ADDENDUM">ADDENDUM</option>
-                    </select>
-                </div>
-                <div class="pt-6">
-                    <button onclick="syncToSidebar()" class="w-full bg-[var(--bhhs-cabernet)] text-white py-4 font-bold uppercase tracking-[2px] text-xs">Preview & Sync to Printer</button>
-                </div>
+                <div><label>Seller</label><input type="text" id="s-name" value="Owen"></div>
+                <div><label>Address</label><input type="text" id="s-addr" placeholder="Utah Property Address"></div>
+                <div><label>Parcel ID</label><input type="text" id="s-parcel" placeholder="Tax Parcel No."></div>
+                <button onclick="syncData()" class="w-full bg-[var(--bhhs-cabernet)] text-white py-4 font-bold uppercase tracking-[2px] text-xs">Preview & Sync</button>
             </div>
         </div>
-        <div class="glass-card">
-            <h2 class="font-serif text-3xl mb-8">Contract Preview</h2>
-            <textarea id="preview-box" rows="12" class="w-full border p-4 font-mono text-sm" readonly></textarea>
+        <div class="glass-card p-12">
+            <h2 class="font-serif text-3xl mb-8">Asset Preview</h2>
+            <textarea id="preview-area" rows="12" class="w-full border p-4 font-mono text-sm" readonly></textarea>
         </div>
     </div>
 </section>
 
 <script>
 function handleLogin() {{
-    const entered = document.getElementById('main-search').value;
-    if(entered === "{SECRET_PASSWORD}") {{
-        document.getElementById('hero-section').style.display = 'none';
-        document.getElementById('dashboard-view').classList.add('visible');
-    }} else {{ alert('Invalid Acquisition ID'); }}
+    if(document.getElementById('main-search').value === "{SECRET_PASSWORD}") {{
+        document.getElementById('hero-section').classList.add('fade-out-up');
+        setTimeout(() => {{
+            document.getElementById('hero-section').style.display = 'none';
+            document.getElementById('dashboard-view').classList.add('visible');
+        }}, 700);
+    }} else {{ alert('Access Denied'); }}
 }}
 
-function syncToSidebar() {{
+function syncData() {{
     const name = document.getElementById('s-name').value;
     const addr = document.getElementById('s-addr').value;
-    const parcel = document.getElementById('s-parcel').value;
-    const date = "02/26/2026";
-    
-    document.getElementById('preview-box').value = "VERIFIED ASSET PACKET\\nDATE: " + date + "\\nSELLER: " + name + "\\nADDR: " + addr + "\\nPARCEL: " + parcel + "\\nSTATUS: SYNCED";
-    alert("Data Synced. Open Sidebar to Print.");
+    const p = document.getElementById('s-parcel').value;
+    document.getElementById('preview-area').value = "CONTRACT BINDING LOG\\nDATE: 02/26/2026\\nSELLER: "+name+"\\nADDR: "+addr+"\\nPARCEL: "+p+"\\n\\nLOG READY. OPEN SIDEBAR TO PRINT.";
+    alert("Data Verified. Confirm in the Sidebar to download the official Utah REPC.");
 }}
 </script>
 </body>
 </html>
 """
 
+# --- 5. RENDER & SIDEBAR BRIDGE ---
 components.html(html_content, height=1000, scrolling=True)
 
-# --- 5. SIDEBAR ---
 with st.sidebar:
-    st.markdown("### 🏔️ SECURE PRINTER TRAY")
-    st.info("Ensure the fields below match your dashboard preview.")
+    st.markdown("### 🏔️ SECURE PRINTER")
+    st.caption("Confirmed data triggers the mapping engine.")
     
-    f_name = st.text_input("Confirm Seller", value="Owen")
-    f_addr = st.text_input("Confirm Address")
-    f_parcel = st.text_input("Confirm Parcel ID")
-    f_type = st.multiselect("Docs", ["REPC", "ADDENDUM"], default=["REPC"])
+    # These fields ensure Python has the data to fill the PDF
+    final_n = st.text_input("Seller", value="Owen")
+    final_a = st.text_input("Address")
+    final_p = st.text_input("Parcel ID")
+    final_t = st.multiselect("Docs", ["REPC", "ADDENDUM"], default=["REPC"])
 
-    if st.button("EXECUTE BINDING & DOWNLOAD"):
-        if f_name and f_addr:
-            deal_data = {"seller_name": f_name, "address": f_addr, "parcel": f_parcel}
+    if st.button("BIND & DOWNLOAD"):
+        if final_n and final_a:
+            data = {"seller_name": final_n, "address": final_a, "parcel": final_p}
             try:
-                final_path = generate_asset_packet(deal_data, f_type)
-                if final_path:
-                    with open(final_path, "rb") as f:
-                        st.download_button("📥 DOWNLOAD FINALIZED PDF", f, file_name=final_path)
+                pdf = generate_asset_packet(data, final_t)
+                if pdf:
+                    with open(pdf, "rb") as f:
+                        st.download_button("📥 DOWNLOAD CONTRACT", f, file_name=pdf)
+                    st.success("Successfully Mapped to Template.")
             except Exception as e:
                 st.error(f"Mapping Error: {e}")
