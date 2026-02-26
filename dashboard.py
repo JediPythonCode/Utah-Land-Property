@@ -8,18 +8,24 @@ try:
     from library import SHIELD_LIBRARY
     from automation_engine import generate_utah_addendum
 except ImportError:
+    # fallback for dev
     SHIELD_LIBRARY = {"FinCEN_2026": "Active", "Assignment_Gator": "Active"}
-    def generate_utah_addendum(d, s): return "temp.pdf"
+    def generate_utah_addendum(d, s): 
+        # return a dummy path for testing
+        return "temp.pdf"
 
 # --- 2. PAGE SETUP ---
 st.set_page_config(
     page_title="Utah Land & Property | Secure Asset Portal",
-    page_icon="💰",  # Money bag icon
+    page_icon="💰",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# Hide default Streamlit UI completely
+# --- 3. PASSWORD SECRET ---
+SECRET_PASSWORD = st.secrets.get("acquisition_password", "defaultpassword")
+
+# Hide Streamlit UI completely
 st.markdown("""
     <style>
         #MainMenu, footer, header {visibility: hidden;}
@@ -28,7 +34,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- 3. DASHBOARD LAYOUT ---
+# --- 4. DASHBOARD HTML LAYOUT ---
 shield_keys = list(SHIELD_LIBRARY.keys())
 
 html_content = f"""
@@ -77,7 +83,60 @@ html_content = f"""
     </section>
 
     <section id="dashboard-view" class="min-h-screen bg-[#FDFDFD] pb-24">
-        <!-- DASHBOARD CONTENT GOES HERE (Same as previous layout) -->
+        <nav class="bg-white border-b border-gray-100 px-10 py-8 flex justify-between items-center sticky top-0 z-50">
+            <div class="flex flex-col">
+                <div class="text-[var(--bhhs-cabernet)] font-serif font-bold text-2xl tracking-tight">PRIVATE CLIENT PORTFOLIO</div>
+                <div class="text-[10px] uppercase tracking-[4px] text-gray-400 mt-1" id="active-id-display">ID: OWEN</div>
+            </div>
+        </nav>
+
+        <div class="max-w-7xl mx-auto px-10 mt-16">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-16">
+                <div class="glass-card accent-border p-10">
+                    <div class="text-[10px] uppercase tracking-[3px] text-gray-400 mb-2 font-bold">Projected Asset Value</div>
+                    <div class="text-4xl font-serif font-bold text-[var(--bhhs-cabernet)]">$8,740,200</div>
+                    <div class="text-[10px] text-emerald-600 mt-3 font-bold tracking-widest uppercase">Stochastic Model Active</div>
+                </div>
+                <div class="glass-card p-10">
+                    <div class="text-[10px] uppercase tracking-[3px] text-gray-400 mb-2 font-bold">Land Utilization</div>
+                    <div class="text-4xl font-serif font-bold">18.42 AC</div>
+                </div>
+                <div class="glass-card p-10">
+                    <div class="text-[10px] uppercase tracking-[3px] text-gray-400 mb-2 font-bold">Market Liquidity</div>
+                    <div class="text-4xl font-serif font-bold">Premium</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                <div class="glass-card p-12 h-[500px] flex flex-col">
+                    <h2 class="font-serif text-3xl mb-8">Stochastic Trajectory</h2>
+                    <canvas id="stochasticChart"></canvas>
+                </div>
+                
+                <div class="glass-card p-12">
+                    <h2 class="font-serif text-3xl mb-8">Shield Execution Engine</h2>
+                    <div class="space-y-6">
+                         <div>
+                            <label class="text-[10px] uppercase font-bold text-gray-400">Seller Name</label>
+                            <input type="text" id="seller-name-input" value="Owen" class="w-full border-b border-gray-200 py-2 outline-none font-bold text-lg">
+                         </div>
+                         <div>
+                            <label class="text-[10px] uppercase font-bold text-gray-400">Property Address</label>
+                            <input type="text" id="property-address-input" placeholder="Enter Utah Address..." class="w-full border-b border-gray-200 py-2 outline-none font-bold text-lg">
+                         </div>
+                         <div>
+                            <label class="text-[10px] uppercase font-bold text-gray-400">Active Logic Shields</label>
+                            <div class="flex flex-wrap gap-2 mt-2">
+                                {"".join([f'<div class="bg-gray-100 text-[9px] px-3 py-1 rounded-full text-gray-600 font-bold border border-gray-200 uppercase">{k}</div>' for k in shield_keys])}
+                            </div>
+                         </div>
+                         <div class="pt-6">
+                            <button onclick="handleExecution()" class="w-full bg-[var(--bhhs-cabernet)] text-white py-4 font-bold uppercase tracking-[2px] text-xs">Execute Secure Addendum</button>
+                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
 
     <div id="portal-overlay">
@@ -90,14 +149,14 @@ html_content = f"""
     </div>
 
     <script>
-        const SECRET_PASSWORD = "{st.secrets['acquisition_password']}";
+        const SECRET_PASSWORD = "{SECRET_PASSWORD}";
 
         function togglePortal() {{
-            const input = document.getElementById('main-search').value;
-            if(input === SECRET_PASSWORD) {{
+            const entered = document.getElementById('main-search').value;
+            if (entered === SECRET_PASSWORD) {{
                 document.getElementById('portal-overlay').style.display = 'flex';
             }} else {{
-                alert("Invalid Acquisition ID");
+                alert('Invalid Acquisition ID');
             }}
         }}
 
@@ -107,21 +166,45 @@ html_content = f"""
             setTimeout(() => {{
                 document.getElementById('hero-section').style.display = 'none';
                 document.getElementById('dashboard-view').classList.add('visible');
+                initChart();
             }}, 700);
+        }}
+
+        function initChart() {{
+            const ctx = document.getElementById('stochasticChart').getContext('2d');
+            new Chart(ctx, {{
+                type: 'line',
+                data: {{
+                    labels: ['M1', 'M2', 'M3', 'M4', 'M5', 'M6'],
+                    datasets: [{{ data: [8.74, 8.85, 8.80, 8.92, 9.10, 9.25], borderColor: '#631D33', tension: 0.4 }}]
+                }},
+                options: {{ responsive: true, maintainAspectRatio: false }}
+            }});
+        }}
+
+        function handleExecution() {{
+            const name = document.getElementById('seller-name-input').value;
+            const addr = document.getElementById('property-address-input').value;
+            window.parent.postMessage({{
+                type: 'execute_contract',
+                seller: name,
+                address: addr
+            }}, '*');
+            alert("Contract logic bound for: " + name + "\\nProceed to sidebar for download.");
         }}
     </script>
 </body>
 </html>
 """
 
+# --- 5. RENDER HTML ---
 components.html(html_content, height=1000, scrolling=True)
 
-# --- 5. SIDEBAR PDF GENERATION ---
+# --- 6. SIDEBAR PDF ENGINE ---
 with st.sidebar:
     st.markdown("### 🏔️ SECURE PRINTER TRAY")
     st.info("Fill out the 'Property Address' in the dashboard, then click Execute. Your file will appear here.")
     
-    # These interact with the Python engine
     with st.expander("Stochastic Engine Settings", expanded=True):
         final_seller = st.text_input("Confirm Seller", "Owen")
         final_addr = st.text_input("Confirm Address", "")
