@@ -1,51 +1,10 @@
 import streamlit as st
 import streamlit.components.v1 as components
 import os
+from library import SHIELD_LIBRARY
+from automation_engine import generate_utah_addendum
 
-# --- 1. CORE LOGIC ---
-try:
-    from library import SHIELD_LIBRARY
-    from automation_engine import generate_utah_addendum
-except ImportError:
-    # fallback for dev
-    SHIELD_LIBRARY = {
-        "Active Logic Shields": "Active",
-        "Assignment_Gator": "Active",
-        "Marketing_Rights": "Active",
-        "SubTo_Disclosure": "Active",
-        "Non_Agency_61_2f": "Active",
-        "Market_Value_Disclaimer": "Active",
-        "FinCEN_2026": "Active",
-        "BOI_Compliance": "Active",
-        "Legacy_Unit_SNDA": "Active",
-        "Shared_Parking_REA": "Active",
-        "As_Is_Condition": "Active",
-        "Condition_Claims_Release": "Active",
-        "Seller_Defect_Disclosure": "Active",
-        "Equitable_Interest_Only": "Active",
-        "Recording_Prohibition": "Active",
-        "Seller_Title_Warranty": "Active",
-        "Closing_Cooperation": "Active",
-        "Unrestricted_Assignment": "Active",
-        "Closing_Extension_Option": "Active",
-        "Buyer_Default_Limited_Remedy": "Active",
-        "Seller_Indemnification": "Active",
-        "Governing_Law_Utah": "Active",
-        "Prevailing_Party_Attorney_Fees": "Active",
-        "Entire_Agreement": "Active",
-        "Severability": "Active",
-        "Time_Is_Essence": "Active",
-        "Electronic_Signatures": "Active",
-        "Force_Majeure_2026": "Active",
-        "Bankruptcy_Warranty": "Active",
-        "Commission_Waiver": "Active"
-    }
-
-    def generate_utah_addendum(data, shields):
-        # dummy pdf path for dev/testing
-        return "temp.pdf"
-
-# --- 2. PAGE SETUP ---
+# --- 1. PAGE SETUP ---
 st.set_page_config(
     page_title="Utah Land & Property | Secure Asset Portal",
     page_icon="💰",
@@ -53,10 +12,10 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- 3. PASSWORD SECRET ---
+# --- 2. PASSWORD SECRET ---
 SECRET_PASSWORD = st.secrets.get("acquisition_password", "defaultpassword")
 
-# Hide Streamlit UI completely
+# Hide default Streamlit UI
 st.markdown("""
     <style>
         #MainMenu, footer, header {visibility: hidden;}
@@ -65,7 +24,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- 4. HTML LAYOUT ---
+# --- 3. HTML LAYOUT ---
 shield_keys = list(SHIELD_LIBRARY.keys())
 contracts_list = ["REPC"] + [k for k in SHIELD_LIBRARY.keys() if k != "REPC"]
 
@@ -76,7 +35,6 @@ html_content = f"""
 <meta charset="UTF-8">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 :root {{ --bhhs-cabernet: #631D33; --overlay: rgba(0, 0, 0, 0.45); }}
 body, html {{ margin:0; padding:0; font-family:'Montserrat', sans-serif; background-color:#fcfcfc; color:#1a1a1a; overflow-x:hidden; }}
@@ -88,7 +46,6 @@ body, html {{ margin:0; padding:0; font-family:'Montserrat', sans-serif; backgro
 .portal-card {{ background:white; padding:3.5rem; width:100%; max-width:480px; text-align:center; color:#333; }}
 #dashboard-view {{ display:none; opacity:0; transition: opacity 1s ease-in-out; }}
 .glass-card {{ background:white; border:1px solid #e5e7eb; box-shadow:0 4px 15px rgba(0,0,0,0.03); }}
-.accent-border {{ border-left:5px solid var(--bhhs-cabernet); }}
 .fade-out-up {{ transform:translateY(-100%); opacity:0; }}
 .visible {{ display:block !important; opacity:1 !important; }}
 label {{ font-size:10px; text-transform:uppercase; font-weight:bold; color:#6b7280; }}
@@ -118,8 +75,12 @@ input, select {{ font-size:14px; padding:0.5rem; border:1px solid #d1d5db; borde
             <h2 class="font-serif text-3xl mb-8">Property & Contract Details</h2>
             <div class="space-y-4">
                 <div>
-                    <label>Seller Name</label>
-                    <input type="text" id="seller-name-input" value="Owen">
+                    <label>Seller First Name</label>
+                    <input type="text" id="seller-first-input" value="Owen">
+                </div>
+                <div>
+                    <label>Seller Last Name</label>
+                    <input type="text" id="seller-last-input" value="[Last Name]">
                 </div>
                 <div>
                     <label>Property Address</label>
@@ -128,6 +89,14 @@ input, select {{ font-size:14px; padding:0.5rem; border:1px solid #d1d5db; borde
                 <div>
                     <label>Parcel ID</label>
                     <input type="text" id="parcel-id-input" placeholder="Enter Parcel ID">
+                </div>
+                <div>
+                    <label>REPC Reference Date</label>
+                    <input type="date" id="repc-date-input">
+                </div>
+                <div>
+                    <label>Addendum No.</label>
+                    <input type="number" id="addendum-no-input" value="1">
                 </div>
                 <div>
                     <label>Select Contracts / Addenda</label>
@@ -178,18 +147,33 @@ function handleLogin() {{
 }}
 
 function handleExecution() {{
-    const name = document.getElementById('seller-name-input').value;
+    const sellerFirst = document.getElementById('seller-first-input').value;
+    const sellerLast = document.getElementById('seller-last-input').value;
     const addr = document.getElementById('property-address-input').value;
     const parcel = document.getElementById('parcel-id-input').value;
+    const repcDate = document.getElementById('repc-date-input').value;
+    const addendumNo = document.getElementById('addendum-no-input').value;
     const selected = Array.from(document.getElementById('contracts-select').selectedOptions).map(opt => opt.value);
-    if(!addr || !name){{
-        alert("Seller name and address are required.");
+
+    if(!addr || !sellerFirst){{
+        alert("Seller first name and address are required.");
         return;
     }}
-    const preview = "Seller: " + name + "\\nAddress: " + addr + "\\nParcel ID: " + parcel + "\\nSelected Contracts: " + selected.join(', ');
+
+    const preview = "Seller: " + sellerFirst + " " + sellerLast + "\\nAddress: " + addr + "\\nParcel ID: " + parcel + "\\nREPC Date: " + repcDate + "\\nAddendum No.: " + addendumNo + "\\nSelected Contracts: " + selected.join(', ');
     document.getElementById('preview-area').value = preview;
-    // send to Streamlit sidebar for PDF generation
-    window.parent.postMessage({{type:'execute_contract', seller:name, address:addr, parcel:parcel, contracts:selected}}, '*');
+
+    window.parent.postMessage({{
+        type:'execute_contract',
+        seller_first: sellerFirst,
+        seller_last: sellerLast,
+        address: addr,
+        parcel: parcel,
+        repc_date: repcDate,
+        addendum_no: addendumNo,
+        contracts:selected
+    }}, '*');
+
     alert("Preview generated. Confirm in sidebar to download PDF.");
 }}
 </script>
@@ -197,33 +181,43 @@ function handleExecution() {{
 </html>
 """
 
-# --- 5. RENDER HTML ---
+# --- 4. RENDER HTML ---
 components.html(html_content, height=1000, scrolling=True)
 
-# --- 6. SIDEBAR PDF ENGINE ---
+# --- 5. SIDEBAR PDF ENGINE ---
 with st.sidebar:
     st.markdown("### 🏔️ SECURE PRINTER TRAY")
     st.info("Preview contracts above, then click below to generate your PDF.")
 
-    final_seller = st.text_input("Confirm Seller", "Owen")
+    final_seller_first = st.text_input("Confirm Seller First Name", "Owen")
+    final_seller_last = st.text_input("Confirm Seller Last Name", "[Last Name]")
     final_addr = st.text_input("Confirm Address", "")
     final_parcel = st.text_input("Confirm Parcel ID", "")
+    repc_date_input = st.text_input("Confirm REPC Date", "")
+    addendum_number_input = st.text_input("Confirm Addendum No.", "1")
     final_contracts = st.text_area("Confirm Contracts Selected (comma separated)")
 
     if st.button("Generate & Download PDF"):
-        if not final_addr or not final_seller:
+        if not final_addr or not final_seller_first:
             st.error("Seller Name and Address are required.")
         elif not final_contracts.strip():
             st.error("Please select at least one contract.")
         else:
             contracts_list_final = [c.strip() for c in final_contracts.split(",")]
-            data = {"seller": final_seller, "address": final_addr, "parcel": final_parcel, "contracts": contracts_list_final}
-            path = generate_utah_addendum(data, shield_keys)
+            data = {
+                "seller_first": final_seller_first,
+                "seller_last": final_seller_last,
+                "address": final_addr,
+                "repc_date": repc_date_input,
+                "addendum_no": addendum_number_input,
+                "contracts": contracts_list_final
+            }
+            path = generate_utah_addendum(data, contracts_list_final)
             if os.path.exists(path):
                 with open(path, "rb") as f:
                     st.download_button(
                         label="CLICK TO SAVE FINAL PDF",
                         data=f,
-                        file_name=f"Addendum_{final_seller}.pdf",
+                        file_name=os.path.basename(path),
                         mime="application/pdf"
                     )
