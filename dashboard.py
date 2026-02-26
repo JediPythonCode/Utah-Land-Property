@@ -4,7 +4,7 @@ import os
 import pypdf
 from datetime import datetime, timedelta
 
-# --- 1. PAGE SETUP & CONFIG ---
+# --- 1. PAGE SETUP ---
 st.set_page_config(
     page_title="Utah Land & Property | Secure Asset Portal",
     page_icon="💰",
@@ -12,14 +12,14 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- 2. THE PDF ENGINE (REPC & ADDENDUM) ---
+# --- 2. THE ENGINE (SERIOUS MATTER) ---
 def generate_asset_packet(deal_data, selected_contracts):
     output_files = []
-    # Stochastic deadlines (Section 24)
     today = datetime(2026, 2, 26)
     dd_deadline = (today + timedelta(days=14)).strftime("%m/%d/%Y")
     settlement = (today + timedelta(days=30)).strftime("%m/%d/%Y")
 
+    # This mapping targets the official Utah Commerce PDF fields
     field_mapping = {
         "Seller": deal_data['seller_name'],
         "Buyer": "Utah Land & Property Inc",
@@ -32,13 +32,10 @@ def generate_asset_packet(deal_data, selected_contracts):
 
     for contract in selected_contracts:
         template_path = f"forms/{'utah_repc_template.pdf' if 'REPC' in contract else 'utah_blank_addendum.pdf'}"
-        
         if not os.path.exists(template_path):
-            st.error(f"Missing Template in GitHub: {template_path}")
             continue
 
         output_path = f"{contract}_{deal_data['seller_name'].replace(' ', '_')}.pdf"
-        
         reader = pypdf.PdfReader(template_path)
         writer = pypdf.PdfWriter()
 
@@ -49,22 +46,20 @@ def generate_asset_packet(deal_data, selected_contracts):
         with open(output_path, "wb") as f:
             writer.write(f)
         output_files.append(output_path)
-    
     return output_files[0] if output_files else None
 
-# --- 3. ORIGINAL STYLE (CABERNET & GOLD) ---
+# --- 3. CSS (LOCKED FOR FULL-WIDTH) ---
 st.markdown("""
     <style>
         #MainMenu, footer, header {visibility: hidden;}
-        .block-container {padding: 0;}
-        [data-testid="stAppViewContainer"] { background-color: #fcfcfc; }
+        .block-container {padding: 0 !important; max-width: 100% !important;}
+        [data-testid="stAppViewContainer"] { background-color: #fcfcfc; overflow: hidden; }
         [data-testid="stSidebar"] { background-color: #1a1a1a; border-left: 1px solid #333; }
-        .stButton>button { background-color: #631D33 !important; color: white !important; font-weight: bold; border-radius: 0; height: 48px; width: 100%; }
-        .stDownloadButton>button { background-color: #000 !important; color: #D4AF37 !important; border: 1px solid #D4AF37 !important; }
+        .stButton>button { background-color: #631D33 !important; color: white !important; font-weight: bold; border-radius: 0; height: 50px; width: 100%; }
     </style>
 """, unsafe_allow_html=True)
 
-# --- 4. THE RESTORED UI (HTML/CSS) ---
+# --- 4. THE ORIGINAL DESIGN ---
 SECRET_PASSWORD = st.secrets.get("acquisition_password", "gold2026")
 
 html_content = f"""
@@ -76,17 +71,17 @@ html_content = f"""
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
 :root {{ --bhhs-cabernet: #631D33; --overlay: rgba(0, 0, 0, 0.45); }}
-body, html {{ margin:0; padding:0; font-family:'Montserrat', sans-serif; background-color:#fcfcfc; color:#1a1a1a; overflow-x:hidden; }}
-.hero-container {{ position:relative; height:100vh; width:100%; background-image: linear-gradient(var(--overlay), var(--overlay)), url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=2070'); background-size:cover; background-position:center; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; text-align:center; transition: transform 0.8s ease, opacity 0.6s ease; }}
+body, html {{ margin:0; padding:0; font-family:'Montserrat', sans-serif; background-color:#fcfcfc; color:#1a1a1a; overflow-x:hidden; width: 100vw; }}
+.hero-container {{ position:relative; height:100vh; width:100vw; background-image: linear-gradient(var(--overlay), var(--overlay)), url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=2070'); background-size:cover; background-position:center; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; text-align:center; }}
 .action-bar {{ background:white; padding:0.5rem; display:flex; width:90%; max-width:900px; box-shadow:0 10px 40px rgba(0,0,0,0.4); }}
 .action-input {{ flex-grow:1; border:none; padding:1.2rem 2rem; font-size:1rem; color:#333; outline:none; }}
 .action-button {{ background:var(--bhhs-cabernet); color:white; padding:0 2.5rem; text-transform:uppercase; letter-spacing:2px; font-size:0.8rem; font-weight:600; cursor:pointer; border:none; }}
 #dashboard-view {{ display:none; opacity:0; transition: opacity 1s ease-in-out; }}
 .glass-card {{ background:white; border:1px solid #e5e7eb; box-shadow:0 4px 15px rgba(0,0,0,0.03); }}
-.fade-out-up {{ transform:translateY(-100%); opacity:0; }}
 .visible {{ display:block !important; opacity:1 !important; }}
 label {{ font-size:10px; text-transform:uppercase; font-weight:bold; color:#6b7280; }}
 input {{ font-size:14px; padding:0.5rem; border:1px solid #d1d5db; border-radius:4px; width:100%; color: black !important; }}
+.disclaimer {{ font-size:12px; font-weight:bold; color:white; position: absolute; bottom: 40px; width: 100%; text-align: center; }}
 </style>
 </head>
 <body>
@@ -103,6 +98,7 @@ input {{ font-size:14px; padding:0.5rem; border:1px solid #d1d5db; border-radius
             <button onclick="handleLogin()" class="action-button">Enter Vault</button>
         </div>
     </div>
+    <p class="disclaimer">Utah Land & Property Inc, are not licensed real estate agents or brokers. We are investment professionals. All activity is monitored and compliant with Utah regulations.</p>
 </section>
 
 <section id="dashboard-view" class="min-h-screen bg-[#FDFDFD] pb-24">
@@ -126,14 +122,10 @@ input {{ font-size:14px; padding:0.5rem; border:1px solid #d1d5db; border-radius
 <script>
 function handleLogin() {{
     if(document.getElementById('main-search').value === "{SECRET_PASSWORD}") {{
-        document.getElementById('hero-section').classList.add('fade-out-up');
-        setTimeout(() => {{
-            document.getElementById('hero-section').style.display = 'none';
-            document.getElementById('dashboard-view').classList.add('visible');
-        }}, 700);
+        document.getElementById('hero-section').style.display = 'none';
+        document.getElementById('dashboard-view').classList.add('visible');
     }} else {{ alert('Access Denied'); }}
 }}
-
 function syncData() {{
     const name = document.getElementById('s-name').value;
     const addr = document.getElementById('s-addr').value;
@@ -146,27 +138,19 @@ function syncData() {{
 </html>
 """
 
-# --- 5. RENDER & SIDEBAR BRIDGE ---
 components.html(html_content, height=1000, scrolling=True)
 
+# --- 5. SIDEBAR BRIDGE ---
 with st.sidebar:
     st.markdown("### 🏔️ SECURE PRINTER")
-    st.caption("Confirmed data triggers the mapping engine.")
-    
-    # These fields ensure Python has the data to fill the PDF
-    final_n = st.text_input("Seller", value="Owen")
-    final_a = st.text_input("Address")
-    final_p = st.text_input("Parcel ID")
-    final_t = st.multiselect("Docs", ["REPC", "ADDENDUM"], default=["REPC"])
-
+    f_n = st.text_input("Seller", value="Owen")
+    f_a = st.text_input("Address")
+    f_p = st.text_input("Parcel ID")
+    f_t = st.multiselect("Docs", ["REPC", "ADDENDUM"], default=["REPC"])
     if st.button("BIND & DOWNLOAD"):
-        if final_n and final_a:
-            data = {"seller_name": final_n, "address": final_a, "parcel": final_p}
-            try:
-                pdf = generate_asset_packet(data, final_t)
-                if pdf:
-                    with open(pdf, "rb") as f:
-                        st.download_button("📥 DOWNLOAD CONTRACT", f, file_name=pdf)
-                    st.success("Successfully Mapped to Template.")
-            except Exception as e:
-                st.error(f"Mapping Error: {e}")
+        if f_n and f_a:
+            data = {"seller_name": f_n, "address": f_a, "parcel": f_p}
+            pdf = generate_asset_packet(data, f_t)
+            if pdf:
+                with open(pdf, "rb") as f:
+                    st.download_button("📥 DOWNLOAD CONTRACT", f, file_name=pdf)
