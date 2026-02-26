@@ -31,15 +31,15 @@ SECRET_PASSWORD = st.secrets.get("acquisition_password", "defaultpassword")
 # Hide Streamlit UI completely
 st.markdown("""
 <style>
-    #MainMenu, footer, header {visibility: hidden;}
-    .block-container {padding: 0;}
-    [data-testid="stAppViewContainer"] { background-color: #fcfcfc; }
+#MainMenu, footer, header {visibility: hidden;}
+.block-container {padding: 0;}
+[data-testid="stAppViewContainer"] { background-color: #fcfcfc; }
 </style>
 """, unsafe_allow_html=True)
 
 shield_keys = list(SHIELD_LIBRARY.keys())
 
-# --- 4. DASHBOARD HTML LAYOUT (unchanged look) ---
+# --- 4. DASHBOARD HTML LAYOUT WITH UPDATED TITLES ---
 html_content = f"""
 <!DOCTYPE html>
 <html lang="en">
@@ -50,23 +50,24 @@ html_content = f"""
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-:root {{ --bhhs-cabernet: #631D33; --overlay: rgba(0,0,0,0.45); }}
+:root {{ --primary-color: #631D33; --overlay: rgba(0,0,0,0.45); }}
 body, html {{ margin:0; padding:0; font-family:'Montserrat',sans-serif; background-color:#fcfcfc; color:#1a1a1a; overflow-x:hidden; }}
 .hero-container {{ position:relative; height:100vh; width:100%; background-image: linear-gradient(var(--overlay),var(--overlay)), url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=2070'); background-size:cover; background-position:center; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; text-align:center; transition: transform 0.8s cubic-bezier(0.4,0,0.2,1), opacity 0.6s ease; }}
 .action-bar {{ background:white; padding:0.5rem; display:flex; width:90%; max-width:900px; box-shadow:0 10px 40px rgba(0,0,0,0.4); }}
 .action-input {{ flex-grow:1; border:none; padding:1.2rem 2rem; font-size:1rem; color:#333; outline:none; }}
-.action-button {{ background:var(--bhhs-cabernet); color:white; padding:0 2.5rem; text-transform:uppercase; letter-spacing:2px; font-size:0.8rem; font-weight:600; cursor:pointer; border:none; }}
+.action-button {{ background:var(--primary-color); color:white; padding:0 2.5rem; text-transform:uppercase; letter-spacing:2px; font-size:0.8rem; font-weight:600; cursor:pointer; border:none; }}
 #portal-overlay {{ position:fixed; inset:0; background: rgba(99,29,51,0.98); z-index:100; display:none; flex-direction:column; align-items:center; justify-content:center; color:white; backdrop-filter:blur(10px); }}
 .portal-card {{ background:white; padding:3.5rem; width:100%; max-width:480px; text-align:center; color:#333; }}
 #dashboard-view {{ display:none; opacity:0; transition: opacity 1s ease-in-out; }}
 .glass-card {{ background:white; border:1px solid #e5e7eb; box-shadow:0 4px 15px rgba(0,0,0,0.03); }}
-.accent-border {{ border-left:5px solid var(--bhhs-cabernet); }}
+.accent-border {{ border-left:5px solid var(--primary-color); }}
 .fade-out-up {{ transform:translateY(-100%); opacity:0; }}
 .visible {{ display:block !important; opacity:1 !important; }}
+.contract-preview {{ width:100%; height:400px; border:1px solid #ccc; margin-top:1rem; }}
 </style>
 </head>
 <body>
-<div style="height:6px; background:var(--bhhs-cabernet); position:fixed; top:0; width:100%; z-index:1000;"></div>
+<div style="height:6px; background:var(--primary-color); position:fixed; top:0; width:100%; z-index:1000;"></div>
 
 <section id="hero-section" class="hero-container">
 <header class="absolute top-0 w-full p-10 flex justify-between items-center">
@@ -87,38 +88,32 @@ body, html {{ margin:0; padding:0; font-family:'Montserrat',sans-serif; backgrou
 </section>
 
 <section id="dashboard-view" class="min-h-screen bg-[#FDFDFD] pb-24">
-<nav class="bg-white border-b border-gray-100 px-10 py-8 flex justify-between items-center sticky top-0 z-50">
-<div class="flex flex-col">
-<div class="text-[var(--bhhs-cabernet)] font-serif font-bold text-2xl tracking-tight">PRIVATE CLIENT PORTFOLIO</div>
-<div class="text-[10px] uppercase tracking-[4px] text-gray-400 mt-1" id="active-id-display">ID: OWEN</div>
-</div>
-</nav>
-
 <div class="max-w-7xl mx-auto px-10 mt-16">
+
 <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-16">
 <div class="glass-card accent-border p-10">
-<div class="text-[10px] uppercase tracking-[3px] text-gray-400 mb-2 font-bold">Projected Asset Value</div>
-<div class="text-4xl font-serif font-bold text-[var(--bhhs-cabernet)]">$8,740,200</div>
-<div class="text-[10px] text-emerald-600 mt-3 font-bold tracking-widest uppercase">Stochastic Model Active</div>
+<div class="text-[10px] uppercase tracking-[3px] text-gray-400 mb-2 font-bold">Asset Summary</div>
+<div class="text-4xl font-serif font-bold text-[var(--primary-color)]">Portfolio Overview</div>
+<div class="text-[10px] text-emerald-600 mt-3 font-bold tracking-widest uppercase">Active Strategies</div>
 </div>
 <div class="glass-card p-10">
-<div class="text-[10px] uppercase tracking-[3px] text-gray-400 mb-2 font-bold">Land Utilization</div>
-<div class="text-4xl font-serif font-bold">18.42 AC</div>
+<div class="text-[10px] uppercase tracking-[3px] text-gray-400 mb-2 font-bold">Land Holdings</div>
+<div class="text-4xl font-serif font-bold">Total Acres: 18.42</div>
 </div>
 <div class="glass-card p-10">
-<div class="text-[10px] uppercase tracking-[3px] text-gray-400 mb-2 font-bold">Market Liquidity</div>
-<div class="text-4xl font-serif font-bold">Premium</div>
+<div class="text-[10px] uppercase tracking-[3px] text-gray-400 mb-2 font-bold">Market Insights</div>
+<div class="text-4xl font-serif font-bold">Premium Status</div>
 </div>
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
 <div class="glass-card p-12 h-[500px] flex flex-col">
-<h2 class="font-serif text-3xl mb-8">Stochastic Trajectory</h2>
+<h2 class="font-serif text-3xl mb-8">Performance Trajectory</h2>
 <canvas id="stochasticChart"></canvas>
 </div>
 
 <div class="glass-card p-12">
-<h2 class="font-serif text-3xl mb-8">Shield Execution Engine</h2>
+<h2 class="font-serif text-3xl mb-8">Contract Execution</h2>
 <div class="space-y-6">
 <div>
 <label class="text-[10px] uppercase font-bold text-gray-400">Seller Name</label>
@@ -135,7 +130,7 @@ body, html {{ margin:0; padding:0; font-family:'Montserrat',sans-serif; backgrou
 </div>
 </div>
 <div class="pt-6">
-<button onclick="handleExecution()" class="w-full bg-[var(--bhhs-cabernet)] text-white py-4 font-bold uppercase tracking-[2px] text-xs">Execute Secure Addendum</button>
+<button onclick="handleExecution()" class="w-full bg-[var(--primary-color)] text-white py-4 font-bold uppercase tracking-[2px] text-xs">Execute Secure Addendum</button>
 </div>
 </div>
 </div>
@@ -143,8 +138,11 @@ body, html {{ margin:0; padding:0; font-family:'Montserrat',sans-serif; backgrou
 
 <!-- Contracts Viewer -->
 <div class="mt-16">
-<h2 class="font-serif text-3xl mb-6">📄 Contracts & Addendum Viewer</h2>
-<div id="contracts-list"></div>
+<h2 class="font-serif text-3xl mb-6">📄 Contracts & Addendum</h2>
+<select id="contract-selector" class="w-full border px-3 py-2">
+<option value="">-- Select Contract --</option>
+</select>
+<iframe id="contract-preview" class="contract-preview"></iframe>
 </div>
 
 </div>
@@ -152,15 +150,16 @@ body, html {{ margin:0; padding:0; font-family:'Montserrat',sans-serif; backgrou
 
 <div id="portal-overlay">
 <div class="portal-card shadow-2xl">
-<div class="text-[var(--bhhs-cabernet)] font-serif text-3xl mb-3">Private Access Vault</div>
+<div class="text-[var(--primary-color)] font-serif text-3xl mb-3">Private Access Vault</div>
 <p class="text-[10px] uppercase tracking-[3px] text-gray-400 mb-12">Authorized Client Entrance Only</p>
 <input type="password" id="token" class="w-full border-b border-gray-300 py-3 outline-none mb-8 text-xl text-center" placeholder="••••••••">
-<button onclick="handleLogin()" class="w-full bg-[var(--bhhs-cabernet)] text-white py-4 font-bold uppercase">Enter Secure Portal</button>
+<button onclick="handleLogin()" class="w-full bg-[var(--primary-color)] text-white py-4 font-bold uppercase">Enter Secure Portal</button>
 </div>
 </div>
 
 <script>
 const SECRET_PASSWORD = "{SECRET_PASSWORD}";
+
 function togglePortal() {{
     const entered = document.getElementById('main-search').value;
     if (entered === SECRET_PASSWORD) {{
@@ -169,6 +168,7 @@ function togglePortal() {{
         alert('Invalid Acquisition ID');
     }}
 }}
+
 function handleLogin() {{
     document.getElementById('portal-overlay').style.display = 'none';
     document.getElementById('hero-section').classList.add('fade-out-up');
@@ -179,6 +179,7 @@ function handleLogin() {{
         fetchContracts();
     }}, 700);
 }}
+
 function initChart() {{
     const ctx = document.getElementById('stochasticChart').getContext('2d');
     new Chart(ctx, {{
@@ -190,6 +191,7 @@ function initChart() {{
         options:{{responsive:true, maintainAspectRatio:false}}
     }});
 }}
+
 function handleExecution() {{
     const name = document.getElementById('seller-name-input').value;
     const addr = document.getElementById('property-address-input').value;
@@ -197,16 +199,17 @@ function handleExecution() {{
     alert("Contract logic bound for: "+name+"\\nProceed to sidebar for download.");
 }}
 
-// Contracts list fetch via Streamlit message bridge
+// Contracts Viewer Integration
 function fetchContracts() {{
     window.parent.postMessage({{type:'fetch_contracts'}}, '*');
 }}
+
 </script>
 </body>
 </html>
 """
 
-components.html(html_content, height=1000, scrolling=True)
+components.html(html_content, height=1200, scrolling=True)
 
 # --- 5. SIDEBAR PDF + CONTRACTS ENGINE ---
 with st.sidebar:
@@ -239,9 +242,10 @@ with st.sidebar:
     pdf_files = sorted(list(contracts_dir.glob("*.pdf")), key=os.path.getmtime, reverse=True)
 
     if pdf_files:
-        for pdf in pdf_files:
-            st.markdown(f"**{pdf.name}**")
-            with open(pdf, "rb") as f:
-                st.download_button("Download PDF", f, file_name=pdf.name, mime="application/pdf")
+        selected = st.selectbox("Select Contract to View", [p.name for p in pdf_files])
+        if selected:
+            pdf_path = contracts_dir / selected
+            with open(pdf_path, "rb") as f:
+                st.download_button("Download Selected PDF", f, file_name=selected, mime="application/pdf")
     else:
-        st.info("No contracts found yet. Generate one using the Shield Execution Engine.")
+        st.info("No contracts found yet. Generate one using the Contract Execution Engine.")
