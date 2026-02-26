@@ -1,26 +1,10 @@
 import streamlit as st
 import streamlit.components.v1 as components
 import os
+from automation_engine import generate_utah_addendum
+from library import SHIELD_LIBRARY
 
-# --- 1. CORE LOGIC ---
-try:
-    from library import SHIELD_LIBRARY
-    from automation_engine import generate_utah_addendum
-except ImportError:
-    # fallback for dev/testing
-    SHIELD_LIBRARY = {k: "Active" for k in [
-        "Active Logic Shields","Assignment_Gator","Marketing_Rights","SubTo_Disclosure","Non_Agency_61_2f",
-        "Market_Value_Disclaimer","FinCEN_2026","BOI_Compliance","Legacy_Unit_SNDA","Shared_Parking_REA",
-        "As_Is_Condition","Condition_Claims_Release","Seller_Defect_Disclosure","Equitable_Interest_Only",
-        "Recording_Prohibition","Seller_Title_Warranty","Closing_Cooperation","Unrestricted_Assignment",
-        "Closing_Extension_Option","Buyer_Default_Limited_Remedy","Seller_Indemnification",
-        "Governing_Law_Utah","Prevailing_Party_Attorney_Fees","Entire_Agreement","Severability",
-        "Time_Is_Essence","Electronic_Signatures","Force_Majeure_2026","Bankruptcy_Warranty","Commission_Waiver"
-    ]}
-    def generate_utah_addendum(data, shields):
-        return "temp.pdf"
-
-# --- 2. PAGE SETUP ---
+# --- 1. PAGE SETUP ---
 st.set_page_config(
     page_title="Utah Land & Property | Secure Asset Portal",
     page_icon="💰",
@@ -28,22 +12,23 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- 3. PASSWORD SECRET ---
+# --- 2. PASSWORD ---
 SECRET_PASSWORD = st.secrets.get("acquisition_password", "defaultpassword")
 
-# Hide default Streamlit UI completely
+# --- 3. HIDE STREAMLIT UI ---
 st.markdown("""
-<style>
-    #MainMenu, footer, header {visibility: hidden;}
-    .block-container {padding: 0;}
-    [data-testid="stAppViewContainer"] { background-color: #fcfcfc; }
-</style>
+    <style>
+        #MainMenu, footer, header {visibility: hidden;}
+        .block-container {padding: 0;}
+        [data-testid="stAppViewContainer"] { background-color: #fcfcfc; }
+    </style>
 """, unsafe_allow_html=True)
 
-# --- 4. HTML LAYOUT ---
+# --- 4. SHIELDS AND CONTRACTS ---
 shield_keys = list(SHIELD_LIBRARY.keys())
 contracts_list = ["REPC"] + [k for k in SHIELD_LIBRARY.keys() if k != "REPC"]
 
+# --- 5. HTML LAYOUT ---
 html_content = f"""
 <!DOCTYPE html>
 <html lang="en">
@@ -58,16 +43,13 @@ body, html {{ margin:0; padding:0; font-family:'Montserrat', sans-serif; backgro
 .action-bar {{ background:white; padding:0.5rem; display:flex; width:90%; max-width:900px; box-shadow:0 10px 40px rgba(0,0,0,0.4); }}
 .action-input {{ flex-grow:1; border:none; padding:1.2rem 2rem; font-size:1rem; color:#333; outline:none; }}
 .action-button {{ background:var(--bhhs-cabernet); color:white; padding:0 2.5rem; text-transform:uppercase; letter-spacing:2px; font-size:0.8rem; font-weight:600; cursor:pointer; border:none; }}
-#portal-overlay {{ position:fixed; inset:0; background: rgba(99,29,51,0.95); z-index:100; display:none; flex-direction:column; align-items:center; justify-content:center; color:white; backdrop-filter: blur(10px); }}
-.portal-card {{ background:white; padding:3.5rem; width:100%; max-width:480px; text-align:center; color:#333; }}
 #dashboard-view {{ display:none; opacity:0; transition: opacity 1s ease-in-out; }}
 .glass-card {{ background:white; border:1px solid #e5e7eb; box-shadow:0 4px 15px rgba(0,0,0,0.03); }}
-.accent-border {{ border-left:5px solid var(--bhhs-cabernet); }}
 .fade-out-up {{ transform:translateY(-100%); opacity:0; }}
 .visible {{ display:block !important; opacity:1 !important; }}
 label {{ font-size:10px; text-transform:uppercase; font-weight:bold; color:#6b7280; }}
-input, select, textarea {{ font-size:14px; padding:0.5rem; border:1px solid #d1d5db; border-radius:5px; width:100%; }}
-.disclaimer-text {{ font-size:12px; font-weight:bold; color:white; margin-top:1rem; }}
+input, select {{ font-size:14px; padding:0.5rem; border:1px solid #d1d5db; border-radius:5px; width:100%; }}
+.disclaimer {{ font-size:12px; font-weight:bold; color:white; }}
 </style>
 </head>
 <body>
@@ -81,10 +63,10 @@ input, select, textarea {{ font-size:14px; padding:0.5rem; border:1px solid #d1d
         <p class="text-[0.9rem] uppercase tracking-[6px] mb-12 font-300">The Gold Standard in Utah Land Asset Strategy.</p>
         <div class="action-bar mx-auto">
             <input type="password" id="main-search" class="action-input" placeholder="Enter Acquisition ID...">
-            <button onclick="togglePortal()" class="action-button">Access Vault</button>
+            <button onclick="handleLogin()" class="action-button">Enter Vault</button>
         </div>
     </div>
-    <p class="disclaimer-text text-center">Utah Land & Property Inc, are not licensed real estate agents or real estate brokers. We are investment professionals. All activity is monitored and compliant with Utah state regulations.</p>
+    <p class="mt-6 disclaimer">Utah Land & Property Inc, are not licensed real estate agents or brokers. We are investment professionals. All activity is monitored and compliant with Utah regulations.</p>
 </section>
 
 <section id="dashboard-view" class="min-h-screen bg-[#FDFDFD] pb-24">
@@ -122,29 +104,15 @@ input, select, textarea {{ font-size:14px; padding:0.5rem; border:1px solid #d1d
     </div>
 </section>
 
-<div id="portal-overlay">
-    <div class="portal-card shadow-2xl">
-        <div class="text-[var(--bhhs-cabernet)] font-serif text-3xl mb-3">Private Access Vault</div>
-        <input type="password" id="token" class="w-full border-b border-gray-300 py-3 outline-none mb-4 text-xl text-center" placeholder="••••••••">
-        <button onclick="handleLogin()" class="w-full bg-[var(--bhhs-cabernet)] text-white py-4 font-bold uppercase">Enter Secure Portal</button>
-        <p class="disclaimer-text">Utah Land & Property Inc, are not licensed real estate agents or real estate brokers. We are investment professionals. All activity is monitored and compliant with Utah state regulations.</p>
-    </div>
-</div>
-
 <script>
 const SECRET_PASSWORD = "{SECRET_PASSWORD}";
 
-function togglePortal() {{
-    const entered = document.getElementById('main-search').value;
-    if (entered === SECRET_PASSWORD) {{
-        document.getElementById('portal-overlay').style.display = 'flex';
-    }} else {{
-        alert('Invalid Acquisition ID');
-    }}
-}}
-
 function handleLogin() {{
-    document.getElementById('portal-overlay').style.display = 'none';
+    const entered = document.getElementById('main-search').value;
+    if(entered !== SECRET_PASSWORD) {{
+        alert('Invalid Acquisition ID');
+        return;
+    }}
     document.getElementById('hero-section').classList.add('fade-out-up');
     setTimeout(() => {{
         document.getElementById('hero-section').style.display = 'none';
@@ -163,6 +131,7 @@ function handleExecution() {{
     }}
     const preview = "Seller: " + name + "\\nAddress: " + addr + "\\nParcel ID: " + parcel + "\\nSelected Contracts: " + selected.join(', ');
     document.getElementById('preview-area').value = preview;
+
     // send to Streamlit sidebar for PDF generation
     window.parent.postMessage({{type:'execute_contract', seller:name, address:addr, parcel:parcel, contracts:selected}}, '*');
     alert("Preview generated. Confirm in sidebar to download PDF.");
@@ -172,10 +141,10 @@ function handleExecution() {{
 </html>
 """
 
-# --- 5. RENDER HTML WITH FULL HEIGHT ---
-components.html(html_content, height=2000, scrolling=True)
+# --- 6. RENDER HTML ---
+components.html(html_content, height=1000, scrolling=True)
 
-# --- 6. SIDEBAR PDF ENGINE ---
+# --- 7. SIDEBAR PDF ENGINE ---
 with st.sidebar:
     st.markdown("### 🏔️ SECURE PRINTER TRAY")
     st.info("Preview contracts above, then click below to generate your PDF.")
@@ -192,18 +161,25 @@ with st.sidebar:
             st.error("Please select at least one contract.")
         else:
             contracts_list_final = [c.strip() for c in final_contracts.split(",")]
-            data = {"seller_first": final_seller.split()[0],
-                    "seller_last": " ".join(final_seller.split()[1:]),
-                    "address": final_addr,
-                    "repc_date": "02/26/2026",
-                    "addendum_no": "1",
-                    "contracts": contracts_list_final}
-            path = generate_utah_addendum(data, contracts_list_final)
-            if os.path.exists(path):
-                with open(path, "rb") as f:
-                    st.download_button(
-                        label="CLICK TO SAVE FINAL PDF",
-                        data=f,
-                        file_name=f"Addendum_{final_seller.replace(' ', '_')}.pdf",
-                        mime="application/pdf"
-                    )
+            # Prepare deal data
+            deal_data = {
+                "seller_first": final_seller.split()[0],
+                "seller_last": " ".join(final_seller.split()[1:]) if len(final_seller.split())>1 else "",
+                "address": final_addr,
+                "repc_date": "02/26/2026",
+                "addendum_no": "1",
+                "acceptance_date": "03/01/2026",
+                "acceptance_time": "5:00 PM"
+            }
+            try:
+                pdf_path = generate_utah_addendum(deal_data, contracts_list_final)
+                if os.path.exists(pdf_path):
+                    with open(pdf_path, "rb") as f:
+                        st.download_button(
+                            label="CLICK TO SAVE FINAL PDF",
+                            data=f,
+                            file_name=f"Addendum_{final_seller}.pdf",
+                            mime="application/pdf"
+                        )
+            except Exception as e:
+                st.error(f"Error generating PDF: {e}")
