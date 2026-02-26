@@ -1,7 +1,7 @@
 import streamlit as st
 import streamlit.components.v1 as components
 import os
-from pathlib import Path
+import json
 
 # --- 1. CORE LOGIC ---
 try:
@@ -10,12 +10,12 @@ try:
 except ImportError:
     # fallback for dev
     SHIELD_LIBRARY = {"FinCEN_2026": "Active", "Assignment_Gator": "Active"}
-    def generate_utah_addendum(d, s): 
-        Path("contracts/finalized").mkdir(parents=True, exist_ok=True)
-        path = f"contracts/finalized/{d['seller'].replace(' ','_')}_Addendum_{d['addendum_no']}.pdf"
-        with open(path, "wb") as f:
-            f.write(b"%PDF-1.4\n%Dummy PDF\n")
-        return path
+    def generate_utah_addendum(d, s):
+        # return a dummy path for testing
+        dummy_path = "temp.pdf"
+        with open(dummy_path, "wb") as f:
+            f.write(b"%PDF-1.4\n%Dummy PDF for testing")
+        return dummy_path
 
 # --- 2. PAGE SETUP ---
 st.set_page_config(
@@ -30,201 +30,214 @@ SECRET_PASSWORD = st.secrets.get("acquisition_password", "defaultpassword")
 
 # Hide Streamlit UI completely
 st.markdown("""
-<style>
-#MainMenu, footer, header {visibility: hidden;}
-.block-container {padding: 0;}
-[data-testid="stAppViewContainer"] { background-color: #fcfcfc; }
-</style>
+    <style>
+        #MainMenu, footer, header {visibility: hidden;}
+        .block-container {padding: 0;}
+        [data-testid="stAppViewContainer"] { background-color: #fcfcfc; }
+    </style>
 """, unsafe_allow_html=True)
 
+# --- 4. DASHBOARD HTML LAYOUT ---
 shield_keys = list(SHIELD_LIBRARY.keys())
 
-# --- 4. DASHBOARD HTML LAYOUT WITH UPDATED TITLES ---
 html_content = f"""
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-:root {{ --primary-color: #631D33; --overlay: rgba(0,0,0,0.45); }}
-body, html {{ margin:0; padding:0; font-family:'Montserrat',sans-serif; background-color:#fcfcfc; color:#1a1a1a; overflow-x:hidden; }}
-.hero-container {{ position:relative; height:100vh; width:100%; background-image: linear-gradient(var(--overlay),var(--overlay)), url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=2070'); background-size:cover; background-position:center; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; text-align:center; transition: transform 0.8s cubic-bezier(0.4,0,0.2,1), opacity 0.6s ease; }}
-.action-bar {{ background:white; padding:0.5rem; display:flex; width:90%; max-width:900px; box-shadow:0 10px 40px rgba(0,0,0,0.4); }}
-.action-input {{ flex-grow:1; border:none; padding:1.2rem 2rem; font-size:1rem; color:#333; outline:none; }}
-.action-button {{ background:var(--primary-color); color:white; padding:0 2.5rem; text-transform:uppercase; letter-spacing:2px; font-size:0.8rem; font-weight:600; cursor:pointer; border:none; }}
-#portal-overlay {{ position:fixed; inset:0; background: rgba(99,29,51,0.98); z-index:100; display:none; flex-direction:column; align-items:center; justify-content:center; color:white; backdrop-filter:blur(10px); }}
-.portal-card {{ background:white; padding:3.5rem; width:100%; max-width:480px; text-align:center; color:#333; }}
-#dashboard-view {{ display:none; opacity:0; transition: opacity 1s ease-in-out; }}
-.glass-card {{ background:white; border:1px solid #e5e7eb; box-shadow:0 4px 15px rgba(0,0,0,0.03); }}
-.accent-border {{ border-left:5px solid var(--primary-color); }}
-.fade-out-up {{ transform:translateY(-100%); opacity:0; }}
-.visible {{ display:block !important; opacity:1 !important; }}
-.contract-preview {{ width:100%; height:400px; border:1px solid #ccc; margin-top:1rem; }}
-</style>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {{ --bhhs-cabernet: #631D33; --overlay: rgba(0, 0, 0, 0.45); }}
+        body, html {{ margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; background-color: #fcfcfc; color: #1a1a1a; overflow-x: hidden; }}
+        .hero-container {{
+            position: relative;
+            height: 100vh;
+            width: 100%;
+            background-image: linear-gradient(var(--overlay), var(--overlay)), url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=2070');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            transition: transform 0.8s cubic-bezier(0.4,0,0.2,1), opacity 0.6s ease;
+        }}
+        .action-bar {{ background: white; padding: 0.5rem; display: flex; width: 90%; max-width: 900px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); }}
+        .action-input {{ flex-grow: 1; border: none; padding: 1.2rem 2rem; font-size: 1rem; color: #333; outline: none; }}
+        .action-button {{ background: var(--bhhs-cabernet); color: white; padding: 0 2.5rem; text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: none; }}
+        #portal-overlay {{ position: fixed; inset: 0; background: rgba(99, 29, 51, 0.98); z-index: 100; display: none; flex-direction: column; align-items: center; justify-content: center; color: white; backdrop-filter: blur(10px); }}
+        .portal-card {{ background: white; padding: 3.5rem; width: 100%; max-width: 480px; text-align: center; color: #333; }}
+        #dashboard-view {{ display: none; opacity: 0; transition: opacity 1s ease-in-out; }}
+        .glass-card {{ background: white; border: 1px solid #e5e7eb; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }}
+        .accent-border {{ border-left: 5px solid var(--bhhs-cabernet); }}
+        .fade-out-up {{ transform: translateY(-100%); opacity: 0; }}
+        .visible {{ display: block !important; opacity: 1 !important; }}
+    </style>
 </head>
 <body>
-<div style="height:6px; background:var(--primary-color); position:fixed; top:0; width:100%; z-index:1000;"></div>
+    <div style="height: 6px; background: var(--bhhs-cabernet); position: fixed; top:0; width: 100%; z-index: 1000;"></div>
 
-<section id="hero-section" class="hero-container">
-<header class="absolute top-0 w-full p-10 flex justify-between items-center">
-<div class="flex flex-col text-left">
-<div class="text-2xl font-bold font-serif tracking-tight">UTAH LAND & PROPERTY</div>
-<div class="text-[0.65rem] uppercase tracking-[3px]">Acquisition, Investment, Development</div>
-</div>
-</header>
-<div class="z-10 px-6">
-<h1 class="text-7xl font-serif font-bold mb-2">Precision Acquisition.</h1>
-<p class="text-[0.9rem] uppercase tracking-[6px] mb-12 font-300">The Gold Standard in Utah Land Asset Strategy.</p>
-<div class="action-bar mx-auto">
-<input type="password" id="main-search" class="action-input" placeholder="Enter Acquisition ID...">
-<button onclick="togglePortal()" class="action-button">Access Vault</button>
-</div>
-<p style="font-size:0.65rem; color:#ccc; margin-top:0.5rem;">Disclaimer: Access is restricted. All activity is monitored and compliant with Utah state regulations.</p>
-</div>
-</section>
+    <section id="hero-section" class="hero-container">
+        <header class="absolute top-0 w-full p-10 flex justify-between items-center">
+            <div class="flex flex-col text-left">
+                <div class="text-2xl font-bold font-serif tracking-tight">UTAH LAND & PROPERTY</div>
+                <div class="text-[0.65rem] uppercase tracking-[3px]">Acquisition, Investment, Development</div>
+            </div>
+        </header>
+        <div class="z-10 flex flex-col items-center justify-center text-center h-full">
+            <h1 class="text-7xl font-serif font-bold mb-2">Precision Acquisition.</h1>
+            <p class="text-[0.9rem] uppercase tracking-[6px] mb-12 font-300">The Gold Standard in Utah Land Asset Strategy.</p>
+            <div class="action-bar mx-auto">
+                <input type="password" id="main-search" class="action-input" placeholder="Enter Acquisition ID...">
+                <button onclick="togglePortal()" class="action-button">Access Vault</button>
+            </div>
+            <p class="text-[0.65rem] text-gray-200 mt-4">
+                Utah Land & Property Inc, are not licensed real estate agents or real estate brokers. 
+    We are investment professionals. All activity is monitored and compliant with Utah state regulations.
+            </p>
+        </div>
+    </section>
 
-<section id="dashboard-view" class="min-h-screen bg-[#FDFDFD] pb-24">
-<div class="max-w-7xl mx-auto px-10 mt-16">
+    <section id="dashboard-view" class="min-h-screen bg-[#FDFDFD] pb-24">
+        <nav class="bg-white border-b border-gray-100 px-10 py-8 flex justify-between items-center sticky top-0 z-50">
+            <div class="flex flex-col">
+                <div class="text-[var(--bhhs-cabernet)] font-serif font-bold text-2xl tracking-tight">CLIENT ASSET DASHBOARD</div>
+                <div class="text-[10px] uppercase tracking-[4px] text-gray-400 mt-1" id="active-id-display">ID: CONFIDENTIAL</div>
+            </div>
+        </nav>
 
-<div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-16">
-<div class="glass-card accent-border p-10">
-<div class="text-[10px] uppercase tracking-[3px] text-gray-400 mb-2 font-bold">Asset Summary</div>
-<div class="text-4xl font-serif font-bold text-[var(--primary-color)]">Portfolio Overview</div>
-<div class="text-[10px] text-emerald-600 mt-3 font-bold tracking-widest uppercase">Active Strategies</div>
-</div>
-<div class="glass-card p-10">
-<div class="text-[10px] uppercase tracking-[3px] text-gray-400 mb-2 font-bold">Land Holdings</div>
-<div class="text-4xl font-serif font-bold">Total Acres: 18.42</div>
-</div>
-<div class="glass-card p-10">
-<div class="text-[10px] uppercase tracking-[3px] text-gray-400 mb-2 font-bold">Market Insights</div>
-<div class="text-4xl font-serif font-bold">Premium Status</div>
-</div>
-</div>
+        <div class="max-w-7xl mx-auto px-10 mt-16">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-16">
+                <div class="glass-card accent-border p-10">
+                    <div class="text-[10px] uppercase tracking-[3px] text-gray-400 mb-2 font-bold">Estimated Portfolio Value</div>
+                    <div class="text-4xl font-serif font-bold text-[var(--bhhs-cabernet)]">$X,XXX,XXX</div>
+                    <div class="text-[10px] text-emerald-600 mt-3 font-bold tracking-widest uppercase">Performance Model Active</div>
+                </div>
+                <div class="glass-card p-10">
+                    <div class="text-[10px] uppercase tracking-[3px] text-gray-400 mb-2 font-bold">Total Land Holdings</div>
+                    <div class="text-4xl font-serif font-bold">XX.XX AC</div>
+                </div>
+                <div class="glass-card p-10">
+                    <div class="text-[10px] uppercase tracking-[3px] text-gray-400 mb-2 font-bold">Liquidity Status</div>
+                    <div class="text-4xl font-serif font-bold">Premium</div>
+                </div>
+            </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-<div class="glass-card p-12 h-[500px] flex flex-col">
-<h2 class="font-serif text-3xl mb-8">Performance Trajectory</h2>
-<canvas id="stochasticChart"></canvas>
-</div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                <div class="glass-card p-12 h-[500px] flex flex-col">
+                    <h2 class="font-serif text-3xl mb-8">Asset Growth Projection</h2>
+                    <canvas id="stochasticChart"></canvas>
+                </div>
+                
+                <div class="glass-card p-12">
+                    <h2 class="font-serif text-3xl mb-8">Shield Execution Engine</h2>
+                    <div class="space-y-6">
+                         <div>
+                            <label class="text-[10px] uppercase font-bold text-gray-400">Seller Name</label>
+                            <input type="text" id="seller-name-input" value="Owen" class="w-full border-b border-gray-200 py-2 outline-none font-bold text-lg">
+                         </div>
+                         <div>
+                            <label class="text-[10px] uppercase font-bold text-gray-400">Property Address</label>
+                            <input type="text" id="property-address-input" placeholder="Enter Utah Address..." class="w-full border-b border-gray-200 py-2 outline-none font-bold text-lg">
+                         </div>
+                         <div>
+                            <label class="text-[10px] uppercase font-bold text-gray-400">Active Logic Shields</label>
+                            <div class="flex flex-wrap gap-2 mt-2">
+                                {"".join([f'<div class="bg-gray-100 text-[9px] px-3 py-1 rounded-full text-gray-600 font-bold border border-gray-200 uppercase">{k}</div>' for k in shield_keys])}
+                            </div>
+                         </div>
+                         <div class="pt-6">
+                            <button onclick="handleExecution()" class="w-full bg-[var(--bhhs-cabernet)] text-white py-4 font-bold uppercase tracking-[2px] text-xs">Execute Secure Addendum</button>
+                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-<div class="glass-card p-12">
-<h2 class="font-serif text-3xl mb-8">Contract Execution</h2>
-<div class="space-y-6">
-<div>
-<label class="text-[10px] uppercase font-bold text-gray-400">Seller Name</label>
-<input type="text" id="seller-name-input" value="Owen" class="w-full border-b border-gray-200 py-2 outline-none font-bold text-lg">
-</div>
-<div>
-<label class="text-[10px] uppercase font-bold text-gray-400">Property Address</label>
-<input type="text" id="property-address-input" placeholder="Enter Utah Address..." class="w-full border-b border-gray-200 py-2 outline-none font-bold text-lg">
-</div>
-<div>
-<label class="text-[10px] uppercase font-bold text-gray-400">Active Logic Shields</label>
-<div class="flex flex-wrap gap-2 mt-2">
-{"".join([f'<div class="bg-gray-100 text-[9px] px-3 py-1 rounded-full text-gray-600 font-bold border border-gray-200 uppercase">{k}</div>' for k in shield_keys])}
-</div>
-</div>
-<div class="pt-6">
-<button onclick="handleExecution()" class="w-full bg-[var(--primary-color)] text-white py-4 font-bold uppercase tracking-[2px] text-xs">Execute Secure Addendum</button>
-</div>
-</div>
-</div>
-</div>
+    <div id="portal-overlay">
+        <div class="portal-card shadow-2xl">
+            <div class="text-[var(--bhhs-cabernet)] font-serif text-3xl mb-3">Private Access Vault</div>
+            <p class="text-[10px] uppercase tracking-[3px] text-gray-400 mb-12">Authorized Client Entrance Only</p>
+            <input type="password" id="token" class="w-full border-b border-gray-300 py-3 outline-none mb-8 text-xl text-center" placeholder="••••••••">
+            <p class="text-[10px] text-gray-500 mb-6">We are not licensed real estate agents or brokers.</p>
+            <button onclick="handleLogin()" class="w-full bg-[var(--bhhs-cabernet)] text-white py-4 font-bold uppercase">Enter Secure Portal</button>
+        </div>
+    </div>
 
-<!-- Contracts Viewer -->
-<div class="mt-16">
-<h2 class="font-serif text-3xl mb-6">📄 Contracts & Addendum</h2>
-<select id="contract-selector" class="w-full border px-3 py-2">
-<option value="">-- Select Contract --</option>
-</select>
-<iframe id="contract-preview" class="contract-preview"></iframe>
-</div>
+    <script>
+        const SECRET_PASSWORD = "{SECRET_PASSWORD}";
 
-</div>
-</section>
+        function togglePortal() {{
+            const entered = document.getElementById('main-search').value;
+            if (entered === SECRET_PASSWORD) {{
+                document.getElementById('portal-overlay').style.display = 'flex';
+            }} else {{
+                alert('Invalid Acquisition ID');
+            }}
+        }}
 
-<div id="portal-overlay">
-<div class="portal-card shadow-2xl">
-<div class="text-[var(--primary-color)] font-serif text-3xl mb-3">Private Access Vault</div>
-<p class="text-[10px] uppercase tracking-[3px] text-gray-400 mb-12">Authorized Client Entrance Only</p>
-<input type="password" id="token" class="w-full border-b border-gray-300 py-3 outline-none mb-8 text-xl text-center" placeholder="••••••••">
-<button onclick="handleLogin()" class="w-full bg-[var(--primary-color)] text-white py-4 font-bold uppercase">Enter Secure Portal</button>
-</div>
-</div>
+        function handleLogin() {{
+            document.getElementById('portal-overlay').style.display = 'none';
+            document.getElementById('hero-section').classList.add('fade-out-up');
+            setTimeout(() => {{
+                document.getElementById('hero-section').style.display = 'none';
+                document.getElementById('dashboard-view').classList.add('visible');
+                initChart();
+            }}, 700);
+        }}
 
-<script>
-const SECRET_PASSWORD = "{SECRET_PASSWORD}";
+        function initChart() {{
+            const ctx = document.getElementById('stochasticChart').getContext('2d');
+            new Chart(ctx, {{
+                type: 'line',
+                data: {{
+                    labels: ['M1', 'M2', 'M3', 'M4', 'M5', 'M6'],
+                    datasets: [{{ data: [8.74, 8.85, 8.80, 8.92, 9.10, 9.25], borderColor: '#631D33', tension: 0.4 }}]
+                }},
+                options: {{ responsive: true, maintainAspectRatio: false }}
+            }});
+        }}
 
-function togglePortal() {{
-    const entered = document.getElementById('main-search').value;
-    if (entered === SECRET_PASSWORD) {{
-        document.getElementById('portal-overlay').style.display = 'flex';
-    }} else {{
-        alert('Invalid Acquisition ID');
-    }}
-}}
-
-function handleLogin() {{
-    document.getElementById('portal-overlay').style.display = 'none';
-    document.getElementById('hero-section').classList.add('fade-out-up');
-    setTimeout(() => {{
-        document.getElementById('hero-section').style.display = 'none';
-        document.getElementById('dashboard-view').classList.add('visible');
-        initChart();
-        fetchContracts();
-    }}, 700);
-}}
-
-function initChart() {{
-    const ctx = document.getElementById('stochasticChart').getContext('2d');
-    new Chart(ctx, {{
-        type:'line',
-        data:{{
-            labels:['M1','M2','M3','M4','M5','M6'],
-            datasets:[{{data:[8.74,8.85,8.80,8.92,9.10,9.25], borderColor:'#631D33', tension:0.4}}]
-        }},
-        options:{{responsive:true, maintainAspectRatio:false}}
-    }});
-}}
-
-function handleExecution() {{
-    const name = document.getElementById('seller-name-input').value;
-    const addr = document.getElementById('property-address-input').value;
-    window.parent.postMessage({{type:'execute_contract', seller:name, address:addr}}, '*');
-    alert("Contract logic bound for: "+name+"\\nProceed to sidebar for download.");
-}}
-
-// Contracts Viewer Integration
-function fetchContracts() {{
-    window.parent.postMessage({{type:'fetch_contracts'}}, '*');
-}}
-
-</script>
+        function handleExecution() {{
+            const name = document.getElementById('seller-name-input').value;
+            const addr = document.getElementById('property-address-input').value;
+            window.parent.postMessage({{
+                type: 'execute_contract',
+                seller: name,
+                address: addr
+            }}, '*');
+            alert("Contract logic bound for: " + name + "\\nProceed to sidebar for download.");
+        }}
+    </script>
 </body>
 </html>
 """
 
-components.html(html_content, height=1200, scrolling=True)
+# --- 5. RENDER HTML ---
+components.html(html_content, height=1000, scrolling=True)
 
-# --- 5. SIDEBAR PDF + CONTRACTS ENGINE ---
+# --- 6. SIDEBAR PDF & CONTRACTS VIEW ---
 with st.sidebar:
-    st.markdown("### 💰 SECURE PRINTER TRAY")
+    st.markdown("### 💼 SECURE PRINTER TRAY & CONTRACTS")
     st.info("Fill out the 'Property Address' in the dashboard, then click Execute. Your file will appear here.")
 
+    # Stochastic engine input
     with st.expander("Stochastic Engine Settings", expanded=True):
         final_seller = st.text_input("Confirm Seller", "Owen")
         final_addr = st.text_input("Confirm Address", "")
 
+    # Generate PDF
     if st.button("Generate & Download PDF"):
         if not final_addr:
             st.error("Address Required.")
         else:
-            data = {"seller": final_seller, "address": final_addr, "addendum_no":"1"}
+            data = {"seller": final_seller, "address": final_addr, "addendum_no": "1"}
             path = generate_utah_addendum(data, shield_keys)
             if os.path.exists(path):
                 with open(path, "rb") as f:
@@ -235,17 +248,15 @@ with st.sidebar:
                         mime="application/pdf"
                     )
 
-    # Contracts Viewer
-    st.markdown("## 📄 Contracts & Addendum Viewer")
-    contracts_dir = Path("contracts/finalized")
-    contracts_dir.mkdir(parents=True, exist_ok=True)
-    pdf_files = sorted(list(contracts_dir.glob("*.pdf")), key=os.path.getmtime, reverse=True)
-
-    if pdf_files:
-        selected = st.selectbox("Select Contract to View", [p.name for p in pdf_files])
-        if selected:
-            pdf_path = contracts_dir / selected
-            with open(pdf_path, "rb") as f:
-                st.download_button("Download Selected PDF", f, file_name=selected, mime="application/pdf")
+    # --- Contracts Viewing Center ---
+    st.markdown("### 📄 Executed Contracts")
+    contracts_dir = "./contracts"
+    os.makedirs(contracts_dir, exist_ok=True)
+    files = [f for f in os.listdir(contracts_dir) if f.endswith(".pdf")]
+    if files:
+        for f in files:
+            st.markdown(f"- {f}")
+            with open(os.path.join(contracts_dir, f), "rb") as file:
+                st.download_button(f"Download {f}", data=file, file_name=f, mime="application/pdf")
     else:
-        st.info("No contracts found yet. Generate one using the Contract Execution Engine.")
+        st.info("No executed contracts available.")
