@@ -1,0 +1,258 @@
+[
+  {
+    "shield_id": "Capacity_Affirmation",
+    "title": "Seller Capacity & Voluntary Execution",
+    "category": "capacity",
+    "order_weight": 10,
+    "mandatory_if": { "flags": ["Elderly_Seller"], "logic": "OR" },
+    "requires": [],
+    "conflicts_with": [],
+    "risk_tags": ["Elderly_Seller","Estate_Sale"],
+    "placeholders": [],
+    "survives_closing": true,
+    "verbatim": "SELLER CAPACITY & VOLUNTARY EXECUTION: Seller affirms they are of legal age, competent, and not under duress or undue influence."
+  },
+  {
+    "shield_id": "Independent_Counsel",
+    "title": "Independent Counsel",
+    "category": "capacity",
+    "order_weight": 20,
+    "mandatory_if": { "flags": [], "logic": "OR" },
+    "requires": [],
+    "conflicts_with": [],
+    "risk_tags": ["All"],
+    "placeholders": [],
+    "survives_closing": true,
+    "verbatim": "INDEPENDENT ADVICE: Seller acknowledges Buyer advised Seller to seek independent legal counsel."
+  },
+  {
+    "shield_id": "No_Fiduciary",
+    "title": "No Fiduciary Relationship",
+    "category": "capacity",
+    "order_weight": 25,
+    "mandatory_if": { "flags": [], "logic": "OR" },
+    "requires": [],
+    "conflicts_with": [],
+    "risk_tags": ["All"],
+    "placeholders": [],
+    "survives_closing": true,
+    "verbatim": "NO FIDUCIARY RELATIONSHIP: This is an arm’s-length transaction."
+  },
+
+  {
+    "shield_id": "Non_Reliance",
+    "title": "Non-Reliance Clause",
+    "category": "fraud",
+    "order_weight": 30,
+    "mandatory_if": { "flags": [], "logic": "OR" },
+    "requires": [],
+    "conflicts_with": [],
+    "risk_tags": ["All"],
+    "placeholders": [],
+    "survives_closing": true,
+    "verbatim": "NON-RELIANCE: Seller is not relying on representations not contained in this Agreement."
+  },
+  {
+    "shield_id": "Merger_Clause",
+    "title": "Entire Agreement",
+    "category": "fraud",
+    "order_weight": 35,
+    "mandatory_if": { "flags": [], "logic": "OR" },
+    "requires": [],
+    "conflicts_with": [],
+    "risk_tags": ["All"],
+    "placeholders": [],
+    "survives_closing": false,
+    "verbatim": "ENTIRE AGREEMENT: This Agreement supersedes all prior discussions."
+  },
+  {
+    "shield_id": "Fair_Consideration",
+    "title": "Adequate Consideration",
+    "category": "fraud",
+    "order_weight": 40,
+    "mandatory_if": { "flags": ["High_Equity"], "logic": "OR" },
+    "requires": [],
+    "conflicts_with": [],
+    "risk_tags": ["High_Equity"],
+    "placeholders": ["{{Purchase_Price}}"],
+    "survives_closing": true,
+    "verbatim": "ADEQUACY OF CONSIDERATION: Seller acknowledges {{Purchase_Price}} represents fair consideration."
+  },
+
+  {
+    "shield_id": "Assignment_Right",
+    "title": "Assignment Rights",
+    "category": "assignment",
+    "order_weight": 100,
+    "mandatory_if": { "flags": ["Creative_Finance"], "logic": "OR" },
+    "requires": ["Assignee_Assumption"],
+    "conflicts_with": [],
+    "risk_tags": ["Creative_Finance"],
+    "placeholders": [],
+    "survives_closing": true,
+    "verbatim": "ASSIGNMENT: Buyer may assign its equitable interest."
+  },
+  {
+    "shield_id": "Assignee_Assumption",
+    "title": "Assumption of Obligation",
+    "category": "assignment",
+    "order_weight": 105,
+    "mandatory_if": { "flags": [], "logic": "OR" },
+    "requires": [],
+    "conflicts_with": [],
+    "risk_tags": ["Creative_Finance"],
+    "placeholders": [],
+    "survives_closing": true,
+    "verbatim": "ASSUMPTION: Any assignee shall assume Buyer’s obligations in writing."
+  },
+
+  {
+    "shield_id": "SubTo_Disclosure",
+    "title": "Subject-To Disclosure",
+    "category": "subject_to",
+    "order_weight": 110,
+    "mandatory_if": { "flags": ["Subject_To"], "logic": "OR" },
+    "requires": ["Acceleration_Risk"],
+    "conflicts_with": [],
+    "risk_tags": ["Creative_Finance"],
+    "placeholders": [],
+    "survives_closing": true,
+    "verbatim": "DUE-ON-SALE DISCLOSURE: Seller acknowledges loan remains in Seller's name."
+  },
+  {
+    "shield_id": "Acceleration_Risk",
+    "title": "Acceleration Risk",
+    "category": "subject_to",
+    "order_weight": 115,
+    "mandatory_if": { "flags": [], "logic": "OR" },
+    "requires": [],
+    "conflicts_with": [],
+    "risk_tags": ["Creative_Finance"],
+    "placeholders": [],
+    "survives_closing": true,
+    "verbatim": "ACCELERATION RISK: Seller assumes risk lender may accelerate."
+  },
+
+  {
+    "shield_id": "As_Is",
+    "title": "As-Is Condition",
+    "category": "condition",
+    "order_weight": 120,
+    "mandatory_if": { "flags": [], "logic": "OR" },
+    "requires": [],
+    "conflicts_with": [],
+    "risk_tags": ["Distressed"],
+    "placeholders": [],
+    "survives_closing": false,
+    "verbatim": "AS-IS: Property sold AS-IS, except for fraud or willful concealment."
+  },
+
+  {
+    "shield_id": "Liquidated_Damages",
+    "title": "Liquidated Damages",
+    "category": "default",
+    "order_weight": 200,
+    "mandatory_if": { "flags": [], "logic": "OR" },
+    "requires": [],
+    "conflicts_with": [],
+    "risk_tags": ["All"],
+    "placeholders": ["{{Earnest_Money}}"],
+    "survives_closing": false,
+    "verbatim": "LIQUIDATED DAMAGES: Earnest Money of {{Earnest_Money}} retained as reasonable estimate."
+  },
+  {
+    "shield_id": "Seller_Indemnity",
+    "title": "Seller Indemnification",
+    "category": "default",
+    "order_weight": 210,
+    "mandatory_if": { "flags": [], "logic": "OR" },
+    "requires": [],
+    "conflicts_with": [],
+    "risk_tags": ["All"],
+    "placeholders": [],
+    "survives_closing": true,
+    "verbatim": "SELLER INDEMNIFICATION: Seller indemnifies Buyer for breach."
+  },
+  {
+    "shield_id": "Non_Recourse",
+    "title": "Non-Recourse Entity",
+    "category": "default",
+    "order_weight": 220,
+    "mandatory_if": { "flags": ["Entity_Buyer"], "logic": "OR" },
+    "requires": [],
+    "conflicts_with": [],
+    "risk_tags": ["Entity_Buyer"],
+    "placeholders": [],
+    "survives_closing": true,
+    "verbatim": "NON-RECOURSE: No personal liability attaches to members."
+  },
+
+  {
+    "shield_id": "Mediation",
+    "title": "Mandatory Mediation",
+    "category": "dispute",
+    "order_weight": 300,
+    "mandatory_if": { "flags": [], "logic": "OR" },
+    "requires": ["Arbitration"],
+    "conflicts_with": [],
+    "risk_tags": ["All"],
+    "placeholders": [],
+    "survives_closing": true,
+    "verbatim": "MANDATORY MEDIATION required prior to litigation."
+  },
+  {
+    "shield_id": "Arbitration",
+    "title": "Binding Arbitration",
+    "category": "dispute",
+    "order_weight": 310,
+    "mandatory_if": { "flags": [], "logic": "OR" },
+    "requires": [],
+    "conflicts_with": [],
+    "risk_tags": ["All"],
+    "placeholders": [],
+    "survives_closing": true,
+    "verbatim": "BINDING ARBITRATION applies to unresolved disputes."
+  },
+
+  {
+    "shield_id": "FinCEN_2026",
+    "title": "FinCEN Compliance",
+    "category": "compliance",
+    "order_weight": 50,
+    "mandatory_if": { "flags": ["Entity_Buyer","Cash_Deal"], "logic": "AND" },
+    "requires": [],
+    "conflicts_with": [],
+    "risk_tags": ["2026_Compliance"],
+    "placeholders": [],
+    "survives_closing": true,
+    "verbatim": "FEDERAL COMPLIANCE: Parties comply with FinCEN Residential Real Estate Rule."
+  },
+
+  {
+    "shield_id": "Binding_Heirs",
+    "title": "Binding on Heirs",
+    "category": "legacy",
+    "order_weight": 400,
+    "mandatory_if": { "flags": [], "logic": "OR" },
+    "requires": [],
+    "conflicts_with": [],
+    "risk_tags": ["Estate_Sale"],
+    "placeholders": [],
+    "survives_closing": true,
+    "verbatim": "BINDING EFFECT: Agreement binds heirs and assigns."
+  },
+
+  {
+    "shield_id": "Survival",
+    "title": "Survival Clause",
+    "category": "legacy",
+    "order_weight": 410,
+    "mandatory_if": { "flags": [], "logic": "OR" },
+    "requires": [],
+    "conflicts_with": [],
+    "risk_tags": ["All"],
+    "placeholders": [],
+    "survives_closing": true,
+    "verbatim": "SURVIVAL: Representations survive closing."
+  }
+]
