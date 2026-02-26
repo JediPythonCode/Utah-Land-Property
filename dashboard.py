@@ -1,7 +1,6 @@
 import streamlit as st
 import streamlit.components.v1 as components
 import os
-import json
 
 # --- 1. CORE LOGIC ---
 try:
@@ -43,7 +42,7 @@ except ImportError:
     }
 
     def generate_utah_addendum(data, shields):
-        # dummy PDF for testing
+        # dummy pdf path for dev/testing
         return "temp.pdf"
 
 # --- 2. PAGE SETUP ---
@@ -57,7 +56,7 @@ st.set_page_config(
 # --- 3. PASSWORD SECRET ---
 SECRET_PASSWORD = st.secrets.get("acquisition_password", "defaultpassword")
 
-# Hide Streamlit default UI
+# Hide Streamlit UI completely
 st.markdown("""
     <style>
         #MainMenu, footer, header {visibility: hidden;}
@@ -66,11 +65,9 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- 4. HTML DASHBOARD ---
+# --- 4. HTML LAYOUT ---
 shield_keys = list(SHIELD_LIBRARY.keys())
-
-# Contract options: REPC first
-contracts = ["REPC"] + [k for k in shield_keys]
+contracts_list = ["REPC"] + [k for k in SHIELD_LIBRARY.keys() if k != "REPC"]
 
 html_content = f"""
 <!DOCTYPE html>
@@ -79,89 +76,73 @@ html_content = f"""
 <meta charset="UTF-8">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-:root {{ --bhhs-cabernet: #631D33; --overlay: rgba(0,0,0,0.35); }}
-body, html {{ margin:0; padding:0; font-family: 'Montserrat', sans-serif; background-color:#fcfcfc; overflow-x:hidden; }}
-.hero-container {{
-    position: relative;
-    height: 100vh;
-    width: 100%;
-    background-image: linear-gradient(var(--overlay), var(--overlay)), url('https://images.unsplash.com/photo-1572120360610-d971b9b6399d?auto=format&fit=crop&w=2070&q=80');
-    background-size: cover;
-    background-position: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    text-align: center;
-    transition: transform 0.8s cubic-bezier(0.4,0,0.2,1), opacity 0.6s ease;
-}}
+:root {{ --bhhs-cabernet: #631D33; --overlay: rgba(0, 0, 0, 0.45); }}
+body, html {{ margin:0; padding:0; font-family:'Montserrat', sans-serif; background-color:#fcfcfc; color:#1a1a1a; overflow-x:hidden; }}
+.hero-container {{ position:relative; height:100vh; width:100%; background-image: linear-gradient(var(--overlay), var(--overlay)), url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=2070'); background-size:cover; background-position:center; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; text-align:center; transition: transform 0.8s ease, opacity 0.6s ease; }}
 .action-bar {{ background:white; padding:0.5rem; display:flex; width:90%; max-width:900px; box-shadow:0 10px 40px rgba(0,0,0,0.4); }}
 .action-input {{ flex-grow:1; border:none; padding:1.2rem 2rem; font-size:1rem; color:#333; outline:none; }}
 .action-button {{ background:var(--bhhs-cabernet); color:white; padding:0 2.5rem; text-transform:uppercase; letter-spacing:2px; font-size:0.8rem; font-weight:600; cursor:pointer; border:none; }}
-#portal-overlay {{ position: fixed; inset:0; background: rgba(99,29,51,0.98); z-index:100; display:none; flex-direction:column; align-items:center; justify-content:center; color:white; backdrop-filter:blur(10px); }}
+#portal-overlay {{ position:fixed; inset:0; background: rgba(99,29,51,0.95); z-index:100; display:none; flex-direction:column; align-items:center; justify-content:center; color:white; backdrop-filter: blur(10px); }}
 .portal-card {{ background:white; padding:3.5rem; width:100%; max-width:480px; text-align:center; color:#333; }}
 #dashboard-view {{ display:none; opacity:0; transition: opacity 1s ease-in-out; }}
 .glass-card {{ background:white; border:1px solid #e5e7eb; box-shadow:0 4px 15px rgba(0,0,0,0.03); }}
 .accent-border {{ border-left:5px solid var(--bhhs-cabernet); }}
-.fade-out-up {{ transform: translateY(-100%); opacity:0; }}
+.fade-out-up {{ transform:translateY(-100%); opacity:0; }}
 .visible {{ display:block !important; opacity:1 !important; }}
-.contract-list input {{ margin-right:0.5rem; }}
+label {{ font-size:10px; text-transform:uppercase; font-weight:bold; color:#6b7280; }}
+input, select {{ font-size:14px; padding:0.5rem; border:1px solid #d1d5db; border-radius:5px; width:100%; }}
 </style>
 </head>
 <body>
 <section id="hero-section" class="hero-container">
-    <header class="absolute top-0 w-full p-10 flex justify-between items-center">
-        <div class="flex flex-col text-left">
-            <div class="text-2xl font-bold font-serif tracking-tight">UTAH LAND & PROPERTY</div>
-            <div class="text-[0.65rem] uppercase tracking-[3px]">Acquisition, Investment, Development</div>
-        </div>
+    <header class="absolute top-0 left-0 p-10">
+        <div class="text-2xl font-bold font-serif tracking-tight">UTAH LAND & PROPERTY</div>
+        <div class="text-[0.65rem] uppercase tracking-[3px]">Acquisition, Investment, Development</div>
     </header>
-    <div class="z-10 px-6">
+    <div class="z-10 px-6 text-center">
         <h1 class="text-7xl font-serif font-bold mb-2">Precision Acquisition.</h1>
-        <p class="text-[0.9rem] uppercase tracking-[6px] mb-6 font-300">The Gold Standard in Utah Land Asset Strategy.</p>
-        <p class="text-[10px] mb-12 text-gray-200">Utah Land & Property Inc, are not licensed real estate agents or real estate brokers. We are investment professionals. All activity is monitored and compliant with Utah state regulations.</p>
+        <p class="text-[0.9rem] uppercase tracking-[6px] mb-12 font-300">The Gold Standard in Utah Land Asset Strategy.</p>
         <div class="action-bar mx-auto">
             <input type="password" id="main-search" class="action-input" placeholder="Enter Acquisition ID...">
             <button onclick="togglePortal()" class="action-button">Access Vault</button>
         </div>
     </div>
+    <p class="mt-6 text-[10px] text-white">Utah Land & Property Inc, are not licensed real estate agents or real estate brokers. We are investment professionals. All activity is monitored and compliant with Utah state regulations.</p>
 </section>
 
 <section id="dashboard-view" class="min-h-screen bg-[#FDFDFD] pb-24">
-    <div class="max-w-7xl mx-auto px-10 mt-16">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-16">
-            <div class="glass-card p-12">
-                <h2 class="font-serif text-3xl mb-8">Contract Execution Center</h2>
+    <div class="max-w-7xl mx-auto px-10 mt-16 grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <div class="glass-card p-12 flex flex-col">
+            <h2 class="font-serif text-3xl mb-8">Property & Contract Details</h2>
+            <div class="space-y-4">
                 <div>
-                    <label class="text-[10px] uppercase font-bold text-gray-400">Seller Name</label>
-                    <input type="text" id="seller-name-input" value="Owen" class="w-full border-b border-gray-200 py-2 outline-none font-bold text-lg mb-4">
+                    <label>Seller Name</label>
+                    <input type="text" id="seller-name-input" value="Owen">
                 </div>
                 <div>
-                    <label class="text-[10px] uppercase font-bold text-gray-400">Property Address</label>
-                    <input type="text" id="property-address-input" placeholder="Enter Utah Address..." class="w-full border-b border-gray-200 py-2 outline-none font-bold text-lg mb-4">
+                    <label>Property Address</label>
+                    <input type="text" id="property-address-input" placeholder="Enter Utah Address">
                 </div>
                 <div>
-                    <label class="text-[10px] uppercase font-bold text-gray-400">Parcel ID</label>
-                    <input type="text" id="parcel-id-input" placeholder="Parcel ID..." class="w-full border-b border-gray-200 py-2 outline-none font-bold text-lg mb-4">
+                    <label>Parcel ID</label>
+                    <input type="text" id="parcel-id-input" placeholder="Enter Parcel ID">
                 </div>
                 <div>
-                    <label class="text-[10px] uppercase font-bold text-gray-400">Select Contracts / Addenda</label>
-                    <div class="contract-list flex flex-col gap-2 mt-2">
-                        {"".join([f'<label><input type="checkbox" class="contract-checkbox" value="{c}">{c}</label>' for c in contracts])}
-                    </div>
+                    <label>Select Contracts / Addenda</label>
+                    <select id="contracts-select" multiple size="10">
+                        {''.join([f'<option value="{c}">{c}</option>' for c in contracts_list])}
+                    </select>
                 </div>
                 <div class="pt-6">
-                    <button onclick="handleExecution()" class="w-full bg-[var(--bhhs-cabernet)] text-white py-4 font-bold uppercase tracking-[2px] text-xs">Execute & Preview</button>
+                    <button onclick="handleExecution()" class="w-full bg-[var(--bhhs-cabernet)] text-white py-4 font-bold uppercase tracking-[2px] text-xs">Preview & Bind Contracts</button>
                 </div>
             </div>
-            <div class="glass-card p-12">
-                <h2 class="font-serif text-3xl mb-8">Contract Preview Center</h2>
-                <textarea id="preview-area" class="w-full h-[400px] border border-gray-200 p-4 font-mono text-xs"></textarea>
-            </div>
+        </div>
+        <div class="glass-card p-12">
+            <h2 class="font-serif text-3xl mb-8">Preview</h2>
+            <textarea id="preview-area" rows="15" class="w-full border p-4" readonly></textarea>
         </div>
     </div>
 </section>
@@ -169,8 +150,9 @@ body, html {{ margin:0; padding:0; font-family: 'Montserrat', sans-serif; backgr
 <div id="portal-overlay">
     <div class="portal-card shadow-2xl">
         <div class="text-[var(--bhhs-cabernet)] font-serif text-3xl mb-3">Private Access Vault</div>
-        <p class="text-[10px] uppercase tracking-[3px] text-gray-400 mb-12">Authorized Client Entrance Only</p>
+        <input type="password" id="token" class="w-full border-b border-gray-300 py-3 outline-none mb-4 text-xl text-center" placeholder="••••••••">
         <button onclick="handleLogin()" class="w-full bg-[var(--bhhs-cabernet)] text-white py-4 font-bold uppercase">Enter Secure Portal</button>
+        <p class="mt-6 text-[10px] text-gray-500">Utah Land & Property Inc, are not licensed real estate agents or real estate brokers. We are investment professionals. All activity is monitored and compliant with Utah state regulations.</p>
     </div>
 </div>
 
@@ -199,20 +181,16 @@ function handleExecution() {{
     const name = document.getElementById('seller-name-input').value;
     const addr = document.getElementById('property-address-input').value;
     const parcel = document.getElementById('parcel-id-input').value;
-    const selected = Array.from(document.querySelectorAll('.contract-checkbox'))
-                        .filter(c => c.checked)
-                        .map(c => c.value);
-    const preview = `Seller: ${name}\\nAddress: ${addr}\\nParcel ID: ${parcel}\\nSelected Contracts: ${selected.join(', ')}`;
+    const selected = Array.from(document.getElementById('contracts-select').selectedOptions).map(opt => opt.value);
+    if(!addr || !name){{
+        alert("Seller name and address are required.");
+        return;
+    }}
+    const preview = "Seller: " + name + "\\nAddress: " + addr + "\\nParcel ID: " + parcel + "\\nSelected Contracts: " + selected.join(', ');
     document.getElementById('preview-area').value = preview;
-
-    window.parent.postMessage({{
-        type: 'execute_contract',
-        seller: name,
-        address: addr,
-        parcel: parcel,
-        contracts: selected
-    }}, '*');
-    alert("Contracts prepared for preview. Proceed to sidebar for PDF generation.");
+    // send to Streamlit sidebar for PDF generation
+    window.parent.postMessage({{type:'execute_contract', seller:name, address:addr, parcel:parcel, contracts:selected}}, '*');
+    alert("Preview generated. Confirm in sidebar to download PDF.");
 }}
 </script>
 </body>
@@ -224,28 +202,22 @@ components.html(html_content, height=1000, scrolling=True)
 
 # --- 6. SIDEBAR PDF ENGINE ---
 with st.sidebar:
-    st.markdown("### 💰 SECURE PRINTER TRAY")
-    st.info("Fill out inputs in the dashboard, select contracts, then click Execute & Preview to populate preview. Your PDF will appear here.")
-    
-    with st.expander("Stochastic Engine Settings", expanded=True):
-        final_seller = st.text_input("Confirm Seller", "Owen")
-        final_addr = st.text_input("Confirm Address", "")
-        final_parcel = st.text_input("Confirm Parcel ID", "")
-        selected_contracts = st.text_area("Selected Contracts", "")
+    st.markdown("### 🏔️ SECURE PRINTER TRAY")
+    st.info("Preview contracts above, then click below to generate your PDF.")
+
+    final_seller = st.text_input("Confirm Seller", "Owen")
+    final_addr = st.text_input("Confirm Address", "")
+    final_parcel = st.text_input("Confirm Parcel ID", "")
+    final_contracts = st.text_area("Confirm Contracts Selected (comma separated)")
 
     if st.button("Generate & Download PDF"):
-        if not final_addr:
-            st.error("Address Required.")
-        elif not selected_contracts.strip():
-            st.error("Select at least one contract.")
+        if not final_addr or not final_seller:
+            st.error("Seller Name and Address are required.")
+        elif not final_contracts.strip():
+            st.error("Please select at least one contract.")
         else:
-            data = {
-                "seller": final_seller,
-                "address": final_addr,
-                "parcel": final_parcel,
-                "contracts": selected_contracts.splitlines(),
-                "addendum_no": "1"
-            }
+            contracts_list_final = [c.strip() for c in final_contracts.split(",")]
+            data = {"seller": final_seller, "address": final_addr, "parcel": final_parcel, "contracts": contracts_list_final}
             path = generate_utah_addendum(data, shield_keys)
             if os.path.exists(path):
                 with open(path, "rb") as f:
