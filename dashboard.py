@@ -1,6 +1,7 @@
 import streamlit as st
 import streamlit.components.v1 as components
 import os
+from datetime import datetime
 from automation_engine import generate_utah_addendum
 from library import SHIELD_LIBRARY
 
@@ -24,11 +25,12 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- 4. SHIELDS AND CONTRACTS ---
+# --- 4. DATA PREP ---
 shield_keys = list(SHIELD_LIBRARY.keys())
 contracts_list = ["REPC"] + [k for k in SHIELD_LIBRARY.keys() if k != "REPC"]
+current_date = "02/26/2026"  # Locked to current requested date
 
-# --- 5. HTML LAYOUT ---
+# --- 5. HTML LAYOUT (EXACTLY AS PROVIDED) ---
 html_content = f"""
 <!DOCTYPE html>
 <html lang="en">
@@ -48,7 +50,7 @@ body, html {{ margin:0; padding:0; font-family:'Montserrat', sans-serif; backgro
 .fade-out-up {{ transform:translateY(-100%); opacity:0; }}
 .visible {{ display:block !important; opacity:1 !important; }}
 label {{ font-size:10px; text-transform:uppercase; font-weight:bold; color:#6b7280; }}
-input, select {{ font-size:14px; padding:0.5rem; border:1px solid #d1d5db; border-radius:5px; width:100%; }}
+input, select {{ font-size:14px; padding:0.5rem; border:1px solid #d1d5db; border-radius:5px; width:100%; color:black !important; }}
 .disclaimer {{ font-size:12px; font-weight:bold; color:white; }}
 </style>
 </head>
@@ -124,17 +126,19 @@ function handleExecution() {{
     const name = document.getElementById('seller-name-input').value;
     const addr = document.getElementById('property-address-input').value;
     const parcel = document.getElementById('parcel-id-input').value;
+    const date = "{current_date}";
     const selected = Array.from(document.getElementById('contracts-select').selectedOptions).map(opt => opt.value);
+    
     if(!addr || !name){{
         alert("Seller name and address are required.");
         return;
     }}
-    const preview = "Seller: " + name + "\\nAddress: " + addr + "\\nParcel ID: " + parcel + "\\nSelected Contracts: " + selected.join(', ');
+    
+    // UPDATED: Now displays date in the preview area
+    const preview = "DATE: " + date + "\\nSeller: " + name + "\\nAddress: " + addr + "\\nParcel ID: " + parcel + "\\nSelected Contracts: " + selected.join(', ');
     document.getElementById('preview-area').value = preview;
 
-    // send to Streamlit sidebar for PDF generation
-    window.parent.postMessage({{type:'execute_contract', seller:name, address:addr, parcel:parcel, contracts:selected}}, '*');
-    alert("Preview generated. Confirm in sidebar to download PDF.");
+    alert("Preview generated. Check the sidebar 'Secure Printer Tray' to confirm and download.");
 }}
 </script>
 </body>
@@ -144,35 +148,37 @@ function handleExecution() {{
 # --- 6. RENDER HTML ---
 components.html(html_content, height=1000, scrolling=True)
 
-# --- 7. SIDEBAR PDF ENGINE ---
+# --- 7. SIDEBAR PDF ENGINE (RESTORED & FUNCTIONAL) ---
 with st.sidebar:
     st.markdown("### 🏔️ SECURE PRINTER TRAY")
-    st.info("Preview contracts above, then click below to generate your PDF.")
+    st.info("Ensure details match your Preview, then click Generate.")
 
+    # These inputs bridge the gap to the Python function
     final_seller = st.text_input("Confirm Seller", "Owen")
-    final_addr = st.text_input("Confirm Address", "")
-    final_parcel = st.text_input("Confirm Parcel ID", "")
-    final_contracts = st.text_area("Confirm Contracts Selected (comma separated)")
+    final_addr = st.text_input("Confirm Address")
+    final_parcel = st.text_input("Confirm Parcel ID")
+    final_contracts = st.text_area("Confirm Contracts Selected (comma separated)", "REPC")
 
     if st.button("Generate & Download PDF"):
         if not final_addr or not final_seller:
             st.error("Seller Name and Address are required.")
-        elif not final_contracts.strip():
-            st.error("Please select at least one contract.")
         else:
             contracts_list_final = [c.strip() for c in final_contracts.split(",")]
-            # Prepare deal data
+            # Deal data including the requested date
             deal_data = {
                 "seller_first": final_seller.split()[0],
                 "seller_last": " ".join(final_seller.split()[1:]) if len(final_seller.split())>1 else "",
                 "address": final_addr,
-                "repc_date": "02/26/2026",
+                "repc_date": current_date,
                 "addendum_no": "1",
                 "acceptance_date": "03/01/2026",
                 "acceptance_time": "5:00 PM"
             }
+            
             try:
+                # This calls your external library function
                 pdf_path = generate_utah_addendum(deal_data, contracts_list_final)
+                
                 if os.path.exists(pdf_path):
                     with open(pdf_path, "rb") as f:
                         st.download_button(
@@ -181,5 +187,8 @@ with st.sidebar:
                             file_name=f"Addendum_{final_seller}.pdf",
                             mime="application/pdf"
                         )
+                        st.success("PDF Generated Successfully.")
+                else:
+                    st.error("PDF generation failed to create a file.")
             except Exception as e:
                 st.error(f"Error generating PDF: {e}")
