@@ -5,26 +5,45 @@ from datetime import datetime
 from automation_engine import generate_utah_addendum
 from library import SHIELD_LIBRARY
 
-# --- 1. PAGE SETUP (FULL-WIDTH ENFORCED) ---
+# --- 1. PAGE SETUP (FORCE SIDEBAR) ---
 st.set_page_config(
     page_title="Utah Land & Property | Secure Asset Portal",
     page_icon="💰",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded" 
 )
 
-# --- 2. CSS: KILL SIDE GAPS & HIDE UI ---
+# --- 2. CSS: SIDEBAR VISIBILITY & NO GAPS ---
 st.markdown("""
     <style>
         #MainMenu, footer, header {visibility: hidden;}
-        /* Eliminates the 1rem/5rem white padding on Streamlit's edges */
-        .block-container {
-            padding: 0rem !important;
+        
+        /* This pushes the main content to the right so it doesn't hide the sidebar */
+        .main .block-container {
+            padding-left: 5rem !important;
+            padding-right: 5rem !important;
             max-width: 100% !important;
         }
-        [data-testid="stAppViewContainer"] { background-color: #fcfcfc; }
-        [data-testid="stSidebar"] { background-color: #1a1a1a; border-left: 1px solid #333; }
-        .stButton>button { background-color: #631D33 !important; color: white !important; font-weight: bold; border-radius: 0; height: 50px; }
+
+        /* High-contrast Sidebar */
+        [data-testid="stSidebar"] {
+            background-color: #631D33 !important;
+            color: white !important;
+            border-right: 2px solid #D4AF37;
+        }
+        
+        /* Make sidebar text white for readability */
+        [data-testid="stSidebar"] p, [data-testid="stSidebar"] label {
+            color: white !important;
+        }
+
+        .stButton>button { 
+            background-color: #D4AF37 !important; 
+            color: black !important; 
+            font-weight: bold; 
+            border-radius: 0; 
+            width: 100%; 
+        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -32,7 +51,7 @@ st.markdown("""
 SECRET_PASSWORD = st.secrets.get("acquisition_password", "gold2026")
 contracts_list = ["REPC"] + [k for k in SHIELD_LIBRARY.keys() if k != "REPC"]
 
-# --- 4. HTML/CSS (UNTOUCHED LAYOUT + DYNAMIC DATE READY) ---
+# --- 4. HTML/CSS DASHBOARD ---
 html_content = f"""
 <!DOCTYPE html>
 <html lang="en">
@@ -42,8 +61,8 @@ html_content = f"""
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
 :root {{ --bhhs-cabernet: #631D33; --overlay: rgba(0, 0, 0, 0.45); }}
-body, html {{ margin:0; padding:0; font-family:'Montserrat', sans-serif; background-color:#fcfcfc; color:#1a1a1a; overflow-x:hidden; width:100vw; }}
-.hero-container {{ position:relative; height:100vh; width:100vw; background-image: linear-gradient(var(--overlay), var(--overlay)), url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=2070'); background-size:cover; background-position:center; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; text-align:center; }}
+body, html {{ margin:0; padding:0; font-family:'Montserrat', sans-serif; background-color:#fcfcfc; color:#1a1a1a; overflow-x:hidden; }}
+.hero-container {{ position:relative; height:100vh; width:100%; background-image: linear-gradient(var(--overlay), var(--overlay)), url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=2070'); background-size:cover; background-position:center; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; text-align:center; }}
 .action-bar {{ background:white; padding:0.5rem; display:flex; width:90%; max-width:900px; box-shadow:0 10px 40px rgba(0,0,0,0.4); }}
 .action-input {{ flex-grow:1; border:none; padding:1.2rem 2rem; font-size:1rem; color:#333; outline:none; }}
 .action-button {{ background:var(--bhhs-cabernet); color:white; padding:0 2.5rem; text-transform:uppercase; letter-spacing:2px; font-size:0.8rem; font-weight:600; cursor:pointer; border:none; }}
@@ -87,11 +106,11 @@ input, select {{ font-size:14px; padding:0.5rem; border:1px solid #d1d5db; borde
                         {"".join([f'<option value="{c}">{c}</option>' for c in contracts_list])}
                     </select>
                 </div>
-                <button onclick="syncData()" class="w-full bg-[var(--bhhs-cabernet)] text-white py-4 font-bold uppercase tracking-[2px] text-xs">Preview & Sync</button>
+                <button onclick="syncData()" class="w-full bg-[var(--bhhs-cabernet)] text-white py-4 font-bold uppercase tracking-[2px] text-xs">Sync to Sidebar Printer</button>
             </div>
         </div>
         <div class="glass-card p-12">
-            <h2 class="font-serif text-3xl mb-8">Contract Preview</h2>
+            <h2 class="font-serif text-3xl mb-8">Status Log</h2>
             <textarea id="preview-area" rows="15" class="w-full border p-4 font-mono text-sm" readonly></textarea>
         </div>
     </div>
@@ -107,9 +126,7 @@ function handleLogin() {{
 function syncData() {{
     const name = document.getElementById('s-name').value;
     const addr = document.getElementById('s-addr').value;
-    const selected = Array.from(document.getElementById('s-contracts').selectedOptions).map(opt => opt.value);
-    document.getElementById('preview-area').value = "READY TO BIND\\nSELLER: "+name+"\\nADDR: "+addr+"\\n\\nNEXT STEP: Open Sidebar, select Date, and Print.";
-    alert("Synced to Sidebar. Finalize the date there.");
+    document.getElementById('preview-area').value = "READY TO BIND\\nSELLER: "+name+"\\nADDR: "+addr+"\\n\\nSIDEBAR PRINTER IS NOW ACTIVE ON THE LEFT.";
 }}
 </script>
 </body>
@@ -118,34 +135,33 @@ function syncData() {{
 
 components.html(html_content, height=1000, scrolling=True)
 
-# --- 5. SIDEBAR: THE SECURE DATA BRIDGE ---
+# --- 5. SIDEBAR: SECURE PRINTER (FORCED VISIBLE ON LEFT) ---
 with st.sidebar:
-    st.markdown("### 🏔️ SECURE PRINTER")
+    st.title("🏔️ PRINTER TRAY")
+    st.markdown("Select your date and verify before generating.")
     
-    # CALENDAR FOR DYNAMIC DATE SELECTION
+    # DYNAMIC DATE PICKER
     selected_date = st.date_input("Contract Date", datetime.now())
-    st.divider()
     
-    f_n = st.text_input("Confirm Seller", value="Owen")
-    f_a = st.text_input("Confirm Address")
-    f_p = st.text_input("Confirm Parcel ID")
-    f_t = st.text_area("Confirm Contracts (REPC, etc.)")
+    st.markdown("---")
+    f_n = st.text_input("Verify Seller", value="Owen")
+    f_a = st.text_input("Verify Address")
+    f_p = st.text_input("Verify Parcel ID")
+    f_t = st.text_area("Selected Docs (comma separated)")
 
-    if st.button("EXECUTE BINDING & DOWNLOAD"):
+    if st.button("GENERATE FINAL PDF"):
         if f_n and f_a:
-            # Map data precisely to what automation_engine.py expects
-            deal_data = {
+            deal_data = {{
                 "seller_name": f_n,
                 "address": f_a,
                 "parcel_id": f_p,
                 "repc_date": selected_date.strftime("%m/%d/%Y"),
                 "addendum_no": "1"
-            }
+            }}
             try:
-                # Triggers pypdf through your local engine
-                pdf_path = generate_utah_addendum(deal_data, [c.strip() for c in f_t.split(",")])
-                if pdf_path and os.path.exists(pdf_path):
-                    with open(pdf_path, "rb") as f:
-                        st.download_button("📥 DOWNLOAD FINALIZED REPC", f, file_name=f"REPC_{f_n}.pdf")
+                pdf = generate_utah_addendum(deal_data, [c.strip() for c in f_t.split(",")])
+                if pdf and os.path.exists(pdf):
+                    with open(pdf, "rb") as f:
+                        st.download_button("📥 DOWNLOAD REPC", f, file_name=f"REPC_{f_n}.pdf")
             except Exception as e:
-                st.error(f"Mapping Error: {e}")
+                st.error(f"Error: {e}")
