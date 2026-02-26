@@ -49,7 +49,7 @@ body, html {{ margin:0; padding:0; font-family:'Montserrat', sans-serif; backgro
 .visible {{ display:block !important; opacity:1 !important; }}
 label {{ font-size:10px; text-transform:uppercase; font-weight:bold; color:#6b7280; }}
 input, select {{ font-size:14px; padding:0.5rem; border:1px solid #d1d5db; border-radius:5px; width:100%; }}
-.disclaimer {{ font-size:14px; font-weight:bold; color:white; margin-top:1rem; text-align:center; }}
+.disclaimer {{ font-size:12px; font-weight:bold; color:white; }}
 </style>
 </head>
 <body>
@@ -142,7 +142,7 @@ function handleExecution() {{
 """
 
 # --- 6. RENDER HTML ---
-components.html(html_content, height=1200, scrolling=True)
+components.html(html_content, height=1000, scrolling=True)
 
 # --- 7. SIDEBAR PDF ENGINE ---
 with st.sidebar:
