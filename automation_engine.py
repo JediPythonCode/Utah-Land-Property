@@ -46,7 +46,16 @@ owen_deal = {
     "addendum_no": "1"
 }
 
-# The Litigation-Resilient Selection
-shields = ["Capacity_Sovereignty", "Independent_Counsel", "Legacy_Unit_SNDA", "FinCEN_BOI_2026"]
+# Shields that exist in your SHIELD_LIBRARY
+shields = [
+    "SubTo_Disclosure",          # Subject-To disclosure
+    "Legacy_Unit_SNDA",          # Owen's Lot SNDA shield
+    "FinCEN_2026",               # FinCEN compliance
+    "BOI_Compliance",            # Beneficial Ownership compliance
+    "As_Is_Condition",           # Property sold as-is
+    "Condition_Claims_Release",  # Releases claims on property condition
+    "Equitable_Interest_Only",   # Buyer only gets equitable interest
+    "Closing_Cooperation"        # Seller must cooperate for closing
+]
 
 print(generate_utah_addendum(owen_deal, shields))
