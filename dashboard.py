@@ -19,7 +19,6 @@ def generate_asset_packet(deal_data, selected_contracts):
     dd_deadline = (today + timedelta(days=14)).strftime("%m/%d/%Y")
     settlement = (today + timedelta(days=30)).strftime("%m/%d/%Y")
 
-    # This mapping targets the official Utah Commerce PDF fields
     field_mapping = {
         "Seller": deal_data['seller_name'],
         "Buyer": "Utah Land & Property Inc",
@@ -48,18 +47,25 @@ def generate_asset_packet(deal_data, selected_contracts):
         output_files.append(output_path)
     return output_files[0] if output_files else None
 
-# --- 3. CSS (LOCKED FOR FULL-WIDTH) ---
+# --- 3. CSS (FORCED FULL-WIDTH & NO GAPS) ---
 st.markdown("""
     <style>
+        /* This kills the side gaps on the left and right */
+        .block-container {
+            padding-top: 0rem !important;
+            padding-bottom: 0rem !important;
+            padding-left: 0rem !important;
+            padding-right: 0rem !important;
+            max-width: 100% !important;
+        }
         #MainMenu, footer, header {visibility: hidden;}
-        .block-container {padding: 0 !important; max-width: 100% !important;}
         [data-testid="stAppViewContainer"] { background-color: #fcfcfc; overflow: hidden; }
         [data-testid="stSidebar"] { background-color: #1a1a1a; border-left: 1px solid #333; }
         .stButton>button { background-color: #631D33 !important; color: white !important; font-weight: bold; border-radius: 0; height: 50px; width: 100%; }
     </style>
 """, unsafe_allow_html=True)
 
-# --- 4. THE ORIGINAL DESIGN ---
+# --- 4. THE ORIGINAL DESIGN (DISCLAIMER RESTORED) ---
 SECRET_PASSWORD = st.secrets.get("acquisition_password", "gold2026")
 
 html_content = f"""
@@ -71,7 +77,7 @@ html_content = f"""
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
 :root {{ --bhhs-cabernet: #631D33; --overlay: rgba(0, 0, 0, 0.45); }}
-body, html {{ margin:0; padding:0; font-family:'Montserrat', sans-serif; background-color:#fcfcfc; color:#1a1a1a; overflow-x:hidden; width: 100vw; }}
+body, html {{ margin:0; padding:0; font-family:'Montserrat', sans-serif; background-color:#fcfcfc; color:#1a1a1a; overflow-x:hidden; width: 100vw; height: 100vh; }}
 .hero-container {{ position:relative; height:100vh; width:100vw; background-image: linear-gradient(var(--overlay), var(--overlay)), url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=2070'); background-size:cover; background-position:center; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; text-align:center; }}
 .action-bar {{ background:white; padding:0.5rem; display:flex; width:90%; max-width:900px; box-shadow:0 10px 40px rgba(0,0,0,0.4); }}
 .action-input {{ flex-grow:1; border:none; padding:1.2rem 2rem; font-size:1rem; color:#333; outline:none; }}
@@ -81,7 +87,7 @@ body, html {{ margin:0; padding:0; font-family:'Montserrat', sans-serif; backgro
 .visible {{ display:block !important; opacity:1 !important; }}
 label {{ font-size:10px; text-transform:uppercase; font-weight:bold; color:#6b7280; }}
 input {{ font-size:14px; padding:0.5rem; border:1px solid #d1d5db; border-radius:4px; width:100%; color: black !important; }}
-.disclaimer {{ font-size:12px; font-weight:bold; color:white; position: absolute; bottom: 40px; width: 100%; text-align: center; }}
+.disclaimer-box {{ font-size:12px; font-weight:bold; color:white; position: absolute; bottom: 30px; width: 80%; text-align: center; line-height: 1.5; }}
 </style>
 </head>
 <body>
@@ -98,7 +104,9 @@ input {{ font-size:14px; padding:0.5rem; border:1px solid #d1d5db; border-radius
             <button onclick="handleLogin()" class="action-button">Enter Vault</button>
         </div>
     </div>
-    <p class="disclaimer">Utah Land & Property Inc, are not licensed real estate agents or brokers. We are investment professionals. All activity is monitored and compliant with Utah regulations.</p>
+    <div class="disclaimer-box">
+        Utah Land & Property Inc, are not licensed real estate agents or brokers. We are investment professionals. All activity is monitored and compliant with Utah regulations.
+    </div>
 </section>
 
 <section id="dashboard-view" class="min-h-screen bg-[#FDFDFD] pb-24">
@@ -122,8 +130,11 @@ input {{ font-size:14px; padding:0.5rem; border:1px solid #d1d5db; border-radius
 <script>
 function handleLogin() {{
     if(document.getElementById('main-search').value === "{SECRET_PASSWORD}") {{
-        document.getElementById('hero-section').style.display = 'none';
-        document.getElementById('dashboard-view').classList.add('visible');
+        document.getElementById('hero-section').classList.add('fade-out-up');
+        setTimeout(() => {{
+            document.getElementById('hero-section').style.display = 'none';
+            document.getElementById('dashboard-view').classList.add('visible');
+        }}, 700);
     }} else {{ alert('Access Denied'); }}
 }}
 function syncData() {{
@@ -131,14 +142,14 @@ function syncData() {{
     const addr = document.getElementById('s-addr').value;
     const p = document.getElementById('s-parcel').value;
     document.getElementById('preview-area').value = "CONTRACT BINDING LOG\\nDATE: 02/26/2026\\nSELLER: "+name+"\\nADDR: "+addr+"\\nPARCEL: "+p+"\\n\\nLOG READY. OPEN SIDEBAR TO PRINT.";
-    alert("Data Verified. Confirm in the Sidebar to download the official Utah REPC.");
+    alert("Data Verified. Confirm in the Sidebar to download.");
 }}
 </script>
 </body>
 </html>
 """
 
-components.html(html_content, height=1000, scrolling=True)
+components.html(html_content, height=1000, scrolling=False)
 
 # --- 5. SIDEBAR BRIDGE ---
 with st.sidebar:
