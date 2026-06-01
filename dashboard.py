@@ -71,36 +71,31 @@ input, select {{ font-size:14px; padding:0.5rem; border:1px solid #d1d5db; borde
 </section>
 
 <section id="dashboard-view" class="min-h-screen bg-[#FDFDFD] pb-24">
-    <div class="max-w-7xl mx-auto px-10 mt-16 grid grid-cols-1 lg:grid-cols-2 gap-10">
-        <div class="glass-card p-12 flex flex-col">
-            <h2 class="font-serif text-3xl mb-8">Property & Contract Details</h2>
-            <div class="space-y-4">
-                <div>
-                    <label>Seller Name</label>
-                    <input type="text" id="seller-name-input" value="Owen">
-                </div>
-                <div>
-                    <label>Property Address</label>
-                    <input type="text" id="property-address-input" placeholder="Enter Utah Address">
-                </div>
-                <div>
-                    <label>Parcel ID</label>
-                    <input type="text" id="parcel-id-input" placeholder="Enter Parcel ID">
-                </div>
-                <div>
-                    <label>Select Contracts / Addenda</label>
-                    <select id="contracts-select" multiple size="10">
-                        {''.join([f'<option value="{c}">{c}</option>' for c in contracts_list])}
-                    </select>
-                </div>
-                <div class="pt-6">
-                    <button onclick="handleExecution()" class="w-full bg-[var(--bhhs-cabernet)] text-white py-4 font-bold uppercase tracking-[2px] text-xs">Preview & Bind Contracts</button>
-                </div>
+    <div class="max-w-7xl mx-auto px-10 mt-16">
+        <div class="flex justify-between mb-12 border-b pb-8">
+            <div class="text-sm font-bold uppercase tracking-widest text-gray-400">Status: <span id="deal-status" class="text-bhhs-cabernet">Initial Review</span></div>
+            <div class="flex gap-4">
+                <button class="bg-gray-100 px-6 py-2 text-xs font-bold uppercase">Upload Documents</button>
+                <button class="bg-[var(--bhhs-cabernet)] text-white px-6 py-2 text-xs font-bold uppercase">Request E-Sign</button>
             </div>
         </div>
-        <div class="glass-card p-12">
-            <h2 class="font-serif text-3xl mb-8">Preview</h2>
-            <textarea id="preview-area" rows="15" class="w-full border p-4" readonly></textarea>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            <div class="lg:col-span-2 glass-card p-12">
+                <h2 class="font-serif text-3xl mb-8">Deal Flow Overview</h2>
+                <div id="file-upload-zone" class="border-2 border-dashed p-10 text-center">
+                    <p class="text-gray-500">Drag & Drop Property Disclosures or Addenda here</p>
+                </div>
+            </div>
+
+            <div class="glass-card p-8">
+                <h3 class="font-bold mb-4">Transaction Audit</h3>
+                <ul id="audit-log" class="text-xs space-y-4 text-gray-600">
+                    <li>✓ Vault Access Granted</li>
+                    <li>○ Contract Review Pending</li>
+                    <li>○ File Submission Required</li>
+                </ul>
+            </div>
         </div>
     </div>
 </section>
