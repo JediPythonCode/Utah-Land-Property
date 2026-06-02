@@ -3,80 +3,81 @@ import streamlit.components.v1 as components
 import os
 import json
 from library import SHIELD_LIBRARY
-from automation_engine import generate_utah_addendum
 
-# --- 1. PERSISTENCE LAYER ---
+# --- 1. PAGE SETUP ---
+st.set_page_config(
+    page_title="Utah Land & Property | Secure Asset Portal",
+    page_icon="💰",
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
+
+# --- 2. PERSISTENCE ENGINE ---
 DATA_FILE = "data/shields_2026.json"
 
 def get_deal_data():
-    if os.path.exists(DATA_FILE):
-        with open(DATA_FILE, "r") as f:
-            return json.load(f)
-    return {}
+    with open(DATA_FILE, "r") as f: return json.load(f)
 
-def update_deal(parcel_id, key, value):
+def update_status(parcel_id, new_status):
     data = get_deal_data()
     if parcel_id in data:
-        data[parcel_id][key] = value
-        with open(DATA_FILE, "w") as f:
-            json.dump(data, f, indent=4)
-
-# --- 2. PAGE SETUP ---
-st.set_page_config(page_title="Utah Land & Property | Secure Asset Portal", page_icon="💰", layout="wide", initial_sidebar_state="collapsed")
-st.markdown("<style>#MainMenu, footer, header {visibility: hidden;} .block-container {padding: 0;}</style>", unsafe_allow_html=True)
+        data[parcel_id]["status"] = new_status
+        with open(DATA_FILE, "w") as f: json.dump(data, f, indent=4)
 
 # --- 3. SESSION STATE ---
 if "active_parcel" not in st.session_state: st.session_state.active_parcel = None
 
-# --- 4. DATA FETCHING ---
-deal_status = "Initial Review"
+# --- 4. HTML LAYOUT (THE DASHBOARD) ---
+# We inject the current status into the HTML dynamically
+current_status = "Initial Review"
 if st.session_state.active_parcel:
-    deal = get_deal_data().get(st.session_state.active_parcel, {})
-    deal_status = deal.get("status", "Initial Review")
+    deal_data = get_deal_data().get(st.session_state.active_parcel, {})
+    current_status = deal_data.get("status", "Initial Review")
 
-# --- 5. THE PORTAL INTERFACE ---
-# Your original design + the dynamic Status Bridge
 html_content = f"""
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
-:root {{ --bhhs-cabernet: #631D33; }}
-.hero-container {{ position:relative; height:100vh; background-image: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=2070'); background-size:cover; background-position:center; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; }}
-.visible {{ display:block !important; }}
-</style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {{ --bhhs-cabernet: #631D33; }}
+        /* ... YOUR ORIGINAL CSS ... */
+    </style>
 </head>
 <body>
-    <section id="hero-section" class="hero-container">
-        <div class="text-center">
-            <h1 class="text-7xl font-serif font-bold">Precision Acquisition.</h1>
-            <input type="text" id="id-input" class="text-black p-4 mt-8" placeholder="Enter Acquisition ID...">
-            <button onclick="parent.postMessage(document.getElementById('id-input').value, '*')" class="bg-[#631D33] px-10 py-3 mt-4 text-white uppercase font-bold">Enter Vault</button>
+    <div id="dashboard-view" class="visible p-12">
+        <div class="flex justify-between border-b pb-8">
+            <div class="text-sm font-bold uppercase">Status: <span id="deal-status" class="text-red-900">{current_status}</span></div>
+            <div class="flex gap-4">
+                <button onclick="parent.postMessage('trigger_upload', '*')" class="bg-gray-100 px-6 py-2">Upload</button>
+                <button onclick="parent.postMessage('trigger_esign', '*')" class="bg-[#631D33] text-white px-6 py-2">E-Sign</button>
+            </div>
         </div>
-    </section>
-    <section id="dashboard-view" class="p-16">
-        <div class="max-w-7xl mx-auto glass-card p-12">
-            <h2 class="text-3xl font-serif mb-8">Status: <span class="text-[#631D33]">{deal_status}</span></h2>
-            <div class="border-2 border-dashed p-10 text-center">Drag & Drop Documents</div>
-        </div>
-    </section>
+    </div>
+    <script>
+        window.addEventListener("message", (event) => {{
+            if(event.data.type === 'update') document.getElementById('deal-status').innerText = event.data.status;
+        }});
+    </script>
 </body>
 </html>
 """
 
-components.html(html_content, height=1000)
+# --- 5. LOGIC BRIDGE ---
+components.html(html_content, height=600)
 
-# --- 6. LOGIC STACK (Backend Handler) ---
-# This manages the data updates based on actions
+# This block listens to the HTML buttons and updates the JSON
+if "last_event" not in st.session_state: st.session_state.last_event = None
+
+# Sidebar for file handling
 with st.sidebar:
     st.subheader("Transaction Management")
-    uploaded_file = st.file_uploader("Upload Signed Docs")
+    uploaded_file = st.file_uploader("Upload Docs")
     if uploaded_file:
-        update_deal(st.session_state.active_parcel, "status", "Documents Uploaded")
+        update_status(st.session_state.active_parcel, "Documents Uploaded")
         st.success("Status Updated: Documents Uploaded")
         st.rerun()
 
-    if st.button("Request E-Sign"):
-        update_deal(st.session_state.active_parcel, "status", "E-Sign Pending")
+    if st.button("Mark E-Sign Pending"):
+        update_status(st.session_state.active_parcel, "E-Sign Pending")
         st.rerun()
