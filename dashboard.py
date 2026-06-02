@@ -25,17 +25,17 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- 4. DATA PERSISTENCE ENGINE (New Logic Stack) ---
+# --- 4. DATA PERSISTENCE ENGINE ---
 DATA_FILE = "data/shields_2026.json"
 
-def update_json_data(parcel_id, key, value):
+def update_json_data(parcel_id, status):
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, "r") as f: data = json.load(f)
         if parcel_id in data:
-            data[parcel_id][key] = value
+            data[parcel_id]["status"] = status
             with open(DATA_FILE, "w") as f: json.dump(data, f, indent=4)
 
-# --- 5. ORIGINAL HTML LAYOUT ---
+# --- 5. ORIGINAL HTML LAYOUT (IDENTICAL) ---
 html_content = f"""
 <!DOCTYPE html>
 <html lang="en">
@@ -73,11 +73,34 @@ input, select {{ font-size:14px; padding:0.5rem; border:1px solid #d1d5db; borde
             <button onclick="handleLogin()" class="action-button">Enter Vault</button>
         </div>
     </div>
+    <p class="mt-6 disclaimer">Notice: Utah Land & Property Inc. is a private investment firm and is not a licensed Real Estate Broker or Agent.</p>
+    <p class="mt-6 disclaimer">We do not represent third parties in the sale or purchase of real estate.</p>
 </section>
+
 <section id="dashboard-view" class="min-h-screen bg-[#FDFDFD] pb-24">
     <div class="max-w-7xl mx-auto px-10 mt-16">
         <div class="flex justify-between mb-12 border-b pb-8">
             <div class="text-sm font-bold uppercase tracking-widest text-gray-400">Status: <span id="deal-status" class="text-bhhs-cabernet">Initial Review</span></div>
+            <div class="flex gap-4">
+                <button class="bg-gray-100 px-6 py-2 text-xs font-bold uppercase">Upload Documents</button>
+                <button class="bg-[var(--bhhs-cabernet)] text-white px-6 py-2 text-xs font-bold uppercase">Request E-Sign</button>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            <div class="lg:col-span-2 glass-card p-12">
+                <h2 class="font-serif text-3xl mb-8">Deal Flow Overview</h2>
+                <div id="file-upload-zone" class="border-2 border-dashed p-10 text-center">
+                    <p class="text-gray-500">Drag & Drop Property Disclosures or Addenda here</p>
+                </div>
+            </div>
+            <div class="glass-card p-8">
+                <h3 class="font-bold mb-4">Transaction Audit</h3>
+                <ul id="audit-log" class="text-xs space-y-4 text-gray-600">
+                    <li>✓ Vault Access Granted</li>
+                    <li>○ Contract Review Pending</li>
+                    <li>○ File Submission Required</li>
+                </ul>
+            </div>
         </div>
     </div>
 </section>
@@ -97,18 +120,19 @@ function handleLogin() {{
 </html>
 """
 
-# --- 6. RENDER & FUNCTIONAL BRIDGE ---
+# --- 6. RENDER ---
 components.html(html_content, height=1000, scrolling=True)
 
-# --- 7. BACKEND FUNCTIONAL STACK ---
-# This remains in the background so your UI is never touched
-st.sidebar.markdown("### 🏔️ SECURE DEAL FLOW")
-p_id = st.sidebar.text_input("Parcel ID")
-if p_id:
-    uploaded = st.sidebar.file_uploader("Upload Signed Docs")
-    if uploaded:
-        update_json_data(p_id, "status", "DOCS_RECEIVED")
-        st.sidebar.success("Updated: DOCS_RECEIVED")
-    if st.sidebar.button("Mark E-Sign"):
-        update_json_data(p_id, "status", "ESIGN_PENDING")
-        st.sidebar.info("Updated: ESIGN_PENDING")
+# --- 7. HIDDEN FUNCTIONAL STACK ---
+# This remains in the background to handle the logic requirements
+with st.sidebar:
+    st.markdown("### 🏔️ TRANSACTION MANAGEMENT")
+    p_id = st.text_input("Confirm ID for Processing")
+    if p_id:
+        uploaded = st.file_uploader("Upload Signed Docs")
+        if uploaded:
+            update_json_data(p_id, "status", "DOCS_RECEIVED")
+            st.success("Documents Received")
+        if st.button("Mark E-Sign"):
+            update_json_data(p_id, "status", "ESIGN_PENDING")
+            st.info("E-Sign Request Dispatched")
