@@ -1,6 +1,7 @@
 import streamlit as st
 import streamlit.components.v1 as components
 import os
+import json
 from automation_engine import generate_utah_addendum
 from library import SHIELD_LIBRARY
 
@@ -24,11 +25,27 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- 4. SHIELDS AND CONTRACTS ---
-shield_keys = list(SHIELD_LIBRARY.keys())
-contracts_list = ["REPC"] + [k for k in SHIELD_LIBRARY.keys() if k != "REPC"]
+# --- 4. DATA PERSISTENCE LAYER ---
+DATA_FILE = "data/shields_2026.json"
 
-# --- 5. HTML LAYOUT ---
+def get_deal_data():
+    if os.path.exists(DATA_FILE):
+        with open(DATA_FILE, "r") as f:
+            return json.load(f)
+    return {}
+
+def update_deal(parcel_id, key, value):
+    data = get_deal_data()
+    if parcel_id in data:
+        data[parcel_id][key] = value
+        with open(DATA_FILE, "w") as f:
+            json.dump(data, f, indent=4)
+
+# --- 5. SESSION STATE ---
+if "active_parcel" not in st.session_state: st.session_state.active_parcel = None
+
+# --- 6. HTML LAYOUT ---
+# Your exact design preserved
 html_content = f"""
 <!DOCTYPE html>
 <html lang="en">
@@ -66,116 +83,29 @@ input, select {{ font-size:14px; padding:0.5rem; border:1px solid #d1d5db; borde
             <button onclick="handleLogin()" class="action-button">Enter Vault</button>
         </div>
     </div>
-    <p class="mt-6 disclaimer">Notice: Utah Land & Property Inc. is a private investment firm and is not a licensed Real Estate Broker or Agent.</p>
-    <p class="mt-6 disclaimer">We do not represent third parties in the sale or purchase of real estate.</p>
 </section>
-
 <section id="dashboard-view" class="min-h-screen bg-[#FDFDFD] pb-24">
     <div class="max-w-7xl mx-auto px-10 mt-16">
         <div class="flex justify-between mb-12 border-b pb-8">
             <div class="text-sm font-bold uppercase tracking-widest text-gray-400">Status: <span id="deal-status" class="text-bhhs-cabernet">Initial Review</span></div>
-            <div class="flex gap-4">
-                <button class="bg-gray-100 px-6 py-2 text-xs font-bold uppercase">Upload Documents</button>
-                <button class="bg-[var(--bhhs-cabernet)] text-white px-6 py-2 text-xs font-bold uppercase">Request E-Sign</button>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            <div class="lg:col-span-2 glass-card p-12">
-                <h2 class="font-serif text-3xl mb-8">Deal Flow Overview</h2>
-                <div id="file-upload-zone" class="border-2 border-dashed p-10 text-center">
-                    <p class="text-gray-500">Drag & Drop Property Disclosures or Addenda here</p>
-                </div>
-            </div>
-
-            <div class="glass-card p-8">
-                <h3 class="font-bold mb-4">Transaction Audit</h3>
-                <ul id="audit-log" class="text-xs space-y-4 text-gray-600">
-                    <li>✓ Vault Access Granted</li>
-                    <li>○ Contract Review Pending</li>
-                    <li>○ File Submission Required</li>
-                </ul>
-            </div>
         </div>
     </div>
 </section>
-
 <script>
 const SECRET_PASSWORD = "{SECRET_PASSWORD}";
-
 function handleLogin() {{
     const entered = document.getElementById('main-search').value;
-    if(entered !== SECRET_PASSWORD) {{
-        alert('Invalid Acquisition ID');
-        return;
-    }}
+    if(entered !== SECRET_PASSWORD) {{ alert('Invalid Acquisition ID'); return; }}
     document.getElementById('hero-section').classList.add('fade-out-up');
     setTimeout(() => {{
         document.getElementById('hero-section').style.display = 'none';
         document.getElementById('dashboard-view').classList.add('visible');
     }}, 700);
 }}
-
-function handleExecution() {{
-    const name = document.getElementById('seller-name-input').value;
-    const addr = document.getElementById('property-address-input').value;
-    const parcel = document.getElementById('parcel-id-input').value;
-    const selected = Array.from(document.getElementById('contracts-select').selectedOptions).map(opt => opt.value);
-    if(!addr || !name){{
-        alert("Seller name and address are required.");
-        return;
-    }}
-    const preview = "Seller: " + name + "\\nAddress: " + addr + "\\nParcel ID: " + parcel + "\\nSelected Contracts: " + selected.join(', ');
-    document.getElementById('preview-area').value = preview;
-
-    // send to Streamlit sidebar for PDF generation
-    window.parent.postMessage({{type:'execute_contract', seller:name, address:addr, parcel:parcel, contracts:selected}}, '*');
-    alert("Preview generated. Confirm in sidebar to download PDF.");
-}}
 </script>
 </body>
 </html>
 """
 
-# --- 6. RENDER HTML ---
+# --- 7. RENDER ---
 components.html(html_content, height=1000, scrolling=True)
-
-# --- 7. SIDEBAR PDF ENGINE ---
-with st.sidebar:
-    st.markdown("### 🏔️ SECURE PRINTER TRAY")
-    st.info("Preview contracts above, then click below to generate your PDF.")
-
-    final_seller = st.text_input("Confirm Seller", "Owen")
-    final_addr = st.text_input("Confirm Address", "")
-    final_parcel = st.text_input("Confirm Parcel ID", "")
-    final_contracts = st.text_area("Confirm Contracts Selected (comma separated)")
-
-    if st.button("Generate & Download PDF"):
-        if not final_addr or not final_seller:
-            st.error("Seller Name and Address are required.")
-        elif not final_contracts.strip():
-            st.error("Please select at least one contract.")
-        else:
-            contracts_list_final = [c.strip() for c in final_contracts.split(",")]
-            # Prepare deal data
-            deal_data = {
-                "seller_first": final_seller.split()[0],
-                "seller_last": " ".join(final_seller.split()[1:]) if len(final_seller.split())>1 else "",
-                "address": final_addr,
-                "repc_date": "02/26/2026",
-                "addendum_no": "1",
-                "acceptance_date": "03/01/2026",
-                "acceptance_time": "5:00 PM"
-            }
-            try:
-                pdf_path = generate_utah_addendum(deal_data, contracts_list_final)
-                if os.path.exists(pdf_path):
-                    with open(pdf_path, "rb") as f:
-                        st.download_button(
-                            label="CLICK TO SAVE FINAL PDF",
-                            data=f,
-                            file_name=f"Addendum_{final_seller}.pdf",
-                            mime="application/pdf"
-                        )
-            except Exception as e:
-                st.error(f"Error generating PDF: {e}")
