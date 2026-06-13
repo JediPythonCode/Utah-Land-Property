@@ -66,10 +66,10 @@ input, select {{ font-size:14px; padding:0.5rem; border:1px solid #d1d5db; borde
             <button onclick="handleLogin()" class="action-button">Enter Vault</button>
         </div>
     </div>
-    <p class="mt-6 disclaimer">Notice: Utah Land & Property Inc. is a private investment firm and is not a licensed real estate broker or agent.
-We do not represent third parties in the purchase, sale, or management of outside real estate.
-Pursuant to the exemption under Utah Code § 61-2f-202, all property management functions are executed solely by individuals,
-operating as regular salaried employees of the specific legal entities that own the underlying real estate assets</p>
+    <p class="mt-6 disclaimer">Notice: Utah Land & Property Inc. is a private investment firm and is not a licensed real estate broker or agent.</p>
+<p class="mt-6 disclaimer">We do not represent third parties in the purchase, sale, or management of outside real estate.</p>
+<p class="mt-6 disclaimer">Pursuant to the exemption under Utah Code § 61-2f-202, all property management functions are executed solely by individuals,</p>
+<p class="mt-6 disclaimer">operating as regular salaried employees of the specific legal entities that own the underlying real estate assets</p>
     
 </section>
 
