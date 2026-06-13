@@ -56,7 +56,7 @@ input, select {{ font-size:14px; padding:0.5rem; border:1px solid #d1d5db; borde
 <section id="hero-section" class="hero-container">
     <header class="absolute top-0 left-0 p-10">
         <div class="text-2xl font-bold font-serif tracking-tight">UTAH LAND & PROPERTY</div>
-        <div class="text-[0.65rem] uppercase tracking-[3px]">Acquisition, Investment, Development</div>
+        <div class="text-[0.65rem] uppercase tracking-[3px]">Acquisition, Investment, Management, Development</div>
     </header>
     <div class="z-10 px-6 text-center">
         <h1 class="text-7xl font-serif font-bold mb-2">Precision Acquisition.</h1>
