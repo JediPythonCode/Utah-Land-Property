@@ -1,3 +1,7 @@
+The error occurs because markdown code block fences (````python` and `````) were accidentally included at the beginning and end of the raw Python script file. Streamlit expects pure Python code without markdown formatting wrapper blocks.
+
+Here is the clean, corrected code ready to be saved directly into your `dashboard.py` file:
+
 ```python
 import smtplib
 from email.mime.multipart import MIMEMultipart
@@ -394,7 +398,7 @@ with listings_col:
             key=f"z_msg_{row['id']}",
             placeholder="Enter earnest money or inspection timelines...",
         )
-        if st.button("Submit to Escrow", key=f"z_btn_{row['id']}" ):
+        if st.button("Submit to Escrow", key=f"z_btn_{row['id']}"):
           if user_email:
             send_escrow_dispatch(row["id"], row["title"], user_email, user_msg)
             st.success("Workflow successfully dispatched to escrow!")
