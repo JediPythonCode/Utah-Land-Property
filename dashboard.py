@@ -243,8 +243,8 @@ st.markdown(
     """
     <div class="hero-alpine">
         <div class="hero-bg">
-            <h1 style="font-family: Georgia, serif; font-size: 2.5rem; font-weight: normal; margin-bottom: 10px; color: #ffffff;">Your Key to Utah's Premium<br>Land & Properties.</h1>
-            <p style="font-size: 0.95rem; color: #e2e8f0; max-width: 600px; margin: 0;">Your gateway to premier Utah land opportunities and bespoke real estate assets designed for discerning buyers and strategic investors.</p>
+            <h1 style="font-family: Georgia, serif; font-size: 2.5rem; font-weight: normal; margin-bottom: 10px; color: #ffffff;">Utah Land & Property for Sale<br>Assignment Contracts</h1>
+            <p style="font-size: 0.95rem; color: #e2e8f0; max-width: 600px; margin: 0;">Your gateway to premier Utah Real Estate and land opportunities for discerning buyers and strategic investors.</p>
         </div>
     </div>
 """,
