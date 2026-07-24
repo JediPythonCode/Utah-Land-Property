@@ -7,7 +7,7 @@ import streamlit as st
 
 # Page Configuration - Wide layout mimicking a professional real estate portal
 st.set_page_config(
-    page_title="Utah Real Estate & Homes For Sale | Utah Land & Property",
+    page_title="Utah Real Estate & Land For Sale | Utah Land & Property",
     page_icon="🏡",
     layout="wide",
     initial_sidebar_state="collapsed",
