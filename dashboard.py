@@ -1,26 +1,28 @@
+```python
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import pandas as pd
 import streamlit as st
 
-# Page Configuration
+# Page Configuration - Zillow-style wide layout matching Millcreek real estate portal
 st.set_page_config(
-    page_title="Utah Land & Property.Com",
+    page_title=(
+        "Millcreek UT Real Estate & Homes For Sale | Utah Land & Property"
+    ),
     page_icon="🏡",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
-# Custom Styling for Precision Light-Theme Match & Luxury Layout
+# Custom Styling to precisely mimic Zillow UI, header bar, and split-screen map layout
 st.markdown(
     """
     <style>
-    /* Force Pristine White Base Theme */
     .stApp {
         background-color: #ffffff !important;
         color: #2b2b2b !important;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
     header[data-testid="stHeader"] {
         background-color: transparent !important;
@@ -28,121 +30,111 @@ st.markdown(
     .main {
         background-color: #ffffff !important;
         color: #2b2b2b !important;
+        padding-top: 0px !important;
     }
     
-    /* Top Navigation Header Bar */
-    .top-nav {
+    /* Zillow Top Navbar */
+    .z-navbar {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 10px 0px 20px 0px;
-        border-bottom: 1px solid #eaeaea;
-        margin-bottom: 25px;
+        padding: 12px 24px;
+        border-bottom: 1px solid #dcdcdc;
+        background-color: #ffffff;
+        margin-bottom: 0px;
     }
-    .brand-logo {
-        font-weight: 800;
-        font-size: 1.1rem;
-        letter-spacing: 0.5px;
-        color: #111111;
-        text-transform: uppercase;
-    }
-    .brand-sub {
-        font-size: 0.55rem;
-        color: #666;
-        letter-spacing: 1px;
-    }
-    .nav-links {
+    .z-nav-left, .z-nav-right {
         display: flex;
-        gap: 25px;
+        gap: 24px;
+        align-items: center;
         font-size: 0.95rem;
         font-weight: 500;
-        color: #333333;
+        color: #006aff;
+    }
+    .z-nav-left span, .z-nav-right span {
+        cursor: pointer;
+    }
+    .z-nav-left span:hover, .z-nav-right span:hover {
+        color: #004080;
+        text-decoration: underline;
+    }
+    .z-logo-center {
+        font-size: 1.8rem;
+        font-weight: 900;
+        letter-spacing: -0.5px;
+        color: #006aff;
+        text-transform: none;
+        font-style: italic;
     }
     
-    /* Hero Alpine Banner - Bright Homes & Land with Blue Tone */
-    .hero-alpine {
-        position: relative;
-        border-radius: 10px;
-        overflow: hidden;
-        margin-bottom: 25px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-    }
-    .hero-bg {
-        background: linear-gradient(rgba(14, 116, 144, 0.35), rgba(15, 23, 42, 0.55)), url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1920&q=80');
-        background-size: cover;
-        background-position: center;
-        padding: 55px 40px;
-        color: white;
+    /* Sub-filter Search Bar Row */
+    .z-filter-bar {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        padding: 14px 24px;
+        background-color: #ffffff;
+        border-bottom: 1px solid #e5e5e5;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
     }
     
-    /* Input Styling to match Light UI */
-    .stTextInput>div>div>input, .stSelectbox>div>div>div, .stSlider>div>div>div {
-        background-color: #ffffff !important;
-        color: #333333 !important;
-        border: 1px solid #dcdcdc !important;
-        border-radius: 6px !important;
-    }
-    
-    /* Property Card Grid Styling */
-    .property-card {
+    /* Zillow Style Listing Cards */
+    .z-card {
         background-color: #ffffff;
         border: 1px solid #e0e0e0;
-        border-radius: 10px;
+        border-radius: 8px;
         overflow: hidden;
         margin-bottom: 20px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-        transition: transform 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        transition: box-shadow 0.2s ease;
     }
-    .property-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+    .z-card:hover {
+        box-shadow: 0 6px 12px rgba(0,0,0,0.1);
     }
-    .card-img {
+    .z-card-img-container {
+        position: relative;
+    }
+    .z-card-img {
         width: 100%;
-        height: 160px;
+        height: 200px;
         object-fit: cover;
     }
-    .card-body {
-        padding: 14px;
-    }
-    .badge-tag {
-        display: inline-block;
-        background-color: #1e3a8a;
+    .z-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background-color: rgba(0, 0, 0, 0.75);
         color: white;
-        padding: 2px 8px;
+        padding: 4px 8px;
         border-radius: 4px;
-        font-size: 0.7rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        margin-bottom: 6px;
-    }
-    .badge-tag.equitable {
-        background-color: #0284c7;
-    }
-    .badge-tag.direct {
-        background-color: #047857;
-    }
-    .badge-tag.contract {
-        background-color: #b45309;
-    }
-
-    /* Wood-Texture Footer */
-    .wood-footer {
-        background: linear-gradient(rgba(210, 175, 135, 0.85), rgba(190, 150, 110, 0.9)), url('https://images.unsplash.com/photo-1546484396-fb3fc6f95f98?auto=format&fit=crop&w=1920&q=80');
-        background-size: cover;
-        padding: 35px 40px;
-        border-top: 1px solid #d4bda0;
-        margin-top: 50px;
-        color: #2c221e;
-        border-radius: 6px;
-    }
-    .legal-notice {
         font-size: 0.75rem;
-        color: #64748b;
-        text-align: center;
-        margin-top: 30px;
-        padding-top: 15px;
-        border-top: 1px solid #eaeaea;
+        font-weight: 600;
+    }
+    .z-card-body {
+        padding: 16px;
+    }
+    .z-price {
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: #111111;
+        margin-bottom: 4px;
+    }
+    .z-details {
+        font-size: 0.88rem;
+        color: #333333;
+        margin-bottom: 8px;
+    }
+    .z-address {
+        font-size: 0.85rem;
+        color: #666666;
+        margin-bottom: 4px;
+    }
+    .z-broker {
+        font-size: 0.75rem;
+        color: #888888;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
     </style>
 """,
@@ -150,9 +142,9 @@ st.markdown(
 )
 
 
-# Property Dataset with Map Coordinates, Photos, and Descriptions
+# Load Property Dataset with precise coordinates around Millcreek, UT
 @st.cache_data
-def load_portal_data():
+def load_zillow_data():
   data = [
       {
           "id": "UT-MIL-0101",
@@ -160,12 +152,12 @@ def load_portal_data():
           "type": "Land / Development",
           "city": "Millcreek, UT",
           "price": 285000,
-          "acres": 0.21,
+          "beds": 0,
+          "baths": 0,
+          "sqft": 9147,
           "status": "Equitable Interest Available",
-          "description": (
-              "Flat, shovel-ready residential infill lot with active utility"
-              " connections stubbed to edge."
-          ),
+          "address": "4646 S Quail Park Dr E #C, Millcreek, UT 84117",
+          "broker": "UTAH LAND & PROPERTY INC.",
           "image": (
               "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80"
           ),
@@ -173,67 +165,67 @@ def load_portal_data():
           "lon": -111.8550,
       },
       {
+          "id": "UT-MIL-0102",
+          "title": "Millcreek Elmwood Single Family Home",
+          "type": "House for sale",
+          "city": "Millcreek, UT",
+          "price": 625000,
+          "beds": 5,
+          "baths": 2,
+          "sqft": 2446,
+          "status": "Showcase",
+          "address": "718 E Elgin Ave, Millcreek, UT 84106",
+          "broker": "OMADA REAL ESTATE",
+          "image": (
+              "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80"
+          ),
+          "lat": 40.7012,
+          "lon": -111.8670,
+      },
+      {
+          "id": "UT-MIL-0103",
+          "title": "Millbert Avenue Residence",
+          "type": "House for sale",
+          "city": "Salt Lake City, UT",
+          "price": 650000,
+          "beds": 5,
+          "baths": 2,
+          "sqft": 2852,
+          "status": "2 days on Zillow",
+          "address": "1010 E Millbert Ave S, Salt Lake City, UT 84106",
+          "broker": "SUMMIT SOTHEBY'S INTERNATIONAL REALTY",
+          "image": (
+              "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80"
+          ),
+          "lat": 40.7045,
+          "lon": -111.8590,
+      },
+      {
           "id": "UT-DRP-0204",
           "title": "Draper Commercial Parking Buffer Parcel",
           "type": "Commercial Land",
           "city": "Draper, UT",
           "price": 145000,
-          "acres": 0.11,
+          "beds": 0,
+          "baths": 0,
+          "sqft": 4791,
           "status": "Direct Acquisition",
-          "description": (
-              "Strategic commercial-zoned parcel optimized for logistics"
-              " overflow and vehicular parking."
-          ),
+          "address": "12300 S Fort St, Draper, UT 84020",
+          "broker": "UTAH LAND & PROPERTY INC.",
           "image": (
               "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80"
           ),
           "lat": 40.5243,
           "lon": -111.8631,
       },
-      {
-          "id": "UT-PRK-0312",
-          "title": "Park Meadows Townhome Addendum Unit",
-          "type": "Townhome",
-          "city": "Clearfield, UT",
-          "price": 340000,
-          "acres": 0.05,
-          "status": "Under Contract - Assignment Available",
-          "description": (
-              "Well-maintained townhome asset integrated into active management"
-              " framework. Clean title commitment ready."
-          ),
-          "image": (
-              "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80"
-          ),
-          "lat": 41.1136,
-          "lon": -112.2575,
-      },
-      {
-          "id": "UT-MON-0499",
-          "title": "Montello Desert Acreage Tract",
-          "type": "Rural Acreage",
-          "city": "Montello, NV/UT Border",
-          "price": 95000,
-          "acres": 7.00,
-          "status": "Direct Acquisition",
-          "description": (
-              "High-potential expansive desert parcel evaluated for"
-              " agricultural viability and long-term holding."
-          ),
-          "image": (
-              "https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=800&q=80"
-          ),
-          "lat": 41.2584,
-          "lon": -114.2153,
-      },
   ]
   return pd.DataFrame(data)
 
 
-df = load_portal_data()
+df = load_zillow_data()
 
 
-# Helper Function for Automated Email Dispatch to Escrow
+# Helper Function for Automated Email Dispatch
 def send_escrow_dispatch(
     property_id, property_title, recipient_email, user_message
 ):
@@ -245,14 +237,10 @@ def send_escrow_dispatch(
   subject = f"Escrow Dispatch & Terms Request: {property_id}"
   body = f"""
     Automated Transaction Workflow Dispatch:
-    
     Property ID: {property_id}
     Asset Title: {property_title}
     Requester Contact: {recipient_email}
-    
-    User Notes / Terms:
-    {user_message}
-    
+    User Notes / Terms: {user_message}
     ---
     Notice: Utah Land & Property Inc. - Secure Escrow Document Routing Engine.
     """
@@ -274,223 +262,153 @@ def send_escrow_dispatch(
     return False
 
 
-# --- TOP NAVIGATION BAR ---
+# --- ZILLOW STYLE TOP NAVIGATION BAR ---
 st.markdown(
     """
-    <div class="top-nav">
-        <div>
-            <div class="brand-logo">Utah Land & Property</div>
-            <div class="brand-sub">ACQUISITION . INVESTMENT . MANAGEMENT . DEVELOPMENT</div>
-        </div>
-        <div class="nav-links">
+    <div class="z-navbar">
+        <div class="z-nav-left">
             <span>Buy</span>
+            <span>Rent</span>
             <span>Sell</span>
-            <span>Invest</span>
-            <span>Market Insights</span>
-            <span>Connect Intels</span>
+            <span>Get a mortgage</span>
+            <span>Find an agent</span>
+        </div>
+        <div class="z-logo-center">
+            Utah Land & Property Inc.
+        </div>
+        <div class="z-nav-right">
+            <span>Manage rentals</span>
+            <span>Advertise</span>
+            <span>Get help</span>
+            <span style="background-color: #006aff; color: white; padding: 8px 18px; border-radius: 6px; font-weight: 600;">Sign in</span>
         </div>
     </div>
 """,
     unsafe_allow_html=True,
 )
 
-# --- HERO ALPINE BANNER (Updated Content & Bright Homes/Land Blue Theme) ---
+# --- ZILLOW STYLE FILTER SEARCH BAR ---
 st.markdown(
     """
-    <div class="hero-alpine">
-        <div class="hero-bg">
-            <h1 style="font-family: Georgia, serif; font-size: 2.3rem; font-weight: normal; margin-bottom: 8px; color: #ffffff;">Utah Land & Property for Sale<br>Assignment Contracts</h1>
-            <p style="font-size: 0.95rem; color: #e2e8f0; max-width: 600px; margin: 0;">Your gateway to premier Utah Real Estate and land opportunities for discerning buyers and strategic investors.</p>
+    <div class="z-filter-bar">
+        <div style="flex: 2; min-width: 240px;">
+            <input type="text" value="Millcreek, UT" style="width: 100%; padding: 10px 14px; border: 1px solid #dcdcdc; border-radius: 6px; font-size: 0.95rem;" readonly>
+        </div>
+        <div style="flex: 1; min-width: 120px;">
+            <select style="width: 100%; padding: 10px; border: 1px solid #dcdcdc; border-radius: 6px; background: white;"><option>For sale</option></select>
+        </div>
+        <div style="flex: 1; min-width: 120px;">
+            <select style="width: 100%; padding: 10px; border: 1px solid #dcdcdc; border-radius: 6px; background: white;"><option>Price</option></select>
+        </div>
+        <div style="flex: 1; min-width: 120px;">
+            <select style="width: 100%; padding: 10px; border: 1px solid #dcdcdc; border-radius: 6px; background: white;"><option>Beds & baths</option></select>
+        </div>
+        <div style="flex: 1; min-width: 120px;">
+            <select style="width: 100%; padding: 10px; border: 1px solid #dcdcdc; border-radius: 6px; background: white;"><option>Property type</option></select>
+        </div>
+        <div style="flex: 1; min-width: 100px;">
+            <button style="width: 100%; padding: 10px; border: 1px solid #006aff; color: #006aff; background: white; border-radius: 6px; font-weight: 600; cursor: pointer;">Save search</button>
         </div>
     </div>
 """,
     unsafe_allow_html=True,
 )
 
-# --- FILTER CONTROLS BAR (4 Columns) ---
-filter_col1, filter_col2, filter_col3, filter_col4 = st.columns(4)
-
-with filter_col1:
-  search_query = st.text_input(
-      "Search Location or Keyword", placeholder="e.g., Millcreek, Land..."
-  )
-with filter_col2:
-  selected_type = st.selectbox(
-      "Asset Type", ["All Types"] + list(df["type"].unique())
-  )
-with filter_col3:
-  max_price = st.slider(
-      "Max Price ($)",
-      min_value=50000,
-      max_value=500000,
-      value=500000,
-      step=25000,
-  )
-with filter_col4:
-  vault_input = st.text_input(
-      "Secure Vault Portal", placeholder="Enter Acquisition ID..."
-  )
-
-st.markdown("<br>", unsafe_allow_html=True)
-
-# Apply Filters
-filtered_df = df.copy()
-if search_query:
-  filtered_df = filtered_df[
-      filtered_df["title"].str.contains(search_query, case=False)
-      | filtered_df["city"].str.contains(search_query, case=False)
-      | filtered_df["id"].str.contains(search_query, case=False)
-  ]
-if selected_type != "All Types":
-  filtered_df = filtered_df[filtered_df["type"] == selected_type]
-filtered_df = filtered_df[filtered_df["price"] <= max_price]
-
-# --- SPLIT LAYOUT: MAP (LEFT) & LISTINGS CARDS (RIGHT) ---
-map_col, results_col = st.columns([1.1, 1.2])
+# --- MAIN SPLIT LAYOUT: MAP (LEFT) & ZILLOW LISTINGS CARDS (RIGHT) ---
+map_col, listings_col = st.columns([1.1, 1.3])
 
 with map_col:
-  m_head_col1, m_head_col2 = st.columns([1.2, 1])
-  with m_head_col1:
-    st.markdown(
-        "<h3 style='font-size: 1.1rem; font-weight: 600; margin-top: 5px; color:"
-        " #222;'>Interactive Region Map</h3>",
-        unsafe_allow_html=True,
-    )
-  with m_head_col2:
-    map_style = st.selectbox(
-        "Map Style", ["Satellite View", "Light / Standard"], index=0
-    )
-
-  if not filtered_df.empty:
-    map_data = filtered_df[["lat", "lon"]].rename(
-        columns={"lat": "latitude", "lon": "longitude"}
-    )
-
-    import pydeck as pdk
-
-    if map_style == "Satellite View":
-      map_tiles_style = "mapbox://styles/mapbox/satellite-v9"
-    else:
-      map_tiles_style = "light"
-
-    layer = pdk.Layer(
-        "ScatterplotLayer",
-        data=map_data,
-        get_position="[longitude, latitude]",
-        get_color="[2, 132, 199, 200]",
-        get_radius=1500,
-        pickable=True,
-        auto_highlight=True,
-    )
-
-    view_state = pdk.ViewState(
-        latitude=40.7608 if filtered_df.empty else filtered_df["lat"].mean(),
-        longitude=-111.8910 if filtered_df.empty else filtered_df["lon"].mean(),
-        zoom=7,
-        pitch=0,
-    )
-
-    r = pdk.Deck(
-        layers=[layer],
-        initial_view_state=view_state,
-        map_style=map_tiles_style,
-        tooltip={"text": "Utah Land & Property Asset Location"},
-    )
-    st.pydeck_chart(r, use_container_width=True)
-  else:
-    st.info("No matching map locations found.")
-
-with results_col:
   st.markdown(
-      f"<h3 style='font-size: 1.1rem; font-weight: 600; margin-top: 5px; margin-bottom: 10px; color:"
-      f" #222;'>Available Opportunities ({len(filtered_df)})</h3>",
+      "<div style='font-size: 1.1rem; font-weight: 700; margin-bottom: 10px;"
+      " color: #222;'>Millcreek UT Real Estate Map</div>",
       unsafe_allow_html=True,
   )
 
-  if filtered_df.empty:
-    st.warning(
-        "No properties match your filter criteria. Try expanding your search."
-    )
-  else:
-    for _, row in filtered_df.iterrows():
-      badge_class = "equitable"
-      if "Direct" in row["status"]:
-        badge_class = "direct"
-      elif "Contract" in row["status"]:
-        badge_class = "contract"
+  import pydeck as pdk
 
+  map_data = df[["lat", "lon"]].rename(
+      columns={"lat": "latitude", "lon": "longitude"}
+  )
+
+  layer = pdk.Layer(
+      "ScatterplotLayer",
+      data=map_data,
+      get_position="[longitude, latitude]",
+      get_color="[0, 106, 255, 220]",
+      get_radius=800,
+      pickable=True,
+      auto_highlight=True,
+  )
+
+  view_state = pdk.ViewState(
+      latitude=40.6977, longitude=-111.8550, zoom=12, pitch=0
+  )
+
+  r = pdk.Deck(
+      layers=[layer],
+      initial_view_state=view_state,
+      map_style="light",
+      tooltip={"text": "Utah Land & Property Asset"},
+  )
+  st.pydeck_chart(r, use_container_width=True)
+
+with listings_col:
+  st.markdown(
+      "<div style='font-size: 1.2rem; font-weight: 700; margin-bottom: 4px;"
+      f" color: #111;'>Millcreek UT Real Estate & Homes For Sale</div>"
+      f"<div style='font-size: 0.88rem; color: #666; margin-bottom: 15px;'>{len(df)}"
+      " results</div>",
+      unsafe_allow_html=True,
+  )
+
+  # Display listings in a 2-column grid inside the right panel
+  grid_col1, grid_col2 = st.columns(2)
+
+  for i, row in df.iterrows():
+    target_col = grid_col1 if i % 2 == 0 else grid_col2
+    with target_col:
       st.markdown(
           f"""
-                <div class="property-card">
-                    <img src="{row['image']}" class="card-img">
-                    <div class="card-body">
-                        <span class="badge-tag {badge_class}">{row['status']}</span>
-                        <h4 style="margin: 4px 0; font-size: 1.15rem; color: #111; font-weight: 700;">${row['price']:,}</h4>
-                        <div style="font-size: 0.9rem; font-weight: 600; color: #222;">{row['title']} ({row['id']})</div>
-                        <div style="font-size: 0.8rem; color: #666; margin-bottom: 6px;">📍 {row['city']} &nbsp;|&nbsp; 📐 {row['acres']} Acres &nbsp;|&nbsp; 🏷️ {row['type']}</div>
-                        <p style="font-size: 0.82rem; color: #444; margin-bottom: 0;">{row['description']}</p>
+                <div class="z-card">
+                    <div class="z-card-img-container">
+                        <img src="{row['image']}" class="z-card-img">
+                        <div class="z-badge">{row['status']}</div>
+                    </div>
+                    <div class="z-card-body">
+                        <div class="z-price">${row['price']:,}</div>
+                        <div class="z-details"><b>{row['beds']}</b> bds &nbsp;|&nbsp; <b>{row['baths']}</b> ba &nbsp;|&nbsp; <b>{row['sqft']:,}</b> sqft &nbsp;|&nbsp; {row['type']}</div>
+                        <div class="z-address">{row['address']}</div>
+                        <div class="z-broker">{row['broker']}</div>
                     </div>
                 </div>
             """,
           unsafe_allow_html=True,
       )
 
-      # Interactive Workflow Modal / Expander for Escrow Dispatch
-      with st.expander(
-          f"Request Terms & Dispatch to Escrow for {row['id']}"
-      ):
-        user_email_input = st.text_input(
-            "Your Email Address", key=f"email_{row['id']}"
+      with st.expander(f"Inquire / Escrow Dispatch ({row['id']})"):
+        user_email = st.text_input(
+            "Your Email", key=f"z_email_{row['id']}", placeholder="name@domain.com"
         )
-        user_notes_input = st.text_area(
-            "Acquisition / Assignment Notes",
-            placeholder=(
-                "Specify desired earnest money timeline or due diligence"
-                " contingencies..."
-            ),
-            key=f"notes_{row['id']}",
+        user_msg = st.text_area(
+            "Terms / Contingencies",
+            key=f"z_msg_{row['id']}",
+            placeholder="Enter earnest money or inspection timelines...",
         )
-
-        if st.button(
-            "Submit & Trigger Escrow Dispatch", key=f"dispatch_btn_{row['id']}"
-        ):
-          if user_email_input:
-            send_escrow_dispatch(
-                row["id"], row["title"], user_email_input, user_notes_input
-            )
-            st.success(
-                f"Successfully generated workflow packet for {row['id']} and"
-                " dispatched notification to escrow!"
-            )
+        if st.button("Submit to Escrow", key=f"z_btn_{row['id']}" ):
+          if user_email:
+            send_escrow_dispatch(row["id"], row["title"], user_email, user_msg)
+            st.success("Workflow successfully dispatched to escrow!")
           else:
-            st.error(
-                "Please provide a valid email address to receive the contract"
-                " workflow package."
-            )
+            st.error("Please enter a valid email address.")
 
-# --- WOOD-TEXTURE FOOTER & LEGAL DISCLAIMER ---
+# --- FOOTER LEGAL NOTICE ---
 st.markdown(
     """
-    <div class="wood-footer">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
-            <div style="display: flex; gap: 30px; font-size: 0.9rem; font-weight: 500;">
-                <span>Property Management</span>
-                <span>About Us</span>
-                <span>Contact</span>
-                <span>Terms of Service</span>
-            </div>
-            <div style="text-align: right; font-size: 0.85rem;">
-                <b>Utah: Contact Consilium</b><br>
-                Call 648-4237, 442-4325
-            </div>
-        </div>
-        <div class="legal-notice">
-            Notice: Utah Land & Property Inc. is a private investment firm and is not a licensed real estate broker or agent. 
-            We do not represent third parties in the purchase, sale, or management of outside real estate. 
-            Pursuant to the exemption under Utah Code § 61-2f-202, all property management functions are executed solely by individuals 
-            operating as regular salaried employees of the specific legal entities that own the underlying real estate assets.
-        </div>
+    <div style="font-size: 0.75rem; color: #64748b; text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eaeaea;">
+        Notice: Utah Land & Property Inc. operates independently as a private investment firm. All property management functions and asset transactions are executed in compliance with applicable Utah real estate statutes.
     </div>
 """,
     unsafe_allow_html=True,
 )
+
+```
