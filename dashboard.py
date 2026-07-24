@@ -1,14 +1,10 @@
-It appears that text explaining the error is being directly saved into line 1 of your `dashboard.py` file instead of pure Python code.
-
-Please copy **only** the raw Python code block shown below, making sure no conversational text or markdown ticks get saved into your editor:
-
-```python
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import pandas as pd
 import streamlit as st
 
+# Page Configuration - Zillow-style wide layout matching Millcreek real estate portal
 st.set_page_config(
     page_title=(
         "Millcreek UT Real Estate & Homes For Sale | Utah Land & Property"
@@ -18,6 +14,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
+# Custom Styling to precisely mimic Zillow UI, header bar, and split-screen map layout
 st.markdown(
     """
     <style>
@@ -34,6 +31,8 @@ st.markdown(
         color: #2b2b2b !important;
         padding-top: 0px !important;
     }
+    
+    /* Zillow Top Navbar */
     .z-navbar {
         display: flex;
         justify-content: space-between;
@@ -66,6 +65,8 @@ st.markdown(
         text-transform: none;
         font-style: italic;
     }
+    
+    /* Sub-filter Search Bar Row */
     .z-filter-bar {
         display: flex;
         gap: 12px;
@@ -76,6 +77,8 @@ st.markdown(
         margin-bottom: 20px;
         flex-wrap: wrap;
     }
+    
+    /* Zillow Style Listing Cards */
     .z-card {
         background-color: #ffffff;
         border: 1px solid #e0e0e0;
@@ -138,6 +141,7 @@ st.markdown(
 )
 
 
+# Load Property Dataset with precise coordinates around Millcreek, UT
 @st.cache_data
 def load_zillow_data():
   data = [
@@ -220,6 +224,7 @@ def load_zillow_data():
 df = load_zillow_data()
 
 
+# Helper Function for Automated Email Dispatch
 def send_escrow_dispatch(
     property_id, property_title, recipient_email, user_message
 ):
@@ -256,6 +261,7 @@ def send_escrow_dispatch(
     return False
 
 
+# --- ZILLOW STYLE TOP NAVIGATION BAR ---
 st.markdown(
     """
     <div class="z-navbar">
@@ -280,6 +286,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+# --- ZILLOW STYLE FILTER SEARCH BAR ---
 st.markdown(
     """
     <div class="z-filter-bar">
@@ -306,6 +313,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+# --- MAIN SPLIT LAYOUT: MAP (LEFT) & ZILLOW LISTINGS CARDS (RIGHT) ---
 map_col, listings_col = st.columns([1.1, 1.3])
 
 with map_col:
@@ -352,6 +360,7 @@ with listings_col:
       unsafe_allow_html=True,
   )
 
+  # Display listings in a 2-column grid inside the right panel
   grid_col1, grid_col2 = st.columns(2)
 
   for i, row in df.iterrows():
@@ -384,13 +393,14 @@ with listings_col:
             key=f"z_msg_{row['id']}",
             placeholder="Enter earnest money or inspection timelines...",
         )
-        if st.button("Submit to Escrow", key=f"z_btn_{row['id']}"):
+        if st.button("Submit to Escrow", key=f"z_btn_{row['id']}" ):
           if user_email:
             send_escrow_dispatch(row["id"], row["title"], user_email, user_msg)
             st.success("Workflow successfully dispatched to escrow!")
           else:
             st.error("Please enter a valid email address.")
 
+# --- FOOTER LEGAL NOTICE ---
 st.markdown(
     """
     <div style="font-size: 0.75rem; color: #64748b; text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eaeaea;">
@@ -399,5 +409,3 @@ st.markdown(
 """,
     unsafe_allow_html=True,
 )
-
-```
