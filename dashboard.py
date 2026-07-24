@@ -430,5 +430,3 @@ operating as regular salaried employees of the specific legal entities that own 
 """,
     unsafe_allow_html=True,
 )
-
-```
