@@ -4,17 +4,17 @@ from email.mime.text import MIMEText
 import pandas as pd
 import streamlit as st
 
-# Page Configuration - Zillow-style wide layout matching Millcreek real estate portal
+# Page Configuration - Utah real estate portal
 st.set_page_config(
     page_title=(
-        "Millcreek UT Real Estate & Homes For Sale | Utah Land & Property"
+        " Utah Real Estate & Land For Sale | Utah Land & Property"
     ),
     page_icon="🏡",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
-# Custom Styling to precisely mimic Zillow UI, header bar, and split-screen map layout
+# Custom Styling UI, header bar, and split-screen map layout
 st.markdown(
     """
     <style>
