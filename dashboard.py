@@ -4,17 +4,17 @@ from email.mime.text import MIMEText
 import pandas as pd
 import streamlit as st
 
-# Page Configuration - Wide layout matching Zillow real estate portal
+# Page Configuration - Wide layout matching private investment portfolio portal
 st.set_page_config(
     page_title=(
-        "Millcreek UT Real Estate & Homes For Sale | Utah Land & Property"
+        "Millcreek UT Portfolio Assets & Investments | Utah Land & Property"
     ),
     page_icon="🏡",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
-# Custom Styling to precisely match the Zillow UI screenshot layout and top bar
+# Custom Styling to adjust header, font weights, and filter layout
 st.markdown(
     """
     <style>
@@ -32,7 +32,7 @@ st.markdown(
         padding-top: 0px !important;
     }
     
-    /* Zillow Top Navbar */
+    /* Top Navbar */
     .z-navbar {
         display: flex;
         justify-content: space-between;
@@ -44,9 +44,9 @@ st.markdown(
     }
     .z-nav-left, .z-nav-right {
         display: flex;
-        gap: 24px;
+        gap: 20px;
         align-items: center;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         font-weight: 500;
         color: #006aff;
     }
@@ -58,27 +58,38 @@ st.markdown(
         text-decoration: underline;
     }
     .z-logo-center {
-        font-size: 2.1rem;
-        font-weight: 800;
-        letter-spacing: -0.5px;
-        color: #111111;
+        font-size: 1.1rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        color: #333333;
         text-transform: uppercase;
-        font-family: "Playfair Display", Georgia, serif;
+        font-family: "Open Sans", sans-serif;
     }
     
-    /* Sub-filter Search Bar Row */
+    /* Filter Bar */
+    .z-filter-container {
+        padding: 16px 24px;
+        background-color: #ffffff;
+        border-bottom: 1px solid #e5e5e5;
+        margin-bottom: 20px;
+    }
+    .z-filter-labels {
+        display: flex;
+        gap: 12px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #444444;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+    }
     .z-filter-bar {
         display: flex;
         gap: 12px;
         align-items: center;
-        padding: 14px 24px;
-        background-color: #ffffff;
-        border-bottom: 1px solid #e5e5e5;
-        margin-bottom: 20px;
         flex-wrap: wrap;
     }
     
-    /* Zillow Style Listing Cards */
+    /* Listing Cards */
     .z-card {
         background-color: #ffffff;
         border: 1px solid #e0e0e0;
@@ -141,7 +152,7 @@ st.markdown(
 )
 
 
-# Load Property Dataset matching Millcreek, UT real estate inventory
+# Load Property Dataset matching Millcreek, UT inventory
 @st.cache_data
 def load_zillow_data():
   data = [
@@ -241,7 +252,7 @@ def send_escrow_dispatch(
     Requester Contact: {recipient_email}
     User Notes / Terms: {user_message}
     ---
-    Notice: Utah Land & Property Inc. - Secure Escrow Document Routing Engine.
+    Notice: Utah Land & Property Inc. - Private Investment Firm.
     """
 
   msg = MIMEMultipart()
@@ -261,24 +272,21 @@ def send_escrow_dispatch(
     return False
 
 
-# --- TOP NAVIGATION BAR WITH BOLD BLACK ELEGANT LOGO ---
+# --- TOP NAVIGATION BAR (Private Investment Firm Profile) ---
 st.markdown(
     """
     <div class="z-navbar">
         <div class="z-nav-left">
             <span>Buy</span>
-            <span>Rent</span>
             <span>Sell</span>
             <span>Get a mortgage</span>
-            <span>Find an agent</span>
         </div>
         <div class="z-logo-center">
             UTAH LAND & PROPERTY INC.
         </div>
         <div class="z-nav-right">
-            <span>Manage rentals</span>
+            <span>Private Property Management</span>
             <span>Advertise</span>
-            <span>Get help</span>
             <span style="background-color: #006aff; color: white; padding: 8px 18px; border-radius: 6px; font-weight: 600;">Sign in</span>
         </div>
     </div>
@@ -286,27 +294,37 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# --- FILTER SEARCH BAR ---
+# --- FILTER SEARCH BAR WITH LABELS ON TOP ---
 st.markdown(
     """
-    <div class="z-filter-bar">
-        <div style="flex: 2; min-width: 240px;">
-            <input type="text" value="Millcreek, UT" style="width: 100%; padding: 10px 14px; border: 1px solid #dcdcdc; border-radius: 6px; font-size: 0.95rem;" readonly>
+    <div class="z-filter-container">
+        <div class="z-filter-labels">
+            <div style="flex: 2; min-width: 240px;">Location</div>
+            <div style="flex: 1; min-width: 120px;">Status</div>
+            <div style="flex: 1; min-width: 120px;">Price Range</div>
+            <div style="flex: 1; min-width: 120px;">Beds & Baths</div>
+            <div style="flex: 1; min-width: 120px;">Property Type</div>
+            <div style="flex: 1; min-width: 100px;">&nbsp;</div>
         </div>
-        <div style="flex: 1; min-width: 120px;">
-            <select style="width: 100%; padding: 10px; border: 1px solid #dcdcdc; border-radius: 6px; background: white;"><option>For sale</option></select>
-        </div>
-        <div style="flex: 1; min-width: 120px;">
-            <select style="width: 100%; padding: 10px; border: 1px solid #dcdcdc; border-radius: 6px; background: white;"><option>Price</option></select>
-        </div>
-        <div style="flex: 1; min-width: 120px;">
-            <select style="width: 100%; padding: 10px; border: 1px solid #dcdcdc; border-radius: 6px; background: white;"><option>Beds & baths</option></select>
-        </div>
-        <div style="flex: 1; min-width: 120px;">
-            <select style="width: 100%; padding: 10px; border: 1px solid #dcdcdc; border-radius: 6px; background: white;"><option>Property type</option></select>
-        </div>
-        <div style="flex: 1; min-width: 100px;">
-            <button style="width: 100%; padding: 10px; border: 1px solid #006aff; color: #006aff; background: white; border-radius: 6px; font-weight: 600; cursor: pointer;">Save search</button>
+        <div class="z-filter-bar">
+            <div style="flex: 2; min-width: 240px;">
+                <input type="text" value="Millcreek, UT" style="width: 100%; padding: 10px 14px; border: 1px solid #dcdcdc; border-radius: 6px; font-size: 0.95rem;" readonly>
+            </div>
+            <div style="flex: 1; min-width: 120px;">
+                <select style="width: 100%; padding: 10px; border: 1px solid #dcdcdc; border-radius: 6px; background: white;"><option>For sale</option></select>
+            </div>
+            <div style="flex: 1; min-width: 120px;">
+                <select style="width: 100%; padding: 10px; border: 1px solid #dcdcdc; border-radius: 6px; background: white;"><option>Price</option></select>
+            </div>
+            <div style="flex: 1; min-width: 120px;">
+                <select style="width: 100%; padding: 10px; border: 1px solid #dcdcdc; border-radius: 6px; background: white;"><option>Beds & baths</option></select>
+            </div>
+            <div style="flex: 1; min-width: 120px;">
+                <select style="width: 100%; padding: 10px; border: 1px solid #dcdcdc; border-radius: 6px; background: white;"><option>Property type</option></select>
+            </div>
+            <div style="flex: 1; min-width: 100px;">
+                <button style="width: 100%; padding: 10px; border: 1px solid #006aff; color: #006aff; background: white; border-radius: 6px; font-weight: 600; cursor: pointer;">Save search</button>
+            </div>
         </div>
     </div>
 """,
@@ -347,7 +365,7 @@ with map_col:
       layers=[layer],
       initial_view_state=view_state,
       map_style="light",
-      tooltip={"text": "Utah Land & Property Asset"},
+      tooltip={"text": "Utah Land & Property Investment Asset"},
   )
   st.pydeck_chart(r, use_container_width=True)
 
@@ -399,7 +417,7 @@ with listings_col:
           else:
             st.error("Please enter a valid email address.")
 
-# --- FOOTER LEGAL NOTICE ---
+# --- FOOTER LEGAL NOTICE WITH STATUTES ---
 st.markdown(
     """
     <div style="font-size: 0.75rem; color: #64748b; text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eaeaea;">
