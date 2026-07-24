@@ -59,7 +59,7 @@ st.markdown(
         color: #333333;
     }
     
-    /* Hero Alpine Banner */
+    /* Hero Alpine Banner - Bright Homes & Land with Blue Tone */
     .hero-alpine {
         position: relative;
         border-radius: 10px;
@@ -68,7 +68,7 @@ st.markdown(
         box-shadow: 0 4px 12px rgba(0,0,0,0.06);
     }
     .hero-bg {
-        background: linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.45)), url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80');
+        background: linear-gradient(rgba(14, 116, 144, 0.35), rgba(15, 23, 42, 0.55)), url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1920&q=80');
         background-size: cover;
         background-position: center;
         padding: 55px 40px;
@@ -294,13 +294,13 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# --- HERO ALPINE BANNER ---
+# --- HERO ALPINE BANNER (Updated Content & Bright Homes/Land Blue Theme) ---
 st.markdown(
     """
     <div class="hero-alpine">
         <div class="hero-bg">
-            <h1 style="font-family: Georgia, serif; font-size: 2.3rem; font-weight: normal; margin-bottom: 8px; color: #ffffff;">Your Key to Utah's Premium<br>Land & Properties.</h1>
-            <p style="font-size: 0.95rem; color: #e2e8f0; max-width: 600px; margin: 0;">Explore verified acquisitions, direct opportunities, and transparent contract assignments.</p>
+            <h1 style="font-family: Georgia, serif; font-size: 2.3rem; font-weight: normal; margin-bottom: 8px; color: #ffffff;">Utah Land & Property for Sale<br>Assignment Contracts</h1>
+            <p style="font-size: 0.95rem; color: #e2e8f0; max-width: 600px; margin: 0;">Your gateway to premier Utah Real Estate and land opportunities for discerning buyers and strategic investors.</p>
         </div>
     </div>
 """,
@@ -349,7 +349,6 @@ filtered_df = filtered_df[filtered_df["price"] <= max_price]
 map_col, results_col = st.columns([1.1, 1.2])
 
 with map_col:
-  # Header & Map Style Toggle controls side-by-side
   m_head_col1, m_head_col2 = st.columns([1.2, 1])
   with m_head_col1:
     st.markdown(
@@ -367,16 +366,11 @@ with map_col:
         columns={"lat": "latitude", "lon": "longitude"}
     )
 
-    # Render via pydeck with custom map style tiles
     import pydeck as pdk
 
-    # Select Mapbox/Carto tile layer style based on user toggle selection
     if map_style == "Satellite View":
-      # Using Mapbox Satellite style URL (or Carto dark/light basemap alternative fallback)
-      map_provider = "mapbox"
       map_tiles_style = "mapbox://styles/mapbox/satellite-v9"
     else:
-      map_provider = "carto"
       map_tiles_style = "light"
 
     layer = pdk.Layer(
@@ -389,7 +383,6 @@ with map_col:
         auto_highlight=True,
     )
 
-    # Set initial center view around Utah coordinates
     view_state = pdk.ViewState(
         latitude=40.7608 if filtered_df.empty else filtered_df["lat"].mean(),
         longitude=-111.8910 if filtered_df.empty else filtered_df["lon"].mean(),
