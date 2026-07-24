@@ -1,6 +1,8 @@
-The error occurs because markdown code block fences (````python` and `````) were accidentally included at the beginning and end of the raw Python script file. Streamlit expects pure Python code without markdown formatting wrapper blocks.
+It looks like explanatory text or markdown wrapper formatting was accidentally saved directly inside the `dashboard.py` file. Python files can only contain valid Python code; any English text or markdown sentences at the very beginning of line 1 will throw a `SyntaxError`.
 
-Here is the clean, corrected code ready to be saved directly into your `dashboard.py` file:
+Make sure your `dashboard.py` file begins **immediately** with the python imports (`import smtplib`), with zero extra text or spaces above it.
+
+Here is the clean raw code block again. Ensure you copy *only* the Python code inside the block into your file:
 
 ```python
 import smtplib
