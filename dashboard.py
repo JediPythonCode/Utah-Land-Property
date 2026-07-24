@@ -5,28 +5,25 @@ import pandas as pd
 import pydeck as pdk
 import streamlit as st
 
-# Page Configuration - Wide layout matching a premium real estate portal
+# Page Configuration - Wide layout mimicking a professional real estate portal
 st.set_page_config(
-    page_title=(
-        "Millcreek UT Real Estate & Homes For Sale | Utah Land & Property"
-    ),
+    page_title="Utah Real Estate & Homes For Sale | Utah Land & Property",
     page_icon="🏡",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
-# Custom Styling - Modern, clean UI variables and refined CSS
+# Custom Styling to precisely match the Zillow UI layout, clear column separation, and clean borders
 st.markdown(
     """
     <style>
     :root {
         --primary-color: #006aff;
-        --primary-hover: #0051cc;
+        --primary-hover: #004080;
         --bg-main: #ffffff;
-        --bg-subtle: #f8fafc;
-        --border-color: #e2e8f0;
-        --text-main: #0f172a;
-        --text-muted: #64748b;
+        --border-color: #dcdcdc;
+        --text-main: #2b2b2b;
+        --text-muted: #666666;
     }
     
     .stApp {
@@ -48,17 +45,17 @@ st.markdown(
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 14px 28px;
+        padding: 12px 24px;
         border-bottom: 1px solid var(--border-color);
-        background-color: var(--bg-main);
+        background-color: #ffffff;
         margin-bottom: 0px;
     }
     .z-nav-left, .z-nav-right {
         display: flex;
-        gap: 24px;
+        gap: 20px;
         align-items: center;
         font-size: 0.92rem;
-        font-weight: 600;
+        font-weight: 500;
         color: var(--primary-color);
     }
     .z-nav-left span, .z-nav-right span {
@@ -69,73 +66,102 @@ st.markdown(
         text-decoration: underline;
     }
     .z-logo-center {
-        font-size: 1.8rem;
-        font-weight: 800;
+        font-size: 1.9rem;
+        font-weight: 900;
         letter-spacing: -0.5px;
-        color: var(--text-main);
+        color: #111111;
         text-transform: uppercase;
         font-family: "Playfair Display", Georgia, serif;
     }
     
+    /* Filter Bar */
+    .z-filter-bar {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        padding: 12px 24px;
+        background-color: #ffffff;
+        border-bottom: 1px solid #e5e5e5;
+        margin-bottom: 0px;
+        flex-wrap: wrap;
+    }
+
+    /* Main Split Layout Containers with Clear Boundary */
+    .portal-container {
+        display: flex;
+        width: 100%;
+        background-color: #ffffff;
+    }
+    .map-pane {
+        width: 50%;
+        padding: 16px 12px 16px 24px;
+        border-right: 2px solid #e2e8f0;
+        background-color: #fafbfc;
+    }
+    .listings-pane {
+        width: 50%;
+        padding: 16px 24px 16px 16px;
+        background-color: #ffffff;
+        max-height: 85vh;
+        overflow-y: auto;
+    }
+    
     /* Listing Cards */
     .z-card {
-        background-color: var(--bg-main);
-        border: 1px solid var(--border-color);
-        border-radius: 10px;
+        background-color: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
         overflow: hidden;
         margin-bottom: 20px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        transition: box-shadow 0.2s ease;
     }
     .z-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.1);
     }
     .z-card-img-container {
         position: relative;
     }
     .z-card-img {
         width: 100%;
-        height: 210px;
+        height: 190px;
         object-fit: cover;
     }
     .z-badge {
         position: absolute;
-        top: 12px;
-        left: 12px;
-        background-color: rgba(15, 23, 42, 0.85);
+        top: 10px;
+        left: 10px;
+        background-color: rgba(0, 0, 0, 0.75);
         color: white;
-        padding: 5px 10px;
-        border-radius: 6px;
+        padding: 4px 8px;
+        border-radius: 4px;
         font-size: 0.75rem;
         font-weight: 600;
-        letter-spacing: 0.3px;
     }
     .z-card-body {
-        padding: 18px;
+        padding: 16px;
     }
     .z-price {
-        font-size: 1.4rem;
+        font-size: 1.35rem;
         font-weight: 700;
-        color: var(--text-main);
-        margin-bottom: 6px;
+        color: #111111;
+        margin-bottom: 4px;
     }
     .z-details {
         font-size: 0.88rem;
-        color: #334155;
+        color: #333333;
         margin-bottom: 8px;
     }
     .z-address {
         font-size: 0.85rem;
-        color: var(--text-muted);
-        margin-bottom: 6px;
+        color: #666666;
+        margin-bottom: 4px;
     }
     .z-broker {
-        font-size: 0.72rem;
-        color: #94a3b8;
+        font-size: 0.75rem;
+        color: #888888;
         text-transform: uppercase;
-        letter-spacing: 0.8px;
-        font-weight: 700;
+        letter-spacing: 0.5px;
     }
     </style>
 """,
@@ -143,9 +169,9 @@ st.markdown(
 )
 
 
-# Load Property Dataset matching Millcreek, UT real estate inventory
+# Vast Utah City Database with Coordinates and Inventory Catalog
 @st.cache_data
-def load_zillow_data():
+def load_utah_property_database():
   data = [
       {
           "id": "UT-MIL-0101",
@@ -159,9 +185,7 @@ def load_zillow_data():
           "status": "Equitable Interest Available",
           "address": "4646 S Quail Park Dr E #C, Millcreek, UT 84117",
           "broker": "UTAH LAND & PROPERTY INC.",
-          "image": (
-              "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80"
-          ),
+          "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
           "lat": 40.6977,
           "lon": -111.8550,
       },
@@ -177,14 +201,12 @@ def load_zillow_data():
           "status": "Showcase",
           "address": "718 E Elgin Ave, Millcreek, UT 84106",
           "broker": "OMADA REAL ESTATE",
-          "image": (
-              "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80"
-          ),
+          "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
           "lat": 40.7012,
           "lon": -111.8670,
       },
       {
-          "id": "UT-MIL-0103",
+          "id": "UT-SLC-0103",
           "title": "Millbert Avenue Residence",
           "type": "House for sale",
           "city": "Salt Lake City, UT",
@@ -195,9 +217,7 @@ def load_zillow_data():
           "status": "2 days on market",
           "address": "1010 E Millbert Ave S, Salt Lake City, UT 84106",
           "broker": "SUMMIT SOTHEBY'S INTERNATIONAL REALTY",
-          "image": (
-              "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80"
-          ),
+          "image": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
           "lat": 40.7045,
           "lon": -111.8590,
       },
@@ -213,37 +233,115 @@ def load_zillow_data():
           "status": "Direct Acquisition",
           "address": "12300 S Fort St, Draper, UT 84020",
           "broker": "UTAH LAND & PROPERTY INC.",
-          "image": (
-              "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80"
-          ),
+          "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
           "lat": 40.5243,
           "lon": -111.8631,
+      },
+      {
+          "id": "UT-PRO-0301",
+          "title": "Provo Riverfront Development Lot",
+          "type": "Land / Development",
+          "city": "Provo, UT",
+          "price": 410000,
+          "beds": 0,
+          "baths": 0,
+          "sqft": 12500,
+          "status": "New Listing",
+          "address": "1850 N University Pkwy, Provo, UT 84604",
+          "broker": "UTAH LAND & PROPERTY INC.",
+          "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
+          "lat": 40.2542,
+          "lon": -111.6608,
+      },
+      {
+          "id": "UT-OGD-0401",
+          "title": "Ogden Historic Bench Estate",
+          "type": "House for sale",
+          "city": "Ogden, UT",
+          "price": 485000,
+          "beds": 4,
+          "baths": 3,
+          "sqft": 3100,
+          "status": "Price Improvement",
+          "address": "1420 25th St, Ogden, UT 84401",
+          "broker": "WASATCH HOMES",
+          "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+          "lat": 41.2230,
+          "lon": -111.9738,
+      },
+      {
+          "id": "UT-PARK-0501",
+          "title": "Park City Mountain View Townhome",
+          "type": "Townhouse",
+          "city": "Park City, UT",
+          "price": 1250000,
+          "beds": 3,
+          "baths": 4,
+          "sqft": 2400,
+          "status": "Exclusive",
+          "address": "Park Meadows Townhomes, Park City, UT 84060",
+          "broker": "SUMMIT SOTHEBY'S",
+          "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
+          "lat": 40.6461,
+          "lon": -111.4980,
+      },
+      {
+          "id": "UT-STG-0601",
+          "title": "St. George Red Rock Master Parcel",
+          "type": "Commercial Land",
+          "city": "St. George, UT",
+          "price": 890000,
+          "beds": 0,
+          "baths": 0,
+          "sqft": 45000,
+          "status": "Entitled Land",
+          "address": "SunRiver Pkwy, St. George, UT 84790",
+          "broker": "UTAH LAND & PROPERTY INC.",
+          "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
+          "lat": 37.0952,
+          "lon": -113.5610,
+      },
+      {
+          "id": "UT-LEH-0701",
+          "title": "Lehi Silicon Slopes Office/Residential",
+          "type": "Mixed-Use",
+          "city": "Lehi, UT",
+          "price": 750000,
+          "beds": 4,
+          "baths": 3,
+          "sqft": 3400,
+          "status": "Active",
+          "address": "3300 N Ashton Blvd, Lehi, UT 84043",
+          "broker": "MOUNTAINLAND REALTY",
+          "image": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
+          "lat": 40.4153,
+          "lon": -111.8398,
       },
   ]
   return pd.DataFrame(data)
 
 
-df = load_zillow_data()
+df = load_utah_property_database()
 
 
-# Helper Function for Automated Email Dispatch
-def send_escrow_dispatch(
-    property_id, property_title, recipient_email, user_message
+# Helper Function for Automated Email / Offer Dispatch
+def send_offer_dispatch(
+    property_id, property_title, recipient_email, offer_terms
 ):
   smtp_server = "smtp.gmail.com"
   port = 587
   sender_email = st.secrets.get("EMAIL_USER", "your-email@domain.com")
   sender_password = st.secrets.get("EMAIL_PASS", "your-app-password")
 
-  subject = f"Escrow Dispatch & Terms Request: {property_id}"
+  subject = f"Official Offer / Escrow Submission: {property_id}"
   body = f"""
-    Automated Transaction Workflow Dispatch:
+    Automated Transaction & Offer Workflow Dispatch:
     Property ID: {property_id}
     Asset Title: {property_title}
-    Requester Contact: {recipient_email}
-    User Notes / Terms: {user_message}
+    Submitter Contact: {recipient_email}
+    Offer Terms & Conditions: {offer_terms}
     ---
-    Notice: Utah Land & Property Inc. - Secure Escrow Document Routing Engine.
+    Notice: Utah Land & Property Inc. - Secure Escrow & Offer Routing Engine.
     """
 
   msg = MIMEMultipart()
@@ -263,7 +361,7 @@ def send_escrow_dispatch(
     return False
 
 
-# --- TOP NAVIGATION BAR ---
+# --- TOP NAVIGATION BAR (Replaced 'Find an agent' with 'Submit an Offer') ---
 st.markdown(
     """
     <div class="z-navbar">
@@ -272,7 +370,7 @@ st.markdown(
             <span>Rent</span>
             <span>Sell</span>
             <span>Get a mortgage</span>
-            <span>Find an agent</span>
+            <span style="color: #004080; font-weight: 700;">Submit an Offer</span>
         </div>
         <div class="z-logo-center">
             UTAH LAND & PROPERTY INC.
@@ -288,18 +386,22 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# --- INTERACTIVE FILTER & SEARCH BAR (Native Streamlit UI Widgets) ---
+# --- ZILLOW-STYLE VAST UTAH CITY & FILTER SEARCH BAR ---
 st.markdown(
-    "<div style='padding: 12px 24px 0px 24px; background-color: #ffffff;'>",
+    "<div style='padding: 12px 24px; background-color: #ffffff;'>",
     unsafe_allow_html=True,
 )
 f_col1, f_col2, f_col3, f_col4, f_col5, f_col6 = st.columns(
     [2.2, 1, 1, 1, 1, 1]
 )
 
+# Extract dynamic list of available cities across Utah from dataset + common options
+utah_cities = sorted(df["city"].unique().tolist())
+all_locations = ["All Utah Cities", "Millcreek, UT", "Salt Lake City, UT", "Draper, UT", "Provo, UT", "Ogden, UT", "Park City, UT", "St. George, UT", "Lehi, UT"]
+
 with f_col1:
-  search_query = st.text_input(
-      "Location Search", value="Millcreek, UT", label_visibility="collapsed"
+  selected_location = st.selectbox(
+      "Utah City Search", all_locations, label_visibility="collapsed"
   )
 with f_col2:
   status_filter = st.selectbox(
@@ -307,48 +409,53 @@ with f_col2:
   )
 with f_col3:
   price_filter = st.selectbox(
-      "Price Range", ["Any Price", "Under $300k", "$300k - $700k"], label_visibility="collapsed"
+      "Price Range", ["Any Price", "Under $500k", "$500k - $1M", "Over $1M"], label_visibility="collapsed"
   )
 with f_col4:
   beds_filter = st.selectbox(
-      "Beds", ["Beds & baths", "3+ Beds", "5+ Beds"], label_visibility="collapsed"
+      "Beds", ["Beds & baths", "3+ Beds", "4+ Beds", "5+ Beds"], label_visibility="collapsed"
   )
 with f_col5:
   type_filter = st.selectbox(
-      "Property Type", ["Property type", "House", "Land / Commercial"], label_visibility="collapsed"
+      "Property Type", ["Property type", "House", "Land / Development", "Townhouse"], label_visibility="collapsed"
   )
 with f_col6:
   save_btn = st.button("Save search", use_container_width=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
-st.markdown("<hr style='margin: 10px 0px 20px 0px; border-color: #e2e8f0;'>", unsafe_allow_html=True)
 
-# --- FILTER LOGIC APPLIED TO DATAFRAME ---
+# --- FILTER LOGIC ---
 filtered_df = df.copy()
-if price_filter == "Under $300k":
-  filtered_df = filtered_df[filtered_df["price"] <= 300000]
-elif price_filter == "$300k - $700k":
-  filtered_df = filtered_df[(filtered_df["price"] > 300000) & (filtered_df["price"] <= 700000)]
+if selected_location != "All Utah Cities":
+  filtered_df = filtered_df[filtered_df["city"].str.lower() == selected_location.lower()]
+
+if price_filter == "Under $500k":
+  filtered_df = filtered_df[filtered_df["price"] <= 500000]
+elif price_filter == "$500k - $1M":
+  filtered_df = filtered_df[(filtered_df["price"] > 500000) & (filtered_df["price"] <= 1000000)]
+elif price_filter == "Over $1M":
+  filtered_df = filtered_df[filtered_df["price"] > 1000000]
 
 if beds_filter == "3+ Beds":
   filtered_df = filtered_df[filtered_df["beds"] >= 3]
+elif beds_filter == "4+ Beds":
+  filtered_df = filtered_df[filtered_df["beds"] >= 4]
 elif beds_filter == "5+ Beds":
   filtered_df = filtered_df[filtered_df["beds"] >= 5]
 
-if type_filter == "House":
-  filtered_df = filtered_df[filtered_df["type"].str.contains("House", case=False, na=False)]
-elif type_filter == "Land / Commercial":
-  filtered_df = filtered_df[filtered_df["type"].str.contains("Land|Commercial", case=False, na=False)]
+if type_filter != "Property type":
+  filtered_df = filtered_df[filtered_df["type"].str.contains(type_filter, case=False, na=False)]
 
-# --- SPLIT LAYOUT: MAP (LEFT) & LISTINGS CARDS (RIGHT) ---
-map_col, listings_col = st.columns([1.1, 1.3], gap="medium")
+# --- PORTAL LAYOUT WITH CLEAR SEPARATION (MAP LEFT, LISTINGS RIGHT) ---
+st.markdown("<div class='portal-container'>", unsafe_allow_html=True)
 
-with map_col:
-  st.markdown(
-      "<div style='font-size: 1.1rem; font-weight: 700; margin-bottom: 10px;"
-      " color: #0f172a;'>Interactive Asset & Property Map</div>",
-      unsafe_allow_html=True,
-  )
+# Left Pane: Map View with clear boundary wrapper
+map_container, listings_container = st.columns([1, 1], gap="small")
+
+with map_container:
+  st.markdown("<div class='map-pane'>", unsafe_allow_html=True)
+  location_title = selected_location if selected_location != "All Utah Cities" else "Utah Statewide"
+  st.markdown(f"<div style='font-size: 1.1rem; font-weight: 700; margin-bottom: 12px; color: #111;'>{location_title} Real Estate Map</div>", unsafe_allow_html=True)
 
   map_data = filtered_df[["lat", "lon"]].rename(
       columns={"lat": "latitude", "lon": "longitude"}
@@ -359,38 +466,40 @@ with map_col:
       data=map_data,
       get_position="[longitude, latitude]",
       get_color="[0, 106, 255, 230]",
-      get_radius=650,
+      get_radius=800,
       pickable=True,
       auto_highlight=True,
   )
 
-  # Dynamic view centering based on active subset
+  # Dynamic center based on filter results
   lat_center = filtered_df["lat"].mean() if not filtered_df.empty else 40.6977
   lon_center = filtered_df["lon"].mean() if not filtered_df.empty else -111.8550
+  zoom_level = 11 if selected_location != "All Utah Cities" else 7
 
   view_state = pdk.ViewState(
-      latitude=lat_center, longitude=lon_center, zoom=11.5, pitch=0
+      latitude=lat_center, longitude=lon_center, zoom=zoom_level, pitch=0
   )
 
   r = pdk.Deck(
       layers=[layer],
       initial_view_state=view_state,
       map_style="light",
-      tooltip={"text": "Utah Land & Property Asset Portfolio Location"},
+      tooltip={"text": "Utah Land & Property Investment Asset"},
   )
   st.pydeck_chart(r, use_container_width=True)
+  st.markdown("</div>", unsafe_allow_html=True)
 
-with listings_col:
+# Right Pane: Property Listings Cards with independent scrolling and clear boundary
+with listings_container:
+  st.markdown("<div class='listings-pane'>", unsafe_allow_html=True)
   st.markdown(
-      "<div style='font-size: 1.2rem; font-weight: 700; margin-bottom: 4px;"
-      " color: #0f172a;'>Millcreek UT Real Estate & Homes For Sale</div>"
-      f"<div style='font-size: 0.88rem; color: #64748b; margin-bottom: 15px;'>{len(filtered_df)}"
-      " matching properties found</div>",
+      f"<div style='font-size: 1.2rem; font-weight: 700; margin-bottom: 4px; color: #111;'>{location_title} Real Estate & Homes For Sale</div>"
+      f"<div style='font-size: 0.88rem; color: #666; margin-bottom: 15px;'>{len(filtered_df)} results found</div>",
       unsafe_allow_html=True,
   )
 
   if filtered_df.empty:
-    st.info("No properties match the selected filter criteria. Please adjust your filters.")
+    st.info("No properties found matching your search criteria in this region.")
   else:
     grid_col1, grid_col2 = st.columns(2, gap="small")
 
@@ -415,21 +524,25 @@ with listings_col:
             unsafe_allow_html=True,
         )
 
-        with st.expander(f"Inquire / Escrow Dispatch ({row['id']})"):
+        with st.expander(f"Submit Offer / Terms ({row['id']})"):
           user_email = st.text_input(
               "Your Email", key=f"z_email_{row['id']}", placeholder="name@domain.com"
           )
-          user_msg = st.text_area(
-              "Terms / Contingencies",
+          offer_terms = st.text_area(
+              "Offer Terms & Conditions",
               key=f"z_msg_{row['id']}",
-              placeholder="Enter earnest money or inspection timelines...",
+              placeholder="Enter purchase price, earnest money, or inspection contingencies...",
           )
-          if st.button("Submit to Escrow", key=f"z_btn_{row['id']}"):
+          if st.button("Submit Official Offer", key=f"z_btn_{row['id']}"):
             if user_email:
-              send_escrow_dispatch(row["id"], row["title"], user_email, user_msg)
-              st.success("Workflow successfully dispatched to escrow!")
+              send_offer_dispatch(row["id"], row["title"], user_email, offer_terms)
+              st.success("Offer successfully dispatched to escrow!")
             else:
               st.error("Please enter a valid email address.")
+
+  st.markdown("</div>", unsafe_allow_html=True)
+
+st.markdown("</div>", unsafe_allow_html=True)
 
 # --- FOOTER LEGAL NOTICE ---
 st.markdown(
