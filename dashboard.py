@@ -1,20 +1,21 @@
+```python
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import pandas as pd
 import streamlit as st
 
-# Page Configuration - Utah real estate portal
+# Page Configuration - Wide layout matching Zillow real estate portal
 st.set_page_config(
     page_title=(
-        " Utah Real Estate & Land For Sale | Utah Land & Property"
+        "Millcreek UT Real Estate & Homes For Sale | Utah Land & Property"
     ),
     page_icon="🏡",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
-# Custom Styling UI, header bar, and split-screen map layout
+# Custom Styling to precisely match the Zillow UI screenshot layout and top bar
 st.markdown(
     """
     <style>
@@ -58,12 +59,12 @@ st.markdown(
         text-decoration: underline;
     }
     .z-logo-center {
-        font-size: 1.8rem;
-        font-weight: 900;
+        font-size: 2.1rem;
+        font-weight: 800;
         letter-spacing: -0.5px;
-        color: #006aff;
-        text-transform: none;
-        font-style: italic;
+        color: #111111;
+        text-transform: uppercase;
+        font-family: "Playfair Display", Georgia, serif;
     }
     
     /* Sub-filter Search Bar Row */
@@ -141,7 +142,7 @@ st.markdown(
 )
 
 
-# Load Property Dataset with precise coordinates around Millcreek, UT
+# Load Property Dataset matching Millcreek, UT real estate inventory
 @st.cache_data
 def load_zillow_data():
   data = [
@@ -261,7 +262,7 @@ def send_escrow_dispatch(
     return False
 
 
-# --- ZILLOW STYLE TOP NAVIGATION BAR ---
+# --- TOP NAVIGATION BAR WITH BOLD BLACK ELEGANT LOGO ---
 st.markdown(
     """
     <div class="z-navbar">
@@ -273,7 +274,7 @@ st.markdown(
             <span>Find an agent</span>
         </div>
         <div class="z-logo-center">
-            Utah Land & Property Inc.
+            UTAH LAND & PROPERTY INC.
         </div>
         <div class="z-nav-right">
             <span>Manage rentals</span>
@@ -286,7 +287,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# --- ZILLOW STYLE FILTER SEARCH BAR ---
+# --- FILTER SEARCH BAR ---
 st.markdown(
     """
     <div class="z-filter-bar">
@@ -313,7 +314,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# --- MAIN SPLIT LAYOUT: MAP (LEFT) & ZILLOW LISTINGS CARDS (RIGHT) ---
+# --- SPLIT LAYOUT: MAP (LEFT) & LISTINGS CARDS (RIGHT) ---
 map_col, listings_col = st.columns([1.1, 1.3])
 
 with map_col:
@@ -360,7 +361,6 @@ with listings_col:
       unsafe_allow_html=True,
   )
 
-  # Display listings in a 2-column grid inside the right panel
   grid_col1, grid_col2 = st.columns(2)
 
   for i, row in df.iterrows():
@@ -393,7 +393,7 @@ with listings_col:
             key=f"z_msg_{row['id']}",
             placeholder="Enter earnest money or inspection timelines...",
         )
-        if st.button("Submit to Escrow", key=f"z_btn_{row['id']}" ):
+        if st.button("Submit to Escrow", key=f"z_btn_{row['id']}"):
           if user_email:
             send_escrow_dispatch(row["id"], row["title"], user_email, user_msg)
             st.success("Workflow successfully dispatched to escrow!")
@@ -404,8 +404,10 @@ with listings_col:
 st.markdown(
     """
     <div style="font-size: 0.75rem; color: #64748b; text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eaeaea;">
-        Notice: Utah Land & Property Inc. operates independently as a private investment firm. All property management functions and asset transactions are executed in compliance with applicable Utah real estate statutes.
+       Notice: Utah Land & Property Inc. operates independently as a private investment firm. All property management functions and asset transactions are executed in compliance with applicable Utah real estate statutes (Utah Code Ann. § 57-1 et seq. and § 61-2f-1 et seq.).
     </div>
 """,
     unsafe_allow_html=True,
 )
+
+```
