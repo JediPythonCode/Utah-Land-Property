@@ -1,7 +1,7 @@
-python
-import smtplib
+```python
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import smtplib
 import pandas as pd
 import streamlit as st
 
@@ -38,8 +38,8 @@ st.markdown(
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 12px 24px;
-        border-bottom: 1px solid #dcdcdc;
+        padding: 14px 24px;
+        border-bottom: 2px solid #e0e0e0;
         background-color: #ffffff;
         margin-bottom: 0px;
     }
@@ -59,10 +59,10 @@ st.markdown(
         text-decoration: underline;
     }
     .z-logo-center {
-        font-size: 1.45rem;
-        font-weight: 800;
-        letter-spacing: -0.3px;
-        color: #111111;
+        font-size: 1.8rem;
+        font-weight: 900;
+        letter-spacing: 0.2px;
+        color: #0a192f;
         text-transform: uppercase;
         font-family: "Playfair Display", Georgia, serif;
     }
@@ -242,8 +242,12 @@ def send_escrow_dispatch(
 ):
   smtp_server = "smtp.gmail.com"
   port = 587
-  sender_email = st.secrets.get("EMAIL_USER", "your-email@domain.com")
-  sender_password = st.secrets.get("EMAIL_PASS", "your-app-password")
+  try:
+    sender_email = st.secrets.get("EMAIL_USER", "your-email@domain.com")
+    sender_password = st.secrets.get("EMAIL_PASS", "your-app-password")
+  except Exception:
+    sender_email = "your-email@domain.com"
+    sender_password = "your-app-password"
 
   subject = f"Escrow Dispatch & Terms Request: {property_id}"
   body = f"""
@@ -423,10 +427,12 @@ st.markdown(
     """
     <div style="font-size: 0.75rem; color: #64748b; text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eaeaea;">
         Notice: Utah Land & Property Inc. is a private investment firm and is not a licensed real estate broker or agent.
-We do not represent third parties in the purchase, sale, or management of outside real estate.
-Pursuant to the exemption under Utah Code § 61-2f-202, all property management functions are executed solely by individuals,
-operating as regular salaried employees of the specific legal entities that own the underlying real estate assets.
+        We do not represent third parties in the purchase, sale, or management of outside real estate.
+        Pursuant to the exemption under Utah Code § 61-2f-202, all property management functions are executed solely by individuals,
+        operating as regular salaried employees of the specific legal entities that own the underlying real estate assets.
     </div>
 """,
     unsafe_allow_html=True,
 )
+
+```
