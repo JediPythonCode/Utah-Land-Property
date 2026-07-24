@@ -170,7 +170,7 @@ def load_zillow_data():
           "address": "4646 S Quail Park Dr E #C, Millcreek, UT 84117",
           "broker": "UTAH LAND & PROPERTY INC.",
           "image": (
-              "[https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80](https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80)"
+              "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80"
           ),
           "lat": 40.6977,
           "lon": -111.8550,
@@ -188,7 +188,7 @@ def load_zillow_data():
           "address": "718 E Elgin Ave, Millcreek, UT 84106",
           "broker": "OMADA REAL ESTATE",
           "image": (
-              "[https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80](https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80)"
+              "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80"
           ),
           "lat": 40.7012,
           "lon": -111.8670,
@@ -206,7 +206,7 @@ def load_zillow_data():
           "address": "1010 E Millbert Ave S, Salt Lake City, UT 84106",
           "broker": "SUMMIT SOTHEBY'S INTERNATIONAL REALTY",
           "image": (
-              "[https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80](https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80)"
+              "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80"
           ),
           "lat": 40.7045,
           "lon": -111.8590,
@@ -224,7 +224,7 @@ def load_zillow_data():
           "address": "12300 S Fort St, Draper, UT 84020",
           "broker": "UTAH LAND & PROPERTY INC.",
           "image": (
-              "[https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80](https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80)"
+              "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80"
           ),
           "lat": 40.5243,
           "lon": -111.8631,
