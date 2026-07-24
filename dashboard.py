@@ -1,3 +1,4 @@
+```python
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -7,7 +8,7 @@ import streamlit as st
 # Page Configuration - Wide layout matching private investment portfolio portal
 st.set_page_config(
     page_title=(
-        "Millcreek UT Portfolio Assets & Investments | Utah Land & Property"
+        "Utah Real Estate & Land for Sale | Utah Land & Property"
     ),
     page_icon="🏡",
     layout="wide",
@@ -58,12 +59,12 @@ st.markdown(
         text-decoration: underline;
     }
     .z-logo-center {
-        font-size: 1.1rem;
-        font-weight: 700;
-        letter-spacing: 0.5px;
-        color: #333333;
+        font-size: 1.45rem;
+        font-weight: 800;
+        letter-spacing: -0.3px;
+        color: #111111;
         text-transform: uppercase;
-        font-family: "Open Sans", sans-serif;
+        font-family: "Playfair Display", Georgia, serif;
     }
     
     /* Filter Bar */
@@ -421,8 +422,13 @@ with listings_col:
 st.markdown(
     """
     <div style="font-size: 0.75rem; color: #64748b; text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eaeaea;">
-        Notice: Utah Land & Property Inc. operates independently as a private investment firm. All property management functions and asset transactions are executed in compliance with applicable Utah real estate statutes (Utah Code Ann. § 57-1 et seq. and § 61-2f-1 et seq.).
+        Notice: Utah Land & Property Inc. is a private investment firm and is not a licensed real estate broker or agent.
+We do not represent third parties in the purchase, sale, or management of outside real estate.
+Pursuant to the exemption under Utah Code § 61-2f-202, all property management functions are executed solely by individuals,
+operating as regular salaried employees of the specific legal entities that own the underlying real estate assets.
     </div>
 """,
     unsafe_allow_html=True,
 )
+
+```
