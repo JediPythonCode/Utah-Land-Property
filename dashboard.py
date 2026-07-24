@@ -1,21 +1,21 @@
-python
+```python
+import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import smtplib
 import pandas as pd
 import streamlit as st
 
-# Page Configuration - Wide layout matching private investment portfolio portal
+# Page Configuration - Wide layout matching Zillow real estate portal
 st.set_page_config(
     page_title=(
-        "Utah Real Estate & Land for Sale | Utah Land & Property"
+        "Millcreek UT Real Estate & Homes For Sale | Utah Land & Property"
     ),
     page_icon="🏡",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
-# Custom Styling to adjust header, font weights, and filter layout
+# Custom Styling to precisely match the Zillow UI screenshot layout and top bar
 st.markdown(
     """
     <style>
@@ -33,21 +33,21 @@ st.markdown(
         padding-top: 0px !important;
     }
     
-    /* Top Navbar */
+    /* Zillow Top Navbar */
     .z-navbar {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 14px 24px;
-        border-bottom: 2px solid #e0e0e0;
+        padding: 12px 24px;
+        border-bottom: 1px solid #dcdcdc;
         background-color: #ffffff;
         margin-bottom: 0px;
     }
     .z-nav-left, .z-nav-right {
         display: flex;
-        gap: 20px;
+        gap: 24px;
         align-items: center;
-        font-size: 0.9rem;
+        font-size: 0.95rem;
         font-weight: 500;
         color: #006aff;
     }
@@ -59,38 +59,27 @@ st.markdown(
         text-decoration: underline;
     }
     .z-logo-center {
-        font-size: 1.8rem;
-        font-weight: 900;
-        letter-spacing: 0.2px;
-        color: #0a192f;
+        font-size: 2.1rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        color: #111111;
         text-transform: uppercase;
         font-family: "Playfair Display", Georgia, serif;
     }
     
-    /* Filter Bar */
-    .z-filter-container {
-        padding: 16px 24px;
-        background-color: #ffffff;
-        border-bottom: 1px solid #e5e5e5;
-        margin-bottom: 20px;
-    }
-    .z-filter-labels {
-        display: flex;
-        gap: 12px;
-        font-size: 0.78rem;
-        font-weight: 700;
-        color: #444444;
-        text-transform: uppercase;
-        margin-bottom: 6px;
-    }
+    /* Sub-filter Search Bar Row */
     .z-filter-bar {
         display: flex;
         gap: 12px;
         align-items: center;
+        padding: 14px 24px;
+        background-color: #ffffff;
+        border-bottom: 1px solid #e5e5e5;
+        margin-bottom: 20px;
         flex-wrap: wrap;
     }
     
-    /* Listing Cards */
+    /* Zillow Style Listing Cards */
     .z-card {
         background-color: #ffffff;
         border: 1px solid #e0e0e0;
@@ -153,7 +142,7 @@ st.markdown(
 )
 
 
-# Load Property Dataset matching Millcreek, UT inventory
+# Load Property Dataset matching Millcreek, UT real estate inventory
 @st.cache_data
 def load_zillow_data():
   data = [
@@ -242,12 +231,8 @@ def send_escrow_dispatch(
 ):
   smtp_server = "smtp.gmail.com"
   port = 587
-  try:
-    sender_email = st.secrets.get("EMAIL_USER", "your-email@domain.com")
-    sender_password = st.secrets.get("EMAIL_PASS", "your-app-password")
-  except Exception:
-    sender_email = "your-email@domain.com"
-    sender_password = "your-app-password"
+  sender_email = st.secrets.get("EMAIL_USER", "your-email@domain.com")
+  sender_password = st.secrets.get("EMAIL_PASS", "your-app-password")
 
   subject = f"Escrow Dispatch & Terms Request: {property_id}"
   body = f"""
@@ -257,7 +242,7 @@ def send_escrow_dispatch(
     Requester Contact: {recipient_email}
     User Notes / Terms: {user_message}
     ---
-    Notice: Utah Land & Property Inc. - Private Investment Firm.
+    Notice: Utah Land & Property Inc. - Secure Escrow Document Routing Engine.
     """
 
   msg = MIMEMultipart()
@@ -277,21 +262,24 @@ def send_escrow_dispatch(
     return False
 
 
-# --- TOP NAVIGATION BAR (Private Investment Firm Profile) ---
+# --- TOP NAVIGATION BAR WITH BOLD BLACK ELEGANT LOGO ---
 st.markdown(
     """
     <div class="z-navbar">
         <div class="z-nav-left">
             <span>Buy</span>
+            <span>Rent</span>
             <span>Sell</span>
             <span>Get a mortgage</span>
+            <span>Find an agent</span>
         </div>
         <div class="z-logo-center">
             UTAH LAND & PROPERTY INC.
         </div>
         <div class="z-nav-right">
-            <span>Private Property Management</span>
+            <span>Manage rentals</span>
             <span>Advertise</span>
+            <span>Get help</span>
             <span style="background-color: #006aff; color: white; padding: 8px 18px; border-radius: 6px; font-weight: 600;">Sign in</span>
         </div>
     </div>
@@ -299,37 +287,27 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# --- FILTER SEARCH BAR WITH LABELS ON TOP ---
+# --- FILTER SEARCH BAR ---
 st.markdown(
     """
-    <div class="z-filter-container">
-        <div class="z-filter-labels">
-            <div style="flex: 2; min-width: 240px;">Location</div>
-            <div style="flex: 1; min-width: 120px;">Status</div>
-            <div style="flex: 1; min-width: 120px;">Price Range</div>
-            <div style="flex: 1; min-width: 120px;">Beds & Baths</div>
-            <div style="flex: 1; min-width: 120px;">Property Type</div>
-            <div style="flex: 1; min-width: 100px;">&nbsp;</div>
+    <div class="z-filter-bar">
+        <div style="flex: 2; min-width: 240px;">
+            <input type="text" value="Millcreek, UT" style="width: 100%; padding: 10px 14px; border: 1px solid #dcdcdc; border-radius: 6px; font-size: 0.95rem;" readonly>
         </div>
-        <div class="z-filter-bar">
-            <div style="flex: 2; min-width: 240px;">
-                <input type="text" value="Millcreek, UT" style="width: 100%; padding: 10px 14px; border: 1px solid #dcdcdc; border-radius: 6px; font-size: 0.95rem;" readonly>
-            </div>
-            <div style="flex: 1; min-width: 120px;">
-                <select style="width: 100%; padding: 10px; border: 1px solid #dcdcdc; border-radius: 6px; background: white;"><option>For sale</option></select>
-            </div>
-            <div style="flex: 1; min-width: 120px;">
-                <select style="width: 100%; padding: 10px; border: 1px solid #dcdcdc; border-radius: 6px; background: white;"><option>Price</option></select>
-            </div>
-            <div style="flex: 1; min-width: 120px;">
-                <select style="width: 100%; padding: 10px; border: 1px solid #dcdcdc; border-radius: 6px; background: white;"><option>Beds & baths</option></select>
-            </div>
-            <div style="flex: 1; min-width: 120px;">
-                <select style="width: 100%; padding: 10px; border: 1px solid #dcdcdc; border-radius: 6px; background: white;"><option>Property type</option></select>
-            </div>
-            <div style="flex: 1; min-width: 100px;">
-                <button style="width: 100%; padding: 10px; border: 1px solid #006aff; color: #006aff; background: white; border-radius: 6px; font-weight: 600; cursor: pointer;">Save search</button>
-            </div>
+        <div style="flex: 1; min-width: 120px;">
+            <select style="width: 100%; padding: 10px; border: 1px solid #dcdcdc; border-radius: 6px; background: white;"><option>For sale</option></select>
+        </div>
+        <div style="flex: 1; min-width: 120px;">
+            <select style="width: 100%; padding: 10px; border: 1px solid #dcdcdc; border-radius: 6px; background: white;"><option>Price</option></select>
+        </div>
+        <div style="flex: 1; min-width: 120px;">
+            <select style="width: 100%; padding: 10px; border: 1px solid #dcdcdc; border-radius: 6px; background: white;"><option>Beds & baths</option></select>
+        </div>
+        <div style="flex: 1; min-width: 120px;">
+            <select style="width: 100%; padding: 10px; border: 1px solid #dcdcdc; border-radius: 6px; background: white;"><option>Property type</option></select>
+        </div>
+        <div style="flex: 1; min-width: 100px;">
+            <button style="width: 100%; padding: 10px; border: 1px solid #006aff; color: #006aff; background: white; border-radius: 6px; font-weight: 600; cursor: pointer;">Save search</button>
         </div>
     </div>
 """,
@@ -370,7 +348,7 @@ with map_col:
       layers=[layer],
       initial_view_state=view_state,
       map_style="light",
-      tooltip={"text": "Utah Land & Property Investment Asset"},
+      tooltip={"text": "Utah Land & Property Asset"},
   )
   st.pydeck_chart(r, use_container_width=True)
 
@@ -422,15 +400,14 @@ with listings_col:
           else:
             st.error("Please enter a valid email address.")
 
-# --- FOOTER LEGAL NOTICE WITH STATUTES ---
+# --- FOOTER LEGAL NOTICE ---
 st.markdown(
     """
     <div style="font-size: 0.75rem; color: #64748b; text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eaeaea;">
-        Notice: Utah Land & Property Inc. is a private investment firm and is not a licensed real estate broker or agent.
-        We do not represent third parties in the purchase, sale, or management of outside real estate.
-        Pursuant to the exemption under Utah Code § 61-2f-202, all property management functions are executed solely by individuals,
-        operating as regular salaried employees of the specific legal entities that own the underlying real estate assets.
+        Notice: Utah Land & Property Inc. operates independently as a private investment firm. All property management functions and asset transactions are executed in compliance with applicable Utah real estate statutes.
     </div>
 """,
     unsafe_allow_html=True,
 )
+
+```
