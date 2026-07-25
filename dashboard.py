@@ -529,19 +529,91 @@ f_col1, f_col2, f_col3, f_col4, f_col5, f_col6 = st.columns(
 
 all_locations = [
     "All Utah Cities",
-    "Millcreek, UT",
+    # Major Urban & Regional Centers
     "Salt Lake City, UT",
-    "Draper, UT",
     "Provo, UT",
     "Ogden, UT",
-    "Park City, UT",
     "St. George, UT",
+    "Logan, UT",
+    "Layton, UT",
+    "Orem, UT",
+    "Sandy, UT",
+    "West Valley City, UT",
+    "West Jordan, UT",
+    
+    # Wasatch Front & Salt Lake County Suburbs / Municipalities
+    "Millcreek, UT",
+    "Draper, UT",
+    "Park City, UT",
     "Lehi, UT",
     "Murray, UT",
-    "West Valley City, UT",
-    "Sandy, UT",
     "Midvale, UT",
     "Bountiful, UT",
+    "Cottonwood Heights, UT",
+    "Holladay, UT",
+    "Herriman, UT",
+    "Riverton, UT",
+    "South Jordan, UT",
+    "South Salt Lake, UT",
+    "Taylorsville, UT",
+    "Bluffdale, UT",
+    "Tooele, UT",
+    "Eagle Mountain, UT",
+    "Saratoga Springs, UT",
+    
+    # Recently Incorporated & Transitioned Communities (e.g., former Metro Townships)
+    "Kearns, UT",
+    "Magna, UT",
+    "White City, UT",
+    "Emigration Canyon, UT",
+    "Copperton, UT",
+    
+    # Northern Utah & Cache Valley
+    "Cache, UT",
+    "Brigham City, UT",
+    "Cache Ward, UT",
+    "Smithfield, UT",
+    "Hyrum, UT",
+    "Eden, UT",
+    "Liberty, UT",
+    "Huntsville, UT",
+    
+    # Utah County & Mountain Suburbs
+    "Alpine, UT",
+    "American Fork, UT",
+    "Cedar Hills, UT",
+    "Highland, UT",
+    "Lindon, UT",
+    "Payson, UT",
+    "Pleasant Grove, UT",
+    "Salem, UT",
+    "Sundance, UT",
+    "Hobble Creek, UT",
+    
+    # Summit & Wasatch Back
+    "East Basin, UT",
+    "Hoytsville, UT",
+    "Marion, UT",
+    "Coalville, UT",
+    "Heber City, UT",
+    "Kamas, UT",
+    
+    # Southern & Rural Utah CDPs / Unincorporated Areas
+    "Kanab, UT",
+    "Moab, UT",
+    "Cedar City, UT",
+    "Richfield, UT",
+    "Vernal, UT",
+    "Roosevelt, UT",
+    "Bluff, UT",
+    "Mexican Hat, UT",
+    "Montezuma Creek, UT",
+    "Dammeron Valley, UT",
+    "Enterprise, UT",
+    "Modena, UT",
+    "Beryl Junction, UT",
+    "Central, UT",
+    "Ticaboo, UT",
 ]
 
 with f_col1:
