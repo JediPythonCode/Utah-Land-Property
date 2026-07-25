@@ -243,7 +243,7 @@ st.markdown(
     """
     <div class="hero-container">
         <div class="hero-title">Utah Real Estate. <br> Investments.</div>
-        <div class="hero-subtitle">Utah Off-Market Properties & Real Estate Contracts For Sale</div>
+        <div class="hero-subtitle">Utah Private Real Estate Opportunities. Wholesale Utah Real Estate Contracts For Sale. </div>
     </div>
     <div id="contracts-section"></div>
     """,
