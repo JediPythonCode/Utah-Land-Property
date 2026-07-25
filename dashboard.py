@@ -242,7 +242,7 @@ st.markdown(
 st.markdown(
     """
     <div class="hero-container">
-        <div class="hero-title"> Utah Wholesale Houses For Sale <br> Wholesale Properties & Land in Utah</div>
+        <div class="hero-title"> Utah Wholesale Houses For Sale <br> Utah Investment Properties For Sale</div>
         <div class="hero-subtitle">Utah Private Real Estate Opportunities. Wholesale Utah Real Estate Contracts For Sale. </div>
     </div>
     <div id="contracts-section"></div>
