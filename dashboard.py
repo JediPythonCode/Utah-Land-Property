@@ -177,14 +177,14 @@ st.markdown(
             max-width: 100% !important;
         }
 
-        /* Immersive Hero Banner */
+        /* Immersive Zillow-Style Hero Banner */
         .hero-container {
             position: relative;
-            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+            background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), 
                         url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=80');
             background-size: cover;
             background-position: center;
-            height: 350px;
+            height: 380px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -196,19 +196,21 @@ st.markdown(
         }
 
         .hero-title {
-            font-size: 32px;
-            font-weight: 800;
-            margin-bottom: 8px;
+            font-size: 42px;
+            font-weight: 900;
+            margin-bottom: 12px;
             letter-spacing: -0.5px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 0 3px 6px rgba(0,0,0,0.4);
             font-family: 'Inter', sans-serif;
+            line-height: 1.1;
         }
 
         .hero-subtitle {
-            font-size: 15px;
-            font-weight: 400;
+            font-size: 18px;
+            font-weight: 600;
             margin-bottom: 24px;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+            letter-spacing: 0.3px;
         }
         
         .section-header {
@@ -246,12 +248,12 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Friendly Residential Hero Section
+# Friendly Zillow-Inspired Hero Section with Bold, Easy-to-Understand Words
 st.markdown(
     """
     <div class="hero-container">
-        <div class="hero-title">Utah Land & Property</div>
-        <div class="hero-subtitle">Private Utah Real Estate Transactions & Parcels.</div>
+        <div class="hero-title">Investments. Land. Utah Real Estate.</div>
+        <div class="hero-subtitle">Off-Market Properties & Exclusive Real Estate Contracts</div>
     </div>
     <div id="contracts-section"></div>
     """,
@@ -259,7 +261,7 @@ st.markdown(
 )
 
 
-# Property Database with 1st listing as the actual active contract, and rest using off-market non-listed addresses with 25%-40% ARV spread
+# Property Database with active contracts, off-market addresses, 20-25% down payments, and mixed active statuses
 @st.cache_data
 def load_utah_property_database():
     data = [
@@ -271,6 +273,8 @@ def load_utah_property_database():
             "city": "Millcreek, UT",
             "contract_price": 5000,
             "purchase_price": 165000,
+            "down_payment_pct": 20,
+            "down_payment_amt": int(165000 * 0.20),
             "arv": int(165000 * 1.32),
             "beds": 1,
             "baths": 1,
@@ -289,14 +293,16 @@ def load_utah_property_database():
             "city": "Millcreek, UT",
             "contract_price": 6000,
             "purchase_price": 185000,
+            "down_payment_pct": 25,
+            "down_payment_amt": int(185000 * 0.25),
             "arv": int(185000 * 1.35),
             "beds": 2,
             "baths": 1,
             "sqft": 920,
-            "status": "Available",
-            "address": "3322 S 1940 E, Millcreek, UT 84106",
+            "status": "UNDER CONTRACT",
+            "address": "718 E Elgin Ave, Millcreek, UT 84106",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
             "lat": 40.6979,
             "lon": -111.8552,
         },
@@ -307,11 +313,13 @@ def load_utah_property_database():
             "city": "Millcreek, UT",
             "contract_price": 7500,
             "purchase_price": 210000,
+            "down_payment_pct": 20,
+            "down_payment_amt": int(210000 * 0.20),
             "arv": int(210000 * 1.38),
             "beds": 2,
             "baths": 2,
             "sqft": 1100,
-            "status": "Available",
+            "status": "UNDER CONTRACT",
             "address": "3450 S 2000 E, Millcreek, UT 84109",
             "broker": "Utah Land & Property Inc.",
             "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
@@ -325,6 +333,8 @@ def load_utah_property_database():
             "city": "Millcreek, UT",
             "contract_price": 8500,
             "purchase_price": 235000,
+            "down_payment_pct": 25,
+            "down_payment_amt": int(235000 * 0.25),
             "arv": int(235000 * 1.40),
             "beds": 3,
             "baths": 2,
@@ -332,7 +342,7 @@ def load_utah_property_database():
             "status": "Available",
             "address": "3580 S 2300 E, Millcreek, UT 84109",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
             "lat": 40.6990,
             "lon": -111.8570,
         },
@@ -343,6 +353,8 @@ def load_utah_property_database():
             "city": "Millcreek, UT",
             "contract_price": 12000,
             "purchase_price": 420000,
+            "down_payment_pct": 20,
+            "down_payment_amt": int(420000 * 0.20),
             "arv": int(420000 * 1.30),
             "beds": 4,
             "baths": 2,
@@ -350,7 +362,7 @@ def load_utah_property_database():
             "status": "Available",
             "address": "3820 S 2700 E, Millcreek, UT 84109",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
             "lat": 40.7012,
             "lon": -111.8670,
         },
@@ -361,6 +373,8 @@ def load_utah_property_database():
             "city": "Millcreek, UT",
             "contract_price": 14000,
             "purchase_price": 450000,
+            "down_payment_pct": 22,
+            "down_payment_amt": int(450000 * 0.22),
             "arv": int(450000 * 1.33),
             "beds": 4,
             "baths": 3,
@@ -379,14 +393,16 @@ def load_utah_property_database():
             "city": "Millcreek, UT",
             "contract_price": 15000,
             "purchase_price": 480000,
+            "down_payment_pct": 25,
+            "down_payment_amt": int(480000 * 0.25),
             "arv": int(480000 * 1.36),
             "beds": 4,
             "baths": 3,
             "sqft": 2800,
-            "status": "Available",
+            "status": "UNDER CONTRACT",
             "address": "4020 S 3100 E, Millcreek, UT 84124",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
             "lat": 40.7018,
             "lon": -111.8680,
         },
@@ -397,6 +413,8 @@ def load_utah_property_database():
             "city": "Millcreek, UT",
             "contract_price": 16000,
             "purchase_price": 510000,
+            "down_payment_pct": 20,
+            "down_payment_amt": int(510000 * 0.20),
             "arv": int(510000 * 1.39),
             "beds": 5,
             "baths": 3,
@@ -415,6 +433,8 @@ def load_utah_property_database():
             "city": "Clearfield, UT",
             "contract_price": 8000,
             "purchase_price": 285000,
+            "down_payment_pct": 20,
+            "down_payment_amt": int(285000 * 0.20),
             "arv": int(285000 * 1.28),
             "beds": 3,
             "baths": 2,
@@ -433,14 +453,16 @@ def load_utah_property_database():
             "city": "Clearfield, UT",
             "contract_price": 8500,
             "purchase_price": 295000,
+            "down_payment_pct": 25,
+            "down_payment_amt": int(295000 * 0.25),
             "arv": int(295000 * 1.31),
             "beds": 3,
             "baths": 2,
             "sqft": 1580,
-            "status": "Available",
+            "status": "UNDER CONTRACT",
             "address": "420 S 500 E, Clearfield, UT 84015",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
             "lat": 41.1120,
             "lon": -112.2430,
         },
@@ -451,6 +473,8 @@ def load_utah_property_database():
             "city": "Clearfield, UT",
             "contract_price": 9000,
             "purchase_price": 310000,
+            "down_payment_pct": 20,
+            "down_payment_amt": int(310000 * 0.20),
             "arv": int(310000 * 1.34),
             "beds": 4,
             "baths": 3,
@@ -469,14 +493,16 @@ def load_utah_property_database():
             "city": "Clearfield, UT",
             "contract_price": 9500,
             "purchase_price": 325000,
+            "down_payment_pct": 22,
+            "down_payment_amt": int(325000 * 0.22),
             "arv": int(325000 * 1.37),
             "beds": 4,
             "baths": 3,
             "sqft": 1850,
-            "status": "Available",
+            "status": "UNDER CONTRACT",
             "address": "680 S 1500 E, Clearfield, UT 84015",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
             "lat": 41.1130,
             "lon": -112.2440,
         },
@@ -488,11 +514,13 @@ def load_utah_property_database():
             "city": "Elko County, NV",
             "contract_price": 4500,
             "purchase_price": 95000,
+            "down_payment_pct": 25,
+            "down_payment_amt": int(95000 * 0.25),
             "arv": int(95000 * 1.30),
             "beds": 0,
             "baths": 0,
             "sqft": 43560,
-            "status": "Available",
+            "status": "UNDER CONTRACT",
             "address": "Off-Market Tract 12, Elko County, NV",
             "broker": "Utah Land & Property Inc.",
             "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
@@ -506,6 +534,8 @@ def load_utah_property_database():
             "city": "Elko County, NV",
             "contract_price": 4800,
             "purchase_price": 98000,
+            "down_payment_pct": 20,
+            "down_payment_amt": int(98000 * 0.20),
             "arv": int(98000 * 1.33),
             "beds": 0,
             "baths": 0,
@@ -524,11 +554,13 @@ def load_utah_property_database():
             "city": "Elko County, NV",
             "contract_price": 5000,
             "purchase_price": 102000,
+            "down_payment_pct": 25,
+            "down_payment_amt": int(102000 * 0.25),
             "arv": int(102000 * 1.35),
             "beds": 0,
             "baths": 0,
             "sqft": 43560,
-            "status": "Available",
+            "status": "UNDER CONTRACT",
             "address": "Off-Market Tract 18, Elko County, NV",
             "broker": "Utah Land & Property Inc.",
             "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
@@ -542,6 +574,8 @@ def load_utah_property_database():
             "city": "Elko County, NV",
             "contract_price": 5200,
             "purchase_price": 105000,
+            "down_payment_pct": 20,
+            "down_payment_amt": int(105000 * 0.20),
             "arv": int(105000 * 1.38),
             "beds": 0,
             "baths": 0,
@@ -560,6 +594,8 @@ def load_utah_property_database():
             "city": "Elko County, NV",
             "contract_price": 4500,
             "purchase_price": 115000,
+            "down_payment_pct": 20,
+            "down_payment_amt": int(115000 * 0.20),
             "arv": int(115000 * 1.28),
             "beds": 0,
             "baths": 0,
@@ -578,11 +614,13 @@ def load_utah_property_database():
             "city": "Elko County, NV",
             "contract_price": 4600,
             "purchase_price": 118000,
+            "down_payment_pct": 25,
+            "down_payment_amt": int(118000 * 0.25),
             "arv": int(118000 * 1.31),
             "beds": 0,
             "baths": 0,
             "sqft": 10500,
-            "status": "Available",
+            "status": "UNDER CONTRACT",
             "address": "Off-Market Sawgrass Parcel B, Elko County, NV",
             "broker": "Utah Land & Property Inc.",
             "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
@@ -596,6 +634,8 @@ def load_utah_property_database():
             "city": "Elko County, NV",
             "contract_price": 4500,
             "purchase_price": 115000,
+            "down_payment_pct": 20,
+            "down_payment_amt": int(115000 * 0.20),
             "arv": int(115000 * 1.34),
             "beds": 0,
             "baths": 0,
@@ -614,6 +654,8 @@ def load_utah_property_database():
             "city": "Elko County, NV",
             "contract_price": 4700,
             "purchase_price": 120000,
+            "down_payment_pct": 22,
+            "down_payment_amt": int(120000 * 0.22),
             "arv": int(120000 * 1.36),
             "beds": 0,
             "baths": 0,
@@ -632,11 +674,13 @@ def load_utah_property_database():
             "city": "Elko County, NV",
             "contract_price": 4500,
             "purchase_price": 115000,
+            "down_payment_pct": 25,
+            "down_payment_amt": int(115000 * 0.25),
             "arv": int(115000 * 1.39),
             "beds": 0,
             "baths": 0,
             "sqft": 10500,
-            "status": "Available",
+            "status": "UNDER CONTRACT",
             "address": "Off-Market Sawgrass Parcel E, Elko County, NV",
             "broker": "Utah Land & Property Inc.",
             "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
@@ -650,6 +694,8 @@ def load_utah_property_database():
             "city": "Elko County, NV",
             "contract_price": 4800,
             "purchase_price": 122000,
+            "down_payment_pct": 20,
+            "down_payment_amt": int(122000 * 0.20),
             "arv": int(122000 * 1.40),
             "beds": 0,
             "baths": 0,
@@ -668,6 +714,8 @@ def load_utah_property_database():
             "city": "Elko County, NV",
             "contract_price": 4500,
             "purchase_price": 115000,
+            "down_payment_pct": 20,
+            "down_payment_amt": int(115000 * 0.20),
             "arv": int(115000 * 1.32),
             "beds": 0,
             "baths": 0,
@@ -686,11 +734,13 @@ def load_utah_property_database():
             "city": "Elko County, NV",
             "contract_price": 4900,
             "purchase_price": 125000,
+            "down_payment_pct": 25,
+            "down_payment_amt": int(125000 * 0.25),
             "arv": int(125000 * 1.35),
             "beds": 0,
             "baths": 0,
             "sqft": 10500,
-            "status": "Available",
+            "status": "UNDER CONTRACT",
             "address": "Off-Market Sawgrass Parcel H, Elko County, NV",
             "broker": "Utah Land & Property Inc.",
             "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
@@ -704,6 +754,8 @@ def load_utah_property_database():
             "city": "Elko County, NV",
             "contract_price": 5000,
             "purchase_price": 125000,
+            "down_payment_pct": 20,
+            "down_payment_amt": int(125000 * 0.20),
             "arv": int(125000 * 1.30),
             "beds": 0,
             "baths": 0,
@@ -722,11 +774,13 @@ def load_utah_property_database():
             "city": "Elko County, NV",
             "contract_price": 5200,
             "purchase_price": 128000,
+            "down_payment_pct": 25,
+            "down_payment_amt": int(128000 * 0.25),
             "arv": int(128000 * 1.33),
             "beds": 0,
             "baths": 0,
             "sqft": 87120,
-            "status": "Available",
+            "status": "UNDER CONTRACT",
             "address": "Off-Market North Tract 32, Elko County, NV",
             "broker": "Utah Land & Property Inc.",
             "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
@@ -740,6 +794,8 @@ def load_utah_property_database():
             "city": "Elko County, NV",
             "contract_price": 5500,
             "purchase_price": 132000,
+            "down_payment_pct": 20,
+            "down_payment_amt": int(132000 * 0.20),
             "arv": int(132000 * 1.36),
             "beds": 0,
             "baths": 0,
@@ -758,11 +814,13 @@ def load_utah_property_database():
             "city": "Elko County, NV",
             "contract_price": 5800,
             "purchase_price": 135000,
+            "down_payment_pct": 22,
+            "down_payment_amt": int(135000 * 0.22),
             "arv": int(135000 * 1.39),
             "beds": 0,
             "baths": 0,
             "sqft": 87120,
-            "status": "Available",
+            "status": "UNDER CONTRACT",
             "address": "Off-Market North Tract 36, Elko County, NV",
             "broker": "Utah Land & Property Inc.",
             "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
@@ -777,11 +835,13 @@ def load_utah_property_database():
             "city": "Draper, UT",
             "contract_price": 15000,
             "purchase_price": 310000,
+            "down_payment_pct": 25,
+            "down_payment_amt": int(310000 * 0.25),
             "arv": int(310000 * 1.30),
             "beds": 0,
             "baths": 0,
             "sqft": 4791,
-            "status": "Available",
+            "status": "UNDER CONTRACT",
             "address": "Off-Market Fort St Parcel A, Draper, UT 84020",
             "broker": "Utah Land & Property Inc.",
             "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
@@ -795,6 +855,8 @@ def load_utah_property_database():
             "city": "Draper, UT",
             "contract_price": 16500,
             "purchase_price": 330000,
+            "down_payment_pct": 20,
+            "down_payment_amt": int(330000 * 0.20),
             "arv": int(330000 * 1.33),
             "beds": 0,
             "baths": 0,
@@ -813,11 +875,13 @@ def load_utah_property_database():
             "city": "Draper, UT",
             "contract_price": 18000,
             "purchase_price": 360000,
+            "down_payment_pct": 25,
+            "down_payment_amt": int(360000 * 0.25),
             "arv": int(360000 * 1.36),
             "beds": 0,
             "baths": 0,
             "sqft": 6100,
-            "status": "Available",
+            "status": "UNDER CONTRACT",
             "address": "Off-Market Fort St Parcel C, Draper, UT 84020",
             "broker": "Utah Land & Property Inc.",
             "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
@@ -831,6 +895,8 @@ def load_utah_property_database():
             "city": "Draper, UT",
             "contract_price": 20000,
             "purchase_price": 395000,
+            "down_payment_pct": 20,
+            "down_payment_amt": int(395000 * 0.20),
             "arv": int(395000 * 1.40),
             "beds": 0,
             "baths": 0,
@@ -851,7 +917,7 @@ df = load_utah_property_database()
 
 # Automated Email / Offer Dispatch Helper
 def send_offer_dispatch(
-    property_id, property_title, recipient_email, offer_terms
+    property_id, property_title, recipient_email, selected_term, custom_terms
 ):
     smtp_server = "smtp.gmail.com"
     port = 587
@@ -864,7 +930,8 @@ def send_offer_dispatch(
     Property ID: {property_id}
     Asset Title: {property_title}
     Submitter Contact: {recipient_email}
-    Offer Terms & Conditions: {offer_terms}
+    Selected Financing/Contract Terms: {selected_term}
+    Custom Addendums / Conditions: {custom_terms}
     ---
     Notice: Utah Land & Property Inc. - Secure Escrow & Offer Routing Engine.
     """
@@ -957,6 +1024,7 @@ def render_property_grid(subset_df, category_title, anchor_id):
                                     <div style="font-size: 11px; text-transform: uppercase; color: #6b7280; font-weight: 700; margin-bottom: 4px;">{row['broker']}</div>
                                     <div style="font-size: 16px; font-weight: 800; color: #111827; margin-bottom: 6px;">Contract: ${row['contract_price']:,}</div>
                                     <div style="font-size: 13px; color: #374151; margin-bottom: 2px;">Property Purchase Price: <b>${row['purchase_price']:,}</b></div>
+                                    <div style="font-size: 13px; color: #1d4ed8; font-weight: 600; margin-bottom: 4px;">Down Payment ({row['down_payment_pct']}%): ${row['down_payment_amt']:,}</div>
                                     <div style="font-size: 13px; color: #047857; font-weight: 600; margin-bottom: 8px;">ARV: ${row['arv']:,}</div>
                                     <div style="font-size: 13px; color: #374151; margin-bottom: 8px;"><b>{row['beds']}</b> bds &nbsp;|&nbsp; <b>{row['baths']}</b> ba &nbsp;|&nbsp; <b>{row['sqft']:,}</b> sqft</div>
                                     <div style="font-size: 13px; color: #6b7280;">{row['address']}</div>
@@ -974,10 +1042,25 @@ def render_property_grid(subset_df, category_title, anchor_id):
                             key=f"p_email_{row['id']}",
                             placeholder="name@domain.com",
                         )
+
+                        # Actual random contract/financing terms options for the dropdown
+                        contract_terms_options = [
+                            f"Standard Cash Purchase ({row['down_payment_pct']}% Down / 14-Day Close)",
+                            "Subject-To Existing Mortgage Takeover",
+                            "Seller Financing (5-Year Balloon / 7.5% Interest)",
+                            "Equitable Interest Assignment (REPC Assignment Fee)",
+                            "Wholesale Cash Offer (7-Day Inspection Waiver)",
+                        ]
+                        selected_term = st.selectbox(
+                            "Contract & Financing Terms",
+                            contract_terms_options,
+                            key=f"term_select_{row['id']}",
+                        )
+
                         offer_terms = st.text_area(
                             "Offer Terms & Conditions",
                             key=f"p_msg_{row['id']}",
-                            placeholder="Enter contract purchase price, assignment fee, or escrow contingencies...",
+                            placeholder="Enter earnest money deposit, closing date, or escrow contingencies...",
                         )
                         if st.button(
                             "Submit Official Offer", key=f"p_btn_{row['id']}"
@@ -987,6 +1070,7 @@ def render_property_grid(subset_df, category_title, anchor_id):
                                     row["id"],
                                     row["title"],
                                     user_email,
+                                    selected_term,
                                     offer_terms,
                                 )
                                 st.success(
