@@ -11,7 +11,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ---> ZILLOW-STYLE MOBILE HEADER WITH LARGER TYPOGRAPHY, WARMER AESTHETIC & EMBEDDED CHATBOT <---
+# ---> ZILLOW-STYLE MOBILE HEADER WITH BLACK, LESS BOLD LOGO & BOLD HERO TEXT <---
 st.markdown(
     """
     <style>
@@ -67,7 +67,7 @@ st.markdown(
             font-weight: 700;
         }
 
-        /* Absolutely Centered and Larger Header Logo in Zillow Blue/Dark */
+        /* Centered Header Logo: Black and Less Bold */
         .header-logo-container {
             position: absolute;
             left: 50%;
@@ -77,16 +77,16 @@ st.markdown(
         }
 
         .header-logo {
-            font-size: 24px;
-            font-weight: 900 !important;
-            color: #006AFF !important;
-            letter-spacing: -0.5px;
+            font-size: 22px;
+            font-weight: 600 !important;
+            color: #111827 !important;
+            letter-spacing: -0.3px;
             text-decoration: none !important;
             font-family: 'Inter', sans-serif;
             white-space: nowrap;
         }
         .header-logo:hover {
-            color: #0051cc !important;
+            color: #000000 !important;
             text-decoration: none !important;
         }
 
@@ -97,13 +97,13 @@ st.markdown(
         }
         
         .sign-in-link {
-            color: #006AFF !important;
-            font-weight: 700 !important;
+            color: #111827 !important;
+            font-weight: 600 !important;
             font-size: 15px;
             text-decoration: none !important;
         }
         .sign-in-link:hover {
-            color: #0051cc !important;
+            color: #000000 !important;
         }
 
         /* Slide-out Mobile Navigation Drawer */
@@ -172,14 +172,14 @@ st.markdown(
             max-width: 100% !important;
         }
 
-        /* Immersive Zillow-Style Hero Banner with Welcoming Typography */
+        /* Immersive Zillow-Style Hero Banner with Bolder, Standout Typography */
         .hero-container {
             position: relative;
-            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+            background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), 
                         url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=80');
             background-size: cover;
             background-position: center;
-            height: 400px;
+            height: 420px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -191,20 +191,20 @@ st.markdown(
         }
 
         .hero-title {
-            font-size: 46px;
+            font-size: 52px;
             font-weight: 900;
-            margin-bottom: 14px;
-            letter-spacing: -1px;
-            text-shadow: 0 3px 6px rgba(0,0,0,0.4);
+            margin-bottom: 16px;
+            letter-spacing: -1.5px;
+            text-shadow: 0 4px 12px rgba(0,0,0,0.6);
             line-height: 1.1;
         }
 
         .hero-subtitle {
-            font-size: 20px;
-            font-weight: 600;
+            font-size: 22px;
+            font-weight: 700;
             margin-bottom: 24px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.4);
-            letter-spacing: 0.2px;
+            text-shadow: 0 3px 8px rgba(0,0,0,0.6);
+            letter-spacing: 0.3px;
         }
         
         .section-header {
@@ -218,7 +218,7 @@ st.markdown(
         }
     </style>
 
-    <!-- Zillow-Style Mobile Header with Centered, Larger Title & Functional Drawer -->
+    <!-- Zillow-Style Mobile Header with Black, Less Bold Logo & Functional Drawer -->
     <input type="checkbox" id="menu-toggle">
     <div class="industry-header">
         <div class="header-left">
@@ -244,7 +244,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Friendly Zillow-Inspired Hero Section
+# Standout, Bolder Zillow-Inspired Hero Section
 st.markdown(
     """
     <div class="hero-container">
