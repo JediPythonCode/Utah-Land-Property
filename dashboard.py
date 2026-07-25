@@ -13,169 +13,154 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# Custom Enterprise Styling: Modern Realtor/Zillow UI, Sticky Headers, Clean Card Grids
+import pandas as pd
+import streamlit as st
+
+# 1. Page Configuration (Must always be first)
+st.set_page_config(
+    page_title="Utah Land & Property Inc. | Private Portfolio",
+    layout="wide",
+    initial_sidebar_state="collapsed",
+)
+
+# 2. ---> PASTE THE STICKY HEADER & NAVBAR SNIPPET RIGHT HERE <---
 st.markdown(
     """
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600;700;800;900&display=swap');
+        /* Hide default Streamlit chrome */
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        header {visibility: hidden;}
+        
+        .stApp {
+            background-color: #f4f5f7;
+            color: #2c3e50;
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+        }
 
-    :root {
-        --brand-red: #d92228;
-        --brand-red-hover: #b51b20;
-        --bg-main: #f8f9fa;
-        --bg-card: #ffffff;
-        --border-color: #e5e7eb;
-        --text-main: #1f2937;
-        --text-muted: #6b7280;
-    }
-    
-    .stApp {
-        background-color: var(--bg-main) !important;
-        color: var(--text-main) !important;
-        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-    header[data-testid="stHeader"] {
-        background-color: transparent !important;
-        display: none !important;
-    }
-    .main {
-        background-color: var(--bg-main) !important;
-        color: var(--text-main) !important;
-        padding-top: 130px !important; /* Clears fixed header space */
-        padding-left: 2rem !important;
-        padding-right: 2rem !important;
-    }
-    
-    /* True Fixed Industry-Pro Header */
-    .sticky-header-wrapper {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        z-index: 99999;
-        background-color: #ffffff;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        padding-left: 2rem;
-        padding-right: 2rem;
-        box-sizing: border-box;
-    }
+        /* Fixed Sticky Header matching Zillow/Realtor */
+        .industry-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            background-color: #ffffff;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 40px;
+            height: 70px;
+            z-index: 999999;
+            box-sizing: border-box;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        
+        .header-nav-left, .header-nav-right {
+            display: flex;
+            gap: 28px;
+            align-items: center;
+        }
+        
+        .header-nav-left a, .header-nav-right a {
+            text-decoration: none;
+            color: #333333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .header-nav-left a:hover, .header-nav-right a:hover {
+            color: #d92228;
+        }
+        
+        .header-logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a1a;
+            letter-spacing: -0.5px;
+            text-decoration: none;
+            font-family: 'Playfair Display', Georgia, serif;
+        }
+        
+        .sign-in-btn {
+            background-color: #006aff !important;
+            color: white !important;
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-weight: 600 !important;
+        }
 
-    /* Top Navbar */
-    .portal-navbar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 12px 0px;
-        border-bottom: 1px solid var(--border-color);
-        background-color: #ffffff;
-    }
-    .portal-nav-left, .portal-nav-right {
-        display: flex;
-        gap: 24px;
-        align-items: center;
-        font-size: 0.92rem;
-        font-weight: 600;
-        color: #374151;
-    }
-    .portal-nav-left span, .portal-nav-right span {
-        cursor: pointer;
-        transition: color 0.15s ease;
-    }
-    .portal-nav-left span:hover, .portal-nav-right span:hover {
-        color: var(--brand-red);
-    }
-    .portal-logo {
-        font-size: 1.6rem;
-        font-weight: 700;
-        letter-spacing: -0.5px;
-        color: #1a1a1a;
-        font-family: 'Playfair Display', Georgia, serif;
-    }
-    
-    /* Fixed Filter Bar */
-    .filter-bar-container {
-        padding: 10px 0px;
-        background-color: #ffffff;
-        display: flex;
-        gap: 12px;
-        align-items: center;
-    }
+        /* Push main content down below fixed header */
+        .block-container {
+            padding-top: 70px !important;
+            padding-left: 0rem !important;
+            padding-right: 0rem !important;
+            max-width: 100% !important;
+        }
 
-    /* Professional Property Card Grid Styling */
-    .property-card {
-        background-color: var(--bg-card);
-        border: 1px solid var(--border-color);
-        border-radius: 10px;
-        overflow: hidden;
-        margin-bottom: 24px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-        transition: all 0.2s ease-in-out;
-    }
-    .property-card:hover {
-        box-shadow: 0 10px 20px rgba(0,0,0,0.08);
-        transform: translateY(-2px);
-    }
-    .card-img-container {
-        position: relative;
-        width: 100%;
-        height: 220px;
-    }
-    .card-img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-    .card-status-badge {
-        position: absolute;
-        top: 12px;
-        left: 12px;
-        background-color: rgba(17, 24, 39, 0.85);
-        color: white;
-        padding: 5px 10px;
-        border-radius: 6px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        letter-spacing: 0.3px;
-    }
-    .card-body {
-        padding: 16px;
-    }
-    .card-broker {
-        font-size: 0.75rem;
-        font-weight: 700;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 4px;
-    }
-    .card-contract-price {
-        font-size: 1.4rem;
-        font-weight: 800;
-        color: var(--text-main);
-        margin-bottom: 2px;
-    }
-    .card-underlying-price {
-        font-size: 0.88rem;
-        font-weight: 600;
-        color: var(--brand-red);
-        margin-bottom: 8px;
-    }
-    .card-metrics {
-        font-size: 0.9rem;
-        color: #374151;
-        margin-bottom: 8px;
-        font-weight: 500;
-    }
-    .card-address {
-        font-size: 0.85rem;
-        color: var(--text-muted);
-        margin-bottom: 12px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
+        /* Immersive Hero Banner */
+        .hero-container {
+            position: relative;
+            background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), 
+                        url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=2000&q=80');
+            background-size: cover;
+            background-position: center;
+            height: 460px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+            padding: 0 20px;
+            margin-bottom: 40px;
+        }
+
+        .hero-title {
+            font-size: 44px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .hero-subtitle {
+            font-size: 18px;
+            font-weight: 400;
+            margin-bottom: 30px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
     </style>
-""",
+
+    <!-- Industry Sticky Header -->
+    <div class="industry-header">
+        <div class="header-nav-left">
+            <a href="#">Buy Contracts</a>
+            <a href="#">Assign</a>
+            <a href="#">Sell</a>
+            <a href="#">Portfolio</a>
+        </div>
+        <div>
+            <a href="#" class="header-logo">UTAH LAND & PROPERTY</a>
+        </div>
+        <div class="header-nav-right">
+            <a href="#">Manage Assets</a>
+            <a href="#">Resources</a>
+            <a href="#" class="sign-in-btn">Sign In</a>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+# 3. Followed by the Hero Section and rest of your script logic
+st.markdown(
+    """
+    <div class="hero-container">
+        <div class="hero-title">Private Contracts. Wholesale Equity. Utah Real Estate.</div>
+        <div class="hero-subtitle">Access verified REPC assignments, direct acquisitions, and commercial land packages.</div>
+    </div>
+    """,
     unsafe_allow_html=True,
 )
 
