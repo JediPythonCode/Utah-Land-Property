@@ -13,9 +13,6 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-import pandas as pd
-import streamlit as st
-
 # 1. Page Configuration (Must always be first)
 st.set_page_config(
     page_title="Utah Land & Property Inc. | Private Portfolio",
@@ -23,7 +20,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# 2. ---> PASTE THE STICKY HEADER & NAVBAR SNIPPET RIGHT HERE <---
+# 2. ---> UPDATED INDUSTRY-GRADE STICKY HEADER & FRIENDLY RESIDENTIAL HERO <---
 st.markdown(
     """
     <style>
@@ -98,14 +95,14 @@ st.markdown(
             max-width: 100% !important;
         }
 
-        /* Immersive Hero Banner */
+        /* Immersive Friendly Residential Hero Banner (Zillow-style, not a huge commercial mega-home) */
         .hero-container {
             position: relative;
-            background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), 
-                        url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=2000&q=80');
+            background: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)), 
+                        url('https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=2000&q=80');
             background-size: cover;
             background-position: center;
-            height: 460px;
+            height: 400px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -113,21 +110,22 @@ st.markdown(
             text-align: center;
             color: white;
             padding: 0 20px;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
         }
 
         .hero-title {
-            font-size: 44px;
+            font-size: 38px;
             font-weight: 800;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             letter-spacing: -0.5px;
             text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            font-family: 'Inter', sans-serif;
         }
 
         .hero-subtitle {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 400;
-            margin-bottom: 30px;
+            margin-bottom: 24px;
             text-shadow: 0 1px 3px rgba(0,0,0,0.3);
         }
     </style>
@@ -153,12 +151,12 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 3. Followed by the Hero Section and rest of your script logic
+# 3. Friendly Residential Hero Section
 st.markdown(
     """
     <div class="hero-container">
-        <div class="hero-title">Private Contracts. Wholesale Equity. Utah Real Estate.</div>
-        <div class="hero-subtitle">Access verified REPC assignments, direct acquisitions, and commercial land packages.</div>
+        <div class="hero-title">Find your next Utah property & contract.</div>
+        <div class="hero-subtitle">Explore verified REPC assignments, direct acquisitions, and wholesale equity.</div>
     </div>
     """,
     unsafe_allow_html=True,
