@@ -15,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ---> UPDATED STICKY HEADER & FILTER STYLING (RED FONTS ON TOP BAR ONLY, WHITE TEXT ON SIGN IN BUTTON) <---
+# ---> UPDATED STICKY HEADER STYLING (RED FONTS ON TOP BAR ONLY, WHITE TEXT ON SIGN IN BUTTON) <---
 st.markdown(
     """
     <style>
@@ -93,6 +93,8 @@ st.markdown(
             border-radius: 6px;
             font-weight: 700 !important;
             text-decoration: none !important;
+            display: inline-block;
+            text-align: center;
         }
         .sign-in-btn:hover {
             background-color: #b51c22 !important;
@@ -141,31 +143,6 @@ st.markdown(
             margin-bottom: 24px;
             text-shadow: 0 1px 3px rgba(0,0,0,0.3);
         }
-
-        /* Standout Sticky Filter Bar Styling */
-        .filter-container {
-            background: #ffffff;
-            padding: 16px 40px;
-            border-bottom: 1px solid #e5e7eb;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-            position: sticky;
-            top: 70px;
-            z-index: 99998;
-        }
-
-        /* Clean professional select boxes inside the filter bar with neutral focus */
-        div[data-baseweb="select"] > div {
-            border-radius: 6px !important;
-            border-color: #d1d5db !important;
-            background-color: #ffffff !important;
-            min-height: 42px !important;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
-            transition: all 0.2s ease;
-        }
-        div[data-baseweb="select"] > div:hover {
-            border-color: #9ca3af !important;
-            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.03) !important;
-        }
     </style>
 
     <!-- Industry Sticky Header -->
@@ -182,7 +159,7 @@ st.markdown(
         <div class="header-nav-right">
             <a href="#">Manage Assets</a>
             <a href="#">Resources</a>
-            <a href="#" class="sign-in-btn">Sign In</a>
+            <a href="#" class="sign-in-btn"><span style="color: #ffffff !important;">Sign In</span></a>
         </div>
     </div>
     """,
@@ -504,179 +481,9 @@ def send_offer_dispatch(
         return False
 
 
-# Standout Sticky Filter & Search Bar Container
-st.markdown("<div class='filter-container'>", unsafe_allow_html=True)
-f_col1, f_col2, f_col3, f_col4, f_col5, f_col6 = st.columns(
-    [2.4, 1.1, 1.1, 1.1, 1.2, 1]
-)
-
-all_locations = [
-    "All Utah Cities",
-    "Salt Lake City, UT",
-    "Provo, UT",
-    "Ogden, UT",
-    "St. George, UT",
-    "Logan, UT",
-    "Layton, UT",
-    "Orem, UT",
-    "Sandy, UT",
-    "West Valley City, UT",
-    "West Jordan, UT",
-    "Millcreek, UT",
-    "Draper, UT",
-    "Park City, UT",
-    "Lehi, UT",
-    "Murray, UT",
-    "Midvale, UT",
-    "Bountiful, UT",
-    "Cottonwood Heights, UT",
-    "Holladay, UT",
-    "Herriman, UT",
-    "Riverton, UT",
-    "South Jordan, UT",
-    "South Salt Lake, UT",
-    "Taylorsville, UT",
-    "Bluffdale, UT",
-    "Tooele, UT",
-    "Eagle Mountain, UT",
-    "Saratoga Springs, UT",
-    "Kearns, UT",
-    "Magna, UT",
-    "White City, UT",
-    "Emigration Canyon, UT",
-    "Copperton, UT",
-    "Cache, UT",
-    "Brigham City, UT",
-    "Cache Ward, UT",
-    "Smithfield, UT",
-    "Hyrum, UT",
-    "Eden, UT",
-    "Liberty, UT",
-    "Huntsville, UT",
-    "Alpine, UT",
-    "American Fork, UT",
-    "Cedar Hills, UT",
-    "Highland, UT",
-    "Lindon, UT",
-    "Payson, UT",
-    "Pleasant Grove, UT",
-    "Salem, UT",
-    "Sundance, UT",
-    "Hobble Creek, UT",
-    "East Basin, UT",
-    "Hoytsville, UT",
-    "Marion, UT",
-    "Coalville, UT",
-    "Heber City, UT",
-    "Kamas, UT",
-    "Kanab, UT",
-    "Moab, UT",
-    "Cedar City, UT",
-    "Richfield, UT",
-    "Vernal, UT",
-    "Roosevelt, UT",
-    "Bluff, UT",
-    "Mexican Hat, UT",
-    "Montezuma Creek, UT",
-    "Dammeron Valley, UT",
-    "Enterprise, UT",
-    "Modena, UT",
-    "Beryl Junction, UT",
-    "Central, UT",
-    "Ticaboo, UT",
-]
-
-with f_col1:
-    st.markdown(
-        "<p style='font-size: 13px; font-weight: 600; color: #111827; margin-bottom: 6px;'>Location</p>",
-        unsafe_allow_html=True,
-    )
-    selected_location = st.selectbox(
-        "Utah City Search", all_locations, label_visibility="collapsed"
-    )
-with f_col2:
-    st.markdown(
-        "<p style='font-size: 13px; font-weight: 600; color: #111827; margin-bottom: 6px;'>Status</p>",
-        unsafe_allow_html=True,
-    )
-    status_filter = st.selectbox(
-        "Status", ["Contracts for Sale", "All Statuses"], label_visibility="collapsed"
-    )
-with f_col3:
-    st.markdown(
-        "<p style='font-size: 13px; font-weight: 600; color: #111827; margin-bottom: 6px;'>Price Range</p>",
-        unsafe_allow_html=True,
-    )
-    price_filter = st.selectbox(
-        "Contract Price",
-        ["Any Price", "Under $30k", "$30k - $60k", "Over $60k"],
-        label_visibility="collapsed",
-    )
-with f_col4:
-    st.markdown(
-        "<p style='font-size: 13px; font-weight: 600; color: #111827; margin-bottom: 6px;'>Beds & Baths</p>",
-        unsafe_allow_html=True,
-    )
-    beds_filter = st.selectbox(
-        "Beds",
-        ["Beds & baths", "2+ Beds", "3+ Beds", "4+ Beds"],
-        label_visibility="collapsed",
-    )
-with f_col5:
-    st.markdown(
-        "<p style='font-size: 13px; font-weight: 600; color: #111827; margin-bottom: 6px;'>Property Type</p>",
-        unsafe_allow_html=True,
-    )
-    type_filter = st.selectbox(
-        "Contract Type",
-        ["Property type", "House", "Land", "Townhouse", "Condo"],
-        label_visibility="collapsed",
-    )
-with f_col6:
-    st.markdown(
-        "<p style='font-size: 13px; font-weight: 600; color: #111827; margin-bottom: 6px;'>Action</p>",
-        unsafe_allow_html=True,
-    )
-    save_search_btn = st.button("Save Search", use_container_width=True)
-
-st.markdown("</div>", unsafe_allow_html=True)
-
-# --- FILTER EXECUTION ---
 filtered_df = df.copy()
-if selected_location != "All Utah Cities":
-    filtered_df = filtered_df[
-        filtered_df["city"].str.lower() == selected_location.lower()
-    ]
-
-if price_filter == "Under $30k":
-    filtered_df = filtered_df[filtered_df["contract_price"] <= 30000]
-elif price_filter == "$30k - $60k":
-    filtered_df = filtered_df[
-        (filtered_df["contract_price"] > 30000)
-        & (filtered_df["contract_price"] <= 60000)
-    ]
-elif price_filter == "Over $60k":
-    filtered_df = filtered_df[filtered_df["contract_price"] > 60000]
-
-if beds_filter == "2+ Beds":
-    filtered_df = filtered_df[filtered_df["beds"] >= 2]
-elif beds_filter == "3+ Beds":
-    filtered_df = filtered_df[filtered_df["beds"] >= 3]
-elif beds_filter == "4+ Beds":
-    filtered_df = filtered_df[filtered_df["beds"] >= 4]
-
-if type_filter != "Property type":
-    filtered_df = filtered_df[
-        filtered_df["type"].str.contains(type_filter, case=False, na=False)
-    ]
 
 # --- DYNAMIC HEADER TITLE SECTION ---
-location_title = (
-    selected_location
-    if selected_location != "All Utah Cities"
-    else "Utah Land & Property Inc."
-)
-
 if "show_faq" not in st.session_state:
     st.session_state.show_faq = False
 
@@ -685,7 +492,7 @@ with col_title_1:
     st.markdown(
         f"""
         <div style="margin: 24px 40px 16px 40px;">
-            <h1 style="font-size: 1.7rem; font-weight: 800; color: #111827; margin-bottom: 4px;">{location_title} Real Estate & Land For Sale</h1>
+            <h1 style="font-size: 1.7rem; font-weight: 800; color: #111827; margin-bottom: 4px;">Utah Land & Property Inc. Real Estate & Land For Sale</h1>
             <p style="font-size: 0.95rem; color: #6b7280; margin: 0;"><b>{len(filtered_df)}</b> active private contracts available for acquisition</p>
         </div>
     """,
@@ -724,7 +531,7 @@ if st.session_state.show_faq:
 # --- RESPONSIVE 3-COLUMN CARD GRID ---
 st.markdown("<div style='padding: 0 40px;'>", unsafe_allow_html=True)
 if filtered_df.empty:
-    st.info("No real estate contracts match your filter criteria in this region.")
+    st.info("No real estate contracts match your criteria.")
 else:
     cols_per_row = 3
     rows = [
