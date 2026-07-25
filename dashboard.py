@@ -251,7 +251,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Property Database including the new Elko County Parcels from records
+# Property Database including all prior listings plus the updated Elko County parcels with values
 @st.cache_data
 def load_utah_property_database():
     data = [
@@ -275,10 +275,10 @@ def load_utah_property_database():
         },
         {
             "id": "010-59G-008",
-            "title": "Elko County Rural Land Parcel",
+            "title": "Elko County Rural Land Parcel with Power",
             "type": "Rural Land / Raw Land",
             "city": "Elko County, NV",
-            "contract_price": 3500,
+            "contract_price": 4500,
             "purchase_price": 95000,
             "arv": 125000,
             "beds": 0,
@@ -398,6 +398,42 @@ def load_utah_property_database():
             "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
             "lat": 40.7012,
             "lon": -111.8670,
+        },
+        {
+            "id": "UT-DRP-0201",
+            "title": "Draper Commercial Land Parcel",
+            "type": "Commercial Land",
+            "city": "Draper, UT",
+            "contract_price": 15000,
+            "purchase_price": 310000,
+            "arv": 450000,
+            "beds": 0,
+            "baths": 0,
+            "sqft": 4791,
+            "status": "Available",
+            "address": "Fort Street Parcel, Draper, UT 84020",
+            "broker": "Utah Land & Property Inc.",
+            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
+            "lat": 40.5243,
+            "lon": -111.8631,
+        },
+        {
+            "id": "UT-CLK-0301",
+            "title": "Park Meadows Townhomes Investment",
+            "type": "Townhome",
+            "city": "Clearfield, UT",
+            "contract_price": 8000,
+            "purchase_price": 285000,
+            "arv": 345000,
+            "beds": 3,
+            "baths": 2,
+            "sqft": 1520,
+            "status": "Available",
+            "address": "Park Meadows Townhomes, Clearfield, UT 84015",
+            "broker": "Utah Land & Property Inc.",
+            "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+            "lat": 41.1118,
+            "lon": -112.2426,
         },
     ]
     return pd.DataFrame(data)
