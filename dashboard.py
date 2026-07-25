@@ -10,7 +10,7 @@ import streamlit as st
 
 # Page Configuration - Enterprise Real Estate Portal Layout
 st.set_page_config(
-    page_title="Utah Land & Property Inc. | Private Portfolio",
+    page_title="Utah Real Estate & Land For Sale. | Utah Land & Property Inc.",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
@@ -171,8 +171,8 @@ st.markdown(
 st.markdown(
     """
     <div class="hero-container">
-        <div class="hero-title">Find your next Utah property & contract.</div>
-        <div class="hero-subtitle">Explore verified REPC assignments, direct acquisitions, and water-efficient xeriscaped properties.</div>
+        <div class="hero-title">Utah Real Estate off Market Private Contracts For Sale.</div>
+        <div class="hero-subtitle">REPC assignments for sale, direct acquisitions, Private Real Estate Transactions.</div>
     </div>
     """,
     unsafe_allow_html=True,
