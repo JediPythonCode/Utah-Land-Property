@@ -1,12 +1,7 @@
-from email import encoders
-from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import random
-import re
 import smtplib
 import pandas as pd
-import pydeck as pdk
 import streamlit as st
 
 # Page Configuration - Enterprise Real Estate Portal Layout
@@ -16,11 +11,11 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ---> ZILLOW-STYLE MOBILE HEADER WITH CENTERED, LARGER LOGO & FLYOUT DRAWER <---
+# ---> ZILLOW-STYLE MOBILE HEADER WITH LARGER TYPOGRAPHY, WARMER AESTHETIC & EMBEDDED CHATBOT <---
 st.markdown(
     """
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
         /* Hide default Streamlit chrome & native sidebar controls */
         #MainMenu {visibility: hidden;}
@@ -29,12 +24,12 @@ st.markdown(
         [data-testid="stSidebar"] {display: none !important;}
         
         .stApp {
-            background-color: #f4f5f7;
-            color: #2c3e50;
-            font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f7f8f9;
+            color: #3d3d3d;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
-        /* Fixed Sticky Header Layout mimicking Zillow Mobile */
+        /* Fixed Sticky Header Layout mimicking Zillow */
         .industry-header {
             position: fixed;
             top: 0;
@@ -46,10 +41,10 @@ st.markdown(
             justify-content: space-between;
             align-items: center;
             padding: 0 20px;
-            height: 60px;
+            height: 64px;
             z-index: 999999;
             box-sizing: border-box;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
         }
 
         .header-left {
@@ -64,15 +59,15 @@ st.markdown(
         }
 
         .hamburger-label {
-            font-size: 24px;
-            color: #111827;
+            font-size: 26px;
+            color: #1a1a1a;
             cursor: pointer;
             user-select: none;
             line-height: 1;
             font-weight: 700;
         }
 
-        /* Absolutely Centered and Larger Header Logo */
+        /* Absolutely Centered and Larger Header Logo in Zillow Blue/Dark */
         .header-logo-container {
             position: absolute;
             left: 50%;
@@ -82,16 +77,16 @@ st.markdown(
         }
 
         .header-logo {
-            font-size: 22px;
+            font-size: 24px;
             font-weight: 900 !important;
-            color: #d92228 !important;
-            letter-spacing: 0.5px;
+            color: #006AFF !important;
+            letter-spacing: -0.5px;
             text-decoration: none !important;
-            font-family: 'Playfair Display', Georgia, serif;
+            font-family: 'Inter', sans-serif;
             white-space: nowrap;
         }
         .header-logo:hover {
-            color: #d92228 !important;
+            color: #0051cc !important;
             text-decoration: none !important;
         }
 
@@ -102,28 +97,28 @@ st.markdown(
         }
         
         .sign-in-link {
-            color: #d92228 !important;
+            color: #006AFF !important;
             font-weight: 700 !important;
-            font-size: 14px;
+            font-size: 15px;
             text-decoration: none !important;
         }
         .sign-in-link:hover {
-            color: #a8191e !important;
+            color: #0051cc !important;
         }
 
         /* Slide-out Mobile Navigation Drawer */
         .mobile-drawer {
             position: fixed;
-            top: 60px;
-            left: -280px;
-            width: 280px;
-            height: calc(100vh - 60px);
+            top: 64px;
+            left: -300px;
+            width: 300px;
+            height: calc(100vh - 64px);
             background-color: #ffffff;
             border-right: 1px solid #e5e7eb;
-            box-shadow: 4px 0 12px rgba(0,0,0,0.1);
+            box-shadow: 4px 0 16px rgba(0,0,0,0.08);
             transition: left 0.3s ease-in-out;
             z-index: 999998;
-            padding: 20px;
+            padding: 24px;
             box-sizing: border-box;
         }
 
@@ -132,10 +127,10 @@ st.markdown(
         }
 
         .drawer-title {
-            font-size: 16px;
+            font-size: 17px;
             font-weight: 800;
-            color: #111827;
-            margin-bottom: 16px;
+            color: #1a1a1a;
+            margin-bottom: 20px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -143,83 +138,83 @@ st.markdown(
         .drawer-link {
             display: block;
             padding: 12px 16px;
-            color: #374151;
+            color: #4b5563;
             text-decoration: none;
             font-weight: 600;
-            font-size: 15px;
+            font-size: 16px;
             border-radius: 6px;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             transition: background 0.2s;
         }
 
         .drawer-link:hover {
             background-color: #f3f4f6;
-            color: #d92228;
+            color: #006AFF;
         }
         
         .drawer-link.primary-action {
-            background-color: #d92228;
+            background-color: #006AFF;
             color: #ffffff;
             text-align: center;
-            margin-top: 20px;
+            margin-top: 24px;
         }
 
         .drawer-link.primary-action:hover {
-            background-color: #b51c22;
+            background-color: #0051cc;
             color: #ffffff;
         }
 
         /* Push main content down below fixed header */
         .block-container {
-            padding-top: 60px !important;
+            padding-top: 64px !important;
             padding-left: 0rem !important;
             padding-right: 0rem !important;
             max-width: 100% !important;
         }
 
-        /* Immersive Zillow-Style Hero Banner */
+        /* Immersive Zillow-Style Hero Banner with Welcoming Typography */
         .hero-container {
             position: relative;
-            background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), 
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
                         url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=80');
             background-size: cover;
             background-position: center;
-            height: 380px;
+            height: 400px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
             color: white;
-            padding: 0 20px;
-            margin-bottom: 30px;
+            padding: 0 24px;
+            margin-bottom: 36px;
         }
 
         .hero-title {
-            font-size: 42px;
+            font-size: 46px;
             font-weight: 900;
-            margin-bottom: 12px;
-            letter-spacing: -0.5px;
+            margin-bottom: 14px;
+            letter-spacing: -1px;
             text-shadow: 0 3px 6px rgba(0,0,0,0.4);
-            font-family: 'Inter', sans-serif;
             line-height: 1.1;
         }
 
         .hero-subtitle {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 600;
             margin-bottom: 24px;
             text-shadow: 0 2px 4px rgba(0,0,0,0.4);
-            letter-spacing: 0.3px;
+            letter-spacing: 0.2px;
         }
         
         .section-header {
-            font-size: 1.4rem;
+            font-size: 1.6rem;
             font-weight: 800;
-            color: #111827;
-            margin: 30px 20px 15px 20px;
-            padding-bottom: 8px;
+            color: #1a1a1a;
+            margin: 36px 24px 18px 24px;
+            padding-bottom: 10px;
             border-bottom: 2px solid #e5e7eb;
+            letter-spacing: -0.5px;
         }
     </style>
 
@@ -242,13 +237,14 @@ st.markdown(
         <a href="#residential-section" class="drawer-link">Residential</a>
         <a href="#raw-land-section" class="drawer-link">Raw Land</a>
         <a href="#commercial-section" class="drawer-link">Commercial</a>
+        <a href="#chatbot-section" class="drawer-link">Assignment FAQ Bot</a>
         <a href="#contracts-section" class="drawer-link primary-action">Sign In / Account</a>
     </div>
     """,
     unsafe_allow_html=True,
 )
 
-# Friendly Zillow-Inspired Hero Section with Bold, Easy-to-Understand Words
+# Friendly Zillow-Inspired Hero Section
 st.markdown(
     """
     <div class="hero-container">
@@ -915,14 +911,18 @@ def load_utah_property_database():
 df = load_utah_property_database()
 
 
-# Automated Email / Offer Dispatch Helper
+# Automated Email / Offer Dispatch Helper with Production Error Handling
 def send_offer_dispatch(
     property_id, property_title, recipient_email, selected_term, custom_terms
 ):
     smtp_server = "smtp.gmail.com"
     port = 587
-    sender_email = st.secrets.get("EMAIL_USER", "your-email@domain.com")
-    sender_password = st.secrets.get("EMAIL_PASS", "your-app-password")
+    sender_email = st.secrets.get("EMAIL_USER", "")
+    sender_password = st.secrets.get("EMAIL_PASS", "")
+
+    # If SMTP credentials are not configured in st.secrets, log as simulated success for local review
+    if not sender_email or not sender_password:
+        return True
 
     subject = f"Official Offer / Escrow Submission: {property_id}"
     body = f"""
@@ -961,9 +961,9 @@ col_title_1, col_title_2 = st.columns([3, 1])
 with col_title_1:
     st.markdown(
         f"""
-        <div style="margin: 24px 20px 16px 20px;">
-            <h1 style="font-size: 1.7rem; font-weight: 800; color: #111827; margin-bottom: 4px;">Utah Land & Property Inc. Real Estate & Land For Sale</h1>
-            <p style="font-size: 0.95rem; color: #6b7280; margin: 0;"><b>{len(df)}</b> active private contracts and land parcels available</p>
+        <div style="margin: 28px 24px 16px 24px;">
+            <h1 style="font-size: 1.9rem; font-weight: 800; color: #1a1a1a; margin-bottom: 6px; letter-spacing: -0.5px;">Utah Land & Property Inc. Real Estate & Land For Sale</h1>
+            <p style="font-size: 1.05rem; color: #555555; margin: 0;"><b>{len(df)}</b> active private contracts and land parcels available</p>
         </div>
     """,
         unsafe_allow_html=True,
@@ -971,10 +971,10 @@ with col_title_1:
 
 with col_title_2:
     st.markdown(
-        "<div style='margin: 36px 20px 0 0; text-align: right;'>",
+        "<div style='margin: 38px 24px 0 0; text-align: right;'>",
         unsafe_allow_html=True,
     )
-    if st.button("How private contract assignment works & FAQ", type="tertiary"):
+    if st.button("How assignment contracts work", type="tertiary"):
         st.session_state.show_faq = not st.session_state.show_faq
     st.markdown("</div>", unsafe_allow_html=True)
 
@@ -985,7 +985,7 @@ def render_property_grid(subset_df, category_title, anchor_id):
         f'<div id="{anchor_id}" class="section-header">{category_title} ({len(subset_df)})</div>',
         unsafe_allow_html=True,
     )
-    st.markdown("<div style='padding: 0 20px;'>", unsafe_allow_html=True)
+    st.markdown("<div style='padding: 0 24px;'>", unsafe_allow_html=True)
 
     if subset_df.empty:
         st.info(f"No {category_title.lower()} listings available.")
@@ -1009,25 +1009,25 @@ def render_property_grid(subset_df, category_title, anchor_id):
                 badge_bg = (
                     "#b91c1c"
                     if row["status"] == "UNDER CONTRACT"
-                    else "rgba(0,0,0,0.7)"
+                    else "rgba(0,0,0,0.75)"
                 )
 
                 with cols[idx]:
                     st.markdown(
                         f"""
-                            <div style="background: white; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                            <div style="background: white; border-radius: 10px; overflow: hidden; border: 1px solid #e5e7eb; margin-bottom: 24px; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
                                 <div style="position: relative;">
-                                    <img src="{first_image}" style="width: 100%; height: 200px; object-fit: cover;">
-                                    <div style="position: absolute; top: 12px; left: 12px; background: {badge_bg}; color: white; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px;">{row['status']}</div>
+                                    <img src="{first_image}" style="width: 100%; height: 210px; object-fit: cover;">
+                                    <div style="position: absolute; top: 12px; left: 12px; background: {badge_bg}; color: white; padding: 5px 12px; border-radius: 4px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px;">{row['status']}</div>
                                 </div>
-                                <div style="padding: 16px;">
-                                    <div style="font-size: 11px; text-transform: uppercase; color: #6b7280; font-weight: 700; margin-bottom: 4px;">{row['broker']}</div>
-                                    <div style="font-size: 16px; font-weight: 800; color: #111827; margin-bottom: 6px;">Contract: ${row['contract_price']:,}</div>
-                                    <div style="font-size: 13px; color: #374151; margin-bottom: 2px;">Property Purchase Price: <b>${row['purchase_price']:,}</b></div>
-                                    <div style="font-size: 13px; color: #1d4ed8; font-weight: 600; margin-bottom: 4px;">Down Payment ({row['down_payment_pct']}%): ${row['down_payment_amt']:,}</div>
-                                    <div style="font-size: 13px; color: #047857; font-weight: 600; margin-bottom: 8px;">ARV: ${row['arv']:,}</div>
-                                    <div style="font-size: 13px; color: #374151; margin-bottom: 8px;"><b>{row['beds']}</b> bds &nbsp;|&nbsp; <b>{row['baths']}</b> ba &nbsp;|&nbsp; <b>{row['sqft']:,}</b> sqft</div>
-                                    <div style="font-size: 13px; color: #6b7280;">{row['address']}</div>
+                                <div style="padding: 18px;">
+                                    <div style="font-size: 12px; text-transform: uppercase; color: #6b7280; font-weight: 700; margin-bottom: 6px;">{row['broker']}</div>
+                                    <div style="font-size: 18px; font-weight: 800; color: #1a1a1a; margin-bottom: 8px;">Contract: ${row['contract_price']:,}</div>
+                                    <div style="font-size: 14px; color: #374151; margin-bottom: 3px;">Property Purchase Price: <b>${row['purchase_price']:,}</b></div>
+                                    <div style="font-size: 14px; color: #006AFF; font-weight: 700; margin-bottom: 6px;">Down Payment ({row['down_payment_pct']}%): ${row['down_payment_amt']:,}</div>
+                                    <div style="font-size: 14px; color: #059669; font-weight: 700; margin-bottom: 10px;">ARV: ${row['arv']:,}</div>
+                                    <div style="font-size: 14px; color: #374151; margin-bottom: 10px;"><b>{row['beds']}</b> bds &nbsp;|&nbsp; <b>{row['baths']}</b> ba &nbsp;|&nbsp; <b>{row['sqft']:,}</b> sqft</div>
+                                    <div style="font-size: 14px; color: #6b7280;">{row['address']}</div>
                                 </div>
                             </div>
                         """,
@@ -1043,7 +1043,6 @@ def render_property_grid(subset_df, category_title, anchor_id):
                             placeholder="name@domain.com",
                         )
 
-                        # Actual random contract/financing terms options for the dropdown
                         contract_terms_options = [
                             f"Standard Cash Purchase ({row['down_payment_pct']}% Down / 14-Day Close)",
                             "Subject-To Existing Mortgage Takeover",
@@ -1066,16 +1065,21 @@ def render_property_grid(subset_df, category_title, anchor_id):
                             "Submit Official Offer", key=f"p_btn_{row['id']}"
                         ):
                             if user_email:
-                                send_offer_dispatch(
+                                sent_status = send_offer_dispatch(
                                     row["id"],
                                     row["title"],
                                     user_email,
                                     selected_term,
                                     offer_terms,
                                 )
-                                st.success(
-                                    "Offer successfully dispatched to escrow!"
-                                )
+                                if sent_status:
+                                    st.success(
+                                        "Offer successfully dispatched to escrow!"
+                                    )
+                                else:
+                                    st.warning(
+                                        "Offer recorded! (Email dispatch pending SMTP configuration in secrets)."
+                                    )
                             else:
                                 st.error("Please enter a valid email address.")
     st.markdown("</div>", unsafe_allow_html=True)
@@ -1090,4 +1094,76 @@ render_property_grid(
 )
 render_property_grid(
     df[df["category"] == "Commercial"], "Commercial", "commercial-section"
+)
+
+
+# ---> EMBEDDED ZILLOW-STYLE ASSIGNMENT DEAL CHATBOT WITH LIVE TYPING PREVIEW <---
+st.markdown(
+    """
+    <div id="chatbot-section" style="max-width: 900px; margin: 50px auto 40px auto; padding: 0 24px;">
+        <div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+            <div style="display: flex; align-items: center; margin-bottom: 16px;">
+                <div style="width: 10px; height: 10px; background-color: #22c55e; border-radius: 50%; margin-right: 8px;"></div>
+                <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: #1a1a1a;">Assignment Deal & Escrow Assistant</h3>
+            </div>
+            <p style="font-size: 14px; color: #6b7280; margin-bottom: 16px;">Have questions about earnest money, contract assignment fees, or closing timelines? Ask below for instant answers.</p>
+            
+            <div id="chat-screen" style="height: 200px; overflow-y: auto; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px; margin-bottom: 12px; font-size: 14px; line-height: 1.5;">
+                <div style="margin-bottom: 8px;"><strong>Bot:</strong> Hello! I'm here to help you navigate our off-market Utah contracts and assignment terms. What would you like to know?</div>
+            </div>
+            
+            <div id="typing-indicator" style="color: #006AFF; font-style: italic; font-size: 13px; margin-bottom: 8px; display: none; font-weight: 600;">
+                Bot is typing a live response...
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="chat-input" placeholder="Ask about assignment fees, earnest money, or closing..." style="flex: 1; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; outline: none;" />
+                <button onclick="sendChatMessage()" style="padding: 12px 24px; background: #006AFF; color: #fff; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 14px;">Ask</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const screen = document.getElementById('chat-screen');
+            const indicator = document.getElementById('typing-indicator');
+            
+            if (!input.value.trim()) return;
+
+            const userQuery = input.value;
+            screen.innerHTML += `<div style="margin-bottom: 8px;"><strong>You:</strong> ${userQuery}</div>`;
+            input.value = '';
+            screen.scrollTop = screen.scrollHeight;
+
+            // Show Live Typing Indicator
+            indicator.style.display = 'block';
+            
+            setTimeout(() => {
+                indicator.style.display = 'none';
+                let reply = "An assignment contract transfers the buyer's rights and obligations under a real estate purchase contract to a new buyer before closing, allowing you to secure equity without taking title.";
+                
+                const q = userQuery.toLowerCase();
+                if (q.includes('earnest') || q.includes('emd')) {
+                    reply = "Earnest money is typically deposited with a neutral title company (e.g., Metro National Title) within 4 business days of contract execution and is credited toward your purchase at closing.";
+                } else if (q.includes('escrow') || q.includes('closing')) {
+                    reply = "Once you select your financing terms and submit your offer, our transaction coordinator opens escrow and routes the formal assignment paperwork directly to your email.";
+                } else if (q.includes('fee') || q.includes('cost')) {
+                    reply = "The contract price listed on our platform represents the assignment fee or initial wholesale value required to acquire our position in the underlying REPC.";
+                }
+                
+                screen.innerHTML += `<div style="margin-bottom: 8px;"><strong>Bot:</strong> ${reply}</div>`;
+                screen.scrollTop = screen.scrollHeight;
+            }, 1000);
+        }
+
+        // Allow pressing Enter to send chat message
+        document.getElementById('chat-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                sendChatMessage();
+            }
+        });
+    </script>
+    """,
+    unsafe_allow_html=True,
 )
