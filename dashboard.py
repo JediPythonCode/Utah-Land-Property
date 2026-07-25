@@ -7,20 +7,12 @@ import streamlit as st
 
 # Page Configuration - Enterprise Real Estate Portal Layout
 st.set_page_config(
-    page_title="Utah Real Estate & Land for Sale | Utah Land & Property",
-    page_icon="🏡",
-    layout="wide",
-    initial_sidebar_state="collapsed",
-)
-
-# 1. Page Configuration (Must always be first)
-st.set_page_config(
     page_title="Utah Land & Property Inc. | Private Portfolio",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
-# 2. ---> UPDATED INDUSTRY-GRADE STICKY HEADER & FRIENDLY RESIDENTIAL HERO <---
+# ---> UPDATED INDUSTRY-GRADE STICKY HEADER & FRIENDLY RESIDENTIAL HERO <---
 st.markdown(
     """
     <style>
@@ -95,7 +87,7 @@ st.markdown(
             max-width: 100% !important;
         }
 
-        /* Immersive Friendly Residential Hero Banner (Zillow-style, not a huge commercial mega-home) */
+        /* Immersive Friendly Residential Hero Banner (Zillow-style) */
         .hero-container {
             position: relative;
             background: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)), 
@@ -151,7 +143,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 3. Friendly Residential Hero Section
+# Friendly Residential Hero Section
 st.markdown(
     """
     <div class="hero-container">
@@ -465,42 +457,14 @@ def send_offer_dispatch(
         return False
 
 
-# --- STICKY HEADER WRAPPER (Locks to Top on Scroll) ---
-st.markdown("<div class='sticky-header-wrapper'>", unsafe_allow_html=True)
-
-# Top Navigation Bar
-st.markdown(
-    """
-    <div class="portal-navbar">
-        <div class="portal-nav-left">
-            <span>Buy Contracts</span>
-            <span>Assign</span>
-            <span>Sell</span>
-            <span>Portfolio</span>
-            <span style="color: #d92228; font-weight: 700;">Submit an Offer</span>
-        </div>
-        <div class="portal-logo">
-            UTAH LAND & PROPERTY INC.
-        </div>
-        <div class="portal-nav-right">
-            <span>Private Assets</span>
-            <span>Help</span>
-            <span style="background-color: #d92228; color: white; padding: 8px 18px; border-radius: 6px; font-weight: 600;">Sign In</span>
-        </div>
-    </div>
-""",
-    unsafe_allow_html=True,
-)
-
-# Sticky Filter & Search Bar
-st.markdown("<div class='filter-bar-container'>", unsafe_allow_html=True)
+# Sticky Filter & Search Bar container
+st.markdown("<div style='background-color: #ffffff; padding: 16px 40px; border-bottom: 1px solid #e0e0e0; box-shadow: 0 2px 4px rgba(0,0,0,0.02);'>", unsafe_allow_html=True)
 f_col1, f_col2, f_col3, f_col4, f_col5, f_col6 = st.columns(
     [2.4, 1.1, 1.1, 1.1, 1.2, 1]
 )
 
 all_locations = [
     "All Utah Cities",
-    # Major Urban & Regional Centers
     "Salt Lake City, UT",
     "Provo, UT",
     "Ogden, UT",
@@ -511,8 +475,6 @@ all_locations = [
     "Sandy, UT",
     "West Valley City, UT",
     "West Jordan, UT",
-    
-    # Wasatch Front & Salt Lake County Suburbs / Municipalities
     "Millcreek, UT",
     "Draper, UT",
     "Park City, UT",
@@ -531,15 +493,11 @@ all_locations = [
     "Tooele, UT",
     "Eagle Mountain, UT",
     "Saratoga Springs, UT",
-    
-    # Recently Incorporated & Transitioned Communities (e.g., former Metro Townships)
     "Kearns, UT",
     "Magna, UT",
     "White City, UT",
     "Emigration Canyon, UT",
     "Copperton, UT",
-    
-    # Northern Utah & Cache Valley
     "Cache, UT",
     "Brigham City, UT",
     "Cache Ward, UT",
@@ -548,8 +506,6 @@ all_locations = [
     "Eden, UT",
     "Liberty, UT",
     "Huntsville, UT",
-    
-    # Utah County & Mountain Suburbs
     "Alpine, UT",
     "American Fork, UT",
     "Cedar Hills, UT",
@@ -560,16 +516,12 @@ all_locations = [
     "Salem, UT",
     "Sundance, UT",
     "Hobble Creek, UT",
-    
-    # Summit & Wasatch Back
     "East Basin, UT",
     "Hoytsville, UT",
     "Marion, UT",
     "Coalville, UT",
     "Heber City, UT",
     "Kamas, UT",
-    
-    # Southern & Rural Utah CDPs / Unincorporated Areas
     "Kanab, UT",
     "Moab, UT",
     "Cedar City, UT",
@@ -616,8 +568,7 @@ with f_col5:
 with f_col6:
     save_search_btn = st.button("Save Search", use_container_width=True)
 
-st.markdown("</div>", unsafe_allow_html=True)  # End filter-bar-container
-st.markdown("</div>", unsafe_allow_html=True)  # End sticky-header-wrapper
+st.markdown("</div>", unsafe_allow_html=True)
 
 # --- FILTER EXECUTION ---
 filtered_df = df.copy()
@@ -653,7 +604,6 @@ location_title = (
     selected_location if selected_location != "All Utah Cities" else "Utah Land & Property Inc."
 )
 
-# Using Streamlit container and query params / session state to handle the interactive FAQ modal toggle cleanly
 if "show_faq" not in st.session_state:
     st.session_state.show_faq = False
 
@@ -661,8 +611,8 @@ col_title_1, col_title_2 = st.columns([3, 1])
 with col_title_1:
     st.markdown(
         f"""
-        <div style="margin-top: 24px; margin-bottom: 16px;">
-            <h1 style="font-size: 1.7rem; font-weight: 800; color: #111827; margin-bottom: 4px;">{location_title} Utah Real Estate & Land For Sale</h1>
+        <div style="margin: 24px 40px 16px 40px;">
+            <h1 style="font-size: 1.7rem; font-weight: 800; color: #111827; margin-bottom: 4px;">{location_title} Real Estate & Land For Sale</h1>
             <p style="font-size: 0.95rem; color: #6b7280; margin: 0;"><b>{len(filtered_df)}</b> active private contracts available for acquisition</p>
         </div>
     """,
@@ -670,7 +620,7 @@ with col_title_1:
     )
 
 with col_title_2:
-    st.markdown("<div style='margin-top: 36px; text-align: right;'>", unsafe_allow_html=True)
+    st.markdown("<div style='margin: 36px 40px 0 0; text-align: right;'>", unsafe_allow_html=True)
     if st.button("🛈 How private contract assignment works & FAQ", type="tertiary"):
         st.session_state.show_faq = not st.session_state.show_faq
     st.markdown("</div>", unsafe_allow_html=True)
@@ -679,7 +629,7 @@ with col_title_2:
 if st.session_state.show_faq:
     st.markdown(
         """
-        <div style="background-color: #ffffff; border: 1px solid #e5e7eb; border-left: 4px solid #d92228; padding: 24px; border-radius: 8px; margin-bottom: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+        <div style="background-color: #ffffff; border: 1px solid #e5e7eb; border-left: 4px solid #d92228; padding: 24px; border-radius: 8px; margin: 0 40px 30px 40px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
             <h3 style="margin-top: 0; color: #111827; font-size: 1.3rem;">Understanding Private Contract & REPC Assignments</h3>
             <p style="color: #4b5563; line-height: 1.6; font-size: 0.95rem;">
                 A private contract assignment—frequently utilized in creative real estate transactions—involves transferring the equitable rights and interests held under a Real Estate Purchase Contract (REPC) or private agreement to a third party rather than executing a direct title sale of the physical property itself.
@@ -696,6 +646,7 @@ if st.session_state.show_faq:
     )
 
 # --- RESPONSIVE 3-COLUMN CARD GRID ---
+st.markdown("<div style='padding: 0 40px;'>", unsafe_allow_html=True)
 if filtered_df.empty:
     st.info("No real estate contracts match your filter criteria in this region.")
 else:
@@ -711,17 +662,17 @@ else:
             with cols[idx]:
                 st.markdown(
                     f"""
-                        <div class="property-card">
-                            <div class="card-img-container">
-                                <img src="{row['image']}" class="card-img">
-                                <div class="card-status-badge">{row['status']}</div>
+                        <div style="background: white; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                            <div style="position: relative;">
+                                <img src="{row['image']}" style="width: 100%; height: 200px; object-fit: cover;">
+                                <div style="position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.7); color: white; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">{row['status']}</div>
                             </div>
-                            <div class="card-body">
-                                <div class="card-broker">{row['broker']}</div>
-                                <div class="card-contract-price">Contract: ${row['contract_price']:,}</div>
-                                <div class="card-underlying-price">Property Value: ${row['underlying_price']:,}</div>
-                                <div class="card-metrics"><b>{row['beds']}</b> bds &nbsp;|&nbsp; <b>{row['baths']}</b> ba &nbsp;|&nbsp; <b>{row['sqft']:,}</b> sqft</div>
-                                <div class="card-address">{row['address']}</div>
+                            <div style="padding: 16px;">
+                                <div style="font-size: 11px; text-transform: uppercase; color: #6b7280; font-weight: 700; margin-bottom: 4px;">{row['broker']}</div>
+                                <div style="font-size: 18px; font-weight: 800; color: #111827; margin-bottom: 4px;">Contract: ${row['contract_price']:,}</div>
+                                <div style="font-size: 13px; color: #4b5563; margin-bottom: 8px;">Property Value: ${row['underlying_price']:,}</div>
+                                <div style="font-size: 13px; color: #374151; margin-bottom: 8px;"><b>{row['beds']}</b> bds &nbsp;|&nbsp; <b>{row['baths']}</b> ba &nbsp;|&nbsp; <b>{row['sqft']:,}</b> sqft</div>
+                                <div style="font-size: 13px; color: #6b7280;">{row['address']}</div>
                             </div>
                         </div>
                     """,
@@ -737,10 +688,7 @@ else:
                     offer_terms = st.text_area(
                         "Offer Terms & Conditions",
                         key=f"p_msg_{row['id']}",
-                        placeholder=(
-                            "Enter contract purchase price, assignment fee, or escrow"
-                            " contingencies..."
-                        ),
+                        placeholder="Enter contract purchase price, assignment fee, or escrow contingencies...",
                     )
                     if st.button("Submit Official Offer", key=f"p_btn_{row['id']}"):
                         if user_email:
@@ -748,11 +696,12 @@ else:
                             st.success("Offer successfully dispatched to escrow!")
                         else:
                             st.error("Please enter a valid email address.")
+st.markdown("</div>", unsafe_allow_html=True)
 
-# --- MAP SECTION (Placing the Interactive PyDeck Map Below Listings, matching reference layout) ---
+# --- MAP SECTION ---
 st.markdown(
     """
-    <div style="margin-top: 40px; margin-bottom: 16px; border-top: 1px solid #e5e7eb; padding-top: 24px;">
+    <div style="margin: 40px 40px 16px 40px; border-top: 1px solid #e5e7eb; padding-top: 24px;">
         <h2 style="font-size: 1.4rem; font-weight: 800; color: #111827; margin-bottom: 4px;">Interactive Regional Contract Map</h2>
         <p style="font-size: 0.9rem; color: #6b7280;">Geographic distribution of active equitable interest assignments across Utah.</p>
     </div>
@@ -788,9 +737,12 @@ r = pdk.Deck(
     map_style="light",
     tooltip={"text": "Utah Land & Property Equitable Interest Contract"},
 )
-st.pydeck_chart(r, use_container_width=True)
 
-# --- FOOTER SECTION (Exemption & Private Investment Notice) ---
+st.markdown("<div style='padding: 0 40px;'>", unsafe_allow_html=True)
+st.pydeck_chart(r, use_container_width=True)
+st.markdown("</div>", unsafe_allow_html=True)
+
+# --- FOOTER SECTION ---
 st.markdown(
     """
     <div style="font-size: 0.8rem; color: #6b7280; text-align: center; margin-top: 40px; padding-top: 24px; border-top: 1px solid #e5e7eb; padding-bottom: 40px; line-height: 1.6;">
