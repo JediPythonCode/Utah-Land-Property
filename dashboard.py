@@ -281,7 +281,7 @@ def load_utah_property_database():
             "title": "Millcreek Off-Market Hidden Gem",
             "category": "Residential",
             "city": "Millcreek, UT",
-            "contract_price": 22000,
+            "contract_price": 27000,
             "purchase_price": 590000,
             "down_payment_pct": 25,
             "down_payment_amt": int(400000 * 0.25),
