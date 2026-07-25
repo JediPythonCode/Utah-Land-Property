@@ -494,38 +494,194 @@ def send_offer_dispatch(
         return False
 
 
-# --- STICKY HEADER WRAPPER (Locks to Top on Scroll) ---
-st.markdown("<div class='sticky-header-wrapper'>", unsafe_allow_html=True)
+To make the top of your Streamlit portal look exactly like the Realtor.com hero layout shown in your screenshot (featuring a gorgeous full-width background image, white navigation items, a tabbed sub-menu for **Buy | Rent | Sell | Pre-approval | Just sold | Home value**, and a centered pill-shaped search bar with a red button), you need to replace your current top navigation block and add this hero layout code.
 
-# Top Navigation Bar
+### Where to put it:
+
+1. **Delete** your current `st.markdown("<div class='sticky-header-wrapper'>"...` code block, your existing top navigation HTML, and your old `filter-bar-container`.
+2. **Paste** the code block provided below **immediately after** your custom `<style>` block and helper functions/database loading (right before your layout or filter execution logic).
+
+---
+
+### Insertable Code Block
+
+# --- REALTOR.COM HERO HEADER & SEARCH COMPONENT ---
+
+# Hero Section Background Image & Overlay Styling
 st.markdown(
     """
-    <div class="portal-navbar">
-        <div class="portal-nav-left">
-            <span>Buy Contracts</span>
-            <span>Assign</span>
-            <span>Sell</span>
-            <span>Portfolio</span>
-            <span style="color: #d92228; font-weight: 700;">Submit an Offer</span>
+    <style>
+    .hero-container {
+        position: relative;
+        width: 100vw;
+        left: calc(-50vw + 50%);
+        margin-top: -60px;
+        margin-bottom: 30px;
+        height: 520px;
+        background-image: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.55)), url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=85');
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        box-sizing: border-box;
+        padding: 0 20px;
+    }
+    
+    /* Top Navigation bar over the hero */
+    .hero-navbar {
+        width: 100%;
+        max-width: 1280px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 18px 0px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .hero-nav-left, .hero-nav-right {
+        display: flex;
+        gap: 22px;
+        align-items: center;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #ffffff;
+    }
+    .hero-nav-left span, .hero-nav-right span {
+        cursor: pointer;
+        transition: opacity 0.15s ease;
+    }
+    .hero-nav-left span:hover, .hero-nav-right span:hover {
+        opacity: 0.75;
+    }
+    .hero-logo {
+        font-size: 1.6rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        color: #ffffff;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .hero-logo span {
+        color: #d92228;
+        background: white;
+        padding: 1px 6px;
+        border-radius: 4px;
+    }
+    
+    /* Hero Content Center Text */
+    .hero-content {
+        text-align: center;
+        margin-top: 65px;
+        margin-bottom: 25px;
+    }
+    .hero-title-main {
+        font-size: 2.8rem;
+        font-weight: 800;
+        color: #ffffff;
+        margin-bottom: 0px;
+        letter-spacing: -0.5px;
+        font-family: 'Inter', sans-serif;
+    }
+    .hero-title-sub {
+        font-size: 2.8rem;
+        font-weight: 800;
+        color: #ffffff;
+        margin-top: 2px;
+        margin-bottom: 20px;
+        letter-spacing: -0.5px;
+        font-family: 'Inter', sans-serif;
+    }
+    
+    /* Tabs selector (Buy, Rent, Sell, etc.) */
+    .hero-tabs {
+        display: flex;
+        justify-content: center;
+        gap: 28px;
+        margin-bottom: 14px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.85);
+    }
+    .hero-tab-active {
+        color: #ffffff;
+        border-bottom: 3px solid #ffffff;
+        padding-bottom: 4px;
+    }
+    
+    /* Browse bottom label */
+    .hero-browse-footer {
+        width: 100%;
+        max-width: 1280px;
+        display: flex;
+        justify-content: flex-start;
+        margin-top: auto;
+        padding-bottom: 24px;
+        color: #ffffff;
+        font-size: 0.95rem;
+        font-weight: 500;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
+    </style>
+
+    <div class="hero-container">
+        <!-- Top Nav -->
+        <div class="hero-navbar">
+            <div class="hero-logo">
+                <span>realtor</span>.com
+            </div>
+            <div class="hero-nav-left">
+                <span>Buy</span>
+                <span>Sell</span>
+                <span>Rent</span>
+                <span>Mortgage</span>
+                <span>Find an Agent</span>
+                <span>My Home</span>
+                <span>News & Insights</span>
+            </div>
+            <div class="hero-nav-right">
+                <span>Manage rentals</span>
+                <span>Advertise</span>
+                <span>Log in</span>
+                <span style="background-color: #ffffff; color: #111827; padding: 7px 16px; border-radius: 20px; font-weight: 700;">Sign up</span>
+            </div>
         </div>
-        <div class="portal-logo">
-            UTAH LAND & PROPERTY INC.
+
+        <!-- Center Headers -->
+        <div class="hero-content">
+            <div class="hero-title-main">#1 real estate site</div>
+            <div class="hero-title-sub">REALTOR® agents recommend*</div>
+            
+            <div class="hero-tabs">
+                <span class="hero-tab-active">Buy</span>
+                <span>Rent</span>
+                <span>Sell</span>
+                <span>Pre-approval</span>
+                <span>Just sold</span>
+                <span>Home value</span>
+            </div>
         </div>
-        <div class="portal-nav-right">
-            <span>Private Assets</span>
-            <span>Help</span>
-            <span style="background-color: #d92228; color: white; padding: 8px 18px; border-radius: 6px; font-weight: 600;">Sign In</span>
+
+        <!-- Browse footer text -->
+        <div class="hero-browse-footer">
+            Browse homes in Millcreek, UT
         </div>
     </div>
-""",
+    """,
     unsafe_allow_html=True,
 )
 
-# Sticky Filter & Search Bar
-st.markdown("<div class='filter-bar-container'>", unsafe_allow_html=True)
-f_col1, f_col2, f_col3, f_col4, f_col5, f_col6 = st.columns(
-    [2.4, 1.1, 1.1, 1.1, 1.2, 1]
-)
+# Streamlit Interactive Search Bar Widget (Pill shaped overlay container)
+col_search1, col_search2, col_search3 = st.columns([1, 4, 1])
+with col_search2:
+    selected_location = st.selectbox(
+        "Search Location",
+        all_locations,
+        index=1,  # Defaults to Millcreek, UT
+        label_visibility="collapsed",
+    )
+
 
 all_locations = [
     "All Utah Cities",
