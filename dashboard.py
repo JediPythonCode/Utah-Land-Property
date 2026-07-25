@@ -65,20 +65,21 @@ st.markdown(
             color: #d92228;
         }
         
-        /* Logo: Elegant Black with subtle red accent dot, bold, NOT underlined, NOT blue */
+        /* Logo: Exactly black and bold, matching user requirement */
         .header-logo {
             font-size: 20px;
-            font-weight: 700;
-            color: #111111;
+            font-weight: 900 !important;
+            color: #000000 !important;
             letter-spacing: -0.5px;
             text-decoration: none !important;
-            font-family: 'Playfair Display', Georgia, serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
         .header-logo span {
             color: #d92228;
+            font-weight: 900 !important;
         }
         .header-logo:hover {
-            color: #111111;
+            color: #000000 !important;
             text-decoration: none !important;
         }
         
