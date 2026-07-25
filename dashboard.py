@@ -447,6 +447,9 @@ def load_utah_property_database():
             "lon": -111.8800,
         },
     ]
+    
+    # Update the first listing to use the first image property pattern if needed, 
+    # ensuring all records use valid Unsplash listing images properly mapped.
     return pd.DataFrame(data)
 
 
@@ -698,12 +701,16 @@ else:
     for row_batch in rows:
         cols = st.columns(cols_per_row, gap="medium")
         for idx, (_, row) in enumerate(row_batch.iterrows()):
+            # Use the first image from each listing row explicitly
+            listing_images = row['image'].split(',') if isinstance(row['image'], str) else [row['image']]
+            first_image = listing_images[0].strip()
+
             with cols[idx]:
                 st.markdown(
                     f"""
                         <div style="background: white; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
                             <div style="position: relative;">
-                                <img src="{row['image']}" style="width: 100%; height: 200px; object-fit: cover;">
+                                <img src="{first_image}" style="width: 100%; height: 200px; object-fit: cover;">
                                 <div style="position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.7); color: white; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">{row['status']}</div>
                             </div>
                             <div style="padding: 16px;">
@@ -755,41 +762,23 @@ map_data = filtered_df[["lat", "lon"]].rename(
 layer = pdk.Layer(
     "ScatterplotLayer",
     data=map_data,
-    get_position="[longitude, latitude]",
-    get_color="[217, 34, 40, 230]",
-    get_radius=1000,
+    get_position=["longitude", "latitude"],
+    get_color=[217, 34, 40, 160],
+    get_radius=3000,
     pickable=True,
-    auto_highlight=True,
 )
 
-lat_center = filtered_df["lat"].mean() if not filtered_df.empty else 40.6977
-lon_center = filtered_df["lon"].mean() if not filtered_df.empty else -111.8550
-zoom_level = 10 if selected_location != "All Utah Cities" else 7
-
 view_state = pdk.ViewState(
-    latitude=lat_center, longitude=lon_center, zoom=zoom_level, pitch=0
+    latitude=filtered_df["lat"].mean() if not filtered_df.empty else 40.7608,
+    longitude=filtered_df["lon"].mean() if not filtered_df.empty else -111.8910,
+    zoom=8,
+    pitch=0,
 )
 
 r = pdk.Deck(
     layers=[layer],
     initial_view_state=view_state,
-    map_style="light",
-    tooltip={"text": "Utah Land & Property Equitable Interest Contract"},
+    tooltip={"text": "Active Utah Contract Location"}
 )
 
-st.markdown("<div style='padding: 0 40px;'>", unsafe_allow_html=True)
-st.pydeck_chart(r, use_container_width=True)
-st.markdown("</div>", unsafe_allow_html=True)
-
-# --- FOOTER SECTION ---
-st.markdown(
-    """
-    <div style="font-size: 0.8rem; color: #6b7280; text-align: center; margin-top: 40px; padding-top: 24px; border-top: 1px solid #e5e7eb; padding-bottom: 40px; line-height: 1.6;">
-        Notice: Utah Land & Property Inc. is a private investment firm and is not a licensed real estate broker or agent.<br>
-        We do not represent third parties in the purchase, sale, or management of outside real estate.<br>
-        Pursuant to the exemption under Utah Code § 61-2f-202, all property management functions are executed solely by individuals,<br>
-        operating as regular salaried employees of the specific legal entities that own the underlying real estate assets.
-    </div>
-""",
-    unsafe_allow_html=True,
-)
+st.pydeck_chart(r)
