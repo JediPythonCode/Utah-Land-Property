@@ -15,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ---> UPDATED STICKY HEADER & HERO WITH XERISCAPED GREEN HOUSE <---
+# ---> UPDATED STICKY HEADER & HERO WITH RENTLER-STYLE RED BACKGROUND <---
 st.markdown(
     """
     <style>
@@ -32,14 +32,14 @@ st.markdown(
             font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
-        /* Fixed Sticky Header matching Zillow/Realtor */
+        /* Fixed Sticky Header matching Rentler style (Red Background, White Bold Font) */
         .industry-header {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
-            background-color: #ffffff;
-            border-bottom: 1px solid #e0e0e0;
+            background-color: #d92228;
+            border-bottom: 1px solid #b51c22;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -47,7 +47,7 @@ st.markdown(
             height: 70px;
             z-index: 999999;
             box-sizing: border-box;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
         
         .header-nav-left, .header-nav-right {
@@ -58,40 +58,44 @@ st.markdown(
         
         .header-nav-left a, .header-nav-right a {
             text-decoration: none;
-            color: #333333;
-            font-weight: 500;
+            color: #ffffff !important;
+            font-weight: 700 !important;
             font-size: 14px;
         }
         
         .header-nav-left a:hover, .header-nav-right a:hover {
-            color: #d92228;
+            color: #f3f4f6 !important;
+            text-decoration: underline;
         }
         
-        /* Logo: Exactly black, bold, and elegant */
+        /* Logo: White, bold, and clean */
         .header-logo {
             font-size: 21px;
             font-weight: 900 !important;
-            color: #000000 !important;
+            color: #ffffff !important;
             letter-spacing: 0.5px;
             text-decoration: none !important;
             font-family: 'Playfair Display', Georgia, serif;
         }
         .header-logo span {
-            color: #000000 !important;
+            color: #ffffff !important;
             font-weight: 900 !important;
         }
         .header-logo:hover {
-            color: #000000 !important;
+            color: #ffffff !important;
             text-decoration: none !important;
         }
         
         .sign-in-btn {
-            background-color: #006aff !important;
-            color: white !important;
+            background-color: #ffffff !important;
+            color: #d92228 !important;
             padding: 8px 20px;
             border-radius: 6px;
-            font-weight: 600 !important;
+            font-weight: 700 !important;
             text-decoration: none !important;
+        }
+        .sign-in-btn:hover {
+            background-color: #f9fafb !important;
         }
 
         /* Push main content down below fixed header */
@@ -171,7 +175,7 @@ st.markdown(
             <a href="#">Portfolio</a>
         </div>
         <div>
-            <a href="#" class="header-logo">UTAH LAND & PROPERTY</span></a>
+            <a href="#" class="header-logo">UTAH LAND & PROPERTY</a>
         </div>
         <div class="header-nav-right">
             <a href="#">Manage Assets</a>
@@ -187,8 +191,8 @@ st.markdown(
 st.markdown(
     """
     <div class="hero-container">
-        <div class="hero-title">Precision Acquisition. Utah Real Estate & Land For Sale. </div>
-        <div class="hero-subtitle">Direct acquisitions, private Utah Real Estate and Land Contracts.</div>
+        <div class="hero-title">Find your next Utah property & contract.</div>
+        <div class="hero-subtitle">Explore verified REPC assignments, direct acquisitions, and water-efficient xeriscaped properties.</div>
     </div>
     """,
     unsafe_allow_html=True,
