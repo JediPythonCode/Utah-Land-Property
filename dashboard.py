@@ -249,7 +249,7 @@ st.markdown(
 st.markdown(
     """
     <div class="hero-container">
-        <div class="hero-title">Utah Real Estate. Land. Investments.</div>
+        <div class="hero-title">Utah Real Estate.<br> Investments.</div>
         <div class="hero-subtitle">Off-Market Properties & Exclusive Real Estate Contracts</div>
     </div>
     <div id="contracts-section"></div>
