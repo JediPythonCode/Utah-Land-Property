@@ -171,7 +171,7 @@ st.markdown(
 st.markdown(
     """
     <div class="hero-container">
-        <div class="hero-title">Direct acquisitions & REPC assignments.</div>
+        <div class="hero-title">Precision acquisition.</div>
         <div class="hero-subtitle">REPC assignments for sale, direct acquisitions, Private Real Estate Transactions.</div>
     </div>
     """,
