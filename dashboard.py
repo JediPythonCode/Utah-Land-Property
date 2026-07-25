@@ -15,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ---> STREAMLINED DESKTOP HEADER & ISOLATED MOBILE MENU BAR <---
+# ---> DESKTOP & MOBILE INTEGRATED DROPDOWN NAVIGATION BAR <---
 st.markdown(
     """
     <style>
@@ -109,10 +109,18 @@ st.markdown(
             text-decoration: none !important;
         }
 
-        /* CRITICAL: Force Streamlit container for mobile expander to be 100% hidden on desktop */
-        div[data-testid="stMarkdownContainer"]:has(.mobile-dropdown-target),
-        .mobile-dropdown-wrapper {
-            display: none !important;
+        /* Universal Dropdown Wrapper Container for Both Desktop and Mobile */
+        .universal-dropdown-container {
+            display: block !important;
+            background-color: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 6px 40px;
+            position: fixed;
+            top: 70px;
+            left: 0;
+            width: 100vw;
+            z-index: 999998;
+            box-sizing: border-box;
         }
 
         /* Media Query for Mobile Devices (Width <= 768px) */
@@ -132,21 +140,12 @@ st.markdown(
             .header-logo {
                 font-size: 15px !important;
             }
-            /* Explicitly show mobile dropdown wrapper only on mobile screens */
-            .mobile-dropdown-wrapper {
-                display: block !important;
-                background-color: #ffffff;
-                border-bottom: 1px solid #e5e7eb;
+            .universal-dropdown-container {
                 padding: 6px 15px;
-                position: fixed;
                 top: 60px;
-                left: 0;
-                width: 100vw;
-                z-index: 999998;
-                box-sizing: border-box;
             }
             .block-container {
-                padding-top: 125px !important;
+                padding-top: 135px !important;
             }
             .hero-container {
                 height: 280px !important;
@@ -159,9 +158,9 @@ st.markdown(
             }
         }
 
-        /* Push main content down below fixed desktop header */
+        /* Push main content down below fixed header and dropdown bar */
         .block-container {
-            padding-top: 70px !important;
+            padding-top: 125px !important;
             padding-left: 0rem !important;
             padding-right: 0rem !important;
             max-width: 100% !important;
@@ -202,7 +201,7 @@ st.markdown(
         }
     </style>
 
-    <!-- Industry Sticky Header (Desktop Nav) -->
+    <!-- Industry Sticky Header -->
     <div class="industry-header">
         <div class="header-nav-left">
             <a href="#contracts-section">Our Contracts</a>
@@ -222,11 +221,8 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# --- MOBILE-ONLY DROP-DOWN MENU BAR (Strictly Enforced Hidden on Desktop via Wrapper Class) ---
-st.markdown(
-    '<div class="mobile-dropdown-wrapper"><div class="mobile-dropdown-target">',
-    unsafe_allow_html=True,
-)
+# --- UNIVERSAL DROP-DOWN MENU BAR PRESENT ON BOTH DESKTOP & MOBILE ---
+st.markdown('<div class="universal-dropdown-container">', unsafe_allow_html=True)
 with st.expander("📂 UTAH LAND & PROPERTY MENU"):
     st.markdown("[Our Contracts](#contracts-section)")
     st.markdown("[Assignments](#contracts-section)")
@@ -234,7 +230,7 @@ with st.expander("📂 UTAH LAND & PROPERTY MENU"):
     st.markdown("[Portfolio](#contracts-section)")
     st.markdown("[Manage Assets](#contracts-section)")
     st.markdown("[**Sign In**](#contracts-section)")
-st.markdown("</div></div>", unsafe_allow_html=True)
+st.markdown("</div>", unsafe_allow_html=True)
 
 # Friendly Residential Hero Section
 st.markdown(
@@ -625,7 +621,7 @@ else:
                     f"""
                         <div style="background: white; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
                             <div style="position: relative;">
-                                <img src="{first_image}" style="width: 100%; height: 200px; object-fit: cover;">
+                                <img src="{first_image}" style="width: 100%; height: 200px; object-type: cover;">
                                 <div style="position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.7); color: white; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">{row['status']}</div>
                             </div>
                             <div style="padding: 16px;">
