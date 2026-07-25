@@ -62,17 +62,20 @@ st.markdown(
             color: #d92228;
         }
         
-        /* Logo: Bold, Red, NOT underlined */
+        /* Logo: Elegant Black with subtle red accent dot, bold, NOT underlined, NOT blue */
         .header-logo {
             font-size: 20px;
             font-weight: 700;
-            color: #d92228;
+            color: #111111;
             letter-spacing: -0.5px;
             text-decoration: none !important;
             font-family: 'Playfair Display', Georgia, serif;
         }
+        .header-logo span {
+            color: #d92228;
+        }
         .header-logo:hover {
-            color: #b51b20;
+            color: #111111;
             text-decoration: none !important;
         }
         
@@ -161,7 +164,7 @@ st.markdown(
             <a href="#">Portfolio</a>
         </div>
         <div>
-            <a href="#" class="header-logo">UTAH LAND & PROPERTY</a>
+            <a href="#" class="header-logo">UTAH LAND & PROPERTY<span>.</span></a>
         </div>
         <div class="header-nav-right">
             <a href="#">Manage Assets</a>
