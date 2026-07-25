@@ -36,26 +36,28 @@ st.markdown(
     }
     header[data-testid="stHeader"] {
         background-color: transparent !important;
+        display: none !important;
     }
     .main {
         background-color: var(--bg-main) !important;
         color: var(--text-main) !important;
-        padding-top: 0px !important;
+        padding-top: 130px !important; /* Clears fixed header space */
         padding-left: 2rem !important;
         padding-right: 2rem !important;
     }
     
-    /* Sticky Top Header Container */
+    /* True Fixed Industry-Pro Header */
     .sticky-header-wrapper {
-        position: sticky;
+        position: fixed;
         top: 0;
-        z-index: 999;
+        left: 0;
+        width: 100%;
+        z-index: 99999;
         background-color: #ffffff;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        margin-left: -2rem;
-        margin-right: -2rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         padding-left: 2rem;
         padding-right: 2rem;
+        box-sizing: border-box;
     }
 
     /* Top Navbar */
@@ -63,7 +65,7 @@ st.markdown(
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 16px 0px;
+        padding: 12px 0px;
         border-bottom: 1px solid var(--border-color);
         background-color: #ffffff;
     }
@@ -83,20 +85,16 @@ st.markdown(
         color: var(--brand-red);
     }
     .portal-logo {
-        font-size: 1.8rem;
-        font-weight: 600;
-        letter-spacing: 0.5px;
+        font-size: 1.6rem;
+        font-weight: 700;
+        letter-spacing: -0.5px;
         color: #1a1a1a;
-        text-transform: none;
         font-family: 'Playfair Display', Georgia, serif;
-        display: flex;
-        align-items: center;
-        justify-content: center;
     }
     
-    /* Sticky Filter Bar */
+    /* Fixed Filter Bar */
     .filter-bar-container {
-        padding: 14px 0px;
+        padding: 10px 0px;
         background-color: #ffffff;
         display: flex;
         gap: 12px;
@@ -176,20 +174,10 @@ st.markdown(
         overflow: hidden;
         text-overflow: ellipsis;
     }
-    .faq-link-style {
-        color: #d92228 !important;
-        font-weight: 600;
-        text-decoration: none;
-        cursor: pointer;
-    }
-    .faq-link-style:hover {
-        text-decoration: underline;
-    }
     </style>
 """,
     unsafe_allow_html=True,
 )
-
 
 # Expanded Utah Property Database with 15 Contracts for Sale (Private Market Only)
 @st.cache_data
