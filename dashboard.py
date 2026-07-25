@@ -15,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ---> UPDATED STICKY HEADER STYLING (RED BUTTON WITH FORCED WHITE TEXT) <---
+# ---> UPDATED MOBILE-RESPONSIVE STICKY HEADER & DROPDOWN STYLING <---
 st.markdown(
     """
     <style>
@@ -103,6 +103,40 @@ st.markdown(
             text-decoration: none !important;
         }
 
+        /* Mobile Dropdown Menu Container (Hidden on Desktop) */
+        .mobile-menu-container {
+            display: none;
+        }
+
+        /* Media Query for Mobile Devices (Width <= 768px) */
+        @media screen and (max-width: 768px) {
+            .industry-header {
+                padding: 0 15px;
+                height: 60px;
+            }
+            .header-nav-left, .header-nav-right {
+                display: none !important; /* Hide full desktop menu items on mobile */
+            }
+            .mobile-menu-container {
+                display: block; /* Show mobile dropdown element handler */
+            }
+            .header-logo {
+                font-size: 15px; /* Scale down logo to fit mobile layout cleanly */
+            }
+            .block-container {
+                padding-top: 60px !important;
+            }
+            .hero-container {
+                height: 280px !important;
+            }
+            .hero-title {
+                font-size: 26px !important;
+            }
+            .hero-subtitle {
+                font-size: 14px !important;
+            }
+        }
+
         /* Push main content down below fixed header */
         .block-container {
             padding-top: 70px !important;
@@ -166,6 +200,18 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
+# --- MOBILE NAVIGATION EXPANDER / DROPDOWN MENU ---
+st.markdown('<div class="mobile-menu-container">', unsafe_allow_html=True)
+with st.expander("🍔 UTAH LAND & PROPERTY INC. — Menu"):
+    st.markdown("[Our Contracts](#)", unsafe_allow_html=True)
+    st.markdown("[Assignments](#)", unsafe_allow_html=True)
+    st.markdown("[Sell to Us](#)", unsafe_allow_html=True)
+    st.markdown("[Portfolio](#)", unsafe_allow_html=True)
+    st.markdown("[Manage Assets](#)", unsafe_allow_html=True)
+    st.markdown("[Resources](#)", unsafe_allow_html=True)
+    st.markdown("[**Sign In**](#)", unsafe_allow_html=True)
+st.markdown("</div>", unsafe_allow_html=True)
 
 # Friendly Residential Hero Section with Xeriscaped Home
 st.markdown(
