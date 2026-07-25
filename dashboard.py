@@ -15,10 +15,12 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ---> UPDATED STICKY HEADER & ENHANCED STICKY FILTER BAR <---
+# ---> UPDATED STICKY HEADER WITH BLACK, BOLD, ELEGANT FONT <---
 st.markdown(
     """
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700;900&display=swap');
+
         /* Hide default Streamlit chrome */
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
@@ -65,17 +67,17 @@ st.markdown(
             color: #d92228;
         }
         
-        /* Logo: Exactly black and bold, matching user requirement */
+        /* Logo: Exactly black, bold, and elegant */
         .header-logo {
-            font-size: 20px;
+            font-size: 21px;
             font-weight: 900 !important;
             color: #000000 !important;
-            letter-spacing: -0.5px;
+            letter-spacing: 0.5px;
             text-decoration: none !important;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Playfair Display', Georgia, serif;
         }
         .header-logo span {
-            color: #d92228;
+            color: #000000 !important;
             font-weight: 900 !important;
         }
         .header-logo:hover {
@@ -169,7 +171,7 @@ st.markdown(
             <a href="#">Portfolio</a>
         </div>
         <div>
-            <a href="#" class="header-logo">UTAH LAND & PROPERTY<span>.</span></a>
+            <a href="#" class="header-logo">UTAH LAND & PROPERTY</span></a>
         </div>
         <div class="header-nav-right">
             <a href="#">Manage Assets</a>
