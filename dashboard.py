@@ -16,14 +16,6 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# Initialize Gamification State (Points & Earned Badges)
-if "user_points" not in st.session_state:
-    st.session_state.user_points = 150  # Starting signup bonus points
-if "user_badges" not in st.session_state:
-    st.session_state.user_badges = ["Property Scout 🕵️‍♂️"]
-if "daily_claimed" not in st.session_state:
-    st.session_state.daily_claimed = False
-
 # ---> ZILLOW-STYLE MOBILE HEADER WITH CENTERED, LARGER LOGO & FLYOUT DRAWER <---
 st.markdown(
     """
@@ -258,49 +250,6 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
-
-# --- GAMIFICATION REWARDS & BADGE HUB (HEADER BAR) ---
-st.markdown(
-    f"""
-    <div style="background: linear-gradient(135deg, #1f2937 0%, #111827 100%); color: white; padding: 16px 24px; border-radius: 10px; margin: 0 20px 24px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-        <div>
-            <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #9ca3af; font-weight: 700;">Investor Gamification Hub</div>
-            <div style="font-size: 20px; font-weight: 800; color: #ffffff;">⭐ {st.session_state.user_points} RP <span style="font-size: 14px; font-weight: 400; color: #d1d5db;">(Reward Points)</span></div>
-        </div>
-        <div>
-            <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #9ca3af; font-weight: 700; text-align: right;">Unlocked Badges</div>
-            <div style="font-size: 14px; font-weight: 600; color: #38bdf8;">{" | ".join(st.session_state.user_badges)}</div>
-        </div>
-    </div>
-""",
-    unsafe_allow_html=True,
-)
-
-# Gamification Interactive Mini-Game / Daily Bonus Section
-with st.expander("🎮 Investor Quest: Daily Deal Check-In & Bonus Reward"):
-    col_g1, col_g2 = st.columns([2, 1])
-    with col_g1:
-        st.markdown(
-            "**Earn Reward Points (RP) & Unlock Exclusive Tiers!**<br>Log your daily contract review, analyze local cap rates, or test your negotiation forecasting to level up your Investor Badge status.",
-            unsafe_allow_html=True,
-        )
-    with col_g2:
-        if not st.session_state.daily_claimed:
-            if st.button("🎁 Claim Daily +50 RP", use_container_width=True):
-                st.session_state.user_points += 50
-                st.session_state.daily_claimed = True
-                if (
-                    "Master Negotiator 🏆"
-                    not in st.session_state.user_badges
-                ):
-                    st.session_state.user_badges.append(
-                        "Master Negotiator 🏆"
-                    )
-                st.success("Claimed +50 Reward Points!")
-                st.rerun()
-        else:
-            st.info("Daily bonus already claimed for today!")
-
 
 # Expanded Utah Property Database with Deal Structure (Contract Price, Purchase Price, ARV)
 @st.cache_data
@@ -730,17 +679,8 @@ else:
                             send_offer_dispatch(
                                 row["id"], row["title"], user_email, offer_terms
                             )
-                            # Gamification bonus for submitting an offer
-                            st.session_state.user_points += 100
-                            if (
-                                "Deal Maker 💼"
-                                not in st.session_state.user_badges
-                            ):
-                                st.session_state.user_badges.append(
-                                    "Deal Maker 💼"
-                                )
                             st.success(
-                                "Offer successfully dispatched to escrow! (+100 RP earned)"
+                                "Offer successfully dispatched to escrow!"
                             )
                         else:
                             st.error("Please enter a valid email address.")
