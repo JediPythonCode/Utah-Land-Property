@@ -196,7 +196,7 @@ st.markdown(
         }
 
         .hero-title {
-            font-size: 42px;
+            font-size: 62px;
             font-weight: 900;
             margin-bottom: 12px;
             letter-spacing: -0.5px;
