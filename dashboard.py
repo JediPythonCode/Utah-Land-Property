@@ -607,7 +607,7 @@ if type_filter != "Property type":
 
 # --- DYNAMIC HEADER TITLE SECTION ---
 location_title = (
-    selected_location if selected_location != "All Utah Cities" else "Utah Statewide"
+    selected_location if selected_location != "All Utah Cities" else
 )
 
 # Using Streamlit container and query params / session state to handle the interactive FAQ modal toggle cleanly
