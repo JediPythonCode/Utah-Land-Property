@@ -187,8 +187,8 @@ st.markdown(
 st.markdown(
     """
     <div class="hero-container">
-        <div class="hero-title">Find your next Utah property & contract.</div>
-        <div class="hero-subtitle">Explore verified REPC assignments, direct acquisitions, and water-efficient xeriscaped properties.</div>
+        <div class="hero-title">Precision Acquisition. Utah Real Estate & Land For Sale. </div>
+        <div class="hero-subtitle">Direct acquisitions, private Utah Real Estate and Land Contracts.</div>
     </div>
     """,
     unsafe_allow_html=True,
