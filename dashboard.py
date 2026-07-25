@@ -619,7 +619,7 @@ with col_title_1:
     st.markdown(
         f"""
         <div style="margin-top: 24px; margin-bottom: 16px;">
-            <h1 style="font-size: 1.7rem; font-weight: 800; color: #111827; margin-bottom: 4px;">{location_title} Utah Real Estate & Land Contracts</h1>
+            <h1 style="font-size: 1.7rem; font-weight: 800; color: #111827; margin-bottom: 4px;">{location_title} Utah Real Estate & Land For Sale</h1>
             <p style="font-size: 0.95rem; color: #6b7280; margin: 0;"><b>{len(filtered_df)}</b> active private contracts available for acquisition</p>
         </div>
     """,
