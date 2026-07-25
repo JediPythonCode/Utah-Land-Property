@@ -942,33 +942,6 @@ def send_offer_dispatch(
     except Exception:
         return False
 
-
-# --- DYNAMIC HEADER TITLE SECTION ---
-if "show_faq" not in st.session_state:
-    st.session_state.show_faq = False
-
-col_title_1, col_title_2 = st.columns([3, 1])
-with col_title_1:
-    st.markdown(
-        f"""
-        <div style="margin: 24px 20px 16px 20px;">
-            <h1 style="font-size: 1.7rem; font-weight: 800; color: #111827; margin-bottom: 4px;">Utah Land & Property Inc. Real Estate & Land For Sale</h1>
-            <p style="font-size: 0.95rem; color: #6b7280; margin: 0;"><b>{len(df)}</b> active private contracts and land parcels available</p>
-        </div>
-    """,
-        unsafe_allow_html=True,
-    )
-
-with col_title_2:
-    st.markdown(
-        "<div style='margin: 36px 20px 0 0; text-align: right;'>",
-        unsafe_allow_html=True,
-    )
-    if st.button("How private contract assignment works & FAQ", type="tertiary"):
-        st.session_state.show_faq = not st.session_state.show_faq
-    st.markdown("</div>", unsafe_allow_html=True)
-
-
 # Render Function for Property Grids
 def render_property_grid(subset_df, category_title, anchor_id):
     st.markdown(
