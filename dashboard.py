@@ -196,8 +196,8 @@ st.markdown(
         }
 
         .hero-title {
-            font-size: 50px;
-            font-weight: 1000;
+            font-size: 40px;
+            font-weight: 850;
             margin-bottom: 12px;
             letter-spacing: -0.5px;
             text-shadow: 0 6px 6px rgba(0,0,0,0.4);
@@ -249,7 +249,7 @@ st.markdown(
 st.markdown(
     """
     <div class="hero-container">
-        <div class="hero-title">Utah Real Estate.<br> Investments.</div>
+        <div class="hero-title">Utah Real Estate & Land <br> Investments.</div>
         <div class="hero-subtitle">Off-Market Properties & Exclusive Real Estate Contracts</div>
     </div>
     <div id="contracts-section"></div>
