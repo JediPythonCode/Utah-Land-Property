@@ -16,7 +16,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ---> ZILLOW-STYLE MOBILE HEADER WITH CENTERED, LARGER LOGO & FLYOUT DRAWER <---
+# ---> MOBILE HEADER WITH CENTERED, LARGER LOGO & FLYOUT DRAWER <---
 st.markdown(
     """
     <style>
@@ -34,7 +34,7 @@ st.markdown(
             font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
-        /* Fixed Sticky Header Layout mimicking Zillow Mobile */
+        /* Fixed Sticky Header Layout mimicking Mobile */
         .industry-header {
             position: fixed;
             top: 0;
