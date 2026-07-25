@@ -210,6 +210,15 @@ st.markdown(
             margin-bottom: 24px;
             text-shadow: 0 1px 3px rgba(0,0,0,0.3);
         }
+        
+        .section-header {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #111827;
+            margin: 30px 20px 15px 20px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e5e7eb;
+        }
     </style>
 
     <!-- Zillow-Style Mobile Header with Centered, Larger Title & Functional Drawer -->
@@ -228,11 +237,9 @@ st.markdown(
 
     <div class="mobile-drawer">
         <div class="drawer-title">Navigation Menu</div>
-        <a href="#contracts-section" class="drawer-link">Our Contracts</a>
-        <a href="#contracts-section" class="drawer-link">Assignments</a>
-        <a href="#contracts-section" class="drawer-link">Sell to Us</a>
-        <a href="#contracts-section" class="drawer-link">Portfolio</a>
-        <a href="#contracts-section" class="drawer-link">Manage Assets</a>
+        <a href="#residential-section" class="drawer-link">Residential</a>
+        <a href="#raw-land-section" class="drawer-link">Raw Land</a>
+        <a href="#commercial-section" class="drawer-link">Commercial</a>
         <a href="#contracts-section" class="drawer-link primary-action">Sign In / Account</a>
     </div>
     """,
@@ -251,14 +258,16 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Property Database including all prior listings plus the updated Elko County parcels with values
+
+# Quadrupled Property Database categorized into Residential, Raw Land, and Commercial
 @st.cache_data
 def load_utah_property_database():
     data = [
+        # --- RESIDENTIAL ---
         {
             "id": "UT-MIL-0101",
             "title": "Millcreek Residential Condo Parcel",
-            "type": "Contract for Sale / Land",
+            "category": "Residential",
             "city": "Millcreek, UT",
             "contract_price": 5000,
             "purchase_price": 165000,
@@ -274,117 +283,63 @@ def load_utah_property_database():
             "lon": -111.8550,
         },
         {
-            "id": "010-59G-008",
-            "title": "Elko County Rural Land Parcel with Power",
-            "type": "Rural Land / Raw Land",
-            "city": "Elko County, NV",
-            "contract_price": 4500,
-            "purchase_price": 95000,
-            "arv": 125000,
-            "beds": 0,
-            "baths": 0,
-            "sqft": 43560,
+            "id": "UT-MIL-0101-B",
+            "title": "Millcreek Quail Vista Townhome Suite",
+            "category": "Residential",
+            "city": "Millcreek, UT",
+            "contract_price": 6000,
+            "purchase_price": 185000,
+            "arv": 240000,
+            "beds": 2,
+            "baths": 1,
+            "sqft": 920,
             "status": "Available",
-            "address": "Parcel 010-59G-008 (0 SEC 36 TWP 40N RGE 69E MDB&M)",
+            "address": "4631 S Quail Vista Cve #K, Millcreek, UT 84117",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
-            "lat": 41.5000,
-            "lon": -115.5000,
+            "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+            "lat": 40.6979,
+            "lon": -111.8552,
         },
         {
-            "id": "010-749-036",
-            "title": "Sawgrass Court Residential Lot 036",
-            "type": "Residential Lot",
-            "city": "Elko County, NV",
-            "contract_price": 4500,
-            "purchase_price": 115000,
-            "arv": 150000,
-            "beds": 0,
-            "baths": 0,
-            "sqft": 10500,
+            "id": "UT-MIL-0101-C",
+            "title": "Millcreek Skyline View Residence",
+            "category": "Residential",
+            "city": "Millcreek, UT",
+            "contract_price": 7500,
+            "purchase_price": 210000,
+            "arv": 275000,
+            "beds": 2,
+            "baths": 2,
+            "sqft": 1100,
             "status": "Available",
-            "address": "2989 Sawgrass Ct, Elko County, NV",
+            "address": "4590 S Quail Vista Cve, Millcreek, UT 84117",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
-            "lat": 41.5010,
-            "lon": -115.5010,
+            "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+            "lat": 40.6985,
+            "lon": -111.8560,
         },
         {
-            "id": "010-749-037",
-            "title": "Sawgrass Court Residential Lot 037",
-            "type": "Residential Lot",
-            "city": "Elko County, NV",
-            "contract_price": 4500,
-            "purchase_price": 115000,
-            "arv": 150000,
-            "beds": 0,
-            "baths": 0,
-            "sqft": 10500,
-            "status": "Available",
-            "address": "2981 Sawgrass Ct, Elko County, NV",
+            "id": "UT-MIL-0101-D",
+            "title": "Millcreek Valley Executive Condo",
+            "category": "Residential",
+            "city": "Millcreek, UT",
+            "contract_price": 8500,
+            "purchase_price": 235000,
+            "arv": 300000,
+            "beds": 3,
+            "baths": 2,
+            "sqft": 1350,
+            "status": "UNDER CONTRACT",
+            "address": "4520 S Quail Vista Cve, Millcreek, UT 84117",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
-            "lat": 41.5012,
-            "lon": -115.5012,
-        },
-        {
-            "id": "010-749-039",
-            "title": "Sawgrass Court Residential Lot 039",
-            "type": "Residential Lot",
-            "city": "Elko County, NV",
-            "contract_price": 4500,
-            "purchase_price": 115000,
-            "arv": 150000,
-            "beds": 0,
-            "baths": 0,
-            "sqft": 10500,
-            "status": "Available",
-            "address": "2961 Sawgrass Ct, Elko County, NV",
-            "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
-            "lat": 41.5015,
-            "lon": -115.5015,
-        },
-        {
-            "id": "010-749-040",
-            "title": "Sawgrass Court Residential Lot 040",
-            "type": "Residential Lot",
-            "city": "Elko County, NV",
-            "contract_price": 4500,
-            "purchase_price": 115000,
-            "arv": 150000,
-            "beds": 0,
-            "baths": 0,
-            "sqft": 10500,
-            "status": "Available",
-            "address": "2953 Sawgrass Ct, Elko County, NV",
-            "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
-            "lat": 41.5018,
-            "lon": -115.5018,
-        },
-        {
-            "id": "010-81H-032",
-            "title": "Elko County North Rural Acreage",
-            "type": "Rural Land",
-            "city": "Elko County, NV",
-            "contract_price": 5000,
-            "purchase_price": 125000,
-            "arv": 165000,
-            "beds": 0,
-            "baths": 0,
-            "sqft": 87120,
-            "status": "Available",
-            "address": "Parcel 010-81H-032 (0 SEC 31 TWP 40N RGE 70E MDB&M)",
-            "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
-            "lat": 41.5200,
-            "lon": -115.4800,
+            "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+            "lat": 40.6990,
+            "lon": -111.8570,
         },
         {
             "id": "UT-MIL-0102",
             "title": "Millcreek Elmwood Contract Assignment",
-            "type": "Contract for Sale / House",
+            "category": "Residential",
             "city": "Millcreek, UT",
             "contract_price": 12000,
             "purchase_price": 420000,
@@ -400,9 +355,425 @@ def load_utah_property_database():
             "lon": -111.8670,
         },
         {
+            "id": "UT-MIL-0102-B",
+            "title": "Millcreek Highland Family Home",
+            "category": "Residential",
+            "city": "Millcreek, UT",
+            "contract_price": 14000,
+            "purchase_price": 450000,
+            "arv": 660000,
+            "beds": 4,
+            "baths": 3,
+            "sqft": 2600,
+            "status": "Available",
+            "address": "740 E Elgin Ave, Millcreek, UT 84106",
+            "broker": "Utah Land & Property Inc.",
+            "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
+            "lat": 40.7015,
+            "lon": -111.8675,
+        },
+        {
+            "id": "UT-MIL-0102-C",
+            "title": "Millcreek Woodland Craftsman",
+            "category": "Residential",
+            "city": "Millcreek, UT",
+            "contract_price": 15000,
+            "purchase_price": 480000,
+            "arv": 690000,
+            "beds": 4,
+            "baths": 3,
+            "sqft": 2800,
+            "status": "Available",
+            "address": "802 E Elgin Ave, Millcreek, UT 84106",
+            "broker": "Utah Land & Property Inc.",
+            "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
+            "lat": 40.7018,
+            "lon": -111.8680,
+        },
+        {
+            "id": "UT-MIL-0102-D",
+            "title": "Millcreek Orchard Modern Bungalow",
+            "category": "Residential",
+            "city": "Millcreek, UT",
+            "contract_price": 16000,
+            "purchase_price": 510000,
+            "arv": 720000,
+            "beds": 5,
+            "baths": 3,
+            "sqft": 3100,
+            "status": "Available",
+            "address": "850 E Elgin Ave, Millcreek, UT 84106",
+            "broker": "Utah Land & Property Inc.",
+            "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
+            "lat": 40.7020,
+            "lon": -111.8685,
+        },
+        {
+            "id": "UT-CLK-0301",
+            "title": "Park Meadows Townhomes Investment",
+            "category": "Residential",
+            "city": "Clearfield, UT",
+            "contract_price": 8000,
+            "purchase_price": 285000,
+            "arv": 345000,
+            "beds": 3,
+            "baths": 2,
+            "sqft": 1520,
+            "status": "Available",
+            "address": "Park Meadows Townhomes, Clearfield, UT 84015",
+            "broker": "Utah Land & Property Inc.",
+            "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+            "lat": 41.1118,
+            "lon": -112.2426,
+        },
+        {
+            "id": "UT-CLK-0301-B",
+            "title": "Park Meadows Fairway Townhome",
+            "category": "Residential",
+            "city": "Clearfield, UT",
+            "contract_price": 8500,
+            "purchase_price": 295000,
+            "arv": 360000,
+            "beds": 3,
+            "baths": 2,
+            "sqft": 1580,
+            "status": "Available",
+            "address": "124 Park Meadows Dr, Clearfield, UT 84015",
+            "broker": "Utah Land & Property Inc.",
+            "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+            "lat": 41.1120,
+            "lon": -112.2430,
+        },
+        {
+            "id": "UT-CLK-0301-C",
+            "title": "Park Meadows Sunset Townhome",
+            "category": "Residential",
+            "city": "Clearfield, UT",
+            "contract_price": 9000,
+            "purchase_price": 310000,
+            "arv": 375000,
+            "beds": 4,
+            "baths": 3,
+            "sqft": 1750,
+            "status": "Available",
+            "address": "145 Park Meadows Dr, Clearfield, UT 84015",
+            "broker": "Utah Land & Property Inc.",
+            "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+            "lat": 41.1125,
+            "lon": -112.2435,
+        },
+        {
+            "id": "UT-CLK-0301-D",
+            "title": "Park Meadows Lakeside Townhome",
+            "category": "Residential",
+            "city": "Clearfield, UT",
+            "contract_price": 9500,
+            "purchase_price": 325000,
+            "arv": 390000,
+            "beds": 4,
+            "baths": 3,
+            "sqft": 1850,
+            "status": "UNDER CONTRACT",
+            "address": "180 Park Meadows Dr, Clearfield, UT 84015",
+            "broker": "Utah Land & Property Inc.",
+            "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+            "lat": 41.1130,
+            "lon": -112.2440,
+        },
+        # --- RAW LAND ---
+        {
+            "id": "010-59G-008",
+            "title": "Elko County Rural Land Parcel with Power",
+            "category": "Raw Land",
+            "city": "Elko County, NV",
+            "contract_price": 4500,
+            "purchase_price": 95000,
+            "arv": 125000,
+            "beds": 0,
+            "baths": 0,
+            "sqft": 43560,
+            "status": "Available",
+            "address": "Parcel 010-59G-008 (0 SEC 36 TWP 40N RGE 69E MDB&M)",
+            "broker": "Utah Land & Property Inc.",
+            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
+            "lat": 41.5000,
+            "lon": -115.5000,
+        },
+        {
+            "id": "010-59G-008-B",
+            "title": "Elko County Sunset Horizon Acre",
+            "category": "Raw Land",
+            "city": "Elko County, NV",
+            "contract_price": 4800,
+            "purchase_price": 98000,
+            "arv": 130000,
+            "beds": 0,
+            "baths": 0,
+            "sqft": 43560,
+            "status": "Available",
+            "address": "Parcel 010-59G-009, Elko County, NV",
+            "broker": "Utah Land & Property Inc.",
+            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
+            "lat": 41.5002,
+            "lon": -115.5002,
+        },
+        {
+            "id": "010-59G-008-C",
+            "title": "Elko County Mountain View Tract",
+            "category": "Raw Land",
+            "city": "Elko County, NV",
+            "contract_price": 5000,
+            "purchase_price": 102000,
+            "arv": 135000,
+            "beds": 0,
+            "baths": 0,
+            "sqft": 43560,
+            "status": "Available",
+            "address": "Parcel 010-59G-010, Elko County, NV",
+            "broker": "Utah Land & Property Inc.",
+            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
+            "lat": 41.5004,
+            "lon": -115.5004,
+        },
+        {
+            "id": "010-59G-008-D",
+            "title": "Elko County Valley Vista Acre",
+            "category": "Raw Land",
+            "city": "Elko County, NV",
+            "contract_price": 5200,
+            "purchase_price": 105000,
+            "arv": 140000,
+            "beds": 0,
+            "baths": 0,
+            "sqft": 43560,
+            "status": "Available",
+            "address": "Parcel 010-59G-011, Elko County, NV",
+            "broker": "Utah Land & Property Inc.",
+            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
+            "lat": 41.5006,
+            "lon": -115.5006,
+        },
+        {
+            "id": "010-749-036",
+            "title": "Sawgrass Court Residential Lot 036",
+            "category": "Raw Land",
+            "city": "Elko County, NV",
+            "contract_price": 4500,
+            "purchase_price": 115000,
+            "arv": 150000,
+            "beds": 0,
+            "baths": 0,
+            "sqft": 10500,
+            "status": "Available",
+            "address": "2989 Sawgrass Ct, Elko County, NV",
+            "broker": "Utah Land & Property Inc.",
+            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
+            "lat": 41.5010,
+            "lon": -115.5010,
+        },
+        {
+            "id": "010-749-036-B",
+            "title": "Sawgrass Court Residential Lot 036-B",
+            "category": "Raw Land",
+            "city": "Elko County, NV",
+            "contract_price": 4600,
+            "purchase_price": 118000,
+            "arv": 155000,
+            "beds": 0,
+            "baths": 0,
+            "sqft": 10500,
+            "status": "Available",
+            "address": "2991 Sawgrass Ct, Elko County, NV",
+            "broker": "Utah Land & Property Inc.",
+            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
+            "lat": 41.5011,
+            "lon": -115.5011,
+        },
+        {
+            "id": "010-749-037",
+            "title": "Sawgrass Court Residential Lot 037",
+            "category": "Raw Land",
+            "city": "Elko County, NV",
+            "contract_price": 4500,
+            "purchase_price": 115000,
+            "arv": 150000,
+            "beds": 0,
+            "baths": 0,
+            "sqft": 10500,
+            "status": "Available",
+            "address": "2981 Sawgrass Ct, Elko County, NV",
+            "broker": "Utah Land & Property Inc.",
+            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
+            "lat": 41.5012,
+            "lon": -115.5012,
+        },
+        {
+            "id": "010-749-037-B",
+            "title": "Sawgrass Court Residential Lot 037-B",
+            "category": "Raw Land",
+            "city": "Elko County, NV",
+            "contract_price": 4700,
+            "purchase_price": 120000,
+            "arv": 158000,
+            "beds": 0,
+            "baths": 0,
+            "sqft": 10500,
+            "status": "Available",
+            "address": "2983 Sawgrass Ct, Elko County, NV",
+            "broker": "Utah Land & Property Inc.",
+            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
+            "lat": 41.5013,
+            "lon": -115.5013,
+        },
+        {
+            "id": "010-749-039",
+            "title": "Sawgrass Court Residential Lot 039",
+            "category": "Raw Land",
+            "city": "Elko County, NV",
+            "contract_price": 4500,
+            "purchase_price": 115000,
+            "arv": 150000,
+            "beds": 0,
+            "baths": 0,
+            "sqft": 10500,
+            "status": "Available",
+            "address": "2961 Sawgrass Ct, Elko County, NV",
+            "broker": "Utah Land & Property Inc.",
+            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
+            "lat": 41.5015,
+            "lon": -115.5015,
+        },
+        {
+            "id": "010-749-039-B",
+            "title": "Sawgrass Court Residential Lot 039-B",
+            "category": "Raw Land",
+            "city": "Elko County, NV",
+            "contract_price": 4800,
+            "purchase_price": 122000,
+            "arv": 160000,
+            "beds": 0,
+            "baths": 0,
+            "sqft": 10500,
+            "status": "Available",
+            "address": "2963 Sawgrass Ct, Elko County, NV",
+            "broker": "Utah Land & Property Inc.",
+            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
+            "lat": 41.5016,
+            "lon": -115.5016,
+        },
+        {
+            "id": "010-749-040",
+            "title": "Sawgrass Court Residential Lot 040",
+            "category": "Raw Land",
+            "city": "Elko County, NV",
+            "contract_price": 4500,
+            "purchase_price": 115000,
+            "arv": 150000,
+            "beds": 0,
+            "baths": 0,
+            "sqft": 10500,
+            "status": "Available",
+            "address": "2953 Sawgrass Ct, Elko County, NV",
+            "broker": "Utah Land & Property Inc.",
+            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
+            "lat": 41.5018,
+            "lon": -115.5018,
+        },
+        {
+            "id": "010-749-040-B",
+            "title": "Sawgrass Court Residential Lot 040-B",
+            "category": "Raw Land",
+            "city": "Elko County, NV",
+            "contract_price": 4900,
+            "purchase_price": 125000,
+            "arv": 162000,
+            "beds": 0,
+            "baths": 0,
+            "sqft": 10500,
+            "status": "Available",
+            "address": "2955 Sawgrass Ct, Elko County, NV",
+            "broker": "Utah Land & Property Inc.",
+            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
+            "lat": 41.5019,
+            "lon": -115.5019,
+        },
+        {
+            "id": "010-81H-032",
+            "title": "Elko County North Rural Acreage",
+            "category": "Raw Land",
+            "city": "Elko County, NV",
+            "contract_price": 5000,
+            "purchase_price": 125000,
+            "arv": 165000,
+            "beds": 0,
+            "baths": 0,
+            "sqft": 87120,
+            "status": "Available",
+            "address": "Parcel 010-81H-032 (0 SEC 31 TWP 40N RGE 70E MDB&M)",
+            "broker": "Utah Land & Property Inc.",
+            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
+            "lat": 41.5200,
+            "lon": -115.4800,
+        },
+        {
+            "id": "010-81H-032-B",
+            "title": "Elko County North High Desert Tract",
+            "category": "Raw Land",
+            "city": "Elko County, NV",
+            "contract_price": 5200,
+            "purchase_price": 128000,
+            "arv": 170000,
+            "beds": 0,
+            "baths": 0,
+            "sqft": 87120,
+            "status": "Available",
+            "address": "Parcel 010-81H-033, Elko County, NV",
+            "broker": "Utah Land & Property Inc.",
+            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
+            "lat": 41.5202,
+            "lon": -115.4802,
+        },
+        {
+            "id": "010-81H-032-C",
+            "title": "Elko County North Panorama Acreage",
+            "category": "Raw Land",
+            "city": "Elko County, NV",
+            "contract_price": 5500,
+            "purchase_price": 132000,
+            "arv": 175000,
+            "beds": 0,
+            "baths": 0,
+            "sqft": 87120,
+            "status": "Available",
+            "address": "Parcel 010-81H-034, Elko County, NV",
+            "broker": "Utah Land & Property Inc.",
+            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
+            "lat": 41.5204,
+            "lon": -115.4804,
+        },
+        {
+            "id": "010-81H-032-D",
+            "title": "Elko County North Frontier Estate",
+            "category": "Raw Land",
+            "city": "Elko County, NV",
+            "contract_price": 5800,
+            "purchase_price": 135000,
+            "arv": 180000,
+            "beds": 0,
+            "baths": 0,
+            "sqft": 87120,
+            "status": "Available",
+            "address": "Parcel 010-81H-035, Elko County, NV",
+            "broker": "Utah Land & Property Inc.",
+            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
+            "lat": 41.5206,
+            "lon": -115.4806,
+        },
+        # --- COMMERCIAL ---
+        {
             "id": "UT-DRP-0201",
             "title": "Draper Commercial Land Parcel",
-            "type": "Commercial Land",
+            "category": "Commercial",
             "city": "Draper, UT",
             "contract_price": 15000,
             "purchase_price": 310000,
@@ -418,22 +789,58 @@ def load_utah_property_database():
             "lon": -111.8631,
         },
         {
-            "id": "UT-CLK-0301",
-            "title": "Park Meadows Townhomes Investment",
-            "type": "Townhome",
-            "city": "Clearfield, UT",
-            "contract_price": 8000,
-            "purchase_price": 285000,
-            "arv": 345000,
-            "beds": 3,
-            "baths": 2,
-            "sqft": 1520,
+            "id": "UT-DRP-0201-B",
+            "title": "Draper Fort Street Retail Pad",
+            "category": "Commercial",
+            "city": "Draper, UT",
+            "contract_price": 16500,
+            "purchase_price": 330000,
+            "arv": 480000,
+            "beds": 0,
+            "baths": 0,
+            "sqft": 5200,
             "status": "Available",
-            "address": "Park Meadows Townhomes, Clearfield, UT 84015",
+            "address": "1250 Fort St, Draper, UT 84020",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
-            "lat": 41.1118,
-            "lon": -112.2426,
+            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
+            "lat": 40.5246,
+            "lon": -111.8635,
+        },
+        {
+            "id": "UT-DRP-0201-C",
+            "title": "Draper Business Park Development Site",
+            "category": "Commercial",
+            "city": "Draper, UT",
+            "contract_price": 18000,
+            "purchase_price": 360000,
+            "arv": 520000,
+            "beds": 0,
+            "baths": 0,
+            "sqft": 6100,
+            "status": "Available",
+            "address": "1280 Fort St, Draper, UT 84020",
+            "broker": "Utah Land & Property Inc.",
+            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
+            "lat": 40.5250,
+            "lon": -111.8640,
+        },
+        {
+            "id": "UT-DRP-0201-D",
+            "title": "Draper Commercial Plaza Lot",
+            "category": "Commercial",
+            "city": "Draper, UT",
+            "contract_price": 20000,
+            "purchase_price": 395000,
+            "arv": 570000,
+            "beds": 0,
+            "baths": 0,
+            "sqft": 7200,
+            "status": "Available",
+            "address": "1310 Fort St, Draper, UT 84020",
+            "broker": "Utah Land & Property Inc.",
+            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
+            "lat": 40.5255,
+            "lon": -111.8645,
         },
     ]
     return pd.DataFrame(data)
@@ -479,8 +886,6 @@ def send_offer_dispatch(
         return False
 
 
-filtered_df = df.copy()
-
 # --- DYNAMIC HEADER TITLE SECTION ---
 if "show_faq" not in st.session_state:
     st.session_state.show_faq = False
@@ -491,7 +896,7 @@ with col_title_1:
         f"""
         <div style="margin: 24px 20px 16px 20px;">
             <h1 style="font-size: 1.7rem; font-weight: 800; color: #111827; margin-bottom: 4px;">Utah Land & Property Inc. Real Estate & Land For Sale</h1>
-            <p style="font-size: 0.95rem; color: #6b7280; margin: 0;"><b>{len(filtered_df)}</b> active private contracts and land parcels available</p>
+            <p style="font-size: 0.95rem; color: #6b7280; margin: 0;"><b>{len(df)}</b> active private contracts and land parcels available</p>
         </div>
     """,
         unsafe_allow_html=True,
@@ -506,71 +911,99 @@ with col_title_2:
         st.session_state.show_faq = not st.session_state.show_faq
     st.markdown("</div>", unsafe_allow_html=True)
 
-# --- RESPONSIVE 3-COLUMN CARD GRID ---
-st.markdown("<div style='padding: 0 20px;'>", unsafe_allow_html=True)
-if filtered_df.empty:
-    st.info("No real estate contracts match your criteria.")
-else:
-    cols_per_row = 3
-    rows = [
-        filtered_df.iloc[i : i + cols_per_row]
-        for i in range(0, len(filtered_df), cols_per_row)
-    ]
 
-    for row_batch in rows:
-        cols = st.columns(cols_per_row, gap="medium")
-        for idx, (_, row) in enumerate(row_batch.iterrows()):
-            listing_images = (
-                row["image"].split(",")
-                if isinstance(row["image"], str)
-                else [row["image"]]
-            )
-            first_image = listing_images[0].strip()
+# Render Function for Property Grids
+def render_property_grid(subset_df, category_title, anchor_id):
+    st.markdown(
+        f'<div id="{anchor_id}" class="section-header">{category_title} ({len(subset_df)})</div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown("<div style='padding: 0 20px;'>", unsafe_allow_html=True)
 
-            badge_bg = (
-                "#b91c1c" if row["status"] == "UNDER CONTRACT" else "rgba(0,0,0,0.7)"
-            )
+    if subset_df.empty:
+        st.info(f"No {category_title.lower()} listings available.")
+    else:
+        cols_per_row = 3
+        rows = [
+            subset_df.iloc[i : i + cols_per_row]
+            for i in range(0, len(subset_df), cols_per_row)
+        ]
 
-            with cols[idx]:
-                st.markdown(
-                    f"""
-                        <div style="background: white; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-                            <div style="position: relative;">
-                                <img src="{first_image}" style="width: 100%; height: 200px; object-fit: cover;">
-                                <div style="position: absolute; top: 12px; left: 12px; background: {badge_bg}; color: white; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px;">{row['status']}</div>
-                            </div>
-                            <div style="padding: 16px;">
-                                <div style="font-size: 11px; text-transform: uppercase; color: #6b7280; font-weight: 700; margin-bottom: 4px;">{row['broker']}</div>
-                                <div style="font-size: 16px; font-weight: 800; color: #111827; margin-bottom: 6px;">Contract: ${row['contract_price']:,}</div>
-                                <div style="font-size: 13px; color: #374151; margin-bottom: 2px;">Property Purchase Price: <b>${row['purchase_price']:,}</b></div>
-                                <div style="font-size: 13px; color: #047857; font-weight: 600; margin-bottom: 8px;">ARV: ${row['arv']:,}</div>
-                                <div style="font-size: 13px; color: #374151; margin-bottom: 8px;"><b>{row['beds']}</b> bds &nbsp;|&nbsp; <b>{row['baths']}</b> ba &nbsp;|&nbsp; <b>{row['sqft']:,}</b> sqft</div>
-                                <div style="font-size: 13px; color: #6b7280;">{row['address']}</div>
-                            </div>
-                        </div>
-                    """,
-                    unsafe_allow_html=True,
+        for row_batch in rows:
+            cols = st.columns(cols_per_row, gap="medium")
+            for idx, (_, row) in enumerate(row_batch.iterrows()):
+                listing_images = (
+                    row["image"].split(",")
+                    if isinstance(row["image"], str)
+                    else [row["image"]]
+                )
+                first_image = listing_images[0].strip()
+
+                badge_bg = (
+                    "#b91c1c"
+                    if row["status"] == "UNDER CONTRACT"
+                    else "rgba(0,0,0,0.7)"
                 )
 
-                with st.expander(f"Review Terms / Submit Offer ({row['id']})"):
-                    user_email = st.text_input(
-                        "Your Email",
-                        key=f"p_email_{row['id']}",
-                        placeholder="name@domain.com",
+                with cols[idx]:
+                    st.markdown(
+                        f"""
+                            <div style="background: white; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                                <div style="position: relative;">
+                                    <img src="{first_image}" style="width: 100%; height: 200px; object-fit: cover;">
+                                    <div style="position: absolute; top: 12px; left: 12px; background: {badge_bg}; color: white; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px;">{row['status']}</div>
+                                </div>
+                                <div style="padding: 16px;">
+                                    <div style="font-size: 11px; text-transform: uppercase; color: #6b7280; font-weight: 700; margin-bottom: 4px;">{row['broker']}</div>
+                                    <div style="font-size: 16px; font-weight: 800; color: #111827; margin-bottom: 6px;">Contract: ${row['contract_price']:,}</div>
+                                    <div style="font-size: 13px; color: #374151; margin-bottom: 2px;">Property Purchase Price: <b>${row['purchase_price']:,}</b></div>
+                                    <div style="font-size: 13px; color: #047857; font-weight: 600; margin-bottom: 8px;">ARV: ${row['arv']:,}</div>
+                                    <div style="font-size: 13px; color: #374151; margin-bottom: 8px;"><b>{row['beds']}</b> bds &nbsp;|&nbsp; <b>{row['baths']}</b> ba &nbsp;|&nbsp; <b>{row['sqft']:,}</b> sqft</div>
+                                    <div style="font-size: 13px; color: #6b7280;">{row['address']}</div>
+                                </div>
+                            </div>
+                        """,
+                        unsafe_allow_html=True,
                     )
-                    offer_terms = st.text_area(
-                        "Offer Terms & Conditions",
-                        key=f"p_msg_{row['id']}",
-                        placeholder="Enter contract purchase price, assignment fee, or escrow contingencies...",
-                    )
-                    if st.button("Submit Official Offer", key=f"p_btn_{row['id']}"):
-                        if user_email:
-                            send_offer_dispatch(
-                                row["id"], row["title"], user_email, offer_terms
-                            )
-                            st.success(
-                                "Offer successfully dispatched to escrow!"
-                            )
-                        else:
-                            st.error("Please enter a valid email address.")
-st.markdown("</div>", unsafe_allow_html=True)
+
+                    with st.expander(
+                        f"Review Terms / Submit Offer ({row['id']})"
+                    ):
+                        user_email = st.text_input(
+                            "Your Email",
+                            key=f"p_email_{row['id']}",
+                            placeholder="name@domain.com",
+                        )
+                        offer_terms = st.text_area(
+                            "Offer Terms & Conditions",
+                            key=f"p_msg_{row['id']}",
+                            placeholder="Enter contract purchase price, assignment fee, or escrow contingencies...",
+                        )
+                        if st.button(
+                            "Submit Official Offer", key=f"p_btn_{row['id']}"
+                        ):
+                            if user_email:
+                                send_offer_dispatch(
+                                    row["id"],
+                                    row["title"],
+                                    user_email,
+                                    offer_terms,
+                                )
+                                st.success(
+                                    "Offer successfully dispatched to escrow!"
+                                )
+                            else:
+                                st.error("Please enter a valid email address.")
+    st.markdown("</div>", unsafe_allow_html=True)
+
+
+# --- RENDER SEPARATED CATEGORY SECTIONS ---
+render_property_grid(
+    df[df["category"] == "Residential"], "Residential", "residential-section"
+)
+render_property_grid(
+    df[df["category"] == "Raw Land"], "Raw Land", "raw-land-section"
+)
+render_property_grid(
+    df[df["category"] == "Commercial"], "Commercial", "commercial-section"
+)
