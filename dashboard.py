@@ -44,64 +44,6 @@ st.markdown(
         padding-left: 2rem !important;
         padding-right: 2rem !important;
     }
-    
-    /* Sticky Top Header Container */
-    .sticky-header-wrapper {
-        position: sticky;
-        top: 0;
-        z-index: 999;
-        background-color: #ffffff;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        margin-left: -2rem;
-        margin-right: -2rem;
-        padding-left: 2rem;
-        padding-right: 2rem;
-    }
-
-    /* Top Navbar */
-    .portal-navbar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 16px 0px;
-        border-bottom: 1px solid var(--border-color);
-        background-color: #ffffff;
-    }
-    .portal-nav-left, .portal-nav-right {
-        display: flex;
-        gap: 24px;
-        align-items: center;
-        font-size: 0.92rem;
-        font-weight: 600;
-        color: #374151;
-    }
-    .portal-nav-left span, .portal-nav-right span {
-        cursor: pointer;
-        transition: color 0.15s ease;
-    }
-    .portal-nav-left span:hover, .portal-nav-right span:hover {
-        color: var(--brand-red);
-    }
-    .portal-logo {
-        font-size: 1.8rem;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        color: #1a1a1a;
-        text-transform: none;
-        font-family: 'Playfair Display', Georgia, serif;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    /* Sticky Filter Bar */
-    .filter-bar-container {
-        padding: 14px 0px;
-        background-color: #ffffff;
-        display: flex;
-        gap: 12px;
-        align-items: center;
-    }
 
     /* Professional Property Card Grid Styling */
     .property-card {
@@ -190,8 +132,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-
-# Expanded Utah Property Database with 15 Contracts for Sale (Private Market Only)
+# Expanded Utah Property Database with Contracts for Sale
 @st.cache_data
 def load_utah_property_database():
     data = [
@@ -456,6 +397,82 @@ def load_utah_property_database():
 
 df = load_utah_property_database()
 
+# List of Utah Locations
+all_locations = [
+    "All Utah Cities",
+    "Salt Lake City, UT",
+    "Provo, UT",
+    "Ogden, UT",
+    "St. George, UT",
+    "Logan, UT",
+    "Layton, UT",
+    "Orem, UT",
+    "Sandy, UT",
+    "West Valley City, UT",
+    "West Jordan, UT",
+    "Millcreek, UT",
+    "Draper, UT",
+    "Park City, UT",
+    "Lehi, UT",
+    "Murray, UT",
+    "Midvale, UT",
+    "Bountiful, UT",
+    "Cottonwood Heights, UT",
+    "Holladay, UT",
+    "Herriman, UT",
+    "Riverton, UT",
+    "South Jordan, UT",
+    "South Salt Lake, UT",
+    "Taylorsville, UT",
+    "Bluffdale, UT",
+    "Tooele, UT",
+    "Eagle Mountain, UT",
+    "Saratoga Springs, UT",
+    "Kearns, UT",
+    "Magna, UT",
+    "White City, UT",
+    "Emigration Canyon, UT",
+    "Copperton, UT",
+    "Cache, UT",
+    "Brigham City, UT",
+    "Smithfield, UT",
+    "Hyrum, UT",
+    "Eden, UT",
+    "Liberty, UT",
+    "Huntsville, UT",
+    "Alpine, UT",
+    "American Fork, UT",
+    "Cedar Hills, UT",
+    "Highland, UT",
+    "Lindon, UT",
+    "Payson, UT",
+    "Pleasant Grove, UT",
+    "Salem, UT",
+    "Sundance, UT",
+    "Hobble Creek, UT",
+    "East Basin, UT",
+    "Hoytsville, UT",
+    "Marion, UT",
+    "Coalville, UT",
+    "Heber City, UT",
+    "Kamas, UT",
+    "Kanab, UT",
+    "Moab, UT",
+    "Cedar City, UT",
+    "Richfield, UT",
+    "Vernal, UT",
+    "Roosevelt, UT",
+    "Bluff, UT",
+    "Mexican Hat, UT",
+    "Montezuma Creek, UT",
+    "Dammeron Valley, UT",
+    "Enterprise, UT",
+    "Modena, UT",
+    "Beryl Junction, UT",
+    "Central, UT",
+    "Ticaboo, UT",
+]
+
 
 # Automated Email / Offer Dispatch Helper
 def send_offer_dispatch(
@@ -494,20 +511,7 @@ def send_offer_dispatch(
         return False
 
 
-To make the top of your Streamlit portal look exactly like the Realtor.com hero layout shown in your screenshot (featuring a gorgeous full-width background image, white navigation items, a tabbed sub-menu for **Buy | Rent | Sell | Pre-approval | Just sold | Home value**, and a centered pill-shaped search bar with a red button), you need to replace your current top navigation block and add this hero layout code.
-
-### Where to put it:
-
-1. **Delete** your current `st.markdown("<div class='sticky-header-wrapper'>"...` code block, your existing top navigation HTML, and your old `filter-bar-container`.
-2. **Paste** the code block provided below **immediately after** your custom `<style>` block and helper functions/database loading (right before your layout or filter execution logic).
-
----
-
-### Insertable Code Block
-
 # --- REALTOR.COM HERO HEADER & SEARCH COMPONENT ---
-
-# Hero Section Background Image & Overlay Styling
 st.markdown(
     """
     <style>
@@ -528,7 +532,6 @@ st.markdown(
         padding: 0 20px;
     }
     
-    /* Top Navigation bar over the hero */
     .hero-navbar {
         width: 100%;
         max-width: 1280px;
@@ -570,7 +573,6 @@ st.markdown(
         border-radius: 4px;
     }
     
-    /* Hero Content Center Text */
     .hero-content {
         text-align: center;
         margin-top: 65px;
@@ -594,7 +596,6 @@ st.markdown(
         font-family: 'Inter', sans-serif;
     }
     
-    /* Tabs selector (Buy, Rent, Sell, etc.) */
     .hero-tabs {
         display: flex;
         justify-content: center;
@@ -610,7 +611,6 @@ st.markdown(
         padding-bottom: 4px;
     }
     
-    /* Browse bottom label */
     .hero-browse-footer {
         width: 100%;
         max-width: 1280px;
@@ -626,7 +626,6 @@ st.markdown(
     </style>
 
     <div class="hero-container">
-        <!-- Top Nav -->
         <div class="hero-navbar">
             <div class="hero-logo">
                 <span>realtor</span>.com
@@ -648,7 +647,6 @@ st.markdown(
             </div>
         </div>
 
-        <!-- Center Headers -->
         <div class="hero-content">
             <div class="hero-title-main">#1 real estate site</div>
             <div class="hero-title-sub">REALTOR® agents recommend*</div>
@@ -663,7 +661,6 @@ st.markdown(
             </div>
         </div>
 
-        <!-- Browse footer text -->
         <div class="hero-browse-footer">
             Browse homes in Millcreek, UT
         </div>
@@ -672,110 +669,13 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Streamlit Interactive Search Bar Widget (Pill shaped overlay container)
-col_search1, col_search2, col_search3 = st.columns([1, 4, 1])
-with col_search2:
-    selected_location = st.selectbox(
-        "Search Location",
-        all_locations,
-        index=1,  # Defaults to Millcreek, UT
-        label_visibility="collapsed",
-    )
-
-
-all_locations = [
-    "All Utah Cities",
-    # Major Urban & Regional Centers
-    "Salt Lake City, UT",
-    "Provo, UT",
-    "Ogden, UT",
-    "St. George, UT",
-    "Logan, UT",
-    "Layton, UT",
-    "Orem, UT",
-    "Sandy, UT",
-    "West Valley City, UT",
-    "West Jordan, UT",
-    
-    # Wasatch Front & Salt Lake County Suburbs / Municipalities
-    "Millcreek, UT",
-    "Draper, UT",
-    "Park City, UT",
-    "Lehi, UT",
-    "Murray, UT",
-    "Midvale, UT",
-    "Bountiful, UT",
-    "Cottonwood Heights, UT",
-    "Holladay, UT",
-    "Herriman, UT",
-    "Riverton, UT",
-    "South Jordan, UT",
-    "South Salt Lake, UT",
-    "Taylorsville, UT",
-    "Bluffdale, UT",
-    "Tooele, UT",
-    "Eagle Mountain, UT",
-    "Saratoga Springs, UT",
-    
-    # Recently Incorporated & Transitioned Communities (e.g., former Metro Townships)
-    "Kearns, UT",
-    "Magna, UT",
-    "White City, UT",
-    "Emigration Canyon, UT",
-    "Copperton, UT",
-    
-    # Northern Utah & Cache Valley
-    "Cache, UT",
-    "Brigham City, UT",
-    "Cache Ward, UT",
-    "Smithfield, UT",
-    "Hyrum, UT",
-    "Eden, UT",
-    "Liberty, UT",
-    "Huntsville, UT",
-    
-    # Utah County & Mountain Suburbs
-    "Alpine, UT",
-    "American Fork, UT",
-    "Cedar Hills, UT",
-    "Highland, UT",
-    "Lindon, UT",
-    "Payson, UT",
-    "Pleasant Grove, UT",
-    "Salem, UT",
-    "Sundance, UT",
-    "Hobble Creek, UT",
-    
-    # Summit & Wasatch Back
-    "East Basin, UT",
-    "Hoytsville, UT",
-    "Marion, UT",
-    "Coalville, UT",
-    "Heber City, UT",
-    "Kamas, UT",
-    
-    # Southern & Rural Utah CDPs / Unincorporated Areas
-    "Kanab, UT",
-    "Moab, UT",
-    "Cedar City, UT",
-    "Richfield, UT",
-    "Vernal, UT",
-    "Roosevelt, UT",
-    "Bluff, UT",
-    "Mexican Hat, UT",
-    "Montezuma Creek, UT",
-    "Dammeron Valley, UT",
-    "Enterprise, UT",
-    "Modena, UT",
-    "Beryl Junction, UT",
-    "Central, UT",
-    "Ticaboo, UT",
-]
+# --- FILTER BAR ---
+f_col1, f_col2, f_col3, f_col4, f_col5, f_col6 = st.columns([2, 1.2, 1.2, 1, 1.2, 1])
 
 with f_col1:
     selected_location = st.selectbox(
-        "Utah City Search", all_locations, label_visibility="collapsed"
-    )
+        "Utah City Search", all_locations, index=11, label_visibility="collapsed"
+    )  # Defaults to Millcreek, UT
 with f_col2:
     status_filter = st.selectbox(
         "Status", ["Contracts for Sale", "All Statuses"], label_visibility="collapsed"
@@ -800,9 +700,6 @@ with f_col5:
     )
 with f_col6:
     save_search_btn = st.button("Save Search", use_container_width=True)
-
-st.markdown("</div>", unsafe_allow_html=True)  # End filter-bar-container
-st.markdown("</div>", unsafe_allow_html=True)  # End sticky-header-wrapper
 
 # --- FILTER EXECUTION ---
 filtered_df = df.copy()
@@ -835,10 +732,11 @@ if type_filter != "Property type":
 
 # --- DYNAMIC HEADER TITLE SECTION ---
 location_title = (
-    selected_location if selected_location != "All Utah Cities" else "Utah Land & Property Inc."
+    selected_location
+    if selected_location != "All Utah Cities"
+    else "Utah Land & Property Inc."
 )
 
-# Using Streamlit container and query params / session state to handle the interactive FAQ modal toggle cleanly
 if "show_faq" not in st.session_state:
     st.session_state.show_faq = False
 
@@ -855,7 +753,10 @@ with col_title_1:
     )
 
 with col_title_2:
-    st.markdown("<div style='margin-top: 36px; text-align: right;'>", unsafe_allow_html=True)
+    st.markdown(
+        "<div style='margin-top: 36px; text-align: right;'>",
+        unsafe_allow_html=True,
+    )
     if st.button("🛈 How private contract assignment works & FAQ", type="tertiary"):
         st.session_state.show_faq = not st.session_state.show_faq
     st.markdown("</div>", unsafe_allow_html=True)
@@ -873,117 +774,32 @@ if st.session_state.show_faq:
             <ul style="color: #4b5563; line-height: 1.6; font-size: 0.95rem; padding-left: 20px;">
                 <li><b>What is being sold in an assignment?</b> The assignor transfers only their equitable interest and contractual rights to buy the property, allowing the assignee to step directly into the shoes of the original buyer.</li>
                 <li><b>How does closing function?</b> The transaction typically involves an assignment fee paid to the original buyer, while the ultimate buyer fulfills the underlying obligations defined in the primary contract at closing.</li>
-                <li><b>Why utilize this structure?</b> It provides a flexible mechanism for structuring real estate transactions, managing asset portfolios, and facilitating creative financing without immediate traditional title transfers.</li>
             </ul>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-# --- RESPONSIVE 3-COLUMN CARD GRID ---
-if filtered_df.empty:
-    st.info("No real estate contracts match your filter criteria in this region.")
-else:
-    cols_per_row = 3
-    rows = [
-        filtered_df.iloc[i : i + cols_per_row]
-        for i in range(0, len(filtered_df), cols_per_row)
-    ]
-
-    for row_batch in rows:
-        cols = st.columns(cols_per_row, gap="medium")
-        for idx, (_, row) in enumerate(row_batch.iterrows()):
-            with cols[idx]:
-                st.markdown(
-                    f"""
-                        <div class="property-card">
-                            <div class="card-img-container">
-                                <img src="{row['image']}" class="card-img">
-                                <div class="card-status-badge">{row['status']}</div>
-                            </div>
-                            <div class="card-body">
-                                <div class="card-broker">{row['broker']}</div>
-                                <div class="card-contract-price">Contract: ${row['contract_price']:,}</div>
-                                <div class="card-underlying-price">Property Value: ${row['underlying_price']:,}</div>
-                                <div class="card-metrics"><b>{row['beds']}</b> bds &nbsp;|&nbsp; <b>{row['baths']}</b> ba &nbsp;|&nbsp; <b>{row['sqft']:,}</b> sqft</div>
-                                <div class="card-address">{row['address']}</div>
-                            </div>
-                        </div>
-                    """,
-                    unsafe_allow_html=True,
-                )
-
-                with st.expander(f"Review Terms / Submit Offer ({row['id']})"):
-                    user_email = st.text_input(
-                        "Your Email",
-                        key=f"p_email_{row['id']}",
-                        placeholder="name@domain.com",
-                    )
-                    offer_terms = st.text_area(
-                        "Offer Terms & Conditions",
-                        key=f"p_msg_{row['id']}",
-                        placeholder=(
-                            "Enter contract purchase price, assignment fee, or escrow"
-                            " contingencies..."
-                        ),
-                    )
-                    if st.button("Submit Official Offer", key=f"p_btn_{row['id']}"):
-                        if user_email:
-                            send_offer_dispatch(row["id"], row["title"], user_email, offer_terms)
-                            st.success("Offer successfully dispatched to escrow!")
-                        else:
-                            st.error("Please enter a valid email address.")
-
-# --- MAP SECTION (Placing the Interactive PyDeck Map Below Listings, matching reference layout) ---
-st.markdown(
-    """
-    <div style="margin-top: 40px; margin-bottom: 16px; border-top: 1px solid #e5e7eb; padding-top: 24px;">
-        <h2 style="font-size: 1.4rem; font-weight: 800; color: #111827; margin-bottom: 4px;">Interactive Regional Contract Map</h2>
-        <p style="font-size: 0.9rem; color: #6b7280;">Geographic distribution of active equitable interest assignments across Utah.</p>
-    </div>
-""",
-    unsafe_allow_html=True,
-)
-
-map_data = filtered_df[["lat", "lon"]].rename(
-    columns={"lat": "latitude", "lon": "longitude"}
-)
-
-layer = pdk.Layer(
-    "ScatterplotLayer",
-    data=map_data,
-    get_position="[longitude, latitude]",
-    get_color="[217, 34, 40, 230]",
-    get_radius=1000,
-    pickable=True,
-    auto_highlight=True,
-)
-
-lat_center = filtered_df["lat"].mean() if not filtered_df.empty else 40.6977
-lon_center = filtered_df["lon"].mean() if not filtered_df.empty else -111.8550
-zoom_level = 10 if selected_location != "All Utah Cities" else 7
-
-view_state = pdk.ViewState(
-    latitude=lat_center, longitude=lon_center, zoom=zoom_level, pitch=0
-)
-
-r = pdk.Deck(
-    layers=[layer],
-    initial_view_state=view_state,
-    map_style="light",
-    tooltip={"text": "Utah Land & Property Equitable Interest Contract"},
-)
-st.pydeck_chart(r, use_container_width=True)
-
-# --- FOOTER SECTION (Exemption & Private Investment Notice) ---
-st.markdown(
-    """
-    <div style="font-size: 0.8rem; color: #6b7280; text-align: center; margin-top: 40px; padding-top: 24px; border-top: 1px solid #e5e7eb; padding-bottom: 40px; line-height: 1.6;">
-        Notice: Utah Land & Property Inc. is a private investment firm and is not a licensed real estate broker or agent.<br>
-        We do not represent third parties in the purchase, sale, or management of outside real estate.<br>
-        Pursuant to the exemption under Utah Code § 61-2f-202, all property management functions are executed solely by individuals,<br>
-        operating as regular salaried employees of the specific legal entities that own the underlying real estate assets.
-    </div>
-""",
-    unsafe_allow_html=True,
-)
+# --- PROPERTY GRID DISPLAY ---
+cols = st.columns(3)
+for idx, row in filtered_df.reset_index(drop=True).iterrows():
+    col = cols[idx % 3]
+    with col:
+        st.markdown(
+            f"""
+            <div class="property-card">
+                <div class="card-img-container">
+                    <img src="{row['image']}" class="card-img" />
+                    <div class="card-status-badge">{row['status']}</div>
+                </div>
+                <div class="card-body">
+                    <div class="card-broker">{row['broker']}</div>
+                    <div class="card-contract-price">${row['contract_price']:,} <span style="font-size: 0.8rem; font-weight: 500; color: #6b7280;">(Contract Fee)</span></div>
+                    <div class="card-underlying-price">Underlying Value: ${row['underlying_price']:,}</div>
+                    <div class="card-metrics">{row['beds']} bds | {row['baths']} ba | {row['sqft']} sqft | {row['type']}</div>
+                    <div class="card-address">{row['address']}</div>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
