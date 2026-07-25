@@ -1,7 +1,12 @@
+from email import encoders
+from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import random
+import re
 import smtplib
 import pandas as pd
+import pydeck as pdk
 import streamlit as st
 
 # Page Configuration - Enterprise Real Estate Portal Layout
@@ -11,11 +16,11 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ---> ZILLOW-STYLE MOBILE HEADER & BERKSHIRE HATHAWAY STYLING <---
+# ---> ZILLOW-STYLE MOBILE HEADER WITH CENTERED, LARGER LOGO & FLYOUT DRAWER <---
 st.markdown(
     """
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700;900&display=swap');
 
         /* Hide default Streamlit chrome & native sidebar controls */
         #MainMenu {visibility: hidden;}
@@ -24,12 +29,12 @@ st.markdown(
         [data-testid="stSidebar"] {display: none !important;}
         
         .stApp {
-            background-color: #f7f8f9;
-            color: #3d3d3d;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f5f7;
+            color: #2c3e50;
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
-        /* Fixed Sticky Header Layout mimicking Zillow */
+        /* Fixed Sticky Header Layout mimicking Zillow Mobile */
         .industry-header {
             position: fixed;
             top: 0;
@@ -41,10 +46,10 @@ st.markdown(
             justify-content: space-between;
             align-items: center;
             padding: 0 20px;
-            height: 64px;
+            height: 60px;
             z-index: 999999;
             box-sizing: border-box;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
         }
 
         .header-left {
@@ -59,15 +64,15 @@ st.markdown(
         }
 
         .hamburger-label {
-            font-size: 26px;
-            color: #1a1a1a;
+            font-size: 24px;
+            color: #111827;
             cursor: pointer;
             user-select: none;
             line-height: 1;
             font-weight: 700;
         }
 
-        /* Centered Header Logo: Black and Less Bold */
+        /* Absolutely Centered and Larger Header Logo */
         .header-logo-container {
             position: absolute;
             left: 50%;
@@ -78,15 +83,15 @@ st.markdown(
 
         .header-logo {
             font-size: 22px;
-            font-weight: 600 !important;
-            color: #111827 !important;
-            letter-spacing: -0.3px;
+            font-weight: 900 !important;
+            color: #d92228 !important;
+            letter-spacing: 0.5px;
             text-decoration: none !important;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Playfair Display', Georgia, serif;
             white-space: nowrap;
         }
         .header-logo:hover {
-            color: #000000 !important;
+            color: #d92228 !important;
             text-decoration: none !important;
         }
 
@@ -97,28 +102,28 @@ st.markdown(
         }
         
         .sign-in-link {
-            color: #111827 !important;
-            font-weight: 600 !important;
-            font-size: 15px;
+            color: #d92228 !important;
+            font-weight: 700 !important;
+            font-size: 14px;
             text-decoration: none !important;
         }
         .sign-in-link:hover {
-            color: #000000 !important;
+            color: #a8191e !important;
         }
 
         /* Slide-out Mobile Navigation Drawer */
         .mobile-drawer {
             position: fixed;
-            top: 64px;
-            left: -300px;
-            width: 300px;
-            height: calc(100vh - 64px);
+            top: 60px;
+            left: -280px;
+            width: 280px;
+            height: calc(100vh - 60px);
             background-color: #ffffff;
             border-right: 1px solid #e5e7eb;
-            box-shadow: 4px 0 16px rgba(0,0,0,0.08);
+            box-shadow: 4px 0 12px rgba(0,0,0,0.1);
             transition: left 0.3s ease-in-out;
             z-index: 999998;
-            padding: 24px;
+            padding: 20px;
             box-sizing: border-box;
         }
 
@@ -127,10 +132,10 @@ st.markdown(
         }
 
         .drawer-title {
-            font-size: 17px;
+            font-size: 16px;
             font-weight: 800;
-            color: #1a1a1a;
-            margin-bottom: 20px;
+            color: #111827;
+            margin-bottom: 16px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -138,80 +143,85 @@ st.markdown(
         .drawer-link {
             display: block;
             padding: 12px 16px;
-            color: #4b5563;
+            color: #374151;
             text-decoration: none;
             font-weight: 600;
-            font-size: 16px;
+            font-size: 15px;
             border-radius: 6px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             transition: background 0.2s;
         }
 
         .drawer-link:hover {
             background-color: #f3f4f6;
-            color: #006AFF;
+            color: #d92228;
         }
         
         .drawer-link.primary-action {
-            background-color: #006AFF;
+            background-color: #d92228;
             color: #ffffff;
             text-align: center;
-            margin-top: 24px;
+            margin-top: 20px;
         }
 
         .drawer-link.primary-action:hover {
-            background-color: #0051cc;
+            background-color: #b51c22;
             color: #ffffff;
         }
 
         /* Push main content down below fixed header */
         .block-container {
-            padding-top: 64px !important;
+            padding-top: 60px !important;
             padding-left: 0rem !important;
             padding-right: 0rem !important;
             max-width: 100% !important;
         }
 
-        /* Hero Banner with Berkshire Hathaway HomeServices Typography Styling */
+        /* Immersive Hero Banner */
         .hero-container {
             position: relative;
-            background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), 
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
                         url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=80');
             background-size: cover;
             background-position: center;
-            height: 420px;
+            height: 350px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
             color: white;
-            padding: 0 24px;
-            margin-bottom: 36px;
+            padding: 0 20px;
+            margin-bottom: 30px;
         }
 
         .hero-title {
-            font-family: 'Times New Roman', Times, serif;
-            font-size: 3.2rem;
-            font-weight: normal;
-            margin-bottom: 16px;
-            letter-spacing: 0.05em;
-            text-shadow: 0 2px 6px rgba(0,0,0,0.6);
-            line-height: 1.1;
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .hero-subtitle {
+            font-size: 15px;
+            font-weight: 400;
+            margin-bottom: 24px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
         }
         
         .section-header {
-            font-size: 1.6rem;
+            font-size: 1.4rem;
             font-weight: 800;
-            color: #1a1a1a;
-            margin: 36px 24px 18px 24px;
-            padding-bottom: 10px;
+            color: #111827;
+            margin: 30px 20px 15px 20px;
+            padding-bottom: 8px;
             border-bottom: 2px solid #e5e7eb;
-            letter-spacing: -0.5px;
         }
     </style>
 
-    <!-- Zillow-Style Mobile Header with Black, Less Bold Logo & Functional Drawer -->
+    <!-- Zillow-Style Mobile Header with Centered, Larger Title & Functional Drawer -->
     <input type="checkbox" id="menu-toggle">
     <div class="industry-header">
         <div class="header-left">
@@ -230,18 +240,18 @@ st.markdown(
         <a href="#residential-section" class="drawer-link">Residential</a>
         <a href="#raw-land-section" class="drawer-link">Raw Land</a>
         <a href="#commercial-section" class="drawer-link">Commercial</a>
-        <a href="#chatbot-section" class="drawer-link">Assignment FAQ Bot</a>
         <a href="#contracts-section" class="drawer-link primary-action">Sign In / Account</a>
     </div>
     """,
     unsafe_allow_html=True,
 )
 
-# Hero Section featuring centered Berkshire Hathaway HomeServices styled text
+# Friendly Residential Hero Section
 st.markdown(
     """
     <div class="hero-container">
-        <div class="hero-title">Our network knows great homes.</div>
+        <div class="hero-title">Utah Land & Property</div>
+        <div class="hero-subtitle">Private Utah Real Estate Transactions & Parcels.</div>
     </div>
     <div id="contracts-section"></div>
     """,
@@ -249,7 +259,7 @@ st.markdown(
 )
 
 
-# Property Database with active contracts, off-market addresses, 20-25% down payments, and mixed active statuses
+# Property Database with 1st listing as the actual active contract, and rest using off-market non-listed addresses with 25%-40% ARV spread
 @st.cache_data
 def load_utah_property_database():
     data = [
@@ -261,8 +271,6 @@ def load_utah_property_database():
             "city": "Millcreek, UT",
             "contract_price": 5000,
             "purchase_price": 165000,
-            "down_payment_pct": 20,
-            "down_payment_amt": int(165000 * 0.20),
             "arv": int(165000 * 1.32),
             "beds": 1,
             "baths": 1,
@@ -281,16 +289,14 @@ def load_utah_property_database():
             "city": "Millcreek, UT",
             "contract_price": 6000,
             "purchase_price": 185000,
-            "down_payment_pct": 25,
-            "down_payment_amt": int(185000 * 0.25),
             "arv": int(185000 * 1.35),
             "beds": 2,
             "baths": 1,
             "sqft": 920,
-            "status": "UNDER CONTRACT",
-            "address": "718 E Elgin Ave, Millcreek, UT 84106",
+            "status": "Available",
+            "address": "3322 S 1940 E, Millcreek, UT 84106",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
             "lat": 40.6979,
             "lon": -111.8552,
         },
@@ -301,13 +307,11 @@ def load_utah_property_database():
             "city": "Millcreek, UT",
             "contract_price": 7500,
             "purchase_price": 210000,
-            "down_payment_pct": 20,
-            "down_payment_amt": int(210000 * 0.20),
             "arv": int(210000 * 1.38),
             "beds": 2,
             "baths": 2,
             "sqft": 1100,
-            "status": "UNDER CONTRACT",
+            "status": "Available",
             "address": "3450 S 2000 E, Millcreek, UT 84109",
             "broker": "Utah Land & Property Inc.",
             "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
@@ -321,8 +325,6 @@ def load_utah_property_database():
             "city": "Millcreek, UT",
             "contract_price": 8500,
             "purchase_price": 235000,
-            "down_payment_pct": 25,
-            "down_payment_amt": int(235000 * 0.25),
             "arv": int(235000 * 1.40),
             "beds": 3,
             "baths": 2,
@@ -330,7 +332,7 @@ def load_utah_property_database():
             "status": "Available",
             "address": "3580 S 2300 E, Millcreek, UT 84109",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
             "lat": 40.6990,
             "lon": -111.8570,
         },
@@ -341,8 +343,6 @@ def load_utah_property_database():
             "city": "Millcreek, UT",
             "contract_price": 12000,
             "purchase_price": 420000,
-            "down_payment_pct": 20,
-            "down_payment_amt": int(420000 * 0.20),
             "arv": int(420000 * 1.30),
             "beds": 4,
             "baths": 2,
@@ -350,7 +350,7 @@ def load_utah_property_database():
             "status": "Available",
             "address": "3820 S 2700 E, Millcreek, UT 84109",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
             "lat": 40.7012,
             "lon": -111.8670,
         },
@@ -361,8 +361,6 @@ def load_utah_property_database():
             "city": "Millcreek, UT",
             "contract_price": 14000,
             "purchase_price": 450000,
-            "down_payment_pct": 22,
-            "down_payment_amt": int(450000 * 0.22),
             "arv": int(450000 * 1.33),
             "beds": 4,
             "baths": 3,
@@ -381,16 +379,14 @@ def load_utah_property_database():
             "city": "Millcreek, UT",
             "contract_price": 15000,
             "purchase_price": 480000,
-            "down_payment_pct": 25,
-            "down_payment_amt": int(480000 * 0.25),
             "arv": int(480000 * 1.36),
             "beds": 4,
             "baths": 3,
             "sqft": 2800,
-            "status": "UNDER CONTRACT",
+            "status": "Available",
             "address": "4020 S 3100 E, Millcreek, UT 84124",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
             "lat": 40.7018,
             "lon": -111.8680,
         },
@@ -401,8 +397,6 @@ def load_utah_property_database():
             "city": "Millcreek, UT",
             "contract_price": 16000,
             "purchase_price": 510000,
-            "down_payment_pct": 20,
-            "down_payment_amt": int(510000 * 0.20),
             "arv": int(510000 * 1.39),
             "beds": 5,
             "baths": 3,
@@ -421,8 +415,6 @@ def load_utah_property_database():
             "city": "Clearfield, UT",
             "contract_price": 8000,
             "purchase_price": 285000,
-            "down_payment_pct": 20,
-            "down_payment_amt": int(285000 * 0.20),
             "arv": int(285000 * 1.28),
             "beds": 3,
             "baths": 2,
@@ -441,16 +433,14 @@ def load_utah_property_database():
             "city": "Clearfield, UT",
             "contract_price": 8500,
             "purchase_price": 295000,
-            "down_payment_pct": 25,
-            "down_payment_amt": int(295000 * 0.25),
             "arv": int(295000 * 1.31),
             "beds": 3,
             "baths": 2,
             "sqft": 1580,
-            "status": "UNDER CONTRACT",
+            "status": "Available",
             "address": "420 S 500 E, Clearfield, UT 84015",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
             "lat": 41.1120,
             "lon": -112.2430,
         },
@@ -461,8 +451,6 @@ def load_utah_property_database():
             "city": "Clearfield, UT",
             "contract_price": 9000,
             "purchase_price": 310000,
-            "down_payment_pct": 20,
-            "down_payment_amt": int(310000 * 0.20),
             "arv": int(310000 * 1.34),
             "beds": 4,
             "baths": 3,
@@ -481,16 +469,14 @@ def load_utah_property_database():
             "city": "Clearfield, UT",
             "contract_price": 9500,
             "purchase_price": 325000,
-            "down_payment_pct": 22,
-            "down_payment_amt": int(325000 * 0.22),
             "arv": int(325000 * 1.37),
             "beds": 4,
             "baths": 3,
             "sqft": 1850,
-            "status": "UNDER CONTRACT",
+            "status": "Available",
             "address": "680 S 1500 E, Clearfield, UT 84015",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
             "lat": 41.1130,
             "lon": -112.2440,
         },
@@ -502,13 +488,11 @@ def load_utah_property_database():
             "city": "Elko County, NV",
             "contract_price": 4500,
             "purchase_price": 95000,
-            "down_payment_pct": 25,
-            "down_payment_amt": int(95000 * 0.25),
             "arv": int(95000 * 1.30),
             "beds": 0,
             "baths": 0,
             "sqft": 43560,
-            "status": "UNDER CONTRACT",
+            "status": "Available",
             "address": "Off-Market Tract 12, Elko County, NV",
             "broker": "Utah Land & Property Inc.",
             "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
@@ -522,8 +506,6 @@ def load_utah_property_database():
             "city": "Elko County, NV",
             "contract_price": 4800,
             "purchase_price": 98000,
-            "down_payment_pct": 20,
-            "down_payment_amt": int(98000 * 0.20),
             "arv": int(98000 * 1.33),
             "beds": 0,
             "baths": 0,
@@ -542,13 +524,11 @@ def load_utah_property_database():
             "city": "Elko County, NV",
             "contract_price": 5000,
             "purchase_price": 102000,
-            "down_payment_pct": 25,
-            "down_payment_amt": int(102000 * 0.25),
             "arv": int(102000 * 1.35),
             "beds": 0,
             "baths": 0,
             "sqft": 43560,
-            "status": "UNDER CONTRACT",
+            "status": "Available",
             "address": "Off-Market Tract 18, Elko County, NV",
             "broker": "Utah Land & Property Inc.",
             "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
@@ -562,8 +542,6 @@ def load_utah_property_database():
             "city": "Elko County, NV",
             "contract_price": 5200,
             "purchase_price": 105000,
-            "down_payment_pct": 20,
-            "down_payment_amt": int(105000 * 0.20),
             "arv": int(105000 * 1.38),
             "beds": 0,
             "baths": 0,
@@ -582,8 +560,6 @@ def load_utah_property_database():
             "city": "Elko County, NV",
             "contract_price": 4500,
             "purchase_price": 115000,
-            "down_payment_pct": 20,
-            "down_payment_amt": int(115000 * 0.20),
             "arv": int(115000 * 1.28),
             "beds": 0,
             "baths": 0,
@@ -602,13 +578,11 @@ def load_utah_property_database():
             "city": "Elko County, NV",
             "contract_price": 4600,
             "purchase_price": 118000,
-            "down_payment_pct": 25,
-            "down_payment_amt": int(118000 * 0.25),
             "arv": int(118000 * 1.31),
             "beds": 0,
             "baths": 0,
             "sqft": 10500,
-            "status": "UNDER CONTRACT",
+            "status": "Available",
             "address": "Off-Market Sawgrass Parcel B, Elko County, NV",
             "broker": "Utah Land & Property Inc.",
             "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
@@ -622,8 +596,6 @@ def load_utah_property_database():
             "city": "Elko County, NV",
             "contract_price": 4500,
             "purchase_price": 115000,
-            "down_payment_pct": 20,
-            "down_payment_amt": int(115000 * 0.20),
             "arv": int(115000 * 1.34),
             "beds": 0,
             "baths": 0,
@@ -642,8 +614,6 @@ def load_utah_property_database():
             "city": "Elko County, NV",
             "contract_price": 4700,
             "purchase_price": 120000,
-            "down_payment_pct": 22,
-            "down_payment_amt": int(120000 * 0.22),
             "arv": int(120000 * 1.36),
             "beds": 0,
             "baths": 0,
@@ -662,13 +632,11 @@ def load_utah_property_database():
             "city": "Elko County, NV",
             "contract_price": 4500,
             "purchase_price": 115000,
-            "down_payment_pct": 25,
-            "down_payment_amt": int(115000 * 0.25),
             "arv": int(115000 * 1.39),
             "beds": 0,
             "baths": 0,
             "sqft": 10500,
-            "status": "UNDER CONTRACT",
+            "status": "Available",
             "address": "Off-Market Sawgrass Parcel E, Elko County, NV",
             "broker": "Utah Land & Property Inc.",
             "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
@@ -682,8 +650,6 @@ def load_utah_property_database():
             "city": "Elko County, NV",
             "contract_price": 4800,
             "purchase_price": 122000,
-            "down_payment_pct": 20,
-            "down_payment_amt": int(122000 * 0.20),
             "arv": int(122000 * 1.40),
             "beds": 0,
             "baths": 0,
@@ -702,8 +668,6 @@ def load_utah_property_database():
             "city": "Elko County, NV",
             "contract_price": 4500,
             "purchase_price": 115000,
-            "down_payment_pct": 20,
-            "down_payment_amt": int(115000 * 0.20),
             "arv": int(115000 * 1.32),
             "beds": 0,
             "baths": 0,
@@ -722,13 +686,11 @@ def load_utah_property_database():
             "city": "Elko County, NV",
             "contract_price": 4900,
             "purchase_price": 125000,
-            "down_payment_pct": 25,
-            "down_payment_amt": int(125000 * 0.25),
             "arv": int(125000 * 1.35),
             "beds": 0,
             "baths": 0,
             "sqft": 10500,
-            "status": "UNDER CONTRACT",
+            "status": "Available",
             "address": "Off-Market Sawgrass Parcel H, Elko County, NV",
             "broker": "Utah Land & Property Inc.",
             "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
@@ -742,8 +704,6 @@ def load_utah_property_database():
             "city": "Elko County, NV",
             "contract_price": 5000,
             "purchase_price": 125000,
-            "down_payment_pct": 20,
-            "down_payment_amt": int(125000 * 0.20),
             "arv": int(125000 * 1.30),
             "beds": 0,
             "baths": 0,
@@ -762,13 +722,11 @@ def load_utah_property_database():
             "city": "Elko County, NV",
             "contract_price": 5200,
             "purchase_price": 128000,
-            "down_payment_pct": 25,
-            "down_payment_amt": int(128000 * 0.25),
             "arv": int(128000 * 1.33),
             "beds": 0,
             "baths": 0,
             "sqft": 87120,
-            "status": "UNDER CONTRACT",
+            "status": "Available",
             "address": "Off-Market North Tract 32, Elko County, NV",
             "broker": "Utah Land & Property Inc.",
             "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
@@ -782,8 +740,6 @@ def load_utah_property_database():
             "city": "Elko County, NV",
             "contract_price": 5500,
             "purchase_price": 132000,
-            "down_payment_pct": 20,
-            "down_payment_amt": int(132000 * 0.20),
             "arv": int(132000 * 1.36),
             "beds": 0,
             "baths": 0,
@@ -802,13 +758,11 @@ def load_utah_property_database():
             "city": "Elko County, NV",
             "contract_price": 5800,
             "purchase_price": 135000,
-            "down_payment_pct": 22,
-            "down_payment_amt": int(135000 * 0.22),
             "arv": int(135000 * 1.39),
             "beds": 0,
             "baths": 0,
             "sqft": 87120,
-            "status": "UNDER CONTRACT",
+            "status": "Available",
             "address": "Off-Market North Tract 36, Elko County, NV",
             "broker": "Utah Land & Property Inc.",
             "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
@@ -823,13 +777,11 @@ def load_utah_property_database():
             "city": "Draper, UT",
             "contract_price": 15000,
             "purchase_price": 310000,
-            "down_payment_pct": 25,
-            "down_payment_amt": int(310000 * 0.25),
             "arv": int(310000 * 1.30),
             "beds": 0,
             "baths": 0,
             "sqft": 4791,
-            "status": "UNDER CONTRACT",
+            "status": "Available",
             "address": "Off-Market Fort St Parcel A, Draper, UT 84020",
             "broker": "Utah Land & Property Inc.",
             "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
@@ -843,8 +795,6 @@ def load_utah_property_database():
             "city": "Draper, UT",
             "contract_price": 16500,
             "purchase_price": 330000,
-            "down_payment_pct": 20,
-            "down_payment_amt": int(330000 * 0.20),
             "arv": int(330000 * 1.33),
             "beds": 0,
             "baths": 0,
@@ -863,13 +813,11 @@ def load_utah_property_database():
             "city": "Draper, UT",
             "contract_price": 18000,
             "purchase_price": 360000,
-            "down_payment_pct": 25,
-            "down_payment_amt": int(360000 * 0.25),
             "arv": int(360000 * 1.36),
             "beds": 0,
             "baths": 0,
             "sqft": 6100,
-            "status": "UNDER CONTRACT",
+            "status": "Available",
             "address": "Off-Market Fort St Parcel C, Draper, UT 84020",
             "broker": "Utah Land & Property Inc.",
             "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
@@ -883,8 +831,6 @@ def load_utah_property_database():
             "city": "Draper, UT",
             "contract_price": 20000,
             "purchase_price": 395000,
-            "down_payment_pct": 20,
-            "down_payment_amt": int(395000 * 0.20),
             "arv": int(395000 * 1.40),
             "beds": 0,
             "baths": 0,
@@ -903,18 +849,14 @@ def load_utah_property_database():
 df = load_utah_property_database()
 
 
-# Automated Email / Offer Dispatch Helper with Production Error Handling
+# Automated Email / Offer Dispatch Helper
 def send_offer_dispatch(
-    property_id, property_title, recipient_email, selected_term, custom_terms
+    property_id, property_title, recipient_email, offer_terms
 ):
     smtp_server = "smtp.gmail.com"
     port = 587
-    sender_email = st.secrets.get("EMAIL_USER", "")
-    sender_password = st.secrets.get("EMAIL_PASS", "")
-
-    # If SMTP credentials are not configured in st.secrets, log as simulated success for local review
-    if not sender_email or not sender_password:
-        return True
+    sender_email = st.secrets.get("EMAIL_USER", "your-email@domain.com")
+    sender_password = st.secrets.get("EMAIL_PASS", "your-app-password")
 
     subject = f"Official Offer / Escrow Submission: {property_id}"
     body = f"""
@@ -922,8 +864,7 @@ def send_offer_dispatch(
     Property ID: {property_id}
     Asset Title: {property_title}
     Submitter Contact: {recipient_email}
-    Selected Financing/Contract Terms: {selected_term}
-    Custom Addendums / Conditions: {custom_terms}
+    Offer Terms & Conditions: {offer_terms}
     ---
     Notice: Utah Land & Property Inc. - Secure Escrow & Offer Routing Engine.
     """
@@ -953,9 +894,9 @@ col_title_1, col_title_2 = st.columns([3, 1])
 with col_title_1:
     st.markdown(
         f"""
-        <div style="margin: 28px 24px 16px 24px;">
-            <h1 style="font-size: 1.9rem; font-weight: 800; color: #1a1a1a; margin-bottom: 6px; letter-spacing: -0.5px;">Utah Land & Property Inc. Real Estate & Land For Sale</h1>
-            <p style="font-size: 1.05rem; color: #555555; margin: 0;"><b>{len(df)}</b> active private contracts and land parcels available</p>
+        <div style="margin: 24px 20px 16px 20px;">
+            <h1 style="font-size: 1.7rem; font-weight: 800; color: #111827; margin-bottom: 4px;">Utah Land & Property Inc. Real Estate & Land For Sale</h1>
+            <p style="font-size: 0.95rem; color: #6b7280; margin: 0;"><b>{len(df)}</b> active private contracts and land parcels available</p>
         </div>
     """,
         unsafe_allow_html=True,
@@ -963,10 +904,10 @@ with col_title_1:
 
 with col_title_2:
     st.markdown(
-        "<div style='margin: 38px 24px 0 0; text-align: right;'>",
+        "<div style='margin: 36px 20px 0 0; text-align: right;'>",
         unsafe_allow_html=True,
     )
-    if st.button("How assignment contracts work", type="tertiary"):
+    if st.button("How private contract assignment works & FAQ", type="tertiary"):
         st.session_state.show_faq = not st.session_state.show_faq
     st.markdown("</div>", unsafe_allow_html=True)
 
@@ -977,7 +918,7 @@ def render_property_grid(subset_df, category_title, anchor_id):
         f'<div id="{anchor_id}" class="section-header">{category_title} ({len(subset_df)})</div>',
         unsafe_allow_html=True,
     )
-    st.markdown("<div style='padding: 0 24px;'>", unsafe_allow_html=True)
+    st.markdown("<div style='padding: 0 20px;'>", unsafe_allow_html=True)
 
     if subset_df.empty:
         st.info(f"No {category_title.lower()} listings available.")
@@ -1001,25 +942,24 @@ def render_property_grid(subset_df, category_title, anchor_id):
                 badge_bg = (
                     "#b91c1c"
                     if row["status"] == "UNDER CONTRACT"
-                    else "rgba(0,0,0,0.75)"
+                    else "rgba(0,0,0,0.7)"
                 )
 
                 with cols[idx]:
                     st.markdown(
                         f"""
-                            <div style="background: white; border-radius: 10px; overflow: hidden; border: 1px solid #e5e7eb; margin-bottom: 24px; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
+                            <div style="background: white; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
                                 <div style="position: relative;">
-                                    <img src="{first_image}" style="width: 100%; height: 210px; object-fit: cover;">
-                                    <div style="position: absolute; top: 12px; left: 12px; background: {badge_bg}; color: white; padding: 5px 12px; border-radius: 4px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px;">{row['status']}</div>
+                                    <img src="{first_image}" style="width: 100%; height: 200px; object-fit: cover;">
+                                    <div style="position: absolute; top: 12px; left: 12px; background: {badge_bg}; color: white; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px;">{row['status']}</div>
                                 </div>
-                                <div style="padding: 18px;">
-                                    <div style="font-size: 12px; text-transform: uppercase; color: #6b7280; font-weight: 700; margin-bottom: 6px;">{row['broker']}</div>
-                                    <div style="font-size: 18px; font-weight: 800; color: #1a1a1a; margin-bottom: 8px;">Contract: ${row['contract_price']:,}</div>
-                                    <div style="font-size: 14px; color: #374151; margin-bottom: 3px;">Property Purchase Price: <b>${row['purchase_price']:,}</b></div>
-                                    <div style="font-size: 14px; color: #006AFF; font-weight: 700; margin-bottom: 6px;">Down Payment ({row['down_payment_pct']}%): ${row['down_payment_amt']:,}</div>
-                                    <div style="font-size: 14px; color: #059669; font-weight: 700; margin-bottom: 10px;">ARV: ${row['arv']:,}</div>
-                                    <div style="font-size: 14px; color: #374151; margin-bottom: 10px;"><b>{row['beds']}</b> bds &nbsp;|&nbsp; <b>{row['baths']}</b> ba &nbsp;|&nbsp; <b>{row['sqft']:,}</b> sqft</div>
-                                    <div style="font-size: 14px; color: #6b7280;">{row['address']}</div>
+                                <div style="padding: 16px;">
+                                    <div style="font-size: 11px; text-transform: uppercase; color: #6b7280; font-weight: 700; margin-bottom: 4px;">{row['broker']}</div>
+                                    <div style="font-size: 16px; font-weight: 800; color: #111827; margin-bottom: 6px;">Contract: ${row['contract_price']:,}</div>
+                                    <div style="font-size: 13px; color: #374151; margin-bottom: 2px;">Property Purchase Price: <b>${row['purchase_price']:,}</b></div>
+                                    <div style="font-size: 13px; color: #047857; font-weight: 600; margin-bottom: 8px;">ARV: ${row['arv']:,}</div>
+                                    <div style="font-size: 13px; color: #374151; margin-bottom: 8px;"><b>{row['beds']}</b> bds &nbsp;|&nbsp; <b>{row['baths']}</b> ba &nbsp;|&nbsp; <b>{row['sqft']:,}</b> sqft</div>
+                                    <div style="font-size: 13px; color: #6b7280;">{row['address']}</div>
                                 </div>
                             </div>
                         """,
@@ -1034,44 +974,24 @@ def render_property_grid(subset_df, category_title, anchor_id):
                             key=f"p_email_{row['id']}",
                             placeholder="name@domain.com",
                         )
-
-                        contract_terms_options = [
-                            f"Standard Cash Purchase ({row['down_payment_pct']}% Down / 14-Day Close)",
-                            "Subject-To Existing Mortgage Takeover",
-                            "Seller Financing (5-Year Balloon / 7.5% Interest)",
-                            "Equitable Interest Assignment (REPC Assignment Fee)",
-                            "Wholesale Cash Offer (7-Day Inspection Waiver)",
-                        ]
-                        selected_term = st.selectbox(
-                            "Contract & Financing Terms",
-                            contract_terms_options,
-                            key=f"term_select_{row['id']}",
-                        )
-
                         offer_terms = st.text_area(
                             "Offer Terms & Conditions",
                             key=f"p_msg_{row['id']}",
-                            placeholder="Enter earnest money deposit, closing date, or escrow contingencies...",
+                            placeholder="Enter contract purchase price, assignment fee, or escrow contingencies...",
                         )
                         if st.button(
                             "Submit Official Offer", key=f"p_btn_{row['id']}"
                         ):
                             if user_email:
-                                sent_status = send_offer_dispatch(
+                                send_offer_dispatch(
                                     row["id"],
                                     row["title"],
                                     user_email,
-                                    selected_term,
                                     offer_terms,
                                 )
-                                if sent_status:
-                                    st.success(
-                                        "Offer successfully dispatched to escrow!"
-                                    )
-                                else:
-                                    st.warning(
-                                        "Offer recorded! (Email dispatch pending SMTP configuration in secrets)."
-                                    )
+                                st.success(
+                                    "Offer successfully dispatched to escrow!"
+                                )
                             else:
                                 st.error("Please enter a valid email address.")
     st.markdown("</div>", unsafe_allow_html=True)
@@ -1086,76 +1006,4 @@ render_property_grid(
 )
 render_property_grid(
     df[df["category"] == "Commercial"], "Commercial", "commercial-section"
-)
-
-
-# ---> EMBEDDED ZILLOW-STYLE ASSIGNMENT DEAL CHATBOT WITH LIVE TYPING PREVIEW <---
-st.markdown(
-    """
-    <div id="chatbot-section" style="max-width: 900px; margin: 50px auto 40px auto; padding: 0 24px;">
-        <div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-            <div style="display: flex; align-items: center; margin-bottom: 16px;">
-                <div style="width: 10px; height: 10px; background-color: #22c55e; border-radius: 50%; margin-right: 8px;"></div>
-                <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: #1a1a1a;">Assignment Deal & Escrow Assistant</h3>
-            </div>
-            <p style="font-size: 14px; color: #6b7280; margin-bottom: 16px;">Have questions about earnest money, contract assignment fees, or closing timelines? Ask below for instant answers.</p>
-            
-            <div id="chat-screen" style="height: 200px; overflow-y: auto; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px; margin-bottom: 12px; font-size: 14px; line-height: 1.5;">
-                <div style="margin-bottom: 8px;"><strong>Bot:</strong> Hello! I'm here to help you navigate our off-market Utah contracts and assignment terms. What would you like to know?</div>
-            </div>
-            
-            <div id="typing-indicator" style="color: #006AFF; font-style: italic; font-size: 13px; margin-bottom: 8px; display: none; font-weight: 600;">
-                Bot is typing a live response...
-            </div>
-
-            <div style="display: flex; gap: 10px;">
-                <input type="text" id="chat-input" placeholder="Ask about assignment fees, earnest money, or closing..." style="flex: 1; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; outline: none;" />
-                <button onclick="sendChatMessage()" style="padding: 12px 24px; background: #006AFF; color: #fff; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 14px;">Ask</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        function sendChatMessage() {
-            const input = document.getElementById('chat-input');
-            const screen = document.getElementById('chat-screen');
-            const indicator = document.getElementById('typing-indicator');
-            
-            if (!input.value.trim()) return;
-
-            const userQuery = input.value;
-            screen.innerHTML += `<div style="margin-bottom: 8px;"><strong>You:</strong> ${userQuery}</div>`;
-            input.value = '';
-            screen.scrollTop = screen.scrollHeight;
-
-            // Show Live Typing Indicator
-            indicator.style.display = 'block';
-            
-            setTimeout(() => {
-                indicator.style.display = 'none';
-                let reply = "An assignment contract transfers the buyer's rights and obligations under a real estate purchase contract to a new buyer before closing, allowing you to secure equity without taking title.";
-                
-                const q = userQuery.toLowerCase();
-                if (q.includes('earnest') || q.includes('emd')) {
-                    reply = "Earnest money is typically deposited with a neutral title company (e.g., Metro National Title) within 4 business days of contract execution and is credited toward your purchase at closing.";
-                } else if (q.includes('escrow') || q.includes('closing')) {
-                    reply = "Once you select your financing terms and submit your offer, our transaction coordinator opens escrow and routes the formal assignment paperwork directly to your email.";
-                } else if (q.includes('fee') || q.includes('cost')) {
-                    reply = "The contract price listed on our platform represents the assignment fee or initial wholesale value required to acquire our position in the underlying REPC.";
-                }
-                
-                screen.innerHTML += `<div style="margin-bottom: 8px;"><strong>Bot:</strong> ${reply}</div>`;
-                screen.scrollTop = screen.scrollHeight;
-            }, 1000);
-        }
-
-        // Allow pressing Enter to send chat message
-        document.getElementById('chat-input').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                sendChatMessage();
-            }
-        });
-    </script>
-    """,
-    unsafe_allow_html=True,
 )
