@@ -11,7 +11,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ---> ZILLOW-STYLE MOBILE HEADER WITH BLACK, LESS BOLD LOGO & BOLD HERO TEXT <---
+# ---> ZILLOW-STYLE MOBILE HEADER & BERKSHIRE HATHAWAY STYLING <---
 st.markdown(
     """
     <style>
@@ -172,7 +172,7 @@ st.markdown(
             max-width: 100% !important;
         }
 
-        /* Immersive Zillow-Style Hero Banner with Bolder, Standout Typography */
+        /* Hero Banner with Berkshire Hathaway HomeServices Typography Styling */
         .hero-container {
             position: relative;
             background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), 
@@ -191,20 +191,13 @@ st.markdown(
         }
 
         .hero-title {
-            font-size: 52px;
-            font-weight: 900;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 3.2rem;
+            font-weight: normal;
             margin-bottom: 16px;
-            letter-spacing: -1.5px;
-            text-shadow: 0 4px 12px rgba(0,0,0,0.6);
+            letter-spacing: 0.05em;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.6);
             line-height: 1.1;
-        }
-
-        .hero-subtitle {
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 24px;
-            text-shadow: 0 3px 8px rgba(0,0,0,0.6);
-            letter-spacing: 0.3px;
         }
         
         .section-header {
@@ -244,12 +237,11 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Standout, Bolder Zillow-Inspired Hero Section
+# Hero Section featuring centered Berkshire Hathaway HomeServices styled text
 st.markdown(
     """
     <div class="hero-container">
-        <div class="hero-title">Investments. Land. Utah Real Estate.</div>
-        <div class="hero-subtitle">Off-Market Properties & Exclusive Real Estate Contracts</div>
+        <div class="hero-title">Our network knows great homes.</div>
     </div>
     <div id="contracts-section"></div>
     """,
