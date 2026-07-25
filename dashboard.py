@@ -9,13 +9,6 @@ import pandas as pd
 import pydeck as pdk
 import streamlit as st
 
-# Page Configuration - Enterprise Real Estate Portal Layout
-st.set_page_config(
-    page_title="Utah Real Estate & Land For Sale. | Utah Land & Property Inc.",
-    layout="wide",
-    initial_sidebar_state="collapsed",
-)
-
 # ---> MOBILE HEADER WITH CENTERED, LARGER LOGO & FLYOUT DRAWER <---
 st.markdown(
     """
