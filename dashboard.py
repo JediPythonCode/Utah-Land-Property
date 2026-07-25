@@ -218,7 +218,7 @@ st.markdown(
             <label for="menu-toggle" class="hamburger-label">&#9776;</label>
         </div>
         <div class="header-logo-container">
-            <a href="#" class="header-logo">UTAH REAL ESTATE & LAND INVESTMENTS</a>
+            <a href="#" class="header-logo">UTAH LAND & PROPERTY INC.</a>
         </div>
         <div class="header-right">
             <a href="#contracts-section" class="sign-in-link">Sign In</a>
@@ -242,7 +242,7 @@ st.markdown(
 st.markdown(
     """
     <div class="hero-container">
-        <div class="hero-title">Utah Land & Property</div>
+        <div class="hero-title">UTAH REAL ESTATE & LAND INVESTMENTS</div>
         <div class="hero-subtitle">Private Utah Real Estate Transactions.</div>
     </div>
     <div id="contracts-section"></div>
