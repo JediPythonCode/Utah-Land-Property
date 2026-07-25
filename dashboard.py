@@ -15,16 +15,17 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ---> STREAMLINED CLEAN MOBILE-STYLE HEADER WITH HAMBURGER MENU <---
+# ---> PURE CSS FLYOUT HAMBURGER MENU (NO SIDEBAR RELOAD REQUIRED) <---
 st.markdown(
     """
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700;900&display=swap');
 
-        /* Hide default Streamlit chrome */
+        /* Hide default Streamlit chrome & native sidebar controls */
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
         header {visibility: hidden;}
+        [data-testid="stSidebar"] {display: none !important;}
         
         .stApp {
             background-color: #f4f5f7;
@@ -56,14 +57,76 @@ st.markdown(
             gap: 16px;
         }
 
-        /* Hamburger Menu Icon */
-        .hamburger-icon {
+        /* Pure CSS Checkbox Hack for Functional Hamburger Menu Drawer */
+        #menu-toggle {
+            display: none;
+        }
+
+        .hamburger-label {
             font-size: 24px;
             color: #111827;
             cursor: pointer;
-            text-decoration: none !important;
-            font-weight: 700;
+            user-select: none;
             line-height: 1;
+            font-weight: 700;
+        }
+
+        /* Slide-out Mobile Navigation Drawer */
+        .mobile-drawer {
+            position: fixed;
+            top: 60px;
+            left: -280px;
+            width: 280px;
+            height: calc(100vh - 60px);
+            background-color: #ffffff;
+            border-right: 1px solid #e5e7eb;
+            box-shadow: 4px 0 12px rgba(0,0,0,0.1);
+            transition: left 0.3s ease-in-out;
+            z-index: 999998;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        #menu-toggle:checked ~ .mobile-drawer {
+            left: 0;
+        }
+
+        .drawer-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: #111827;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .drawer-link {
+            display: block;
+            padding: 12px 16px;
+            color: #374151;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            transition: background 0.2s;
+        }
+
+        .drawer-link:hover {
+            background-color: #f3f4f6;
+            color: #d92228;
+        }
+        
+        .drawer-link.primary-action {
+            background-color: #d92228;
+            color: #ffffff;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .drawer-link.primary-action:hover {
+            background-color: #b51c22;
+            color: #ffffff;
         }
         
         .header-logo {
@@ -84,7 +147,6 @@ st.markdown(
             align-items: center;
         }
         
-        /* Sign In Link Style */
         .sign-in-link {
             color: #d92228 !important;
             font-weight: 700 !important;
@@ -138,42 +200,30 @@ st.markdown(
         }
     </style>
 
-    <!-- Mobile Zillow-Style Sticky Header -->
+    <!-- Zillow-Style Mobile Header with Functional Pure CSS Flyout Drawer -->
+    <input type="checkbox" id="menu-toggle">
     <div class="industry-header">
         <div class="header-left">
-            <span class="hamburger-icon" onclick="document.getElementById('mobile-drawer').style.display = document.getElementById('mobile-drawer').style.display === 'block' ? 'none' : 'block'">&#9776;</span>
+            <label for="menu-toggle" class="hamburger-label">&#9776;</label>
             <a href="#" class="header-logo">UTAH LAND & PROPERTY</a>
         </div>
         <div class="header-right">
             <a href="#contracts-section" class="sign-in-link">Sign In</a>
         </div>
     </div>
+
+    <div class="mobile-drawer">
+        <div class="drawer-title">Navigation Menu</div>
+        <a href="#contracts-section" class="drawer-link">Our Contracts</a>
+        <a href="#contracts-section" class="drawer-link">Assignments</a>
+        <a href="#contracts-section" class="drawer-link">Sell to Us</a>
+        <a href="#contracts-section" class="drawer-link">Portfolio</a>
+        <a href="#contracts-section" class="drawer-link">Manage Assets</a>
+        <a href="#contracts-section" class="drawer-link primary-action">Sign In / Account</a>
+    </div>
     """,
     unsafe_allow_html=True,
 )
-
-# Sidebar / Toggleable Drawer Implementation for the Mobile Navigation Links
-if "menu_open" not in st.session_state:
-    st.session_state.menu_open = False
-
-with st.sidebar:
-    st.markdown(
-        "### **Navigation Menu**", unsafe_allow_html=True
-    )
-    st.markdown("---")
-    if st.button("Our Contracts", use_container_width=True):
-        st.session_state.show_faq = False
-    if st.button("Assignments", use_container_width=True):
-        st.session_state.show_faq = False
-    if st.button("Sell to Us", use_container_width=True):
-        st.session_state.show_faq = False
-    if st.button("Portfolio", use_container_width=True):
-        st.session_state.show_faq = False
-    if st.button("Manage Assets", use_container_width=True):
-        st.session_state.show_faq = False
-    st.markdown("---")
-    if st.button("Sign In / Account", use_container_width=True, type="primary"):
-        pass
 
 # Friendly Residential Hero Section
 st.markdown(
