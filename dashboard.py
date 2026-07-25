@@ -15,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ---> UPDATED STICKY HEADER & FILTER STYLING (RED FONTS ON TOP BAR ONLY, CLEAN INPUT BOXES) <---
+# ---> UPDATED STICKY HEADER & FILTER STYLING (RED FONTS ON TOP BAR ONLY, WHITE TEXT ON SIGN IN BUTTON) <---
 st.markdown(
     """
     <style>
@@ -96,6 +96,7 @@ st.markdown(
         }
         .sign-in-btn:hover {
             background-color: #b51c22 !important;
+            color: #ffffff !important;
             text-decoration: none !important;
         }
 
