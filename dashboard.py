@@ -1091,3 +1091,17 @@ render_property_grid(
 render_property_grid(
     df[df["category"] == "Commercial"], "Commercial", "commercial-section"
 )
+# Render Legal Notice Footer at the Bottom of the Website
+st.markdown(
+    """
+    <div class="legal-footer">
+        <div class="legal-footer-content">
+            <strong>Notice:</strong> Utah Land & Property Inc. is a private investment firm and is not a licensed real estate broker or agent.<br>
+            We do not represent third parties in the purchase, sale, or management of outside real estate.<br>
+            Pursuant to the exemption under Utah Code § 61-2f-202, all property management functions are executed solely by individuals, 
+            operating as regular salaried employees of the specific legal entities that own the underlying real estate assets.
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
