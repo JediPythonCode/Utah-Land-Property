@@ -197,15 +197,15 @@ def load_utah_property_database():
     data = [
         {
             "id": "UT-MIL-0101",
-            "title": "Millcreek Modern Residential Parcel",
+            "title": "Millcreek Residential Condo Parcel",
             "type": "Contract for Sale / Land",
             "city": "Millcreek, UT",
             "contract_price": 28500,
             "underlying_price": 285000,
-            "beds": 0,
-            "baths": 0,
-            "sqft": 9147,
-            "status": "Equitable Interest Available",
+            "beds": 1,
+            "baths": 1,
+            "sqft": 750,
+            "status": "Equitable Interest Assignable",
             "address": "4629 S Quail Vista Cve #J, Millcreek, UT 84117",
             "broker": "Utah Land & Property Inc.",
             "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
@@ -607,7 +607,7 @@ if type_filter != "Property type":
 
 # --- DYNAMIC HEADER TITLE SECTION ---
 location_title = (
-    selected_location if selected_location != "All Utah Cities" else
+    selected_location if selected_location != "All Utah Cities" else "Utah Statewide"
 )
 
 # Using Streamlit container and query params / session state to handle the interactive FAQ modal toggle cleanly
