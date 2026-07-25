@@ -15,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ---> PURE CSS FLYOUT HAMBURGER MENU (NO SIDEBAR RELOAD REQUIRED) <---
+# ---> ZILLOW-STYLE MOBILE HEADER WITH CENTERED, LARGER LOGO & FLYOUT DRAWER <---
 st.markdown(
     """
     <style>
@@ -54,7 +54,7 @@ st.markdown(
         .header-left {
             display: flex;
             align-items: center;
-            gap: 16px;
+            z-index: 2;
         }
 
         /* Pure CSS Checkbox Hack for Functional Hamburger Menu Drawer */
@@ -69,6 +69,45 @@ st.markdown(
             user-select: none;
             line-height: 1;
             font-weight: 700;
+        }
+
+        /* Absolutely Centered and Larger Header Logo */
+        .header-logo-container {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 1;
+        }
+
+        .header-logo {
+            font-size: 22px;
+            font-weight: 900 !important;
+            color: #d92228 !important;
+            letter-spacing: 0.5px;
+            text-decoration: none !important;
+            font-family: 'Playfair Display', Georgia, serif;
+            white-space: nowrap;
+        }
+        .header-logo:hover {
+            color: #d92228 !important;
+            text-decoration: none !important;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            z-index: 2;
+        }
+        
+        .sign-in-link {
+            color: #d92228 !important;
+            font-weight: 700 !important;
+            font-size: 14px;
+            text-decoration: none !important;
+        }
+        .sign-in-link:hover {
+            color: #a8191e !important;
         }
 
         /* Slide-out Mobile Navigation Drawer */
@@ -128,34 +167,6 @@ st.markdown(
             background-color: #b51c22;
             color: #ffffff;
         }
-        
-        .header-logo {
-            font-size: 19px;
-            font-weight: 900 !important;
-            color: #d92228 !important;
-            letter-spacing: 0.5px;
-            text-decoration: none !important;
-            font-family: 'Playfair Display', Georgia, serif;
-        }
-        .header-logo:hover {
-            color: #d92228 !important;
-            text-decoration: none !important;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-        }
-        
-        .sign-in-link {
-            color: #d92228 !important;
-            font-weight: 700 !important;
-            font-size: 14px;
-            text-decoration: none !important;
-        }
-        .sign-in-link:hover {
-            color: #a8191e !important;
-        }
 
         /* Push main content down below fixed header */
         .block-container {
@@ -200,11 +211,13 @@ st.markdown(
         }
     </style>
 
-    <!-- Zillow-Style Mobile Header with Functional Pure CSS Flyout Drawer -->
+    <!-- Zillow-Style Mobile Header with Centered, Larger Title & Functional Drawer -->
     <input type="checkbox" id="menu-toggle">
     <div class="industry-header">
         <div class="header-left">
             <label for="menu-toggle" class="hamburger-label">&#9776;</label>
+        </div>
+        <div class="header-logo-container">
             <a href="#" class="header-logo">UTAH LAND & PROPERTY</a>
         </div>
         <div class="header-right">
