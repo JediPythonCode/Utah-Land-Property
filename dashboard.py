@@ -7,7 +7,7 @@ import streamlit as st
 
 # Page Configuration - Wide layout mimicking a professional real estate portal
 st.set_page_config(
-    page_title="Utah Real Estate & Land for Sale | Utah Land & Property",
+    page_title="Utah Real Estate & Land For Sale | Utah Land & Property",
     page_icon="🏡",
     layout="wide",
     initial_sidebar_state="collapsed",
@@ -430,7 +430,7 @@ def load_utah_property_database():
       },
       {
           "id": "UT-BOV-1301",
-ount          "title": "Bountiful Bench View REPC Assignment",
+          "title": "Bountiful Bench View REPC Assignment",
           "type": "Contract for Sale / House",
           "city": "Bountiful, UT",
           "contract_price": 49000,
@@ -446,8 +446,6 @@ ount          "title": "Bountiful Bench View REPC Assignment",
           "lon": -111.8800,
       },
   ]
-  # Fix key typo in last item dict creation programmatically
-  data[14]["title"] = "Bountiful Bench View REPC Assignment"
   return pd.DataFrame(data)
 
 
@@ -738,12 +736,9 @@ st.markdown("</div>", unsafe_allow_html=True)
 st.markdown(
     """
     <div style="font-size: 0.72rem; color: #64748b; text-align: center; margin-top: 20px; padding-bottom: 20px; border-top: 1px solid #eaeaea;">
-        Notice: Utah Land & Property Inc. is a private investment firm and is not a licensed real estate broker or agent.
-
+Notice: Utah Land & Property Inc. is a private investment firm and is not a licensed real estate broker or agent.
 We do not represent third parties in the purchase, sale, or management of outside real estate.
-
 Pursuant to the exemption under Utah Code § 61-2f-202, all property management functions are executed solely by individuals,
-
 operating as regular salaried employees of the specific legal entities that own the underlying real estate assets.
     </div>
 """,
