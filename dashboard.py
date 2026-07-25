@@ -15,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ---> REVISED STICKY HEADER & INTEGRATED DROPDOWN STYLING <---
+# ---> PERFECTED RESPONSIVE STICKY HEADER & INTEGRATED MOBILE MENU <---
 st.markdown(
     """
     <style>
@@ -109,8 +109,8 @@ st.markdown(
             text-decoration: none !important;
         }
 
-        /* Mobile Menu Container Styles */
-        .mobile-menu-wrapper {
+        /* Mobile Hamburger / Expander Container (Hidden on Desktop/Laptop) */
+        .mobile-header-menu {
             display: none !important;
         }
 
@@ -119,19 +119,23 @@ st.markdown(
             .industry-header {
                 padding: 0 15px;
                 height: 60px;
+                justify-content: space-between;
             }
             .header-nav-left, .header-nav-right {
-                display: none !important;
+                display: none !important; /* Strictly hidden on mobile */
             }
             .header-center {
                 flex: 1;
                 text-align: center;
             }
-            .mobile-menu-wrapper {
-                display: block !important;
+            .header-logo {
+                font-size: 16px !important;
+            }
+            .mobile-header-menu {
+                display: block !important; /* Strictly shown on mobile only */
                 background-color: #ffffff;
                 border-bottom: 1px solid #e5e7eb;
-                padding: 10px 15px;
+                padding: 8px 15px;
                 position: fixed;
                 top: 60px;
                 left: 0;
@@ -153,9 +157,9 @@ st.markdown(
             }
         }
 
-        /* Push main content down below fixed header/mobile bar */
+        /* Push main content down below fixed header */
         .block-container {
-            padding-top: 80px !important;
+            padding-top: 70px !important;
             padding-left: 0rem !important;
             padding-right: 0rem !important;
             max-width: 100% !important;
@@ -216,9 +220,9 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# --- INTEGRATED MOBILE DROPDOWN MENU BAR ---
-st.markdown('<div class="mobile-menu-wrapper">', unsafe_allow_html=True)
-with st.expander("Menu Navigation (Tap to Open)"):
+# --- INTEGRATED MOBILE-ONLY DROPDOWN MENU BAR (Right Below Header) ---
+st.markdown('<div class="mobile-header-menu">', unsafe_allow_html=True)
+with st.expander("☰ Utah Land & Property Menu"):
     st.markdown("[Our Contracts](#contracts-section)")
     st.markdown("[Assignments](#contracts-section)")
     st.markdown("[Sell to Us](#contracts-section)")
