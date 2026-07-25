@@ -5,32 +5,32 @@ import pandas as pd
 import pydeck as pdk
 import streamlit as st
 
-# Page Configuration - Wide layout mimicking a professional real estate portal
+# Page Configuration - Enterprise Real Estate Portal Layout
 st.set_page_config(
-    page_title="Utah Real Estate & Land For Sale | Utah Land & Property",
+    page_title="Utah Real Estate & Land for Sale | Utah Land & Property",
     page_icon="🏡",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
-# Custom Styling: Slightly off-white Zillow UI background, ultra-sticky map pane matching scroll height, clean boundary separation
+# Custom Enterprise Styling: Modern Realtor/Zillow UI, Sticky Headers, Clean Card Grids
 st.markdown(
     """
     <style>
     :root {
-        --primary-color: #006aff;
-        --primary-hover: #004080;
-        --bg-main: #f4f5f7;
+        --brand-red: #d92228;
+        --brand-red-hover: #b51b20;
+        --bg-main: #f8f9fa;
         --bg-card: #ffffff;
-        --border-color: #dcdcdc;
-        --text-main: #2b2b2b;
-        --text-muted: #666666;
+        --border-color: #e5e7eb;
+        --text-main: #1f2937;
+        --text-muted: #6b7280;
     }
     
     .stApp {
         background-color: var(--bg-main) !important;
         color: var(--text-main) !important;
-        font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
     header[data-testid="stHeader"] {
         background-color: transparent !important;
@@ -39,146 +39,140 @@ st.markdown(
         background-color: var(--bg-main) !important;
         color: var(--text-main) !important;
         padding-top: 0px !important;
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
     }
     
     /* Sticky Top Header Container */
-    .sticky-header-container {
+    .sticky-header-wrapper {
         position: sticky;
         top: 0;
         z-index: 999;
         background-color: #ffffff;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        margin-left: -2rem;
+        margin-right: -2rem;
+        padding-left: 2rem;
+        padding-right: 2rem;
     }
 
     /* Top Navbar */
-    .z-navbar {
+    .portal-navbar {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 12px 24px;
+        padding: 16px 0px;
         border-bottom: 1px solid var(--border-color);
         background-color: #ffffff;
     }
-    .z-nav-left, .z-nav-right {
+    .portal-nav-left, .portal-nav-right {
         display: flex;
-        gap: 20px;
+        gap: 24px;
         align-items: center;
         font-size: 0.92rem;
-        font-weight: 500;
-        color: var(--primary-color);
+        font-weight: 600;
+        color: #374151;
     }
-    .z-nav-left span, .z-nav-right span {
+    .portal-nav-left span, .portal-nav-right span {
         cursor: pointer;
+        transition: color 0.15s ease;
     }
-    .z-nav-left span:hover, .z-nav-right span:hover {
-        color: var(--primary-hover);
-        text-decoration: underline;
+    .portal-nav-left span:hover, .portal-nav-right span:hover {
+        color: var(--brand-red);
     }
-    .z-logo-center {
-        font-size: 1.9rem;
+    .portal-logo {
+        font-size: 1.5rem;
         font-weight: 900;
         letter-spacing: -0.5px;
-        color: #111111;
+        color: var(--brand-red);
         text-transform: uppercase;
-        font-family: "Playfair Display", Georgia, serif;
+        font-family: "Inter", sans-serif;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
     
-    /* Main Split Layout Containers with Zero Dead Space & True Stickiness */
-    .portal-container {
-        display: flex;
-        width: 100%;
-        background-color: var(--bg-main);
-        padding-top: 10px;
-        align-items: flex-start;
-    }
-    .map-pane {
-        position: sticky;
-        top: 145px; /* Sticks right below the sticky header */
-        height: calc(100vh - 165px);
-        width: 100%;
-        padding: 16px;
+    /* Sticky Filter Bar */
+    .filter-bar-container {
+        padding: 14px 0px;
         background-color: #ffffff;
-        border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-        border: 1px solid #e0e0e0;
-        margin: 10px 6px 10px 12px;
         display: flex;
-        flex-direction: column;
+        gap: 12px;
+        align-items: center;
     }
-    .map-pane iframe, .map-pane div[data-testid="stPyDeckChart"] {
-        flex-grow: 1;
-    }
-    .listings-pane {
-        width: 100%;
-        padding: 16px 24px 16px 16px;
-        background-color: var(--bg-main);
-        max-height: calc(100vh - 165px);
-        overflow-y: auto;
-        margin: 10px 12px 10px 6px;
-    }
-    
-    /* Listing Cards */
-    .z-card {
+
+    /* Professional Property Card Grid Styling */
+    .property-card {
         background-color: var(--bg-card);
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
         overflow: hidden;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.04);
-        transition: box-shadow 0.2s ease;
+        margin-bottom: 24px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        transition: all 0.2s ease-in-out;
     }
-    .z-card:hover {
-        box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    .property-card:hover {
+        box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+        transform: translateY(-2px);
     }
-    .z-card-img-container {
+    .card-img-container {
         position: relative;
-    }
-    .z-card-img {
         width: 100%;
-        height: 180px;
+        height: 220px;
+    }
+    .card-img {
+        width: 100%;
+        height: 100%;
         object-fit: cover;
     }
-    .z-badge {
+    .card-status-badge {
         position: absolute;
-        top: 10px;
-        left: 10px;
-        background-color: rgba(0, 0, 0, 0.75);
+        top: 12px;
+        left: 12px;
+        background-color: rgba(17, 24, 39, 0.85);
         color: white;
-        padding: 4px 8px;
-        border-radius: 4px;
+        padding: 5px 10px;
+        border-radius: 6px;
         font-size: 0.75rem;
-        font-weight: 600;
+        font-weight: 700;
+        letter-spacing: 0.3px;
     }
-    .z-card-body {
-        padding: 14px;
+    .card-body {
+        padding: 16px;
     }
-    .z-contract-price {
-        font-size: 1.3rem;
-        font-weight: 800;
-        color: #006aff;
-        margin-bottom: 2px;
-    }
-    .z-underlying-price {
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: #444444;
-        margin-bottom: 6px;
-    }
-    .z-details {
-        font-size: 0.85rem;
-        color: #333333;
-        margin-bottom: 6px;
-    }
-    .z-address {
-        font-size: 0.82rem;
-        color: #666666;
-        margin-bottom: 4px;
-    }
-    .z-broker {
-        font-size: 0.72rem;
-        color: #888888;
+    .card-broker {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-muted);
         text-transform: uppercase;
         letter-spacing: 0.5px;
+        margin-bottom: 4px;
+    }
+    .card-contract-price {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: var(--text-main);
+        margin-bottom: 2px;
+    }
+    .card-underlying-price {
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: var(--brand-red);
+        margin-bottom: 8px;
+    }
+    .card-metrics {
+        font-size: 0.9rem;
+        color: #374151;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+    .card-address {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin-bottom: 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     </style>
 """,
@@ -186,7 +180,7 @@ st.markdown(
 )
 
 
-# Expanded Utah Property Database with 15 Contracts for Sale (Equitable Interest Assignments & Underlying Purchase Prices)
+# Expanded Utah Property Database with 15 Contracts for Sale (Private Market Only)
 @st.cache_data
 def load_utah_property_database():
   data = [
@@ -202,7 +196,7 @@ def load_utah_property_database():
           "sqft": 9147,
           "status": "Equitable Interest Available",
           "address": "4646 S Quail Park Dr E #C, Millcreek, UT 84117",
-          "broker": "UTAH LAND & PROPERTY INC.",
+          "broker": "Utah Land & Property Inc.",
           "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
           "lat": 40.6977,
           "lon": -111.8550,
@@ -219,7 +213,7 @@ def load_utah_property_database():
           "sqft": 2446,
           "status": "Showcase",
           "address": "718 E Elgin Ave, Millcreek, UT 84106",
-          "broker": "OMADA REAL ESTATE",
+          "broker": "Utah Land & Property Inc.",
           "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
           "lat": 40.7012,
           "lon": -111.8670,
@@ -236,7 +230,7 @@ def load_utah_property_database():
           "sqft": 2852,
           "status": "2 days on market",
           "address": "1010 E Millbert Ave S, Salt Lake City, UT 84106",
-          "broker": "SUMMIT SOTHEBY'S INTERNATIONAL REALTY",
+          "broker": "Utah Land & Property Inc.",
           "image": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
           "lat": 40.7045,
           "lon": -111.8590,
@@ -253,7 +247,7 @@ def load_utah_property_database():
           "sqft": 4791,
           "status": "Direct Acquisition",
           "address": "12300 S Fort St, Draper, UT 84020",
-          "broker": "UTAH LAND & PROPERTY INC.",
+          "broker": "Utah Land & Property Inc.",
           "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
           "lat": 40.5243,
           "lon": -111.8631,
@@ -270,7 +264,7 @@ def load_utah_property_database():
           "sqft": 12500,
           "status": "New Listing",
           "address": "1850 N University Pkwy, Provo, UT 84604",
-          "broker": "UTAH LAND & PROPERTY INC.",
+          "broker": "Utah Land & Property Inc.",
           "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
           "lat": 40.2542,
           "lon": -111.6608,
@@ -287,7 +281,7 @@ def load_utah_property_database():
           "sqft": 3100,
           "status": "Price Improvement",
           "address": "1420 25th St, Ogden, UT 84401",
-          "broker": "WASATCH HOMES",
+          "broker": "Utah Land & Property Inc.",
           "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
           "lat": 41.2230,
           "lon": -111.9738,
@@ -304,7 +298,7 @@ def load_utah_property_database():
           "sqft": 2400,
           "status": "Exclusive",
           "address": "Park Meadows Townhomes, Park City, UT 84060",
-          "broker": "SUMMIT SOTHEBY'S",
+          "broker": "Utah Land & Property Inc.",
           "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
           "lat": 40.6461,
           "lon": -111.4980,
@@ -321,7 +315,7 @@ def load_utah_property_database():
           "sqft": 45000,
           "status": "Entitled Land",
           "address": "SunRiver Pkwy, St. George, UT 84790",
-          "broker": "UTAH LAND & PROPERTY INC.",
+          "broker": "Utah Land & Property Inc.",
           "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
           "lat": 37.0952,
           "lon": -113.5610,
@@ -338,7 +332,7 @@ def load_utah_property_database():
           "sqft": 3400,
           "status": "Active",
           "address": "3300 N Ashton Blvd, Lehi, UT 84043",
-          "broker": "MOUNTAINLAND REALTY",
+          "broker": "Utah Land & Property Inc.",
           "image": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
           "lat": 40.4153,
           "lon": -111.8398,
@@ -355,7 +349,7 @@ def load_utah_property_database():
           "sqft": 1850,
           "status": "New Listing",
           "address": "2100 S Highland Dr, Salt Lake City, UT 84106",
-          "broker": "UTAH LAND & PROPERTY INC.",
+          "broker": "Utah Land & Property Inc.",
           "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
           "lat": 40.7215,
           "lon": -111.8565,
@@ -372,7 +366,7 @@ def load_utah_property_database():
           "sqft": 950,
           "status": "Equitable Interest Available",
           "address": "4800 S State St, Murray, UT 84107",
-          "broker": "WASATCH HOMES",
+          "broker": "Utah Land & Property Inc.",
           "image": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
           "lat": 40.6678,
           "lon": -111.8902,
@@ -389,7 +383,7 @@ def load_utah_property_database():
           "sqft": 2100,
           "status": "Active",
           "address": "3600 S Redwood Rd, West Valley City, UT 84119",
-          "broker": "MOUNTAINLAND REALTY",
+          "broker": "Utah Land & Property Inc.",
           "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
           "lat": 40.6970,
           "lon": -111.9380,
@@ -406,7 +400,7 @@ def load_utah_property_database():
           "sqft": 1650,
           "status": "Price Improvement",
           "address": "10000 S State St, Sandy, UT 84070",
-          "broker": "OMADA REAL ESTATE",
+          "broker": "Utah Land & Property Inc.",
           "image": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
           "lat": 40.5820,
           "lon": -111.8900,
@@ -423,7 +417,7 @@ def load_utah_property_database():
           "sqft": 6500,
           "status": "Direct Acquisition",
           "address": "7500 S State St, Midvale, UT 84047",
-          "broker": "UTAH LAND & PROPERTY INC.",
+          "broker": "Utah Land & Property Inc.",
           "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
           "lat": 40.6120,
           "lon": -111.8904,
@@ -440,7 +434,7 @@ def load_utah_property_database():
           "sqft": 2700,
           "status": "Exclusive",
           "address": "500 S Main St, Bountiful, UT 84010",
-          "broker": "SUMMIT SOTHEBY'S",
+          "broker": "Utah Land & Property Inc.",
           "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
           "lat": 40.8870,
           "lon": -111.8800,
@@ -452,7 +446,7 @@ def load_utah_property_database():
 df = load_utah_property_database()
 
 
-# Helper Function for Automated Email / Offer Dispatch
+# Automated Email / Offer Dispatch Helper
 def send_offer_dispatch(
     property_id, property_title, recipient_email, offer_terms
 ):
@@ -489,55 +483,37 @@ def send_offer_dispatch(
     return False
 
 
-# --- EYE-CATCHING HERO BANNER IMAGE (HOME & LAND) ---
+# --- STICKY HEADER WRAPPER (Locks to Top on Scroll) ---
+st.markdown("<div class='sticky-header-wrapper'>", unsafe_allow_html=True)
+
+# Top Navigation Bar
 st.markdown(
     """
-    <div style="width: 100%; height: 210px; overflow: hidden; position: relative; margin-bottom: 0px;">
-        <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=85" style="width: 100%; height: 100%; object-fit: cover; filter: brightness(0.9);">
-        <div style="position: absolute; bottom: 18px; left: 30px; color: white; background: rgba(0,0,0,0.6); padding: 8px 16px; border-radius: 6px; font-family: 'Playfair Display', Georgia, serif;">
-            <div style="font-size: 1.4rem; font-weight: 700; letter-spacing: 0.5px;">Utah Real Estate Contracts & Equitable Interest Portfolios</div>
-            <div style="font-size: 0.85rem; font-weight: 400; opacity: 0.9;">Secure REPC assignments and purchase contracts across Utah cities.</div>
-        </div>
-    </div>
-""",
-    unsafe_allow_html=True,
-)
-
-# --- STICKY HEADER WRAPPER (Navbar + Filter Bar) ---
-st.markdown("<div class='sticky-header-container'>", unsafe_allow_html=True)
-
-# --- TOP NAVIGATION BAR ---
-st.markdown(
-    """
-    <div class="z-navbar">
-        <div class="z-nav-left">
+    <div class="portal-navbar">
+        <div class="portal-nav-left">
             <span>Buy Contracts</span>
             <span>Assign</span>
             <span>Sell</span>
-            <span>Get a mortgage</span>
-            <span style="color: #004080; font-weight: 700;">Submit an Offer</span>
+            <span>Portfolio</span>
+            <span style="color: #d92228; font-weight: 700;">Submit an Offer</span>
         </div>
-        <div class="z-logo-center">
-            UTAH LAND & PROPERTY INC.
+        <div class="portal-logo">
+            <span>🏡</span> UTAH LAND & PROPERTY INC.
         </div>
-        <div class="z-nav-right">
-            <span>Manage Contracts</span>
-            <span>Advertise</span>
-            <span>Get help</span>
-            <span style="background-color: #006aff; color: white; padding: 8px 18px; border-radius: 6px; font-weight: 600;">Sign in</span>
+        <div class="portal-nav-right">
+            <span>Private Assets</span>
+            <span>Help</span>
+            <span style="background-color: #d92228; color: white; padding: 8px 18px; border-radius: 6px; font-weight: 600;">Sign In</span>
         </div>
     </div>
 """,
     unsafe_allow_html=True,
 )
 
-# --- ZILLOW-STYLE VAST UTAH CITY & FILTER SEARCH BAR ---
-st.markdown(
-    "<div style='padding: 12px 24px; background-color: #ffffff; border-bottom: 1px solid #e5e5e5;'>",
-    unsafe_allow_html=True,
-)
+# Sticky Filter & Search Bar
+st.markdown("<div class='filter-bar-container'>", unsafe_allow_html=True)
 f_col1, f_col2, f_col3, f_col4, f_col5, f_col6 = st.columns(
-    [2.2, 1, 1, 1, 1, 1]
+    [2.4, 1.1, 1.1, 1.1, 1.2, 1]
 )
 
 all_locations = [
@@ -580,16 +556,16 @@ with f_col4:
 with f_col5:
   type_filter = st.selectbox(
       "Contract Type",
-      ["Property type", "House", "Land / Development", "Townhouse", "Condo"],
+      ["Property type", "House", "Land", "Townhouse", "Condo"],
       label_visibility="collapsed",
   )
 with f_col6:
-  save_btn = st.button("Save search", use_container_width=True)
+  save_search_btn = st.button("Save Search", use_container_width=True)
 
-st.markdown("</div>", unsafe_allow_html=True)
-st.markdown("</div>", unsafe_allow_html=True)  # End of sticky-header-container
+st.markdown("</div>", unsafe_allow_html=True)  # End filter-bar-container
+st.markdown("</div>", unsafe_allow_html=True)  # End sticky-header-wrapper
 
-# --- FILTER LOGIC ---
+# --- FILTER EXECUTION ---
 filtered_df = df.copy()
 if selected_location != "All Utah Cities":
   filtered_df = filtered_df[
@@ -618,128 +594,128 @@ if type_filter != "Property type":
       filtered_df["type"].str.contains(type_filter, case=False, na=False)
   ]
 
-# --- PORTAL LAYOUT WITH STICKY SIDE MAP & NO DEAD SPACE ---
-st.markdown("<div class='portal-container'>", unsafe_allow_html=True)
+# --- DYNAMIC HEADER TITLE SECTION ---
+location_title = (
+    selected_location if selected_location != "All Utah Cities" else "Utah Statewide"
+)
+st.markdown(
+    f"""
+    <div style="margin-top: 24px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: flex-end;">
+        <div>
+            <h1 style="font-size: 1.7rem; font-weight: 800; color: #111827; margin-bottom: 4px;">{location_title} Private Real Estate Contracts & REPC Assignments</h1>
+            <p style="font-size: 0.95rem; color: #6b7280; margin: 0;"><b>{len(filtered_df)}</b> active private contracts available for acquisition</p>
+        </div>
+        <div style="font-size: 0.88rem; color: #d92228; font-weight: 600; cursor: pointer;">
+            🛈 How private contract assignment works & FAQ
+        </div>
+    </div>
+""",
+    unsafe_allow_html=True,
+)
 
-map_container, listings_container = st.columns([1, 1], gap="small")
+# --- RESPONSIVE 3-COLUMN CARD GRID ---
+if filtered_df.empty:
+  st.info("No real estate contracts match your filter criteria in this region.")
+else:
+  cols_per_row = 3
+  rows = [
+      filtered_df.iloc[i : i + cols_per_row]
+      for i in range(0, len(filtered_df), cols_per_row)
+  ]
 
-# Left Pane: Ultra-Sticky Map View filling vertical space seamlessly
-with map_container:
-  st.markdown("<div class='map-pane'>", unsafe_allow_html=True)
-  location_title = (
-      selected_location
-      if selected_location != "All Utah Cities"
-      else "Utah Statewide"
-  )
-  st.markdown(
-      f"<div style='font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; color: #111;'>{location_title} Real Estate Contracts Map</div>",
-      unsafe_allow_html=True,
-  )
-
-  map_data = filtered_df[["lat", "lon"]].rename(
-      columns={"lat": "latitude", "lon": "longitude"}
-  )
-
-  layer = pdk.Layer(
-      "ScatterplotLayer",
-      data=map_data,
-      get_position="[longitude, latitude]",
-      get_color="[0, 106, 255, 230]",
-      get_radius=800,
-      pickable=True,
-      auto_highlight=True,
-  )
-
-  lat_center = (
-      filtered_df["lat"].mean() if not filtered_df.empty else 40.6977
-  )
-  lon_center = (
-      filtered_df["lon"].mean() if not filtered_df.empty else -111.8550
-  )
-  zoom_level = 11 if selected_location != "All Utah Cities" else 7
-
-  view_state = pdk.ViewState(
-      latitude=lat_center, longitude=lon_center, zoom=zoom_level, pitch=0
-  )
-
-  r = pdk.Deck(
-      layers=[layer],
-      initial_view_state=view_state,
-      map_style="light",
-      tooltip={"text": "Utah Land & Property Equitable Interest Contract"},
-  )
-  st.pydeck_chart(r, use_container_width=True)
-  st.markdown("</div>", unsafe_allow_html=True)
-
-# Right Pane: Property Listings Cards with independent scrolling matching container height
-with listings_container:
-  st.markdown("<div class='listings-pane'>", unsafe_allow_html=True)
-  st.markdown(
-      f"<div style='font-size: 1.15rem; font-weight: 700; margin-bottom: 4px; color: #111;'>{location_title} Real Estate Contracts For Sale</div>"
-      f"<div style='font-size: 0.85rem; color: #666; margin-bottom: 12px;'>{len(filtered_df)} contracts found</div>",
-      unsafe_allow_html=True,
-  )
-
-  if filtered_df.empty:
-    st.info("No contracts found matching your search criteria in this region.")
-  else:
-    grid_col1, grid_col2 = st.columns(2, gap="small")
-
-    for i, (_, row) in enumerate(filtered_df.iterrows()):
-      target_col = grid_col1 if i % 2 == 0 else grid_col2
-      with target_col:
+  for row_batch in rows:
+    cols = st.columns(cols_per_row, gap="medium")
+    for idx, (_, row) in enumerate(row_batch.iterrows()):
+      with cols[idx]:
         st.markdown(
             f"""
-                <div class="z-card">
-                    <div class="z-card-img-container">
-                        <img src="{row['image']}" class="z-card-img">
-                        <div class="z-badge">{row['status']}</div>
+                <div class="property-card">
+                    <div class="card-img-container">
+                        <img src="{row['image']}" class="card-img">
+                        <div class="card-status-badge">{row['status']}</div>
                     </div>
-                    <div class="z-card-body">
-                        <div class="z-contract-price">Contract: ${row['contract_price']:,}</div>
-                        <div class="z-underlying-price">Property Value: ${row['underlying_price']:,}</div>
-                        <div class="z-details"><b>{row['beds']}</b> bds &nbsp;|&nbsp; <b>{row['baths']}</b> ba &nbsp;|&nbsp; <b>{row['sqft']:,}</b> sqft</div>
-                        <div class="z-address">{row['address']}</div>
-                        <div class="z-broker">{row['broker']}</div>
+                    <div class="card-body">
+                        <div class="card-broker">{row['broker']}</div>
+                        <div class="card-contract-price">Contract: ${row['contract_price']:,}</div>
+                        <div class="card-underlying-price">Property Value: ${row['underlying_price']:,}</div>
+                        <div class="card-metrics"><b>{row['beds']}</b> bds &nbsp;|&nbsp; <b>{row['baths']}</b> ba &nbsp;|&nbsp; <b>{row['sqft']:,}</b> sqft</div>
+                        <div class="card-address">{row['address']}</div>
                     </div>
                 </div>
             """,
             unsafe_allow_html=True,
         )
 
-        with st.expander(f"Submit Offer / Terms ({row['id']})"):
+        with st.expander(f"Review Terms / Submit Offer ({row['id']})"):
           user_email = st.text_input(
               "Your Email",
-              key=f"z_email_{row['id']}",
+              key=f"p_email_{row['id']}",
               placeholder="name@domain.com",
           )
           offer_terms = st.text_area(
               "Offer Terms & Conditions",
-              key=f"z_msg_{row['id']}",
+              key=f"p_msg_{row['id']}",
               placeholder=(
                   "Enter contract purchase price, assignment fee, or escrow"
                   " contingencies..."
               ),
           )
-          if st.button("Submit Official Offer", key=f"z_btn_{row['id']}"):
+          if st.button("Submit Official Offer", key=f"p_btn_{row['id']}"):
             if user_email:
               send_offer_dispatch(row["id"], row["title"], user_email, offer_terms)
               st.success("Offer successfully dispatched to escrow!")
             else:
               st.error("Please enter a valid email address.")
 
-  st.markdown("</div>", unsafe_allow_html=True)
-
-st.markdown("</div>", unsafe_allow_html=True)
-
-# --- FOOTER LEGAL NOTICE ---
+# --- MAP SECTION (Placing the Interactive PyDeck Map Below Listings, matching reference layout) ---
 st.markdown(
     """
-    <div style="font-size: 0.72rem; color: #64748b; text-align: center; margin-top: 20px; padding-bottom: 20px; border-top: 1px solid #eaeaea;">
-Notice: Utah Land & Property Inc. is a private investment firm and is not a licensed real estate broker or agent.
-We do not represent third parties in the purchase, sale, or management of outside real estate.
-Pursuant to the exemption under Utah Code § 61-2f-202, all property management functions are executed solely by individuals,
-operating as regular salaried employees of the specific legal entities that own the underlying real estate assets.
+    <div style="margin-top: 40px; margin-bottom: 16px; border-top: 1px solid #e5e7eb; padding-top: 24px;">
+        <h2 style="font-size: 1.4rem; font-weight: 800; color: #111827; margin-bottom: 4px;">Interactive Regional Contract Map</h2>
+        <p style="font-size: 0.9rem; color: #6b7280;">Geographic distribution of active equitable interest assignments across Utah.</p>
+    </div>
+""",
+    unsafe_allow_html=True,
+)
+
+map_data = filtered_df[["lat", "lon"]].rename(
+    columns={"lat": "latitude", "lon": "longitude"}
+)
+
+layer = pdk.Layer(
+    "ScatterplotLayer",
+    data=map_data,
+    get_position="[longitude, latitude]",
+    get_color="[217, 34, 40, 230]",
+    get_radius=1000,
+    pickable=True,
+    auto_highlight=True,
+)
+
+lat_center = filtered_df["lat"].mean() if not filtered_df.empty else 40.6977
+lon_center = filtered_df["lon"].mean() if not filtered_df.empty else -111.8550
+zoom_level = 10 if selected_location != "All Utah Cities" else 7
+
+view_state = pdk.ViewState(
+    latitude=lat_center, longitude=lon_center, zoom=zoom_level, pitch=0
+)
+
+r = pdk.Deck(
+    layers=[layer],
+    initial_view_state=view_state,
+    map_style="light",
+    tooltip={"text": "Utah Land & Property Equitable Interest Contract"},
+)
+st.pydeck_chart(r, use_container_width=True)
+
+# --- FOOTER SECTION (Exemption & Private Investment Notice) ---
+st.markdown(
+    """
+    <div style="font-size: 0.8rem; color: #6b7280; text-align: center; margin-top: 40px; padding-top: 24px; border-top: 1px solid #e5e7eb; padding-bottom: 40px; line-height: 1.6;">
+        Notice: Utah Land & Property Inc. is a private investment firm and is not a licensed real estate broker or agent.<br>
+        We do not represent third parties in the purchase, sale, or management of outside real estate.<br>
+        Pursuant to the exemption under Utah Code § 61-2f-202, all property management functions are executed solely by individuals,<br>
+        operating as regular salaried employees of the specific legal entities that own the underlying real estate assets.
     </div>
 """,
     unsafe_allow_html=True,
