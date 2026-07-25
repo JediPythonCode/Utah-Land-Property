@@ -15,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ---> UPDATED STICKY HEADER WITH BLACK, BOLD, ELEGANT FONT <---
+# ---> UPDATED STICKY HEADER & HERO WITH XERISCAPED GREEN HOUSE <---
 st.markdown(
     """
     <style>
@@ -102,11 +102,11 @@ st.markdown(
             max-width: 100% !important;
         }
 
-        /* Immersive Friendly Residential Hero Banner */
+        /* Immersive Hero Banner with Xeriscaped Sustainable Landscape */
         .hero-container {
             position: relative;
-            background: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)), 
-                        url('https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=2000&q=80');
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+                        url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=80');
             background-size: cover;
             background-position: center;
             height: 400px;
@@ -183,12 +183,12 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Friendly Residential Hero Section
+# Friendly Residential Hero Section with Xeriscaped Home
 st.markdown(
     """
     <div class="hero-container">
         <div class="hero-title">Find your next Utah property & contract.</div>
-        <div class="hero-subtitle">Explore verified REPC assignments, direct acquisitions, and wholesale equity.</div>
+        <div class="hero-subtitle">Explore verified REPC assignments, direct acquisitions, and water-efficient xeriscaped properties.</div>
     </div>
     """,
     unsafe_allow_html=True,
