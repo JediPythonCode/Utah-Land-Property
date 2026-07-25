@@ -177,7 +177,7 @@ st.markdown(
             max-width: 100% !important;
         }
 
-        /* Immersive Zillow-Style Hero Banner */
+        /* Immersive Style Hero Banner */
         .hero-container {
             position: relative;
             background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), 
@@ -196,11 +196,11 @@ st.markdown(
         }
 
         .hero-title {
-            font-size: 52px;
-            font-weight: 900;
+            font-size: 42px;
+            font-weight: 1000;
             margin-bottom: 12px;
             letter-spacing: -0.5px;
-            text-shadow: 0 3px 6px rgba(0,0,0,0.4);
+            text-shadow: 0 5px 6px rgba(0,0,0,0.4);
             font-family: 'Inter', sans-serif;
             line-height: 1.1;
         }
@@ -231,9 +231,6 @@ st.markdown(
         </div>
         <div class="header-logo-container">
             <a href="#" class="header-logo">UTAH LAND & PROPERTY</a>
-        </div>
-        <div class="header-right">
-            <a href="#contracts-section" class="sign-in-link">Sign In</a>
         </div>
     </div>
 
