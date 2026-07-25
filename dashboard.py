@@ -7,20 +7,21 @@ import streamlit as st
 
 # Page Configuration - Wide layout mimicking a professional real estate portal
 st.set_page_config(
-    page_title="Utah Real Estate & Land For Sale | Utah Land & Property",
+    page_title="Utah Real Estate & Land for Sale | Utah Land & Property",
     page_icon="🏡",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
-# Custom Styling to precisely match the Zillow UI layout, clear column separation, and clean borders
+# Custom Styling: Slightly off-white Zillow UI background, ultra-sticky map pane matching scroll height, clean boundary separation
 st.markdown(
     """
     <style>
     :root {
         --primary-color: #006aff;
         --primary-hover: #004080;
-        --bg-main: #ffffff;
+        --bg-main: #f4f5f7;
+        --bg-card: #ffffff;
         --border-color: #dcdcdc;
         --text-main: #2b2b2b;
         --text-muted: #666666;
@@ -40,6 +41,15 @@ st.markdown(
         padding-top: 0px !important;
     }
     
+    /* Sticky Top Header Container */
+    .sticky-header-container {
+        position: sticky;
+        top: 0;
+        z-index: 999;
+        background-color: #ffffff;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+
     /* Top Navbar */
     .z-navbar {
         display: flex;
@@ -48,7 +58,6 @@ st.markdown(
         padding: 12px 24px;
         border-bottom: 1px solid var(--border-color);
         background-color: #ffffff;
-        margin-bottom: 0px;
     }
     .z-nav-left, .z-nav-right {
         display: flex;
@@ -74,41 +83,43 @@ st.markdown(
         font-family: "Playfair Display", Georgia, serif;
     }
     
-    /* Filter Bar */
-    .z-filter-bar {
-        display: flex;
-        gap: 12px;
-        align-items: center;
-        padding: 12px 24px;
-        background-color: #ffffff;
-        border-bottom: 1px solid #e5e5e5;
-        margin-bottom: 0px;
-        flex-wrap: wrap;
-    }
-
-    /* Main Split Layout Containers with Clear Boundary */
+    /* Main Split Layout Containers with Zero Dead Space & True Stickiness */
     .portal-container {
         display: flex;
         width: 100%;
-        background-color: #ffffff;
+        background-color: var(--bg-main);
+        padding-top: 10px;
+        align-items: flex-start;
     }
     .map-pane {
-        width: 50%;
-        padding: 16px 12px 16px 24px;
-        border-right: 2px solid #e2e8f0;
-        background-color: #fafbfc;
+        position: sticky;
+        top: 145px; /* Sticks right below the sticky header */
+        height: calc(100vh - 165px);
+        width: 100%;
+        padding: 16px;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        border: 1px solid #e0e0e0;
+        margin: 10px 6px 10px 12px;
+        display: flex;
+        flex-direction: column;
+    }
+    .map-pane iframe, .map-pane div[data-testid="stPyDeckChart"] {
+        flex-grow: 1;
     }
     .listings-pane {
-        width: 50%;
+        width: 100%;
         padding: 16px 24px 16px 16px;
-        background-color: #ffffff;
-        max-height: 85vh;
+        background-color: var(--bg-main);
+        max-height: calc(100vh - 165px);
         overflow-y: auto;
+        margin: 10px 12px 10px 6px;
     }
     
     /* Listing Cards */
     .z-card {
-        background-color: #ffffff;
+        background-color: var(--bg-card);
         border: 1px solid #e0e0e0;
         border-radius: 8px;
         overflow: hidden;
@@ -124,7 +135,7 @@ st.markdown(
     }
     .z-card-img {
         width: 100%;
-        height: 190px;
+        height: 180px;
         object-fit: cover;
     }
     .z-badge {
@@ -139,26 +150,32 @@ st.markdown(
         font-weight: 600;
     }
     .z-card-body {
-        padding: 16px;
+        padding: 14px;
     }
-    .z-price {
-        font-size: 1.35rem;
-        font-weight: 700;
-        color: #111111;
-        margin-bottom: 4px;
+    .z-contract-price {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: #006aff;
+        margin-bottom: 2px;
+    }
+    .z-underlying-price {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #444444;
+        margin-bottom: 6px;
     }
     .z-details {
-        font-size: 0.88rem;
+        font-size: 0.85rem;
         color: #333333;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
     }
     .z-address {
-        font-size: 0.85rem;
+        font-size: 0.82rem;
         color: #666666;
         margin-bottom: 4px;
     }
     .z-broker {
-        font-size: 0.75rem;
+        font-size: 0.72rem;
         color: #888888;
         text-transform: uppercase;
         letter-spacing: 0.5px;
@@ -169,16 +186,17 @@ st.markdown(
 )
 
 
-# Vast Utah City Database with Coordinates and Inventory Catalog
+# Expanded Utah Property Database with 15 Contracts for Sale (Equitable Interest Assignments & Underlying Purchase Prices)
 @st.cache_data
 def load_utah_property_database():
   data = [
       {
           "id": "UT-MIL-0101",
           "title": "Millcreek Modern Residential Parcel",
-          "type": "Land / Development",
+          "type": "Contract for Sale / Land",
           "city": "Millcreek, UT",
-          "price": 285000,
+          "contract_price": 28500,
+          "underlying_price": 285000,
           "beds": 0,
           "baths": 0,
           "sqft": 9147,
@@ -191,10 +209,11 @@ def load_utah_property_database():
       },
       {
           "id": "UT-MIL-0102",
-          "title": "Millcreek Elmwood Single Family Home",
-          "type": "House for sale",
+          "title": "Millcreek Elmwood Contract Assignment",
+          "type": "Contract for Sale / House",
           "city": "Millcreek, UT",
-          "price": 625000,
+          "contract_price": 45000,
+          "underlying_price": 625000,
           "beds": 5,
           "baths": 2,
           "sqft": 2446,
@@ -207,10 +226,11 @@ def load_utah_property_database():
       },
       {
           "id": "UT-SLC-0103",
-          "title": "Millbert Avenue Residence",
-          "type": "House for sale",
+          "title": "Millbert Avenue Purchase Agreement",
+          "type": "Contract for Sale / House",
           "city": "Salt Lake City, UT",
-          "price": 650000,
+          "contract_price": 52000,
+          "underlying_price": 650000,
           "beds": 5,
           "baths": 2,
           "sqft": 2852,
@@ -223,10 +243,11 @@ def load_utah_property_database():
       },
       {
           "id": "UT-DRP-0204",
-          "title": "Draper Commercial Parking Buffer Parcel",
-          "type": "Commercial Land",
+          "title": "Draper Commercial Buffer REPC Assignment",
+          "type": "Contract for Sale / Commercial",
           "city": "Draper, UT",
-          "price": 145000,
+          "contract_price": 15000,
+          "underlying_price": 145000,
           "beds": 0,
           "baths": 0,
           "sqft": 4791,
@@ -239,10 +260,11 @@ def load_utah_property_database():
       },
       {
           "id": "UT-PRO-0301",
-          "title": "Provo Riverfront Development Lot",
-          "type": "Land / Development",
+          "title": "Provo Riverfront Purchase Contract",
+          "type": "Contract for Sale / Land",
           "city": "Provo, UT",
-          "price": 410000,
+          "contract_price": 35000,
+          "underlying_price": 410000,
           "beds": 0,
           "baths": 0,
           "sqft": 12500,
@@ -255,10 +277,11 @@ def load_utah_property_database():
       },
       {
           "id": "UT-OGD-0401",
-          "title": "Ogden Historic Bench Estate",
-          "type": "House for sale",
+          "title": "Ogden Historic Bench REPC",
+          "type": "Contract for Sale / House",
           "city": "Ogden, UT",
-          "price": 485000,
+          "contract_price": 38000,
+          "underlying_price": 485000,
           "beds": 4,
           "baths": 3,
           "sqft": 3100,
@@ -271,10 +294,11 @@ def load_utah_property_database():
       },
       {
           "id": "UT-PARK-0501",
-          "title": "Park City Mountain View Townhome",
-          "type": "Townhouse",
+          "title": "Park City Mountain View Townhome Contract",
+          "type": "Contract for Sale / Townhouse",
           "city": "Park City, UT",
-          "price": 1250000,
+          "contract_price": 95000,
+          "underlying_price": 1250000,
           "beds": 3,
           "baths": 4,
           "sqft": 2400,
@@ -287,10 +311,11 @@ def load_utah_property_database():
       },
       {
           "id": "UT-STG-0601",
-          "title": "St. George Red Rock Master Parcel",
-          "type": "Commercial Land",
+          "title": "St. George Red Rock Master REPC",
+          "type": "Contract for Sale / Commercial",
           "city": "St. George, UT",
-          "price": 890000,
+          "contract_price": 75000,
+          "underlying_price": 890000,
           "beds": 0,
           "baths": 0,
           "sqft": 45000,
@@ -303,10 +328,11 @@ def load_utah_property_database():
       },
       {
           "id": "UT-LEH-0701",
-          "title": "Lehi Silicon Slopes Office/Residential",
-          "type": "Mixed-Use",
+          "title": "Lehi Silicon Slopes Purchase Agreement",
+          "type": "Contract for Sale / Mixed-Use",
           "city": "Lehi, UT",
-          "price": 750000,
+          "contract_price": 60000,
+          "underlying_price": 750000,
           "beds": 4,
           "baths": 3,
           "sqft": 3400,
@@ -317,7 +343,111 @@ def load_utah_property_database():
           "lat": 40.4153,
           "lon": -111.8398,
       },
+      {
+          "id": "UT-SLC-0801",
+          "title": "Sugar House Bungalow Assignment",
+          "type": "Contract for Sale / House",
+          "city": "Salt Lake City, UT",
+          "contract_price": 42000,
+          "underlying_price": 540000,
+          "beds": 3,
+          "baths": 2,
+          "sqft": 1850,
+          "status": "New Listing",
+          "address": "2100 S Highland Dr, Salt Lake City, UT 84106",
+          "broker": "UTAH LAND & PROPERTY INC.",
+          "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+          "lat": 40.7215,
+          "lon": -111.8565,
+      },
+      {
+          "id": "UT-MUR-0901",
+          "title": "Murray Metro Condominium REPC",
+          "type": "Contract for Sale / Condo",
+          "city": "Murray, UT",
+          "contract_price": 12000,
+          "underlying_price": 245000,
+          "beds": 2,
+          "baths": 1,
+          "sqft": 950,
+          "status": "Equitable Interest Available",
+          "address": "4800 S State St, Murray, UT 84107",
+          "broker": "WASATCH HOMES",
+          "image": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
+          "lat": 40.6678,
+          "lon": -111.8902,
+      },
+      {
+          "id": "UT-WVC-1001",
+          "title": "West Valley Family Estate Contract",
+          "type": "Contract for Sale / House",
+          "city": "West Valley City, UT",
+          "contract_price": 34000,
+          "underlying_price": 460000,
+          "beds": 4,
+          "baths": 2,
+          "sqft": 2100,
+          "status": "Active",
+          "address": "3600 S Redwood Rd, West Valley City, UT 84119",
+          "broker": "MOUNTAINLAND REALTY",
+          "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
+          "lat": 40.6970,
+          "lon": -111.9380,
+      },
+      {
+          "id": "UT-SAN-1101",
+          "title": "Sandy Foothills Townhome REPC",
+          "type": "Contract for Sale / Townhouse",
+          "city": "Sandy, UT",
+          "contract_price": 28000,
+          "underlying_price": 395000,
+          "beds": 3,
+          "baths": 2,
+          "sqft": 1650,
+          "status": "Price Improvement",
+          "address": "10000 S State St, Sandy, UT 84070",
+          "broker": "OMADA REAL ESTATE",
+          "image": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
+          "lat": 40.5820,
+          "lon": -111.8900,
+      },
+      {
+          "id": "UT-MID-1201",
+          "title": "Midvale Central Station Land Contract",
+          "type": "Contract for Sale / Land",
+          "city": "Midvale, UT",
+          "contract_price": 22000,
+          "underlying_price": 290000,
+          "beds": 0,
+          "baths": 0,
+          "sqft": 6500,
+          "status": "Direct Acquisition",
+          "address": "7500 S State St, Midvale, UT 84047",
+          "broker": "UTAH LAND & PROPERTY INC.",
+          "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
+          "lat": 40.6120,
+          "lon": -111.8904,
+      },
+      {
+          "id": "UT-BOV-1301",
+ount          "title": "Bountiful Bench View REPC Assignment",
+          "type": "Contract for Sale / House",
+          "city": "Bountiful, UT",
+          "contract_price": 49000,
+          "underlying_price": 580000,
+          "beds": 4,
+          "baths": 3,
+          "sqft": 2700,
+          "status": "Exclusive",
+          "address": "500 S Main St, Bountiful, UT 84010",
+          "broker": "SUMMIT SOTHEBY'S",
+          "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+          "lat": 40.8870,
+          "lon": -111.8800,
+      },
   ]
+  # Fix key typo in last item dict creation programmatically
+  data[14]["title"] = "Bountiful Bench View REPC Assignment"
   return pd.DataFrame(data)
 
 
@@ -361,13 +491,30 @@ def send_offer_dispatch(
     return False
 
 
-# --- TOP NAVIGATION BAR (Replaced 'Find an agent' with 'Submit an Offer') ---
+# --- EYE-CATCHING HERO BANNER IMAGE (HOME & LAND) ---
+st.markdown(
+    """
+    <div style="width: 100%; height: 210px; overflow: hidden; position: relative; margin-bottom: 0px;">
+        <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=85" style="width: 100%; height: 100%; object-fit: cover; filter: brightness(0.9);">
+        <div style="position: absolute; bottom: 18px; left: 30px; color: white; background: rgba(0,0,0,0.6); padding: 8px 16px; border-radius: 6px; font-family: 'Playfair Display', Georgia, serif;">
+            <div style="font-size: 1.4rem; font-weight: 700; letter-spacing: 0.5px;">Utah Real Estate Contracts & Equitable Interest Portfolios</div>
+            <div style="font-size: 0.85rem; font-weight: 400; opacity: 0.9;">Secure REPC assignments and purchase contracts across Utah cities.</div>
+        </div>
+    </div>
+""",
+    unsafe_allow_html=True,
+)
+
+# --- STICKY HEADER WRAPPER (Navbar + Filter Bar) ---
+st.markdown("<div class='sticky-header-container'>", unsafe_allow_html=True)
+
+# --- TOP NAVIGATION BAR ---
 st.markdown(
     """
     <div class="z-navbar">
         <div class="z-nav-left">
-            <span>Buy</span>
-            <span>Rent</span>
+            <span>Buy Contracts</span>
+            <span>Assign</span>
             <span>Sell</span>
             <span>Get a mortgage</span>
             <span style="color: #004080; font-weight: 700;">Submit an Offer</span>
@@ -376,7 +523,7 @@ st.markdown(
             UTAH LAND & PROPERTY INC.
         </div>
         <div class="z-nav-right">
-            <span>Manage rentals</span>
+            <span>Manage Contracts</span>
             <span>Advertise</span>
             <span>Get help</span>
             <span style="background-color: #006aff; color: white; padding: 8px 18px; border-radius: 6px; font-weight: 600;">Sign in</span>
@@ -388,16 +535,29 @@ st.markdown(
 
 # --- ZILLOW-STYLE VAST UTAH CITY & FILTER SEARCH BAR ---
 st.markdown(
-    "<div style='padding: 12px 24px; background-color: #ffffff;'>",
+    "<div style='padding: 12px 24px; background-color: #ffffff; border-bottom: 1px solid #e5e5e5;'>",
     unsafe_allow_html=True,
 )
 f_col1, f_col2, f_col3, f_col4, f_col5, f_col6 = st.columns(
     [2.2, 1, 1, 1, 1, 1]
 )
 
-# Extract dynamic list of available cities across Utah from dataset + common options
-utah_cities = sorted(df["city"].unique().tolist())
-all_locations = ["All Utah Cities", "Millcreek, UT", "Salt Lake City, UT", "Draper, UT", "Provo, UT", "Ogden, UT", "Park City, UT", "St. George, UT", "Lehi, UT"]
+all_locations = [
+    "All Utah Cities",
+    "Millcreek, UT",
+    "Salt Lake City, UT",
+    "Draper, UT",
+    "Provo, UT",
+    "Ogden, UT",
+    "Park City, UT",
+    "St. George, UT",
+    "Lehi, UT",
+    "Murray, UT",
+    "West Valley City, UT",
+    "Sandy, UT",
+    "Midvale, UT",
+    "Bountiful, UT",
+]
 
 with f_col1:
   selected_location = st.selectbox(
@@ -405,57 +565,78 @@ with f_col1:
   )
 with f_col2:
   status_filter = st.selectbox(
-      "Status", ["For sale", "All Statuses"], label_visibility="collapsed"
+      "Status", ["Contracts for Sale", "All Statuses"], label_visibility="collapsed"
   )
 with f_col3:
   price_filter = st.selectbox(
-      "Price Range", ["Any Price", "Under $500k", "$500k - $1M", "Over $1M"], label_visibility="collapsed"
+      "Contract Price",
+      ["Any Price", "Under $30k", "$30k - $60k", "Over $60k"],
+      label_visibility="collapsed",
   )
 with f_col4:
   beds_filter = st.selectbox(
-      "Beds", ["Beds & baths", "3+ Beds", "4+ Beds", "5+ Beds"], label_visibility="collapsed"
+      "Beds",
+      ["Beds & baths", "2+ Beds", "3+ Beds", "4+ Beds"],
+      label_visibility="collapsed",
   )
 with f_col5:
   type_filter = st.selectbox(
-      "Property Type", ["Property type", "House", "Land / Development", "Townhouse"], label_visibility="collapsed"
+      "Contract Type",
+      ["Property type", "House", "Land / Development", "Townhouse", "Condo"],
+      label_visibility="collapsed",
   )
 with f_col6:
   save_btn = st.button("Save search", use_container_width=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
+st.markdown("</div>", unsafe_allow_html=True)  # End of sticky-header-container
 
 # --- FILTER LOGIC ---
 filtered_df = df.copy()
 if selected_location != "All Utah Cities":
-  filtered_df = filtered_df[filtered_df["city"].str.lower() == selected_location.lower()]
+  filtered_df = filtered_df[
+      filtered_df["city"].str.lower() == selected_location.lower()
+  ]
 
-if price_filter == "Under $500k":
-  filtered_df = filtered_df[filtered_df["price"] <= 500000]
-elif price_filter == "$500k - $1M":
-  filtered_df = filtered_df[(filtered_df["price"] > 500000) & (filtered_df["price"] <= 1000000)]
-elif price_filter == "Over $1M":
-  filtered_df = filtered_df[filtered_df["price"] > 1000000]
+if price_filter == "Under $30k":
+  filtered_df = filtered_df[filtered_df["contract_price"] <= 30000]
+elif price_filter == "$30k - $60k":
+  filtered_df = filtered_df[
+      (filtered_df["contract_price"] > 30000)
+      & (filtered_df["contract_price"] <= 60000)
+  ]
+elif price_filter == "Over $60k":
+  filtered_df = filtered_df[filtered_df["contract_price"] > 60000]
 
-if beds_filter == "3+ Beds":
+if beds_filter == "2+ Beds":
+  filtered_df = filtered_df[filtered_df["beds"] >= 2]
+elif beds_filter == "3+ Beds":
   filtered_df = filtered_df[filtered_df["beds"] >= 3]
 elif beds_filter == "4+ Beds":
   filtered_df = filtered_df[filtered_df["beds"] >= 4]
-elif beds_filter == "5+ Beds":
-  filtered_df = filtered_df[filtered_df["beds"] >= 5]
 
 if type_filter != "Property type":
-  filtered_df = filtered_df[filtered_df["type"].str.contains(type_filter, case=False, na=False)]
+  filtered_df = filtered_df[
+      filtered_df["type"].str.contains(type_filter, case=False, na=False)
+  ]
 
-# --- PORTAL LAYOUT WITH CLEAR SEPARATION (MAP LEFT, LISTINGS RIGHT) ---
+# --- PORTAL LAYOUT WITH STICKY SIDE MAP & NO DEAD SPACE ---
 st.markdown("<div class='portal-container'>", unsafe_allow_html=True)
 
-# Left Pane: Map View with clear boundary wrapper
 map_container, listings_container = st.columns([1, 1], gap="small")
 
+# Left Pane: Ultra-Sticky Map View filling vertical space seamlessly
 with map_container:
   st.markdown("<div class='map-pane'>", unsafe_allow_html=True)
-  location_title = selected_location if selected_location != "All Utah Cities" else "Utah Statewide"
-  st.markdown(f"<div style='font-size: 1.1rem; font-weight: 700; margin-bottom: 12px; color: #111;'>{location_title} Real Estate Map</div>", unsafe_allow_html=True)
+  location_title = (
+      selected_location
+      if selected_location != "All Utah Cities"
+      else "Utah Statewide"
+  )
+  st.markdown(
+      f"<div style='font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; color: #111;'>{location_title} Real Estate Contracts Map</div>",
+      unsafe_allow_html=True,
+  )
 
   map_data = filtered_df[["lat", "lon"]].rename(
       columns={"lat": "latitude", "lon": "longitude"}
@@ -471,9 +652,12 @@ with map_container:
       auto_highlight=True,
   )
 
-  # Dynamic center based on filter results
-  lat_center = filtered_df["lat"].mean() if not filtered_df.empty else 40.6977
-  lon_center = filtered_df["lon"].mean() if not filtered_df.empty else -111.8550
+  lat_center = (
+      filtered_df["lat"].mean() if not filtered_df.empty else 40.6977
+  )
+  lon_center = (
+      filtered_df["lon"].mean() if not filtered_df.empty else -111.8550
+  )
   zoom_level = 11 if selected_location != "All Utah Cities" else 7
 
   view_state = pdk.ViewState(
@@ -484,22 +668,22 @@ with map_container:
       layers=[layer],
       initial_view_state=view_state,
       map_style="light",
-      tooltip={"text": "Utah Land & Property Investment Asset"},
+      tooltip={"text": "Utah Land & Property Equitable Interest Contract"},
   )
   st.pydeck_chart(r, use_container_width=True)
   st.markdown("</div>", unsafe_allow_html=True)
 
-# Right Pane: Property Listings Cards with independent scrolling and clear boundary
+# Right Pane: Property Listings Cards with independent scrolling matching container height
 with listings_container:
   st.markdown("<div class='listings-pane'>", unsafe_allow_html=True)
   st.markdown(
-      f"<div style='font-size: 1.2rem; font-weight: 700; margin-bottom: 4px; color: #111;'>{location_title} Real Estate & Homes For Sale</div>"
-      f"<div style='font-size: 0.88rem; color: #666; margin-bottom: 15px;'>{len(filtered_df)} results found</div>",
+      f"<div style='font-size: 1.15rem; font-weight: 700; margin-bottom: 4px; color: #111;'>{location_title} Real Estate Contracts For Sale</div>"
+      f"<div style='font-size: 0.85rem; color: #666; margin-bottom: 12px;'>{len(filtered_df)} contracts found</div>",
       unsafe_allow_html=True,
   )
 
   if filtered_df.empty:
-    st.info("No properties found matching your search criteria in this region.")
+    st.info("No contracts found matching your search criteria in this region.")
   else:
     grid_col1, grid_col2 = st.columns(2, gap="small")
 
@@ -514,8 +698,9 @@ with listings_container:
                         <div class="z-badge">{row['status']}</div>
                     </div>
                     <div class="z-card-body">
-                        <div class="z-price">${row['price']:,}</div>
-                        <div class="z-details"><b>{row['beds']}</b> bds &nbsp;|&nbsp; <b>{row['baths']}</b> ba &nbsp;|&nbsp; <b>{row['sqft']:,}</b> sqft &nbsp;|&nbsp; {row['type']}</div>
+                        <div class="z-contract-price">Contract: ${row['contract_price']:,}</div>
+                        <div class="z-underlying-price">Property Value: ${row['underlying_price']:,}</div>
+                        <div class="z-details"><b>{row['beds']}</b> bds &nbsp;|&nbsp; <b>{row['baths']}</b> ba &nbsp;|&nbsp; <b>{row['sqft']:,}</b> sqft</div>
                         <div class="z-address">{row['address']}</div>
                         <div class="z-broker">{row['broker']}</div>
                     </div>
@@ -526,12 +711,17 @@ with listings_container:
 
         with st.expander(f"Submit Offer / Terms ({row['id']})"):
           user_email = st.text_input(
-              "Your Email", key=f"z_email_{row['id']}", placeholder="name@domain.com"
+              "Your Email",
+              key=f"z_email_{row['id']}",
+              placeholder="name@domain.com",
           )
           offer_terms = st.text_area(
               "Offer Terms & Conditions",
               key=f"z_msg_{row['id']}",
-              placeholder="Enter purchase price, earnest money, or inspection contingencies...",
+              placeholder=(
+                  "Enter contract purchase price, assignment fee, or escrow"
+                  " contingencies..."
+              ),
           )
           if st.button("Submit Official Offer", key=f"z_btn_{row['id']}"):
             if user_email:
@@ -547,8 +737,14 @@ st.markdown("</div>", unsafe_allow_html=True)
 # --- FOOTER LEGAL NOTICE ---
 st.markdown(
     """
-    <div style="font-size: 0.75rem; color: #64748b; text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eaeaea;">
-        Notice: Utah Land & Property Inc. operates independently as a private investment firm. All property management functions and asset transactions are executed in compliance with applicable Utah real estate statutes (Utah Code Ann. § 57-1 et seq. and § 61-2f-1 et seq.).
+    <div style="font-size: 0.72rem; color: #64748b; text-align: center; margin-top: 20px; padding-bottom: 20px; border-top: 1px solid #eaeaea;">
+        Notice: Utah Land & Property Inc. is a private investment firm and is not a licensed real estate broker or agent.
+
+We do not represent third parties in the purchase, sale, or management of outside real estate.
+
+Pursuant to the exemption under Utah Code § 61-2f-202, all property management functions are executed solely by individuals,
+
+operating as regular salaried employees of the specific legal entities that own the underlying real estate assets.
     </div>
 """,
     unsafe_allow_html=True,
