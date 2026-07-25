@@ -59,17 +59,20 @@ st.markdown(
         }
         
         .header-nav-left a:hover, .header-nav-right a:hover {
-            color: #111111;
+            color: #d92228;
         }
         
-        /* Logo: Elegant Black, bold, NOT underlined, NOT blue, NO dot */
+        /* Logo: Elegant Black with subtle red accent dot, bold, NOT underlined, NOT blue */
         .header-logo {
             font-size: 20px;
-            font-weight: 800;
+            font-weight: 700;
             color: #111111;
             letter-spacing: -0.5px;
             text-decoration: none !important;
             font-family: 'Playfair Display', Georgia, serif;
+        }
+        .header-logo span {
+            color: #d92228;
         }
         .header-logo:hover {
             color: #111111;
@@ -93,11 +96,11 @@ st.markdown(
             max-width: 100% !important;
         }
 
-        /* Immersive Utah Mountain Forest Hero Banner */
+        /* Immersive Friendly Residential Hero Banner */
         .hero-container {
             position: relative;
-            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
-                        url('https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=2000&q=80');
+            background: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)), 
+                        url('https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=2000&q=80');
             background-size: cover;
             background-position: center;
             height: 400px;
@@ -127,32 +130,28 @@ st.markdown(
             text-shadow: 0 1px 3px rgba(0,0,0,0.3);
         }
 
-        /* Standout Sticky Filter Bar Styling with 3D Depth */
+        /* Standout Sticky Filter Bar Styling */
         .filter-container {
-            background: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%);
-            padding: 24px 40px;
-            border-bottom: 1px solid #d1d5db;
+            background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+            padding: 20px 40px;
+            border-bottom: 2px solid #e5e7eb;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
             position: sticky;
             top: 70px;
             z-index: 99998;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 
-                        0 8px 10px -6px rgba(0, 0, 0, 0.05),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.8);
-            border-radius: 0 0 12px 12px;
-            margin: 0 20px 20px 20px;
         }
 
-        /* 3D styling wrapper for select boxes inside the filter bar */
+        /* Custom styling wrapper for select boxes inside the filter bar */
         div[data-baseweb="select"] > div {
             border-radius: 8px !important;
-            border-color: #9ca3af !important;
+            border-color: #d1d5db !important;
             background-color: #ffffff !important;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255,255,255,1);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
             transition: all 0.2s ease;
         }
         div[data-baseweb="select"] > div:hover {
-            border-color: #374151 !important;
-            box-shadow: 0 6px 10px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+            border-color: #d92228 !important;
+            box-shadow: 0 0 0 3px rgba(217, 34, 40, 0.1) !important;
         }
     </style>
 
@@ -165,7 +164,7 @@ st.markdown(
             <a href="#">Portfolio</a>
         </div>
         <div>
-            <a href="#" class="header-logo">UTAH LAND & PROPERTY</a>
+            <a href="#" class="header-logo">UTAH LAND & PROPERTY<span>.</span></a>
         </div>
         <div class="header-nav-right">
             <a href="#">Manage Assets</a>
@@ -177,7 +176,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Utah Mountain Forest Hero Section
+# Friendly Residential Hero Section
 st.markdown(
     """
     <div class="hero-container">
@@ -205,7 +204,7 @@ def load_utah_property_database():
             "status": "Equitable Interest Assignable",
             "address": "4629 S Quail Vista Cve #J, Millcreek, UT 84117",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
             "lat": 40.6977,
             "lon": -111.8550,
         },
@@ -222,7 +221,7 @@ def load_utah_property_database():
             "status": "Showcase",
             "address": "718 E Elgin Ave, Millcreek, UT 84106",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
             "lat": 40.7012,
             "lon": -111.8670,
         },
@@ -239,7 +238,7 @@ def load_utah_property_database():
             "status": "2 days on market",
             "address": "1010 E Millbert Ave S, Salt Lake City, UT 84106",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
             "lat": 40.7045,
             "lon": -111.8590,
         },
@@ -256,7 +255,7 @@ def load_utah_property_database():
             "status": "Direct Acquisition",
             "address": "12300 S Fort St, Draper, UT 84020",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
             "lat": 40.5243,
             "lon": -111.8631,
         },
@@ -273,7 +272,7 @@ def load_utah_property_database():
             "status": "New Listing",
             "address": "1850 N University Pkwy, Provo, UT 84604",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
             "lat": 40.2542,
             "lon": -111.6608,
         },
@@ -290,7 +289,7 @@ def load_utah_property_database():
             "status": "Price Improvement",
             "address": "1420 25th St, Ogden, UT 84401",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
             "lat": 41.2230,
             "lon": -111.9738,
         },
@@ -307,7 +306,7 @@ def load_utah_property_database():
             "status": "Exclusive",
             "address": "Park Meadows Townhomes, Park City, UT 84060",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
             "lat": 40.6461,
             "lon": -111.4980,
         },
@@ -324,7 +323,7 @@ def load_utah_property_database():
             "status": "Entitled Land",
             "address": "SunRiver Pkwy, St. George, UT 84790",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
             "lat": 37.0952,
             "lon": -113.5610,
         },
@@ -341,7 +340,7 @@ def load_utah_property_database():
             "status": "Active",
             "address": "3300 N Ashton Blvd, Lehi, UT 84043",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
             "lat": 40.4153,
             "lon": -111.8398,
         },
@@ -358,7 +357,7 @@ def load_utah_property_database():
             "status": "New Listing",
             "address": "2100 S Highland Dr, Salt Lake City, UT 84106",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
             "lat": 40.7215,
             "lon": -111.8565,
         },
@@ -375,7 +374,7 @@ def load_utah_property_database():
             "status": "Equitable Interest Available",
             "address": "4800 S State St, Murray, UT 84107",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
             "lat": 40.6678,
             "lon": -111.8902,
         },
@@ -392,7 +391,7 @@ def load_utah_property_database():
             "status": "Active",
             "address": "3600 S Redwood Rd, West Valley City, UT 84119",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
             "lat": 40.6970,
             "lon": -111.9380,
         },
@@ -409,7 +408,7 @@ def load_utah_property_database():
             "status": "Price Improvement",
             "address": "10000 S State St, Sandy, UT 84070",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
             "lat": 40.5820,
             "lon": -111.8900,
         },
@@ -426,7 +425,7 @@ def load_utah_property_database():
             "status": "Direct Acquisition",
             "address": "7500 S State St, Midvale, UT 84047",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
             "lat": 40.6120,
             "lon": -111.8904,
         },
@@ -443,7 +442,7 @@ def load_utah_property_database():
             "status": "Exclusive",
             "address": "500 S Main St, Bountiful, UT 84010",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
             "lat": 40.8870,
             "lon": -111.8800,
         },
@@ -574,38 +573,38 @@ all_locations = [
 ]
 
 with f_col1:
-    st.markdown("<p style='font-size: 11px; font-weight: 800; color: #111827; text-transform: uppercase; margin-bottom: 2px;'>All Utah Cities</p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size: 11px; font-weight: 700; color: #d92228; text-transform: uppercase; margin-bottom: 2px;'>📍 All Utah Cities</p>", unsafe_allow_html=True)
     selected_location = st.selectbox(
         "Utah City Search", all_locations, label_visibility="collapsed"
     )
 with f_col2:
-    st.markdown("<p style='font-size: 11px; font-weight: 800; color: #111827; text-transform: uppercase; margin-bottom: 2px;'>Contracts for Sale</p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size: 11px; font-weight: 700; color: #d92228; text-transform: uppercase; margin-bottom: 2px;'>🏷️ Contracts for Sale</p>", unsafe_allow_html=True)
     status_filter = st.selectbox(
         "Status", ["Contracts for Sale", "All Statuses"], label_visibility="collapsed"
     )
 with f_col3:
-    st.markdown("<p style='font-size: 11px; font-weight: 800; color: #111827; text-transform: uppercase; margin-bottom: 2px;'>Any Price</p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size: 11px; font-weight: 700; color: #d92228; text-transform: uppercase; margin-bottom: 2px;'>💲 Any Price</p>", unsafe_allow_html=True)
     price_filter = st.selectbox(
         "Contract Price",
         ["Any Price", "Under $30k", "$30k - $60k", "Over $60k"],
         label_visibility="collapsed",
     )
 with f_col4:
-    st.markdown("<p style='font-size: 11px; font-weight: 800; color: #111827; text-transform: uppercase; margin-bottom: 2px;'>Beds & Bath</p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size: 11px; font-weight: 700; color: #d92228; text-transform: uppercase; margin-bottom: 2px;'>🛏️ Beds & Bath</p>", unsafe_allow_html=True)
     beds_filter = st.selectbox(
         "Beds",
         ["Beds & baths", "2+ Beds", "3+ Beds", "4+ Beds"],
         label_visibility="collapsed",
     )
 with f_col5:
-    st.markdown("<p style='font-size: 11px; font-weight: 800; color: #111827; text-transform: uppercase; margin-bottom: 2px;'>Property Type</p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size: 11px; font-weight: 700; color: #d92228; text-transform: uppercase; margin-bottom: 2px;'>🏠 Property Type</p>", unsafe_allow_html=True)
     type_filter = st.selectbox(
         "Contract Type",
         ["Property type", "House", "Land", "Townhouse", "Condo"],
         label_visibility="collapsed",
     )
 with f_col6:
-    st.markdown("<p style='font-size: 11px; font-weight: 800; color: transparent; text-transform: uppercase; margin-bottom: 2px;'>Action</p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size: 11px; font-weight: 700; color: transparent; text-transform: uppercase; margin-bottom: 2px;'>Action</p>", unsafe_allow_html=True)
     save_search_btn = st.button("Save Search", use_container_width=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
@@ -661,7 +660,7 @@ with col_title_1:
 
 with col_title_2:
     st.markdown("<div style='margin: 36px 40px 0 0; text-align: right;'>", unsafe_allow_html=True)
-    if st.button("How private contract assignment works & FAQ", type="tertiary"):
+    if st.button("🛈 How private contract assignment works & FAQ", type="tertiary"):
         st.session_state.show_faq = not st.session_state.show_faq
     st.markdown("</div>", unsafe_allow_html=True)
 
@@ -669,7 +668,7 @@ with col_title_2:
 if st.session_state.show_faq:
     st.markdown(
         """
-        <div style="background-color: #ffffff; border: 1px solid #e5e7eb; border-left: 4px solid #111827; padding: 24px; border-radius: 8px; margin: 0 40px 30px 40px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+        <div style="background-color: #ffffff; border: 1px solid #e5e7eb; border-left: 4px solid #d92228; padding: 24px; border-radius: 8px; margin: 0 40px 30px 40px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
             <h3 style="margin-top: 0; color: #111827; font-size: 1.3rem;">Understanding Private Contract & REPC Assignments</h3>
             <p style="color: #4b5563; line-height: 1.6; font-size: 0.95rem;">
                 A private contract assignment—frequently utilized in creative real estate transactions—involves transferring the equitable rights and interests held under a Real Estate Purchase Contract (REPC) or private agreement to a third party rather than executing a direct title sale of the physical property itself.
@@ -702,17 +701,17 @@ else:
             with cols[idx]:
                 st.markdown(
                     f"""
-                        <div style="background: white; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.08), 0 2px 4px -1px rgba(0,0,0,0.04);">
+                        <div style="background: white; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
                             <div style="position: relative;">
                                 <img src="{row['image']}" style="width: 100%; height: 200px; object-fit: cover;">
-                                <div style="position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.75); color: white; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">{row['status']}</div>
+                                <div style="position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.7); color: white; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">{row['status']}</div>
                             </div>
                             <div style="padding: 16px;">
-                                <div style="font-size: 11px; text-transform: uppercase; color: #4b5563; font-weight: 800; margin-bottom: 4px;">{row['broker']}</div>
+                                <div style="font-size: 11px; text-transform: uppercase; color: #6b7280; font-weight: 700; margin-bottom: 4px;">{row['broker']}</div>
                                 <div style="font-size: 18px; font-weight: 800; color: #111827; margin-bottom: 4px;">Contract: ${row['contract_price']:,}</div>
                                 <div style="font-size: 13px; color: #4b5563; margin-bottom: 8px;">Property Value: ${row['underlying_price']:,}</div>
                                 <div style="font-size: 13px; color: #374151; margin-bottom: 8px;"><b>{row['beds']}</b> bds &nbsp;|&nbsp; <b>{row['baths']}</b> ba &nbsp;|&nbsp; <b>{row['sqft']:,}</b> sqft</div>
-                                <div style="font-size: 13px; color: #4b5563;">{row['address']}</div>
+                                <div style="font-size: 13px; color: #6b7280;">{row['address']}</div>
                             </div>
                         </div>
                     """,
@@ -757,7 +756,7 @@ layer = pdk.Layer(
     "ScatterplotLayer",
     data=map_data,
     get_position="[longitude, latitude]",
-    get_color="[17, 24, 39, 230]",
+    get_color="[217, 34, 40, 230]",
     get_radius=1000,
     pickable=True,
     auto_highlight=True,
