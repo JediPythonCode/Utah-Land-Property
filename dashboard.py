@@ -15,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ---> UPDATED STICKY HEADER & HERO WITH RENTLER-STYLE RED BACKGROUND <---
+# ---> UPDATED STICKY HEADER & FILTER STYLING (RED FONTS ON TOP BAR ONLY, CLEAN INPUT BOXES) <---
 st.markdown(
     """
     <style>
@@ -32,14 +32,14 @@ st.markdown(
             font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
-        /* Fixed Sticky Header matching Rentler style (Red Background, White Bold Font) */
+        /* Fixed Sticky Header with Clean White Background & Red Accent Fonts */
         .industry-header {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
-            background-color: #d92228;
-            border-bottom: 1px solid #b51c22;
+            background-color: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -47,7 +47,7 @@ st.markdown(
             height: 70px;
             z-index: 999999;
             box-sizing: border-box;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
         }
         
         .header-nav-left, .header-nav-right {
@@ -57,45 +57,46 @@ st.markdown(
         }
         
         .header-nav-left a, .header-nav-right a {
-            text-decoration: none;
-            color: #ffffff !important;
+            text-decoration: none !important;
+            color: #d92228 !important;
             font-weight: 700 !important;
             font-size: 14px;
         }
         
         .header-nav-left a:hover, .header-nav-right a:hover {
-            color: #f3f4f6 !important;
-            text-decoration: underline;
+            color: #a8191e !important;
+            text-decoration: none !important;
         }
         
-        /* Logo: White, bold, and clean */
+        /* Logo: Red, bold, and clean */
         .header-logo {
             font-size: 21px;
             font-weight: 900 !important;
-            color: #ffffff !important;
+            color: #d92228 !important;
             letter-spacing: 0.5px;
             text-decoration: none !important;
             font-family: 'Playfair Display', Georgia, serif;
         }
         .header-logo span {
-            color: #ffffff !important;
+            color: #d92228 !important;
             font-weight: 900 !important;
         }
         .header-logo:hover {
-            color: #ffffff !important;
+            color: #d92228 !important;
             text-decoration: none !important;
         }
         
         .sign-in-btn {
-            background-color: #ffffff !important;
-            color: #d92228 !important;
+            background-color: #d92228 !important;
+            color: #ffffff !important;
             padding: 8px 20px;
             border-radius: 6px;
             font-weight: 700 !important;
             text-decoration: none !important;
         }
         .sign-in-btn:hover {
-            background-color: #f9fafb !important;
+            background-color: #b51c22 !important;
+            text-decoration: none !important;
         }
 
         /* Push main content down below fixed header */
@@ -142,27 +143,27 @@ st.markdown(
 
         /* Standout Sticky Filter Bar Styling */
         .filter-container {
-            background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+            background: #ffffff;
             padding: 16px 40px;
-            border-bottom: 2px solid #e5e7eb;
+            border-bottom: 1px solid #e5e7eb;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
             position: sticky;
             top: 70px;
             z-index: 99998;
         }
 
-        /* Professional styling wrapper for select boxes inside the filter bar */
+        /* Clean professional select boxes inside the filter bar with neutral focus */
         div[data-baseweb="select"] > div {
             border-radius: 6px !important;
             border-color: #d1d5db !important;
             background-color: #ffffff !important;
-            min-height: 38px !important;
+            min-height: 42px !important;
             box-shadow: 0 1px 2px rgba(0,0,0,0.02);
             transition: all 0.2s ease;
         }
         div[data-baseweb="select"] > div:hover {
-            border-color: #d92228 !important;
-            box-shadow: 0 0 0 3px rgba(217, 34, 40, 0.1) !important;
+            border-color: #9ca3af !important;
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.03) !important;
         }
     </style>
 
@@ -586,7 +587,7 @@ all_locations = [
 
 with f_col1:
     st.markdown(
-        "<p style='font-size: 11px; font-weight: 700; color: #4b5563; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;'>Location</p>",
+        "<p style='font-size: 13px; font-weight: 600; color: #111827; margin-bottom: 6px;'>Location</p>",
         unsafe_allow_html=True,
     )
     selected_location = st.selectbox(
@@ -594,7 +595,7 @@ with f_col1:
     )
 with f_col2:
     st.markdown(
-        "<p style='font-size: 11px; font-weight: 700; color: #4b5563; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;'>Status</p>",
+        "<p style='font-size: 13px; font-weight: 600; color: #111827; margin-bottom: 6px;'>Status</p>",
         unsafe_allow_html=True,
     )
     status_filter = st.selectbox(
@@ -602,7 +603,7 @@ with f_col2:
     )
 with f_col3:
     st.markdown(
-        "<p style='font-size: 11px; font-weight: 700; color: #4b5563; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;'>Price Range</p>",
+        "<p style='font-size: 13px; font-weight: 600; color: #111827; margin-bottom: 6px;'>Price Range</p>",
         unsafe_allow_html=True,
     )
     price_filter = st.selectbox(
@@ -612,7 +613,7 @@ with f_col3:
     )
 with f_col4:
     st.markdown(
-        "<p style='font-size: 11px; font-weight: 700; color: #4b5563; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;'>Beds & Baths</p>",
+        "<p style='font-size: 13px; font-weight: 600; color: #111827; margin-bottom: 6px;'>Beds & Baths</p>",
         unsafe_allow_html=True,
     )
     beds_filter = st.selectbox(
@@ -622,7 +623,7 @@ with f_col4:
     )
 with f_col5:
     st.markdown(
-        "<p style='font-size: 11px; font-weight: 700; color: #4b5563; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;'>Property Type</p>",
+        "<p style='font-size: 13px; font-weight: 600; color: #111827; margin-bottom: 6px;'>Property Type</p>",
         unsafe_allow_html=True,
     )
     type_filter = st.selectbox(
@@ -632,7 +633,7 @@ with f_col5:
     )
 with f_col6:
     st.markdown(
-        "<p style='font-size: 11px; font-weight: 700; color: transparent; text-transform: uppercase; margin-bottom: 4px;'>Action</p>",
+        "<p style='font-size: 13px; font-weight: 600; color: #111827; margin-bottom: 6px;'>Action</p>",
         unsafe_allow_html=True,
     )
     save_search_btn = st.button("Save Search", use_container_width=True)
