@@ -221,6 +221,22 @@ st.markdown(
             padding-bottom: 8px;
             border-bottom: 2px solid #e5e7eb;
         }
+
+        /* Legal Notice Footer Styling */
+        .legal-footer {
+            background-color: #111827;
+            color: #9ca3af;
+            font-size: 12px;
+            line-height: 1.6;
+            padding: 40px 20px;
+            text-align: center;
+            margin-top: 60px;
+            border-top: 1px solid #374151;
+        }
+        .legal-footer-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
     </style>
 
     <!-- Zillow-Style Mobile Header with Centered, Larger Title & Functional Drawer -->
@@ -853,11 +869,11 @@ def load_utah_property_database():
             "title": "Draper Fort Street Off-Market Retail Pad",
             "category": "Commercial",
             "city": "Draper, UT",
-            "contract_price": 16500,
-            "purchase_price": 330000,
+            "contract_price": 16000,
+            "purchase_price": 325000,
             "down_payment_pct": 20,
-            "down_payment_amt": int(330000 * 0.20),
-            "arv": int(330000 * 1.33),
+            "down_payment_amt": int(325000 * 0.20),
+            "arv": int(325000 * 1.33),
             "beds": 0,
             "baths": 0,
             "sqft": 5200,
@@ -865,229 +881,24 @@ def load_utah_property_database():
             "address": "Off-Market Fort St Parcel B, Draper, UT 84020",
             "broker": "Utah Land & Property Inc.",
             "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
-            "lat": 40.5246,
-            "lon": -111.8635,
-        },
-        {
-            "id": "UT-DRP-0201-C",
-            "title": "Draper Business Park Off-Market Site",
-            "category": "Commercial",
-            "city": "Draper, UT",
-            "contract_price": 18000,
-            "purchase_price": 360000,
-            "down_payment_pct": 25,
-            "down_payment_amt": int(360000 * 0.25),
-            "arv": int(360000 * 1.36),
-            "beds": 0,
-            "baths": 0,
-            "sqft": 6100,
-            "status": "UNDER CONTRACT",
-            "address": "Off-Market Fort St Parcel C, Draper, UT 84020",
-            "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
-            "lat": 40.5250,
-            "lon": -111.8640,
-        },
-        {
-            "id": "UT-DRP-0201-D",
-            "title": "Draper Commercial Off-Market Plaza Lot",
-            "category": "Commercial",
-            "city": "Draper, UT",
-            "contract_price": 20000,
-            "purchase_price": 395000,
-            "down_payment_pct": 20,
-            "down_payment_amt": int(395000 * 0.20),
-            "arv": int(395000 * 1.40),
-            "beds": 0,
-            "baths": 0,
-            "sqft": 7200,
-            "status": "Available",
-            "address": "Off-Market Fort St Parcel D, Draper, UT 84020",
-            "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
-            "lat": 40.5255,
-            "lon": -111.8645,
+            "lat": 40.5245,
+            "lon": -111.8633,
         },
     ]
-    return pd.DataFrame(data)
+    return data
 
 
-df = load_utah_property_database()
-
-
-# Automated Email / Offer Dispatch Helper
-def send_offer_dispatch(
-    property_id, property_title, recipient_email, selected_term, custom_terms
-):
-    smtp_server = "smtp.gmail.com"
-    port = 587
-    sender_email = st.secrets.get("EMAIL_USER", "your-email@domain.com")
-    sender_password = st.secrets.get("EMAIL_PASS", "your-app-password")
-
-    subject = f"Official Offer / Escrow Submission: {property_id}"
-    body = f"""
-    Automated Transaction & Offer Workflow Dispatch:
-    Property ID: {property_id}
-    Asset Title: {property_title}
-    Submitter Contact: {recipient_email}
-    Selected Financing/Contract Terms: {selected_term}
-    Custom Addendums / Conditions: {custom_terms}
-    ---
-    Notice: Utah Land & Property Inc. - Secure Escrow & Offer Routing Engine.
+# Render Legal Notice Footer at the Bottom of the Website
+st.markdown(
     """
-
-    msg = MIMEMultipart()
-    msg["From"] = sender_email
-    msg["To"] = recipient_email
-    msg["Subject"] = subject
-    msg.attach(MIMEText(body, "plain"))
-
-    try:
-        server = smtplib.SMTP(smtp_server, port)
-        server.starttls()
-        server.login(sender_email, sender_password)
-        server.sendmail(sender_email, recipient_email, msg.as_string())
-        server.quit()
-        return True
-    except Exception:
-        return False
-
-
-# --- DYNAMIC HEADER TITLE SECTION ---
-if "show_faq" not in st.session_state:
-    st.session_state.show_faq = False
-
-col_title_1, col_title_2 = st.columns([3, 1])
-with col_title_1:
-    st.markdown(
-        f"""
-        <div style="margin: 24px 20px 16px 20px;">
-            <h1 style="font-size: 1.7rem; font-weight: 800; color: #111827; margin-bottom: 4px;">Utah Land & Property Inc. Real Estate & Land For Sale</h1>
-            <p style="font-size: 0.95rem; color: #6b7280; margin: 0;"><b>{len(df)}</b> active private contracts and land parcels available</p>
+    <div class="legal-footer">
+        <div class="legal-footer-content">
+            <strong>Notice:</strong> Utah Land & Property Inc. is a private investment firm and is not a licensed real estate broker or agent.<br>
+            We do not represent third parties in the purchase, sale, or management of outside real estate.<br>
+            Pursuant to the exemption under Utah Code § 61-2f-202, all property management functions are executed solely by individuals, 
+            operating as regular salaried employees of the specific legal entities that own the underlying real estate assets.
         </div>
+    </div>
     """,
-        unsafe_allow_html=True,
-    )
-
-with col_title_2:
-    st.markdown(
-        "<div style='margin: 36px 20px 0 0; text-align: right;'>",
-        unsafe_allow_html=True,
-    )
-    if st.button("How private contract assignment works & FAQ", type="tertiary"):
-        st.session_state.show_faq = not st.session_state.show_faq
-    st.markdown("</div>", unsafe_allow_html=True)
-
-
-# Render Function for Property Grids
-def render_property_grid(subset_df, category_title, anchor_id):
-    st.markdown(
-        f'<div id="{anchor_id}" class="section-header">{category_title} ({len(subset_df)})</div>',
-        unsafe_allow_html=True,
-    )
-    st.markdown("<div style='padding: 0 20px;'>", unsafe_allow_html=True)
-
-    if subset_df.empty:
-        st.info(f"No {category_title.lower()} listings available.")
-    else:
-        cols_per_row = 3
-        rows = [
-            subset_df.iloc[i : i + cols_per_row]
-            for i in range(0, len(subset_df), cols_per_row)
-        ]
-
-        for row_batch in rows:
-            cols = st.columns(cols_per_row, gap="medium")
-            for idx, (_, row) in enumerate(row_batch.iterrows()):
-                listing_images = (
-                    row["image"].split(",")
-                    if isinstance(row["image"], str)
-                    else [row["image"]]
-                )
-                first_image = listing_images[0].strip()
-
-                badge_bg = (
-                    "#b91c1c"
-                    if row["status"] == "UNDER CONTRACT"
-                    else "rgba(0,0,0,0.7)"
-                )
-
-                with cols[idx]:
-                    st.markdown(
-                        f"""
-                            <div style="background: white; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-                                <div style="position: relative;">
-                                    <img src="{first_image}" style="width: 100%; height: 200px; object-fit: cover;">
-                                    <div style="position: absolute; top: 12px; left: 12px; background: {badge_bg}; color: white; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px;">{row['status']}</div>
-                                </div>
-                                <div style="padding: 16px;">
-                                    <div style="font-size: 11px; text-transform: uppercase; color: #6b7280; font-weight: 700; margin-bottom: 4px;">{row['broker']}</div>
-                                    <div style="font-size: 16px; font-weight: 800; color: #111827; margin-bottom: 6px;">Contract: ${row['contract_price']:,}</div>
-                                    <div style="font-size: 13px; color: #374151; margin-bottom: 2px;">Property Purchase Price: <b>${row['purchase_price']:,}</b></div>
-                                    <div style="font-size: 13px; color: #1d4ed8; font-weight: 600; margin-bottom: 4px;">Down Payment ({row['down_payment_pct']}%): ${row['down_payment_amt']:,}</div>
-                                    <div style="font-size: 13px; color: #047857; font-weight: 600; margin-bottom: 8px;">ARV: ${row['arv']:,}</div>
-                                    <div style="font-size: 13px; color: #374151; margin-bottom: 8px;"><b>{row['beds']}</b> bds &nbsp;|&nbsp; <b>{row['baths']}</b> ba &nbsp;|&nbsp; <b>{row['sqft']:,}</b> sqft</div>
-                                    <div style="font-size: 13px; color: #6b7280;">{row['address']}</div>
-                                </div>
-                            </div>
-                        """,
-                        unsafe_allow_html=True,
-                    )
-
-                    with st.expander(
-                        f"Review Terms / Submit Offer ({row['id']})"
-                    ):
-                        user_email = st.text_input(
-                            "Your Email",
-                            key=f"p_email_{row['id']}",
-                            placeholder="name@domain.com",
-                        )
-
-                        # Actual random contract/financing terms options for the dropdown
-                        contract_terms_options = [
-                            f"Standard Cash Purchase ({row['down_payment_pct']}% Down / 14-Day Close)",
-                            "Subject-To Existing Mortgage Takeover",
-                            "Seller Financing (5-Year Balloon / 7.5% Interest)",
-                            "Equitable Interest Assignment (REPC Assignment Fee)",
-                            "Wholesale Cash Offer (7-Day Inspection Waiver)",
-                        ]
-                        selected_term = st.selectbox(
-                            "Contract & Financing Terms",
-                            contract_terms_options,
-                            key=f"term_select_{row['id']}",
-                        )
-
-                        offer_terms = st.text_area(
-                            "Offer Terms & Conditions",
-                            key=f"p_msg_{row['id']}",
-                            placeholder="Enter earnest money deposit, closing date, or escrow contingencies...",
-                        )
-                        if st.button(
-                            "Submit Official Offer", key=f"p_btn_{row['id']}"
-                        ):
-                            if user_email:
-                                send_offer_dispatch(
-                                    row["id"],
-                                    row["title"],
-                                    user_email,
-                                    selected_term,
-                                    offer_terms,
-                                )
-                                st.success(
-                                    "Offer successfully dispatched to escrow!"
-                                )
-                            else:
-                                st.error("Please enter a valid email address.")
-    st.markdown("</div>", unsafe_allow_html=True)
-
-
-# --- RENDER SEPARATED CATEGORY SECTIONS ---
-render_property_grid(
-    df[df["category"] == "Residential"], "Residential", "residential-section"
-)
-render_property_grid(
-    df[df["category"] == "Raw Land"], "Raw Land", "raw-land-section"
-)
-render_property_grid(
-    df[df["category"] == "Commercial"], "Commercial", "commercial-section"
+    unsafe_allow_html=True,
 )
