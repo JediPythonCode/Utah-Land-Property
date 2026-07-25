@@ -15,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ---> UPDATED STICKY HEADER & RESPONSIVE LAYOUT STYLING <---
+# ---> REVISED STICKY HEADER & INTEGRATED DROPDOWN STYLING <---
 st.markdown(
     """
     <style>
@@ -32,7 +32,7 @@ st.markdown(
             font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
-        /* Fixed Sticky Header with Centered Layout & Clean Red/White Contrast */
+        /* Fixed Sticky Header Layout */
         .industry-header {
             position: fixed;
             top: 0;
@@ -78,7 +78,7 @@ st.markdown(
             text-decoration: none !important;
         }
         
-        /* Centered Logo: Red, bold, and clean */
+        /* Centered Brand Logo */
         .header-logo {
             font-size: 21px;
             font-weight: 900 !important;
@@ -86,10 +86,6 @@ st.markdown(
             letter-spacing: 0.5px;
             text-decoration: none !important;
             font-family: 'Playfair Display', Georgia, serif;
-        }
-        .header-logo span {
-            color: #d92228 !important;
-            font-weight: 900 !important;
         }
         .header-logo:hover {
             color: #d92228 !important;
@@ -113,8 +109,8 @@ st.markdown(
             text-decoration: none !important;
         }
 
-        /* Mobile Dropdown Menu Container (Strictly Hidden on Desktop/Laptop) */
-        .mobile-menu-container {
+        /* Mobile Menu Container Styles */
+        .mobile-menu-wrapper {
             display: none !important;
         }
 
@@ -125,20 +121,26 @@ st.markdown(
                 height: 60px;
             }
             .header-nav-left, .header-nav-right {
-                display: none !important; /* Hide desktop nav items on mobile */
+                display: none !important;
             }
             .header-center {
                 flex: 1;
-                text-align: left;
+                text-align: center;
             }
-            .mobile-menu-container {
-                display: block !important; /* Strictly show mobile dropdown handler only on mobile */
-            }
-            .header-logo {
-                font-size: 15px; /* Scale down logo to fit mobile layout cleanly */
+            .mobile-menu-wrapper {
+                display: block !important;
+                background-color: #ffffff;
+                border-bottom: 1px solid #e5e7eb;
+                padding: 10px 15px;
+                position: fixed;
+                top: 60px;
+                left: 0;
+                width: 100vw;
+                z-index: 999998;
+                box-sizing: border-box;
             }
             .block-container {
-                padding-top: 60px !important;
+                padding-top: 120px !important;
             }
             .hero-container {
                 height: 280px !important;
@@ -151,9 +153,9 @@ st.markdown(
             }
         }
 
-        /* Push main content down below fixed header */
+        /* Push main content down below fixed header/mobile bar */
         .block-container {
-            padding-top: 70px !important;
+            padding-top: 80px !important;
             padding-left: 0rem !important;
             padding-right: 0rem !important;
             max-width: 100% !important;
@@ -214,9 +216,9 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# --- MOBILE NAVIGATION EXPANDER / DROPDOWN MENU (Strictly Mobile Only) ---
-st.markdown('<div class="mobile-menu-container">', unsafe_allow_html=True)
-with st.expander("UTAH LAND & PROPERTY INC. — Menu"):
+# --- INTEGRATED MOBILE DROPDOWN MENU BAR ---
+st.markdown('<div class="mobile-menu-wrapper">', unsafe_allow_html=True)
+with st.expander("Menu Navigation (Tap to Open)"):
     st.markdown("[Our Contracts](#contracts-section)")
     st.markdown("[Assignments](#contracts-section)")
     st.markdown("[Sell to Us](#contracts-section)")
