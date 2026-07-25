@@ -12,7 +12,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ---> UPDATED INDUSTRY-GRADE STICKY HEADER & FRIENDLY RESIDENTIAL HERO <---
+# ---> UPDATED STICKY HEADER & ENHANCED STICKY FILTER BAR <---
 st.markdown(
     """
     <style>
@@ -62,13 +62,18 @@ st.markdown(
             color: #d92228;
         }
         
+        /* Logo: Bold, Red, NOT underlined */
         .header-logo {
             font-size: 20px;
             font-weight: 700;
-            color: #1a1a1a;
+            color: #d92228;
             letter-spacing: -0.5px;
-            text-decoration: none;
+            text-decoration: none !important;
             font-family: 'Playfair Display', Georgia, serif;
+        }
+        .header-logo:hover {
+            color: #b51b20;
+            text-decoration: none !important;
         }
         
         .sign-in-btn {
@@ -77,6 +82,7 @@ st.markdown(
             padding: 8px 20px;
             border-radius: 6px;
             font-weight: 600 !important;
+            text-decoration: none !important;
         }
 
         /* Push main content down below fixed header */
@@ -87,7 +93,7 @@ st.markdown(
             max-width: 100% !important;
         }
 
-        /* Immersive Friendly Residential Hero Banner (Zillow-style) */
+        /* Immersive Friendly Residential Hero Banner */
         .hero-container {
             position: relative;
             background: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)), 
@@ -119,6 +125,30 @@ st.markdown(
             font-weight: 400;
             margin-bottom: 24px;
             text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        /* Standout Sticky Filter Bar Styling */
+        .filter-container {
+            background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+            padding: 20px 40px;
+            border-bottom: 2px solid #e5e7eb;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            position: sticky;
+            top: 70px;
+            z-index: 99998;
+        }
+
+        /* Custom styling wrapper for select boxes inside the filter bar */
+        div[data-baseweb="select"] > div {
+            border-radius: 8px !important;
+            border-color: #d1d5db !important;
+            background-color: #ffffff !important;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+            transition: all 0.2s ease;
+        }
+        div[data-baseweb="select"] > div:hover {
+            border-color: #d92228 !important;
+            box-shadow: 0 0 0 3px rgba(217, 34, 40, 0.1) !important;
         }
     </style>
 
@@ -457,8 +487,8 @@ def send_offer_dispatch(
         return False
 
 
-# Sticky Filter & Search Bar container
-st.markdown("<div style='background-color: #ffffff; padding: 16px 40px; border-bottom: 1px solid #e0e0e0; box-shadow: 0 2px 4px rgba(0,0,0,0.02);'>", unsafe_allow_html=True)
+# Standout Sticky Filter & Search Bar Container
+st.markdown("<div class='filter-container'>", unsafe_allow_html=True)
 f_col1, f_col2, f_col3, f_col4, f_col5, f_col6 = st.columns(
     [2.4, 1.1, 1.1, 1.1, 1.2, 1]
 )
@@ -540,32 +570,38 @@ all_locations = [
 ]
 
 with f_col1:
+    st.markdown("<p style='font-size: 11px; font-weight: 700; color: #d92228; text-transform: uppercase; margin-bottom: 2px;'>📍 All Utah Cities</p>", unsafe_allow_html=True)
     selected_location = st.selectbox(
         "Utah City Search", all_locations, label_visibility="collapsed"
     )
 with f_col2:
+    st.markdown("<p style='font-size: 11px; font-weight: 700; color: #d92228; text-transform: uppercase; margin-bottom: 2px;'>🏷️ Contracts for Sale</p>", unsafe_allow_html=True)
     status_filter = st.selectbox(
         "Status", ["Contracts for Sale", "All Statuses"], label_visibility="collapsed"
     )
 with f_col3:
+    st.markdown("<p style='font-size: 11px; font-weight: 700; color: #d92228; text-transform: uppercase; margin-bottom: 2px;'>💲 Any Price</p>", unsafe_allow_html=True)
     price_filter = st.selectbox(
         "Contract Price",
         ["Any Price", "Under $30k", "$30k - $60k", "Over $60k"],
         label_visibility="collapsed",
     )
 with f_col4:
+    st.markdown("<p style='font-size: 11px; font-weight: 700; color: #d92228; text-transform: uppercase; margin-bottom: 2px;'>🛏️ Beds & Bath</p>", unsafe_allow_html=True)
     beds_filter = st.selectbox(
         "Beds",
         ["Beds & baths", "2+ Beds", "3+ Beds", "4+ Beds"],
         label_visibility="collapsed",
     )
 with f_col5:
+    st.markdown("<p style='font-size: 11px; font-weight: 700; color: #d92228; text-transform: uppercase; margin-bottom: 2px;'>🏠 Property Type</p>", unsafe_allow_html=True)
     type_filter = st.selectbox(
         "Contract Type",
         ["Property type", "House", "Land", "Townhouse", "Condo"],
         label_visibility="collapsed",
     )
 with f_col6:
+    st.markdown("<p style='font-size: 11px; font-weight: 700; color: transparent; text-transform: uppercase; margin-bottom: 2px;'>Action</p>", unsafe_allow_html=True)
     save_search_btn = st.button("Save Search", use_container_width=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
