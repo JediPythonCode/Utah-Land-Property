@@ -206,7 +206,7 @@ def load_utah_property_database():
             "baths": 0,
             "sqft": 9147,
             "status": "Equitable Interest Available",
-            "address": "4646 S Quail Park Dr E #C, Millcreek, UT 84117",
+            "address": "4629 S Quail Vista Cve #J, Millcreek, UT 84117",
             "broker": "Utah Land & Property Inc.",
             "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
             "lat": 40.6977,
