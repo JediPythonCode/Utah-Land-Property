@@ -218,7 +218,7 @@ st.markdown(
             <label for="menu-toggle" class="hamburger-label">&#9776;</label>
         </div>
         <div class="header-logo-container">
-            <a href="#" class="header-logo">UTAH LAND & PROPERTY</a>
+            <a href="#" class="header-logo">UTAH REAL ESTATE & LAND INVESTMENTS</a>
         </div>
         <div class="header-right">
             <a href="#contracts-section" class="sign-in-link">Sign In</a>
