@@ -15,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ---> PERFECTED RESPONSIVE STICKY HEADER & INTEGRATED MOBILE MENU <---
+# ---> PURE DESKTOP HEADER & PURE MOBILE EXPANDER INTEGRATION <---
 st.markdown(
     """
     <style>
@@ -32,7 +32,7 @@ st.markdown(
             font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
-        /* Fixed Sticky Header Layout */
+        /* Fixed Sticky Header Layout for Desktop */
         .industry-header {
             position: fixed;
             top: 0;
@@ -109,8 +109,8 @@ st.markdown(
             text-decoration: none !important;
         }
 
-        /* Mobile Hamburger / Expander Container (Hidden on Desktop/Laptop) */
-        .mobile-header-menu {
+        /* Mobile Dropdown Wrapper Container - Strictly Hidden on Desktop */
+        .mobile-dropdown-container {
             display: none !important;
         }
 
@@ -119,23 +119,24 @@ st.markdown(
             .industry-header {
                 padding: 0 15px;
                 height: 60px;
-                justify-content: space-between;
+                justify-content: center;
             }
             .header-nav-left, .header-nav-right {
-                display: none !important; /* Strictly hidden on mobile */
+                display: none !important;
             }
             .header-center {
                 flex: 1;
                 text-align: center;
             }
             .header-logo {
-                font-size: 16px !important;
+                font-size: 15px !important;
             }
-            .mobile-header-menu {
-                display: block !important; /* Strictly shown on mobile only */
+            /* Explicitly enable drop-down menu container on mobile */
+            .mobile-dropdown-container {
+                display: block !important;
                 background-color: #ffffff;
                 border-bottom: 1px solid #e5e7eb;
-                padding: 8px 15px;
+                padding: 10px 15px;
                 position: fixed;
                 top: 60px;
                 left: 0;
@@ -144,7 +145,7 @@ st.markdown(
                 box-sizing: border-box;
             }
             .block-container {
-                padding-top: 120px !important;
+                padding-top: 130px !important;
             }
             .hero-container {
                 height: 280px !important;
@@ -157,7 +158,7 @@ st.markdown(
             }
         }
 
-        /* Push main content down below fixed header */
+        /* Push main content down below fixed desktop header */
         .block-container {
             padding-top: 70px !important;
             padding-left: 0rem !important;
@@ -200,7 +201,7 @@ st.markdown(
         }
     </style>
 
-    <!-- Industry Sticky Header with Centered Logo -->
+    <!-- Industry Sticky Header (Desktop Nav Links Present, Mobile Nav Links Hidden via CSS) -->
     <div class="industry-header">
         <div class="header-nav-left">
             <a href="#contracts-section">Our Contracts</a>
@@ -220,9 +221,9 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# --- INTEGRATED MOBILE-ONLY DROPDOWN MENU BAR (Right Below Header) ---
-st.markdown('<div class="mobile-header-menu">', unsafe_allow_html=True)
-with st.expander("☰ Utah Land & Property Menu"):
+# --- MOBILE-ONLY INTEGRATED DROP-DOWN MENU BAR (Hidden on Desktop) ---
+st.markdown('<div class="mobile-dropdown-container">', unsafe_allow_html=True)
+with st.expander("UTAH LAND & PROPERTY MENU"):
     st.markdown("[Our Contracts](#contracts-section)")
     st.markdown("[Assignments](#contracts-section)")
     st.markdown("[Sell to Us](#contracts-section)")
