@@ -1094,6 +1094,22 @@ render_property_grid(
 # Render Legal Notice Footer at the Bottom of the Website
 st.markdown(
     """
+    <style>
+        .legal-footer {
+            background-color: #111827;
+            color: #9ca3af;
+            font-size: 12px;
+            line-height: 1.6;
+            padding: 40px 20px;
+            text-align: center;
+            margin-top: 60px;
+            border-top: 1px solid #374151;
+        }
+        .legal-footer-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+    </style>
     <div class="legal-footer">
         <div class="legal-footer-content">
             <strong>Notice:</strong> Utah Land & Property Inc. is a private investment firm and is not a licensed real estate broker or agent.<br>
