@@ -15,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ---> UPDATED STICKY HEADER STYLING (RED FONTS ON TOP BAR ONLY, WHITE TEXT ON SIGN IN BUTTON) <---
+# ---> UPDATED STICKY HEADER STYLING (RED BUTTON WITH FORCED WHITE TEXT) <---
 st.markdown(
     """
     <style>
@@ -86,7 +86,8 @@ st.markdown(
             text-decoration: none !important;
         }
         
-        .sign-in-btn {
+        /* Red Button with Forced White Text */
+        .sign-in-btn, .sign-in-btn:link, .sign-in-btn:visited {
             background-color: #d92228 !important;
             color: #ffffff !important;
             padding: 8px 20px;
@@ -96,7 +97,7 @@ st.markdown(
             display: inline-block;
             text-align: center;
         }
-        .sign-in-btn:hover {
+        .sign-in-btn:hover, .sign-in-btn:active {
             background-color: #b51c22 !important;
             color: #ffffff !important;
             text-decoration: none !important;
@@ -159,7 +160,7 @@ st.markdown(
         <div class="header-nav-right">
             <a href="#">Manage Assets</a>
             <a href="#">Resources</a>
-            <a href="#" class="sign-in-btn"><span style="color: #ffffff !important;">Sign In</span></a>
+            <a href="#" class="sign-in-btn">Sign In</a>
         </div>
     </div>
     """,
