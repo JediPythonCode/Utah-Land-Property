@@ -15,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ---> STREAMLINED CLEAN HEADER & DROPDOWN REMOVED <---
+# ---> STREAMLINED CLEAN MOBILE-STYLE HEADER WITH HAMBURGER MENU <---
 st.markdown(
     """
     <style>
@@ -32,7 +32,7 @@ st.markdown(
             font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
-        /* Fixed Sticky Header Layout for Desktop */
+        /* Fixed Sticky Header Layout mimicking Zillow Mobile */
         .industry-header {
             position: fixed;
             top: 0;
@@ -43,44 +43,31 @@ st.markdown(
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 40px;
-            height: 70px;
+            padding: 0 20px;
+            height: 60px;
             z-index: 999999;
             box-sizing: border-box;
             box-shadow: 0 2px 6px rgba(0,0,0,0.05);
         }
-        
-        .header-nav-left, .header-nav-right {
+
+        .header-left {
             display: flex;
-            gap: 28px;
             align-items: center;
-            flex: 1;
-        }
-        
-        .header-nav-right {
-            justify-content: flex-end;
+            gap: 16px;
         }
 
-        .header-center {
-            flex: 0 0 auto;
-            text-align: center;
-        }
-        
-        .header-nav-left a, .header-nav-right a {
+        /* Hamburger Menu Icon */
+        .hamburger-icon {
+            font-size: 24px;
+            color: #111827;
+            cursor: pointer;
             text-decoration: none !important;
-            color: #d92228 !important;
-            font-weight: 700 !important;
-            font-size: 14px;
+            font-weight: 700;
+            line-height: 1;
         }
         
-        .header-nav-left a:hover, .header-nav-right a:hover {
-            color: #a8191e !important;
-            text-decoration: none !important;
-        }
-        
-        /* Centered Brand Logo */
         .header-logo {
-            font-size: 21px;
+            font-size: 19px;
             font-weight: 900 !important;
             color: #d92228 !important;
             letter-spacing: 0.5px;
@@ -91,58 +78,26 @@ st.markdown(
             color: #d92228 !important;
             text-decoration: none !important;
         }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+        }
         
-        /* Red Button with Forced White Text */
-        .sign-in-btn, .sign-in-btn:link, .sign-in-btn:visited {
-            background-color: #d92228 !important;
-            color: #ffffff !important;
-            padding: 8px 20px;
-            border-radius: 6px;
+        /* Sign In Link Style */
+        .sign-in-link {
+            color: #d92228 !important;
             font-weight: 700 !important;
-            text-decoration: none !important;
-            display: inline-block;
-            text-align: center;
-        }
-        .sign-in-btn:hover, .sign-in-btn:active {
-            background-color: #b51c22 !important;
-            color: #ffffff !important;
+            font-size: 14px;
             text-decoration: none !important;
         }
-
-        /* Media Query for Mobile Devices (Width <= 768px) */
-        @media screen and (max-width: 768px) {
-            .industry-header {
-                padding: 0 15px;
-                height: 60px;
-                justify-content: center;
-            }
-            .header-nav-left, .header-nav-right {
-                display: none !important;
-            }
-            .header-center {
-                flex: 1;
-                text-align: center;
-            }
-            .header-logo {
-                font-size: 15px !important;
-            }
-            .block-container {
-                padding-top: 75px !important;
-            }
-            .hero-container {
-                height: 280px !important;
-            }
-            .hero-title {
-                font-size: 26px !important;
-            }
-            .hero-subtitle {
-                font-size: 14px !important;
-            }
+        .sign-in-link:hover {
+            color: #a8191e !important;
         }
 
-        /* Push main content down below fixed desktop header */
+        /* Push main content down below fixed header */
         .block-container {
-            padding-top: 70px !important;
+            padding-top: 60px !important;
             padding-left: 0rem !important;
             padding-right: 0rem !important;
             max-width: 100% !important;
@@ -155,7 +110,7 @@ st.markdown(
                         url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=80');
             background-size: cover;
             background-position: center;
-            height: 400px;
+            height: 350px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -167,7 +122,7 @@ st.markdown(
         }
 
         .hero-title {
-            font-size: 38px;
+            font-size: 32px;
             font-weight: 800;
             margin-bottom: 8px;
             letter-spacing: -0.5px;
@@ -176,32 +131,49 @@ st.markdown(
         }
 
         .hero-subtitle {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 400;
             margin-bottom: 24px;
             text-shadow: 0 1px 3px rgba(0,0,0,0.3);
         }
     </style>
 
-    <!-- Industry Sticky Header (Dropdown completely dropped) -->
+    <!-- Mobile Zillow-Style Sticky Header -->
     <div class="industry-header">
-        <div class="header-nav-left">
-            <a href="#contracts-section">Our Contracts</a>
-            <a href="#contracts-section">Assignments</a>
-            <a href="#contracts-section">Sell to Us</a>
-        </div>
-        <div class="header-center">
+        <div class="header-left">
+            <span class="hamburger-icon" onclick="document.getElementById('mobile-drawer').style.display = document.getElementById('mobile-drawer').style.display === 'block' ? 'none' : 'block'">&#9776;</span>
             <a href="#" class="header-logo">UTAH LAND & PROPERTY</a>
         </div>
-        <div class="header-nav-right">
-            <a href="#contracts-section">Portfolio</a>
-            <a href="#contracts-section">Manage Assets</a>
-            <a href="#contracts-section" class="sign-in-btn">Sign In</a>
+        <div class="header-right">
+            <a href="#contracts-section" class="sign-in-link">Sign In</a>
         </div>
     </div>
     """,
     unsafe_allow_html=True,
 )
+
+# Sidebar / Toggleable Drawer Implementation for the Mobile Navigation Links
+if "menu_open" not in st.session_state:
+    st.session_state.menu_open = False
+
+with st.sidebar:
+    st.markdown(
+        "### **Navigation Menu**", unsafe_allow_html=True
+    )
+    st.markdown("---")
+    if st.button("Our Contracts", use_container_width=True):
+        st.session_state.show_faq = False
+    if st.button("Assignments", use_container_width=True):
+        st.session_state.show_faq = False
+    if st.button("Sell to Us", use_container_width=True):
+        st.session_state.show_faq = False
+    if st.button("Portfolio", use_container_width=True):
+        st.session_state.show_faq = False
+    if st.button("Manage Assets", use_container_width=True):
+        st.session_state.show_faq = False
+    st.markdown("---")
+    if st.button("Sign In / Account", use_container_width=True, type="primary"):
+        pass
 
 # Friendly Residential Hero Section
 st.markdown(
@@ -529,7 +501,7 @@ col_title_1, col_title_2 = st.columns([3, 1])
 with col_title_1:
     st.markdown(
         f"""
-        <div style="margin: 24px 40px 16px 40px;">
+        <div style="margin: 24px 20px 16px 20px;">
             <h1 style="font-size: 1.7rem; font-weight: 800; color: #111827; margin-bottom: 4px;">Utah Land & Property Inc. Real Estate & Land For Sale</h1>
             <p style="font-size: 0.95rem; color: #6b7280; margin: 0;"><b>{len(filtered_df)}</b> active private contracts available for acquisition</p>
         </div>
@@ -539,7 +511,7 @@ with col_title_1:
 
 with col_title_2:
     st.markdown(
-        "<div style='margin: 36px 40px 0 0; text-align: right;'>",
+        "<div style='margin: 36px 20px 0 0; text-align: right;'>",
         unsafe_allow_html=True,
     )
     if st.button("How private contract assignment works & FAQ", type="tertiary"):
@@ -550,7 +522,7 @@ with col_title_2:
 if st.session_state.show_faq:
     st.markdown(
         """
-        <div style="background-color: #ffffff; border: 1px solid #e5e7eb; border-left: 4px solid #d92228; padding: 24px; border-radius: 8px; margin: 0 40px 30px 40px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+        <div style="background-color: #ffffff; border: 1px solid #e5e7eb; border-left: 4px solid #d92228; padding: 24px; border-radius: 8px; margin: 0 20px 30px 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
             <h3 style="margin-top: 0; color: #111827; font-size: 1.3rem;">Understanding Private Contract & REPC Assignments</h3>
             <p style="color: #4b5563; line-height: 1.6; font-size: 0.95rem;">
                 A private contract assignment—frequently utilized in creative real estate transactions—involves transferring the equitable rights and interests held under a Real Estate Purchase Contract (REPC) or private agreement to a third party rather than executing a direct title sale of the physical property itself.
@@ -567,7 +539,7 @@ if st.session_state.show_faq:
     )
 
 # --- RESPONSIVE 3-COLUMN CARD GRID ---
-st.markdown("<div style='padding: 0 40px;'>", unsafe_allow_html=True)
+st.markdown("<div style='padding: 0 20px;'>", unsafe_allow_html=True)
 if filtered_df.empty:
     st.info("No real estate contracts match your criteria.")
 else:
