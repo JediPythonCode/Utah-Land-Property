@@ -203,7 +203,7 @@ st.markdown(
 
 # --- MOBILE NAVIGATION EXPANDER / DROPDOWN MENU ---
 st.markdown('<div class="mobile-menu-container">', unsafe_allow_html=True)
-with st.expander("🍔 UTAH LAND & PROPERTY INC. — Menu"):
+with st.expander("UTAH LAND & PROPERTY INC. — Menu"):
     st.markdown("[Our Contracts](#)", unsafe_allow_html=True)
     st.markdown("[Assignments](#)", unsafe_allow_html=True)
     st.markdown("[Sell to Us](#)", unsafe_allow_html=True)
