@@ -196,11 +196,11 @@ st.markdown(
         }
 
         .hero-title {
-            font-size: 42px;
+            font-size: 50px;
             font-weight: 1000;
             margin-bottom: 12px;
             letter-spacing: -0.5px;
-            text-shadow: 0 5px 6px rgba(0,0,0,0.4);
+            text-shadow: 0 6px 6px rgba(0,0,0,0.4);
             font-family: 'Inter', sans-serif;
             line-height: 1.1;
         }
@@ -223,7 +223,7 @@ st.markdown(
         }
     </style>
 
-    <!-- Zillow-Style Mobile Header with Centered, Larger Title & Functional Drawer -->
+    <!-- Style Mobile Header with Centered, Larger Title & Functional Drawer -->
     <input type="checkbox" id="menu-toggle">
     <div class="industry-header">
         <div class="header-left">
