@@ -149,9 +149,9 @@ st.markdown(
     <!-- Industry Sticky Header -->
     <div class="industry-header">
         <div class="header-nav-left">
-            <a href="#">Buy Contracts</a>
-            <a href="#">Assign</a>
-            <a href="#">Sell</a>
+            <a href="#">Our Contracts</a>
+            <a href="#">Assignments</a>
+            <a href="#">Sell to Us</a>
             <a href="#">Portfolio</a>
         </div>
         <div>
