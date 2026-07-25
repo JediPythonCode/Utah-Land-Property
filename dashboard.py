@@ -15,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ---> UPDATED MOBILE-RESPONSIVE STICKY HEADER & DROPDOWN STYLING <---
+# ---> UPDATED STICKY HEADER & RESPONSIVE LAYOUT STYLING <---
 st.markdown(
     """
     <style>
@@ -32,7 +32,7 @@ st.markdown(
             font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
-        /* Fixed Sticky Header with Clean White Background & Red Accent Fonts */
+        /* Fixed Sticky Header with Centered Layout & Clean Red/White Contrast */
         .industry-header {
             position: fixed;
             top: 0;
@@ -54,6 +54,16 @@ st.markdown(
             display: flex;
             gap: 28px;
             align-items: center;
+            flex: 1;
+        }
+        
+        .header-nav-right {
+            justify-content: flex-end;
+        }
+
+        .header-center {
+            flex: 0 0 auto;
+            text-align: center;
         }
         
         .header-nav-left a, .header-nav-right a {
@@ -68,7 +78,7 @@ st.markdown(
             text-decoration: none !important;
         }
         
-        /* Logo: Red, bold, and clean */
+        /* Centered Logo: Red, bold, and clean */
         .header-logo {
             font-size: 21px;
             font-weight: 900 !important;
@@ -103,9 +113,9 @@ st.markdown(
             text-decoration: none !important;
         }
 
-        /* Mobile Dropdown Menu Container (Hidden on Desktop) */
+        /* Mobile Dropdown Menu Container (Strictly Hidden on Desktop/Laptop) */
         .mobile-menu-container {
-            display: none;
+            display: none !important;
         }
 
         /* Media Query for Mobile Devices (Width <= 768px) */
@@ -115,10 +125,14 @@ st.markdown(
                 height: 60px;
             }
             .header-nav-left, .header-nav-right {
-                display: none !important; /* Hide full desktop menu items on mobile */
+                display: none !important; /* Hide desktop nav items on mobile */
+            }
+            .header-center {
+                flex: 1;
+                text-align: left;
             }
             .mobile-menu-container {
-                display: block; /* Show mobile dropdown element handler */
+                display: block !important; /* Strictly show mobile dropdown handler only on mobile */
             }
             .header-logo {
                 font-size: 15px; /* Scale down logo to fit mobile layout cleanly */
@@ -145,7 +159,7 @@ st.markdown(
             max-width: 100% !important;
         }
 
-        /* Immersive Hero Banner with Xeriscaped Sustainable Landscape */
+        /* Immersive Hero Banner */
         .hero-container {
             position: relative;
             background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
@@ -180,46 +194,45 @@ st.markdown(
         }
     </style>
 
-    <!-- Industry Sticky Header -->
+    <!-- Industry Sticky Header with Centered Logo -->
     <div class="industry-header">
         <div class="header-nav-left">
-            <a href="#">Our Contracts</a>
-            <a href="#">Assignments</a>
-            <a href="#">Sell to Us</a>
-            <a href="#">Portfolio</a>
+            <a href="#contracts-section">Our Contracts</a>
+            <a href="#contracts-section">Assignments</a>
+            <a href="#contracts-section">Sell to Us</a>
         </div>
-        <div>
+        <div class="header-center">
             <a href="#" class="header-logo">UTAH LAND & PROPERTY</a>
         </div>
         <div class="header-nav-right">
-            <a href="#">Manage Assets</a>
-            <a href="#">Resources</a>
-            <a href="#" class="sign-in-btn">Sign In</a>
+            <a href="#contracts-section">Portfolio</a>
+            <a href="#contracts-section">Manage Assets</a>
+            <a href="#contracts-section" class="sign-in-btn">Sign In</a>
         </div>
     </div>
     """,
     unsafe_allow_html=True,
 )
 
-# --- MOBILE NAVIGATION EXPANDER / DROPDOWN MENU ---
+# --- MOBILE NAVIGATION EXPANDER / DROPDOWN MENU (Strictly Mobile Only) ---
 st.markdown('<div class="mobile-menu-container">', unsafe_allow_html=True)
-with st.expander("UTAH LAND & PROPERTY INC. — Menu"):
-    st.markdown("[Our Contracts](#)", unsafe_allow_html=True)
-    st.markdown("[Assignments](#)", unsafe_allow_html=True)
-    st.markdown("[Sell to Us](#)", unsafe_allow_html=True)
-    st.markdown("[Portfolio](#)", unsafe_allow_html=True)
-    st.markdown("[Manage Assets](#)", unsafe_allow_html=True)
-    st.markdown("[Resources](#)", unsafe_allow_html=True)
-    st.markdown("[**Sign In**](#)", unsafe_allow_html=True)
+with st.expander("🍔 UTAH LAND & PROPERTY INC. — Menu"):
+    st.markdown("[Our Contracts](#contracts-section)")
+    st.markdown("[Assignments](#contracts-section)")
+    st.markdown("[Sell to Us](#contracts-section)")
+    st.markdown("[Portfolio](#contracts-section)")
+    st.markdown("[Manage Assets](#contracts-section)")
+    st.markdown("[**Sign In**](#contracts-section)")
 st.markdown("</div>", unsafe_allow_html=True)
 
-# Friendly Residential Hero Section with Xeriscaped Home
+# Friendly Residential Hero Section
 st.markdown(
     """
     <div class="hero-container">
         <div class="hero-title">Utah Land & Property</div>
         <div class="hero-subtitle">Private Utah Real Estate Transactions.</div>
     </div>
+    <div id="contracts-section"></div>
     """,
     unsafe_allow_html=True,
 )
