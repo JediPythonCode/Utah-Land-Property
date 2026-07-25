@@ -9,7 +9,7 @@ import pandas as pd
 import pydeck as pdk
 import streamlit as st
 
-# ---> MOBILE HEADER WITH CENTERED, LARGER LOGO & FLYOUT DRAWER <---
+# ---> MOBILE HEADER WITH CENTERED, LARGER LOGO & FLYOUT DRAWER <--
 st.markdown(
     """
     <style>
