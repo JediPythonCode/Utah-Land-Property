@@ -302,7 +302,7 @@ with st.expander("🎮 Investor Quest: Daily Deal Check-In & Bonus Reward"):
             st.info("Daily bonus already claimed for today!")
 
 
-# Expanded Utah Property Database with 15 Contracts for Sale (Private Market Only)
+# Expanded Utah Property Database with Deal Structure (Contract Price, Purchase Price, ARV)
 @st.cache_data
 def load_utah_property_database():
     data = [
@@ -311,12 +311,13 @@ def load_utah_property_database():
             "title": "Millcreek Residential Condo Parcel",
             "type": "Contract for Sale / Land",
             "city": "Millcreek, UT",
-            "contract_price": 28500,
-            "underlying_price": 285000,
+            "contract_price": 5000,
+            "purchase_price": 165000,
+            "arv": 225000,
             "beds": 1,
             "baths": 1,
             "sqft": 750,
-            "status": "Equitable Interest Assignable",
+            "status": "UNDER CONTRACT",
             "address": "4629 S Quail Vista Cve #J, Millcreek, UT 84117",
             "broker": "Utah Land & Property Inc.",
             "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
@@ -328,12 +329,13 @@ def load_utah_property_database():
             "title": "Millcreek Elmwood Contract Assignment",
             "type": "Contract for Sale / House",
             "city": "Millcreek, UT",
-            "contract_price": 45000,
-            "underlying_price": 625000,
+            "contract_price": 12000,
+            "purchase_price": 420000,
+            "arv": 625000,
             "beds": 5,
             "baths": 2,
             "sqft": 2446,
-            "status": "Showcase",
+            "status": "UNDER CONTRACT",
             "address": "718 E Elgin Ave, Millcreek, UT 84106",
             "broker": "Utah Land & Property Inc.",
             "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
@@ -345,12 +347,13 @@ def load_utah_property_database():
             "title": "Millbert Avenue Purchase Agreement",
             "type": "Contract for Sale / House",
             "city": "Salt Lake City, UT",
-            "contract_price": 52000,
-            "underlying_price": 650000,
+            "contract_price": 15000,
+            "purchase_price": 440000,
+            "arv": 650000,
             "beds": 5,
             "baths": 2,
             "sqft": 2852,
-            "status": "2 days on market",
+            "status": "UNDER CONTRACT",
             "address": "1010 E Millbert Ave S, Salt Lake City, UT 84106",
             "broker": "Utah Land & Property Inc.",
             "image": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
@@ -362,8 +365,9 @@ def load_utah_property_database():
             "title": "Draper Commercial Buffer REPC Assignment",
             "type": "Contract for Sale / Commercial",
             "city": "Draper, UT",
-            "contract_price": 15000,
-            "underlying_price": 145000,
+            "contract_price": 8500,
+            "purchase_price": 110000,
+            "arv": 145000,
             "beds": 0,
             "baths": 0,
             "sqft": 4791,
@@ -379,8 +383,9 @@ def load_utah_property_database():
             "title": "Provo Riverfront Purchase Contract",
             "type": "Contract for Sale / Land",
             "city": "Provo, UT",
-            "contract_price": 35000,
-            "underlying_price": 410000,
+            "contract_price": 10000,
+            "purchase_price": 310000,
+            "arv": 410000,
             "beds": 0,
             "baths": 0,
             "sqft": 12500,
@@ -396,12 +401,13 @@ def load_utah_property_database():
             "title": "Ogden Historic Bench REPC",
             "type": "Contract for Sale / House",
             "city": "Ogden, UT",
-            "contract_price": 38000,
-            "underlying_price": 485000,
+            "contract_price": 11000,
+            "purchase_price": 365000,
+            "arv": 485000,
             "beds": 4,
             "baths": 3,
             "sqft": 3100,
-            "status": "Price Improvement",
+            "status": "UNDER CONTRACT",
             "address": "1420 25th St, Ogden, UT 84401",
             "broker": "Utah Land & Property Inc.",
             "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
@@ -413,8 +419,9 @@ def load_utah_property_database():
             "title": "Park City Mountain View Townhome Contract",
             "type": "Contract for Sale / Townhouse",
             "city": "Park City, UT",
-            "contract_price": 95000,
-            "underlying_price": 1250000,
+            "contract_price": 25000,
+            "purchase_price": 950000,
+            "arv": 1250000,
             "beds": 3,
             "baths": 4,
             "sqft": 2400,
@@ -430,8 +437,9 @@ def load_utah_property_database():
             "title": "St. George Red Rock Master REPC",
             "type": "Contract for Sale / Commercial",
             "city": "St. George, UT",
-            "contract_price": 75000,
-            "underlying_price": 890000,
+            "contract_price": 20000,
+            "purchase_price": 680000,
+            "arv": 890000,
             "beds": 0,
             "baths": 0,
             "sqft": 45000,
@@ -447,8 +455,9 @@ def load_utah_property_database():
             "title": "Lehi Silicon Slopes Purchase Agreement",
             "type": "Contract for Sale / Mixed-Use",
             "city": "Lehi, UT",
-            "contract_price": 60000,
-            "underlying_price": 750000,
+            "contract_price": 14000,
+            "purchase_price": 570000,
+            "arv": 750000,
             "beds": 4,
             "baths": 3,
             "sqft": 3400,
@@ -464,12 +473,13 @@ def load_utah_property_database():
             "title": "Sugar House Bungalow Assignment",
             "type": "Contract for Sale / House",
             "city": "Salt Lake City, UT",
-            "contract_price": 42000,
-            "underlying_price": 540000,
+            "contract_price": 12500,
+            "purchase_price": 410000,
+            "arv": 540000,
             "beds": 3,
             "baths": 2,
             "sqft": 1850,
-            "status": "New Listing",
+            "status": "UNDER CONTRACT",
             "address": "2100 S Highland Dr, Salt Lake City, UT 84106",
             "broker": "Utah Land & Property Inc.",
             "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
@@ -481,8 +491,9 @@ def load_utah_property_database():
             "title": "Murray Metro Condominium REPC",
             "type": "Contract for Sale / Condo",
             "city": "Murray, UT",
-            "contract_price": 12000,
-            "underlying_price": 245000,
+            "contract_price": 6000,
+            "purchase_price": 190000,
+            "arv": 245000,
             "beds": 2,
             "baths": 1,
             "sqft": 950,
@@ -498,8 +509,9 @@ def load_utah_property_database():
             "title": "West Valley Family Estate Contract",
             "type": "Contract for Sale / House",
             "city": "West Valley City, UT",
-            "contract_price": 34000,
-            "underlying_price": 460000,
+            "contract_price": 9500,
+            "purchase_price": 350000,
+            "arv": 460000,
             "beds": 4,
             "baths": 2,
             "sqft": 2100,
@@ -515,8 +527,9 @@ def load_utah_property_database():
             "title": "Sandy Foothills Townhome REPC",
             "type": "Contract for Sale / Townhouse",
             "city": "Sandy, UT",
-            "contract_price": 28000,
-            "underlying_price": 395000,
+            "contract_price": 8000,
+            "purchase_price": 305000,
+            "arv": 395000,
             "beds": 3,
             "baths": 2,
             "sqft": 1650,
@@ -532,8 +545,9 @@ def load_utah_property_database():
             "title": "Midvale Central Station Land Contract",
             "type": "Contract for Sale / Land",
             "city": "Midvale, UT",
-            "contract_price": 22000,
-            "underlying_price": 290000,
+            "contract_price": 7000,
+            "purchase_price": 225000,
+            "arv": 290000,
             "beds": 0,
             "baths": 0,
             "sqft": 6500,
@@ -549,12 +563,13 @@ def load_utah_property_database():
             "title": "Bountiful Bench View REPC Assignment",
             "type": "Contract for Sale / House",
             "city": "Bountiful, UT",
-            "contract_price": 49000,
-            "underlying_price": 580000,
+            "contract_price": 13000,
+            "purchase_price": 440000,
+            "arv": 580000,
             "beds": 4,
             "baths": 3,
             "sqft": 2700,
-            "status": "Exclusive",
+            "status": "UNDER CONTRACT",
             "address": "500 S Main St, Bountiful, UT 84010",
             "broker": "Utah Land & Property Inc.",
             "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
@@ -673,18 +688,24 @@ else:
             )
             first_image = listing_images[0].strip()
 
+            # Dynamic badge coloring for UNDER CONTRACT vs others
+            badge_bg = (
+                "#b91c1c" if row["status"] == "UNDER CONTRACT" else "rgba(0,0,0,0.7)"
+            )
+
             with cols[idx]:
                 st.markdown(
                     f"""
                         <div style="background: white; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
                             <div style="position: relative;">
                                 <img src="{first_image}" style="width: 100%; height: 200px; object-fit: cover;">
-                                <div style="position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.7); color: white; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">{row['status']}</div>
+                                <div style="position: absolute; top: 12px; left: 12px; background: {badge_bg}; color: white; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px;">{row['status']}</div>
                             </div>
                             <div style="padding: 16px;">
                                 <div style="font-size: 11px; text-transform: uppercase; color: #6b7280; font-weight: 700; margin-bottom: 4px;">{row['broker']}</div>
-                                <div style="font-size: 18px; font-weight: 800; color: #111827; margin-bottom: 4px;">Contract: ${row['contract_price']:,}</div>
-                                <div style="font-size: 13px; color: #4b5563; margin-bottom: 8px;">Property Value: ${row['underlying_price']:,}</div>
+                                <div style="font-size: 16px; font-weight: 800; color: #111827; margin-bottom: 6px;">Contract: ${row['contract_price']:,}</div>
+                                <div style="font-size: 13px; color: #374151; margin-bottom: 2px;">Property Purchase Price: <b>${row['purchase_price']:,}</b></div>
+                                <div style="font-size: 13px; color: #047857; font-weight: 600; margin-bottom: 8px;">ARV: ${row['arv']:,}</div>
                                 <div style="font-size: 13px; color: #374151; margin-bottom: 8px;"><b>{row['beds']}</b> bds &nbsp;|&nbsp; <b>{row['baths']}</b> ba &nbsp;|&nbsp; <b>{row['sqft']:,}</b> sqft</div>
                                 <div style="font-size: 13px; color: #6b7280;">{row['address']}</div>
                             </div>
