@@ -2,6 +2,7 @@ from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import random
 import re
 import smtplib
 import pandas as pd
@@ -14,6 +15,14 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed",
 )
+
+# Initialize Gamification State (Points & Earned Badges)
+if "user_points" not in st.session_state:
+    st.session_state.user_points = 150  # Starting signup bonus points
+if "user_badges" not in st.session_state:
+    st.session_state.user_badges = ["Property Scout 🕵️‍♂️"]
+if "daily_claimed" not in st.session_state:
+    st.session_state.daily_claimed = False
 
 # ---> ZILLOW-STYLE MOBILE HEADER WITH CENTERED, LARGER LOGO & FLYOUT DRAWER <---
 st.markdown(
@@ -218,7 +227,7 @@ st.markdown(
             <label for="menu-toggle" class="hamburger-label">&#9776;</label>
         </div>
         <div class="header-logo-container">
-            <a href="#" class="header-logo">UTAH LAND & PROPERTY INC.</a>
+            <a href="#" class="header-logo">UTAH LAND & PROPERTY</a>
         </div>
         <div class="header-right">
             <a href="#contracts-section" class="sign-in-link">Sign In</a>
@@ -242,13 +251,55 @@ st.markdown(
 st.markdown(
     """
     <div class="hero-container">
-        <div class="hero-title">UTAH REAL ESTATE & LAND INVESTMENTS</div>
+        <div class="hero-title">Utah Land & Property</div>
         <div class="hero-subtitle">Private Utah Real Estate Transactions.</div>
     </div>
     <div id="contracts-section"></div>
     """,
     unsafe_allow_html=True,
 )
+
+# --- GAMIFICATION REWARDS & BADGE HUB (HEADER BAR) ---
+st.markdown(
+    f"""
+    <div style="background: linear-gradient(135deg, #1f2937 0%, #111827 100%); color: white; padding: 16px 24px; border-radius: 10px; margin: 0 20px 24px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+        <div>
+            <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #9ca3af; font-weight: 700;">Investor Gamification Hub</div>
+            <div style="font-size: 20px; font-weight: 800; color: #ffffff;">⭐ {st.session_state.user_points} RP <span style="font-size: 14px; font-weight: 400; color: #d1d5db;">(Reward Points)</span></div>
+        </div>
+        <div>
+            <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #9ca3af; font-weight: 700; text-align: right;">Unlocked Badges</div>
+            <div style="font-size: 14px; font-weight: 600; color: #38bdf8;">{" | ".join(st.session_state.user_badges)}</div>
+        </div>
+    </div>
+""",
+    unsafe_allow_html=True,
+)
+
+# Gamification Interactive Mini-Game / Daily Bonus Section
+with st.expander("🎮 Investor Quest: Daily Deal Check-In & Bonus Reward"):
+    col_g1, col_g2 = st.columns([2, 1])
+    with col_g1:
+        st.markdown(
+            "**Earn Reward Points (RP) & Unlock Exclusive Tiers!**<br>Log your daily contract review, analyze local cap rates, or test your negotiation forecasting to level up your Investor Badge status.",
+            unsafe_allow_html=True,
+        )
+    with col_g2:
+        if not st.session_state.daily_claimed:
+            if st.button("🎁 Claim Daily +50 RP", use_container_width=True):
+                st.session_state.user_points += 50
+                st.session_state.daily_claimed = True
+                if (
+                    "Master Negotiator 🏆"
+                    not in st.session_state.user_badges
+                ):
+                    st.session_state.user_badges.append(
+                        "Master Negotiator 🏆"
+                    )
+                st.success("Claimed +50 Reward Points!")
+                st.rerun()
+        else:
+            st.info("Daily bonus already claimed for today!")
 
 
 # Expanded Utah Property Database with 15 Contracts for Sale (Private Market Only)
@@ -260,12 +311,12 @@ def load_utah_property_database():
             "title": "Millcreek Residential Condo Parcel",
             "type": "Contract for Sale / Land",
             "city": "Millcreek, UT",
-            "contract_price": 5000,
-            "underlying_price": 165000,
+            "contract_price": 28500,
+            "underlying_price": 285000,
             "beds": 1,
             "baths": 1,
             "sqft": 750,
-            "status": "UNDER CONTRACT",
+            "status": "Equitable Interest Assignable",
             "address": "4629 S Quail Vista Cve #J, Millcreek, UT 84117",
             "broker": "Utah Land & Property Inc.",
             "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
@@ -658,7 +709,18 @@ else:
                             send_offer_dispatch(
                                 row["id"], row["title"], user_email, offer_terms
                             )
-                            st.success("Offer successfully dispatched to escrow!")
+                            # Gamification bonus for submitting an offer
+                            st.session_state.user_points += 100
+                            if (
+                                "Deal Maker 💼"
+                                not in st.session_state.user_badges
+                            ):
+                                st.session_state.user_badges.append(
+                                    "Deal Maker 💼"
+                                )
+                            st.success(
+                                "Offer successfully dispatched to escrow! (+100 RP earned)"
+                            )
                         else:
                             st.error("Please enter a valid email address.")
 st.markdown("</div>", unsafe_allow_html=True)
