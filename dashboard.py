@@ -187,8 +187,8 @@ st.markdown(
 st.markdown(
     """
     <div class="hero-container">
-        <div class="hero-title">Investments. Fix & Flips. Buy and Hold. Land.</div>
-        <div class="hero-subtitle">Utah Real Estate & Land.</div>
+        <div class="hero-title">Find your next Utah property & contract.</div>
+        <div class="hero-subtitle">Explore verified REPC assignments, direct acquisitions, and water-efficient xeriscaped properties.</div>
     </div>
     """,
     unsafe_allow_html=True,
