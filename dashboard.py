@@ -172,7 +172,7 @@ st.markdown(
     """
     <div class="hero-container">
         <div class="hero-title">Utah Land & Property</div>
-        <div class="hero-subtitle">Precision acquisitions, Private Real Estate Transactions.</div>
+        <div class="hero-subtitle">Private Utah Real Estate Transactions.</div>
     </div>
     """,
     unsafe_allow_html=True,
