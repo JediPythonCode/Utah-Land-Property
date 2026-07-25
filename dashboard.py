@@ -153,12 +153,12 @@ st.markdown(
 
 # 3. Friendly Residential Hero Section
 st.markdown(
-    
+    """
     <div class="hero-container">
-    <h1 class="hero-title">Utah Investment Properties & Real Estate Contracts For Sale</h1>
-    <p class="hero-subtitle">Access verified REPC assignments, wholesale equity, off-market real estate, and commercial land packages across Salt Lake City, Draper, Millcreek, and Utah.</p>
-</div>
-    ,
+        <div class="hero-title">Find your next Utah property & contract.</div>
+        <div class="hero-subtitle">Explore verified REPC assignments, direct acquisitions, and wholesale equity.</div>
+    </div>
+    """,
     unsafe_allow_html=True,
 )
 
