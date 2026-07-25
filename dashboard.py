@@ -15,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ---> PURE DESKTOP HEADER & PURE MOBILE EXPANDER INTEGRATION <---
+# ---> STREAMLINED DESKTOP HEADER & ISOLATED MOBILE MENU BAR <---
 st.markdown(
     """
     <style>
@@ -109,8 +109,9 @@ st.markdown(
             text-decoration: none !important;
         }
 
-        /* Mobile Dropdown Wrapper Container - Strictly Hidden on Desktop */
-        .mobile-dropdown-container {
+        /* CRITICAL: Force Streamlit container for mobile expander to be 100% hidden on desktop */
+        div[data-testid="stMarkdownContainer"]:has(.mobile-dropdown-target),
+        .mobile-dropdown-wrapper {
             display: none !important;
         }
 
@@ -131,12 +132,12 @@ st.markdown(
             .header-logo {
                 font-size: 15px !important;
             }
-            /* Explicitly enable drop-down menu container on mobile */
-            .mobile-dropdown-container {
+            /* Explicitly show mobile dropdown wrapper only on mobile screens */
+            .mobile-dropdown-wrapper {
                 display: block !important;
                 background-color: #ffffff;
                 border-bottom: 1px solid #e5e7eb;
-                padding: 10px 15px;
+                padding: 6px 15px;
                 position: fixed;
                 top: 60px;
                 left: 0;
@@ -145,7 +146,7 @@ st.markdown(
                 box-sizing: border-box;
             }
             .block-container {
-                padding-top: 130px !important;
+                padding-top: 125px !important;
             }
             .hero-container {
                 height: 280px !important;
@@ -201,7 +202,7 @@ st.markdown(
         }
     </style>
 
-    <!-- Industry Sticky Header (Desktop Nav Links Present, Mobile Nav Links Hidden via CSS) -->
+    <!-- Industry Sticky Header (Desktop Nav) -->
     <div class="industry-header">
         <div class="header-nav-left">
             <a href="#contracts-section">Our Contracts</a>
@@ -221,16 +222,19 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# --- MOBILE-ONLY INTEGRATED DROP-DOWN MENU BAR (Hidden on Desktop) ---
-st.markdown('<div class="mobile-dropdown-container">', unsafe_allow_html=True)
-with st.expander("UTAH LAND & PROPERTY MENU"):
+# --- MOBILE-ONLY DROP-DOWN MENU BAR (Strictly Enforced Hidden on Desktop via Wrapper Class) ---
+st.markdown(
+    '<div class="mobile-dropdown-wrapper"><div class="mobile-dropdown-target">',
+    unsafe_allow_html=True,
+)
+with st.expander("📂 UTAH LAND & PROPERTY MENU"):
     st.markdown("[Our Contracts](#contracts-section)")
     st.markdown("[Assignments](#contracts-section)")
     st.markdown("[Sell to Us](#contracts-section)")
     st.markdown("[Portfolio](#contracts-section)")
     st.markdown("[Manage Assets](#contracts-section)")
     st.markdown("[**Sign In**](#contracts-section)")
-st.markdown("</div>", unsafe_allow_html=True)
+st.markdown("</div></div>", unsafe_allow_html=True)
 
 # Friendly Residential Hero Section
 st.markdown(
