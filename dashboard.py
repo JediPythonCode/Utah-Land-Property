@@ -263,8 +263,7 @@ def load_utah_property_database():
             "city": "Millcreek, UT",
             "contract_price": 5000,
             "purchase_price": 165000,
-            "down_payment_pct": 20,
-            "down_payment_amt": int(165000 * 0.20),
+           
             "arv": int(165000 * 1.32),
             "beds": 1,
             "baths": 1,
