@@ -223,7 +223,7 @@ st.markdown(
             <label for="menu-toggle" class="hamburger-label">&#9776;</label>
         </div>
         <div class="header-logo-container">
-            <a href="#" class="header-logo">UTAH LAND & PROPERTY</a>
+            <a href="#" class="header-logo">UTAH LAND & PROPERTY </a>
         </div>
     </div>
 
@@ -242,7 +242,7 @@ st.markdown(
 st.markdown(
     """
     <div class="hero-container">
-        <div class="hero-title"> Utah Land & Property </div>
+        <div class="hero-title"> Utah Land & Property For Sale </div>
         <div class="hero-subtitle">Utah Private Real Estate Opportunities. Wholesale Utah Real Estate Contracts For Sale. </div>
     </div>
     <div id="contracts-section"></div>
