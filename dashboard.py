@@ -189,8 +189,8 @@ st.markdown(
         }
 
         .hero-title {
-            font-size: 40px;
-            font-weight: 850;
+            font-size: 42px;
+            font-weight: 950;
             margin-bottom: 12px;
             letter-spacing: -0.5px;
             text-shadow: 0 6px 6px rgba(0,0,0,0.4);
@@ -238,7 +238,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Friendly Zillow-Inspired Hero Section with Bold, Easy-to-Understand Words
+# Hero Section with Bold, Easy-to-Understand Words
 st.markdown(
     """
     <div class="hero-container">
