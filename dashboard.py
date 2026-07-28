@@ -1006,9 +1006,8 @@ def render_property_grid(subset_df, category_title, anchor_id):
 
                         # Actual random contract/financing terms options for the dropdown
                         contract_terms_options = [
-                            f"Standard Cash Purchase ({row['down_payment_pct']}% Down / 14-Day Close)",
+                            
                             "Subject-To Existing Mortgage Takeover",
-                            "Seller Financing (5-Year Balloon / 7.5% Interest)",
                             "Equitable Interest Assignment (REPC Assignment Fee)",
                             "Wholesale Cash Offer (7-Day Inspection Waiver)",
                         ]
