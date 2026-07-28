@@ -243,7 +243,7 @@ st.markdown(
     """
     <div class="hero-container">
         <div class="hero-title"> Utah Land & Property For Sale </div>
-        <div class="hero-subtitle"> Utah Investment Property for Sale. Investment Real Estate & Land For Sale. </div>
+        <div class="hero-subtitle"> Utah Investment Property for Sale. Investment Real Estate & Land For Sale in Utah. </div>
     </div>
     <div id="contracts-section"></div>
     """,
