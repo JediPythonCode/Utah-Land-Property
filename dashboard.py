@@ -59,7 +59,7 @@ st.markdown(
 
         .berkshire-login-image-pane {
             flex: 1.2;
-            background: linear-gradient(rgba(11, 15, 25, 0.88), rgba(11, 15, 25, 0.94)), 
+            background: linear-gradient(rgba(15, 23, 42, 0.55), rgba(15, 23, 42, 0.88)), 
                         url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80');
             background-size: cover;
             background-position: center;
