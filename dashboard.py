@@ -17,7 +17,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ---> CUSTOM STYLING & CLEAN LAYOUT (ZILLOW UI + HIGH-END GAMING HUD / CYBERPUNK EXECUTIVE MOTIF) <---
+# ---> CUSTOM STYLING: BERKSHIRE HATHAWAY EXECUTIVE LOGIN & ZILLOW/HUD ASSET DASHBOARD <---
 st.markdown(
     """
     <style>
@@ -35,6 +35,52 @@ st.markdown(
             font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
+        /* --- PROFESSIONAL BERKSHIRE-STYLE LOGIN GATEWAY --- */
+        .login-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80vh;
+            padding: 20px;
+        }
+
+        .berkshire-login-card {
+            width: 100%;
+            max-width: 440px;
+            background-color: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            padding: 40px 35px;
+            color: #111827;
+        }
+
+        .berkshire-brand-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #0f172a;
+            padding-bottom: 20px;
+        }
+
+        .berkshire-brand-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: #0f172a;
+            margin-bottom: 5px;
+        }
+
+        .berkshire-brand-header p {
+            font-size: 11px;
+            color: #4b5563;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        /* --- DASHBOARD STYLING --- */
         .main-header {
             background: linear-gradient(rgba(11, 15, 25, 0.75), rgba(11, 15, 25, 0.75)), 
                         url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=2400&q=80');
@@ -73,17 +119,17 @@ st.markdown(
 
         .section-header {
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.8rem;
-            font-weight: 700;
+            font-size: 2.4rem;
+            font-weight: 900;
             color: #00f2fe;
-            margin: 45px 0 15px 0;
-            padding-bottom: 10px;
-            border-bottom: 2px solid rgba(0, 242, 254, 0.3);
-            letter-spacing: 0.5px;
-            text-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
+            margin: 55px 0 20px 0;
+            padding-bottom: 12px;
+            border-bottom: 3px solid rgba(0, 242, 254, 0.4);
+            letter-spacing: 1px;
+            text-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
         }
 
-        /* Zillow UI Style Listing Cards with High-End Cyber Gaming HUD Accents (NO CARD IMAGES) */
+        /* Zillow UI Style Listing Cards with High-End Cyber Gaming HUD Accents */
         .zillow-card {
             background: #131b2e;
             border: 1px solid rgba(0, 242, 254, 0.2);
@@ -150,29 +196,32 @@ st.markdown(
         /* Cinematic Inter-Category Banner Styles */
         .category-banner {
             position: relative;
-            border-radius: 10px;
+            border-radius: 12px;
             overflow: hidden;
-            margin: 30px 0 10px 0;
+            margin: 45px 0 15px 0;
             border: 1px solid rgba(0, 242, 254, 0.3);
-            box-shadow: 0 4px 25px rgba(0,0,0,0.5);
+            box-shadow: 0 6px 30px rgba(0,0,0,0.6);
         }
         .category-banner img {
             width: 100%;
-            height: 220px;
+            height: 260px;
             object-fit: cover;
             display: block;
-            filter: brightness(0.65) contrast(1.1);
+            filter: brightness(0.7) contrast(1.1);
         }
         .category-banner-text {
             position: absolute;
-            bottom: 20px;
-            left: 25px;
+            bottom: 25px;
+            left: 30px;
             color: #ffffff;
             font-family: 'Orbitron', sans-serif;
-            font-size: 24px;
-            font-weight: 700;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.8);
-            letter-spacing: 0.5px;
+            font-size: 32px;
+            font-weight: 900;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.9);
+            letter-spacing: 1px;
+            background: linear-gradient(90deg, #ffffff, #00f2fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
     </style>
     """,
@@ -182,6 +231,74 @@ st.markdown(
 # ---> AUTHENTICATION SESSION STATE SETUP <---
 if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
+
+# ---> INVESTOR LOGIN GATEWAY (BERKSHIRE HATHAWAY STYLE) <---
+if not st.session_state["authenticated"]:
+    st.markdown(
+        """
+        <div class="login-wrapper">
+            <div class="berkshire-login-card">
+                <div class="berkshire-brand-header">
+                    <h1>Utah Land & Property</h1>
+                    <p>Executive Investor Secure Portal</p>
+                </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    
+    with st.form("login_form"):
+        st.markdown(
+            """
+            <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: #374151; margin-bottom: 6px; letter-spacing: 0.05em;">
+                Corporate Identifier / Email
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        investor_email = st.text_input("Investor Email", label_visibility="collapsed", placeholder="investor@utahlandproperty.com")
+        
+        st.markdown(
+            """
+            <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: #374151; margin: 15px 0 6px 0; letter-spacing: 0.05em;">
+                Security Password
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        secret_code = st.text_input("Secret Access Code", type="password", label_visibility="collapsed", placeholder="••••••••••••")
+        
+        st.markdown("<div style='margin-top: 25px;'></div>", unsafe_allow_html=True)
+        submit_login = st.form_submit_button("Authenticate Securely", use_container_width=True)
+        
+        if submit_login:
+            configured_email = st.secrets.get("INVESTOR_EMAIL", "douglas@utahlandproperty.com")
+            configured_secret = st.secrets.get("INVESTOR_SECRET", "UTAH2026!")
+            
+            if investor_email.strip().lower() == configured_email.lower() and secret_code == configured_secret:
+                st.session_state["authenticated"] = True
+                st.success("Access Granted! Initializing HUD...")
+                st.rerun()
+            else:
+                st.error("Authentication Failed: Invalid corporate credentials.")
+    
+    st.markdown(
+        """
+                <div style="text-align: center; font-size: 11px; color: #6b7280; margin-top: 25px; border-top: 1px solid #e5e7eb; pt: 15px; line-height: 1.4;">
+                    &copy; 2026 Utah Land & Property Inc. All rights reserved.<br>Protected by advanced encryption and structural authorization protocols.
+                </div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.stop()
+
+# ---> SIDEBAR CONTROLS <---
+st.sidebar.title("🎮 HUD Control Matrix")
+category_filter = st.sidebar.selectbox("Filter Asset Sector", ["All", "Residential", "Raw Land", "Commercial"])
+status_filter = st.sidebar.selectbox("Contract Status", ["All", "Available", "UNDER CONTRACT"])
+st.sidebar.markdown("---")
+st.sidebar.info("STATUS: SECURE 🟢\nOPERATOR: CEO / ADMIN\nSYSTEM: ACTIVE")
 
 # ---> MAIN HEADER SECTION <---
 st.markdown(
@@ -194,36 +311,6 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
-
-# ---> INVESTOR LOGIN GATEWAY <---
-if not st.session_state["authenticated"]:
-    st.markdown("### 🔒 Secure Tactical Investor Access Portal")
-    st.markdown("Please enter your verified investor credentials to unlock off-market asset streams.")
-    
-    with st.form("login_form"):
-        investor_email = st.text_input("Investor Email")
-        secret_code = st.text_input("Secret Access Code", type="password")
-        submit_login = st.form_submit_button("Authenticate & Initialize Portal")
-        
-        if submit_login:
-            configured_email = st.secrets.get("INVESTOR_EMAIL", "douglas@utahlandproperty.com")
-            configured_secret = st.secrets.get("INVESTOR_SECRET", "UTAH2026!")
-            
-            if investor_email.strip().lower() == configured_email.lower() and secret_code == configured_secret:
-                st.session_state["authenticated"] = True
-                st.success("Access Granted! Initializing HUD...")
-                st.rerun()
-            else:
-                st.error("Authentication Failed: Invalid credentials.")
-    
-    st.stop()
-
-# ---> SIDEBAR CONTROLS <---
-st.sidebar.title("🎮 HUD Control Matrix")
-category_filter = st.sidebar.selectbox("Filter Asset Sector", ["All", "Residential", "Raw Land", "Commercial"])
-status_filter = st.sidebar.selectbox("Contract Status", ["All", "Available", "UNDER CONTRACT"])
-st.sidebar.markdown("---")
-st.sidebar.info("STATUS: SECURE 🟢\nOPERATOR: CEO / ADMIN\nSYSTEM: ACTIVE")
 
 # ---> DATABASE GENERATOR <---
 @st.cache_data
@@ -289,7 +376,7 @@ def load_utah_property_database():
 
 database = load_utah_property_database()
 
-# ---> RENDER SECTIONS WITH CINEMATIC BETWEEN-CATEGORY IMAGES <---
+# ---> RENDER SECTIONS WITH CINEMATIC BETWEEN-CATEGORY IMAGES & LARGER HEADERS <---
 categories_to_show = ["Residential", "Raw Land", "Commercial"] if category_filter == "All" else [category_filter]
 
 # Banner image URLs mapped to category themes
