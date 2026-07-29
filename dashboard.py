@@ -17,11 +17,11 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ---> CUSTOM STYLING: LIGHT APP BACKGROUND & ENLARGED LOGIN TEXT PANES <---
+# ---> CUSTOM STYLING: LIGHT APP BACKGROUND & BOLD CONFIDENT TYPOGRAPHY <---
 st.markdown(
     """
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;600;800;900&family=Playfair+Display:wght@700;900&display=swap');
 
         /* Hide Streamlit Header, Menu, and Footer */
         #MainMenu {visibility: hidden;}
@@ -32,11 +32,11 @@ st.markdown(
         /* Overall App Background: LIGHT */
         .stApp {
             background-color: #f8fafc;
-            color: #1e293b;
+            color: #0f172a;
             font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
-        /* --- STICKY DUAL-PANEL BERKSHIRE-STYLE LOGIN GATEWAY (LARGER & EXPANDED) --- */
+        /* --- STICKY DUAL-PANEL BERKSHIRE-STYLE LOGIN GATEWAY --- */
         .login-outer-wrapper {
             display: flex;
             justify-content: center;
@@ -126,175 +126,185 @@ st.markdown(
             font-weight: 700;
         }
 
-        /* --- DASHBOARD STYLING --- */
+        /* --- DASHBOARD STYLING (BOLD & CONFIDENT) --- */
         .main-header {
-            background: linear-gradient(rgba(30, 58, 138, 0.85), rgba(30, 58, 138, 0.92)), 
+            background: linear-gradient(rgba(15, 23, 42, 0.90), rgba(30, 58, 138, 0.95)), 
                         url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=2400&q=80');
             background-size: cover;
             background-position: center;
-            padding: 80px 20px;
+            padding: 90px 20px;
             text-align: center;
             color: white;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            border: 1px solid #cbd5e1;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-radius: 14px;
+            margin-bottom: 35px;
+            border: 2px solid #3b82f6;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
         }
 
         .main-title {
             font-family: 'Playfair Display', serif;
-            font-size: 46px;
+            font-size: 50px;
             font-weight: 900;
             margin-bottom: 15px;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.06em;
             text-transform: uppercase;
             color: #ffffff;
+            text-shadow: 0 3px 6px rgba(0,0,0,0.5);
         }
 
         .main-subtitle {
-            font-size: 16px;
-            font-weight: 500;
-            max-width: 900px;
-            margin: 0 auto 8px auto;
-            color: #e2e8f0;
+            font-size: 18px;
+            font-weight: 800;
+            max-width: 950px;
+            margin: 0 auto 10px auto;
+            color: #f8fafc;
             text-align: center;
             font-family: 'Inter', sans-serif;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
         }
 
         .section-header {
             font-family: 'Playfair Display', serif;
-            font-size: 2.2rem;
-            font-weight: 700;
+            font-size: 2.6rem;
+            font-weight: 900;
             color: #1e3a8a;
-            margin: 45px 0 20px 0;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #cbd5e1;
-            letter-spacing: 0.02em;
+            margin: 50px 0 20px 0;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #1e3a8a;
+            letter-spacing: 0.04em;
             text-align: center;
+            text-transform: uppercase;
         }
 
-        /* Zillow UI Style Listing Cards: Dark Background, White Lettering, Centered Content */
+        /* Zillow UI Style Listing Cards: High-Contrast Bold Design */
         .zillow-card {
             background: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 10px;
-            padding: 24px 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            border: 2px solid #3b82f6;
+            border-radius: 12px;
+            padding: 26px 22px;
+            margin-bottom: 22px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
             text-align: center;
             color: #ffffff;
             transition: all 0.2s ease-in-out;
         }
 
         .zillow-card:hover {
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
-            border-color: #64748b;
-            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(59, 130, 246, 0.3);
+            border-color: #60a5fa;
+            transform: translateY(-3px);
         }
 
         .price-tag {
-            font-family: 'Inter', sans-serif;
-            font-size: 24px;
-            font-weight: 700;
-            color: #ffffff;
-            margin-bottom: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 28px;
+            font-weight: 900;
+            color: #38bdf8;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.4);
         }
 
         .card-meta {
-            font-size: 14px;
-            color: #cbd5e1;
-            margin-bottom: 12px;
-            font-weight: 400;
+            font-size: 15px;
+            color: #f1f5f9;
+            margin-bottom: 14px;
+            font-weight: 700;
             line-height: 1.6;
             font-family: 'Inter', sans-serif;
         }
 
         .card-location {
-            font-size: 13px;
-            color: #94a3b8;
-            margin-bottom: 16px;
+            font-size: 14px;
+            color: #cbd5e1;
+            margin-bottom: 18px;
+            font-weight: 800;
             font-family: 'Inter', sans-serif;
+            letter-spacing: 0.02em;
         }
 
         .badge-available {
-            background-color: rgba(6, 95, 70, 0.6);
-            color: #34d399;
-            border: 1px solid rgba(52, 211, 153, 0.4);
-            padding: 4px 12px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 600;
+            background-color: rgba(5, 150, 105, 0.85);
+            color: #ffffff;
+            border: 1px solid #34d399;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
             display: inline-block;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             font-family: 'Inter', sans-serif;
         }
 
         .badge-contract {
-            background-color: rgba(159, 18, 57, 0.6);
-            color: #fb7185;
-            border: 1px solid rgba(251, 113, 133, 0.4);
-            padding: 4px 12px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 600;
+            background-color: rgba(225, 29, 72, 0.85);
+            color: #ffffff;
+            border: 1px solid #fb7185;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
             display: inline-block;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             font-family: 'Inter', sans-serif;
         }
 
-        /* Center Streamlit buttons inside columns */
+        /* Center Streamlit buttons inside columns with bold punch */
         .stButton {
             display: flex;
             justify-content: center;
         }
         .stButton > button {
             width: 100%;
-            background-color: #1e293b;
+            background-color: #1e3a8a;
             color: #ffffff;
-            border: 1px solid #475569;
-            font-weight: 500;
-            border-radius: 6px;
-            padding: 8px 16px;
+            border: 2px solid #3b82f6;
+            font-weight: 800;
+            border-radius: 8px;
+            padding: 10px 18px;
             font-family: 'Inter', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
         .stButton > button:hover {
-            background-color: #334155;
-            border-color: #94a3b8;
+            background-color: #2563eb;
+            border-color: #93c5fd;
             color: #ffffff;
         }
 
         /* Cinematic Inter-Category Banner Styles */
         .category-banner {
             position: relative;
-            border-radius: 12px;
+            border-radius: 14px;
             overflow: hidden;
-            margin: 45px 0 15px 0;
-            border: 1px solid #cbd5e1;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            margin: 50px 0 18px 0;
+            border: 2px solid #3b82f6;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
         .category-banner img {
             width: 100%;
-            height: 240px;
+            height: 260px;
             object-fit: cover;
             display: block;
-            filter: brightness(0.65) contrast(1.05);
+            filter: brightness(0.6) contrast(1.1);
         }
         .category-banner-text {
             position: absolute;
-            bottom: 25px;
+            bottom: 30px;
             left: 0;
             right: 0;
             text-align: center;
             color: #ffffff;
             font-family: 'Playfair Display', serif;
-            font-size: 32px;
-            font-weight: 700;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.9);
-            letter-spacing: 0.03em;
+            font-size: 38px;
+            font-weight: 900;
+            text-shadow: 0 3px 10px rgba(0,0,0,0.95);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
         }
     </style>
     """,
@@ -384,34 +394,34 @@ st.sidebar.title("Investor Menu")
 category_filter = st.sidebar.selectbox("Filter Asset Sector", ["All", "Residential", "Raw Land", "Commercial"])
 status_filter = st.sidebar.selectbox("Contract Status", ["All", "Available", "UNDER CONTRACT"])
 st.sidebar.markdown("---")
-st.sidebar.info("Portal Status: Secure\nOperator: Executive Admin\nSystem: Active")
+st.sidebar.info("PORTAL STATUS: SECURE 🟢\nOPERATOR: EXECUTIVE ADMIN\nSYSTEM: ACTIVE")
 
-# ---> MAIN HEADER SECTION <---
+# ---> MAIN HEADER SECTION (BOLD & CONFIDENT) <---
 st.markdown(
     """
     <div class="main-header">
         <div class="main-title">Utah Land & Property Inc.</div>
-        <div class="main-subtitle" style="font-size: 16px; font-weight: 500; letter-spacing: 0.02em; margin-bottom: 12px;">Verified Contract Assignments & Equitable Interest Portfolio</div>
-        <div class="main-subtitle" style="font-size: 11px; color: #cbd5e1; margin-top: 15px; line-height: 1.5; max-width: 800px; margin-left: auto; margin-right: auto;">[Notice]: Acting as principal contract holder marketing equitable interests. Pursuant to Utah Code § 61-2f-202 and statutory exemptions, transactions are executed as direct principal assignments.</div>
+        <div class="main-subtitle">High-Yield Contract Assignments & Deeply Discounted Equitable Portfolios</div>
+        <div class="main-subtitle" style="font-size: 13px; color: #93c5fd; margin-top: 18px; line-height: 1.6; max-width: 850px; margin-left: auto; margin-right: auto; font-weight: 700;">[SYSTEM NOTICE]: Acting as principal contract holder marketing equitable interests at aggressive wholesale discounts. Pursuant to Utah Code § 61-2f-202 and statutory exemptions, transactions are executed as direct principal assignments.</div>
     </div>
     """,
     unsafe_allow_html=True,
 )
 
-# ---> DATABASE GENERATOR <---
+# ---> DATABASE GENERATOR (DEEPER DISCOUNTS / AGGRESSIVE SPREADS) <---
 @st.cache_data
 def load_utah_property_database():
     data = []
     statuses = ["Available", "UNDER CONTRACT"]
     
-    # Generate 32 Residential Listings
+    # Generate 32 Residential Listings (Deeper discounts: lower contract fees & higher ARV spreads)
     for i in range(1, 33):
-        purchase_price = 150000 + (i * 12500)
-        arv = int(purchase_price * 1.3)
-        contract_price = 5000 + (i * 300)
+        purchase_price = 140000 + (i * 11000)
+        arv = int(purchase_price * 1.45) # Higher ARV spread for deep discount appeal
+        contract_price = 3500 + (i * 200)   # Lower wholesale assignment fees
         data.append({
             "id": f"RES-{1000+i}",
-            "title": f"Equitable Interest Purchase Contract Assignment",
+            "title": f"Deep Discount Purchase Contract Assignment",
             "category": "Residential",
             "location": "Millcreek, UT 84117",
             "contract_price": contract_price,
@@ -422,14 +432,14 @@ def load_utah_property_database():
             "lon": -111.8500 - (i * 0.001)
         })
 
-    # Generate 32 Raw Land Listings
+    # Generate 32 Raw Land Listings (Deep discount wholesale land)
     for i in range(1, 33):
-        purchase_price = 45000 + (i * 4500)
-        arv = int(purchase_price * 1.35)
-        contract_price = 4000 + (i * 200)
+        purchase_price = 35000 + (i * 3500)
+        arv = int(purchase_price * 1.50)
+        contract_price = 2500 + (i * 150)
         data.append({
             "id": f"LAND-{2000+i}",
-            "title": f"Land Parcel Purchase Contract Assignment",
+            "title": f"Deep Discount Land Parcel Assignment",
             "category": "Raw Land",
             "location": "Elko County, NV 89801",
             "contract_price": contract_price,
@@ -440,14 +450,14 @@ def load_utah_property_database():
             "lon": -115.5000 - (i * 0.001)
         })
 
-    # Generate 32 Commercial Listings
+    # Generate 32 Commercial Listings (Deep discount commercial wholesale)
     for i in range(1, 33):
-        purchase_price = 280000 + (i * 18000)
-        arv = int(purchase_price * 1.28)
-        contract_price = 12000 + (i * 500)
+        purchase_price = 250000 + (i * 15000)
+        arv = int(purchase_price * 1.40)
+        contract_price = 8500 + (i * 400)
         data.append({
             "id": f"COMM-{3000+i}",
-            "title": f"Commercial Purchase Contract Assignment",
+            "title": f"Deep Discount Commercial Contract Assignment",
             "category": "Commercial",
             "location": "Draper, UT 84020",
             "contract_price": contract_price,
@@ -462,10 +472,9 @@ def load_utah_property_database():
 
 database = load_utah_property_database()
 
-# ---> RENDER SECTIONS WITH CINEMATIC BETWEEN-CATEGORY IMAGES & CLEAN HEADERS <---
+# ---> RENDER SECTIONS WITH CINEMATIC BETWEEN-CATEGORY IMAGES & BOLD CONFIDENT HEADERS <---
 categories_to_show = ["Residential", "Raw Land", "Commercial"] if category_filter == "All" else [category_filter]
 
-# Banner image URLs mapped to category themes
 category_banners = {
     "Residential": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=80",
     "Raw Land": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=2000&q=80",
@@ -473,13 +482,12 @@ category_banners = {
 }
 
 for cat in categories_to_show:
-    # Cinematic Category Image Banner
     if cat in category_banners:
         st.markdown(
             f"""
             <div class="category-banner">
                 <img src="{category_banners[cat]}" alt="{cat} Assets">
-                <div class="category-banner-text">{cat} Contract Assignments</div>
+                <div class="category-banner-text">{cat} Deep Discount Assignments</div>
             </div>
             """,
             unsafe_allow_html=True
@@ -502,7 +510,7 @@ for cat in categories_to_show:
                     f"""
                     <div class="zillow-card">
                         <div>{badge_html}</div>
-                        <div class="price-tag">${item['contract_price']:,} <span style="font-size: 12px; font-weight: 400; color: #94a3b8; font-family: 'Inter', sans-serif;">Fee</span></div>
+                        <div class="price-tag">${item['contract_price']:,} <span style="font-size: 13px; font-weight: 700; color: #94a3b8; font-family: 'Inter', sans-serif;">Assignment Fee</span></div>
                         <div class="card-meta">
                             <b>Underlying Price:</b> ${item['purchase_price']:,}<br>
                             <b>Target ARV:</b> ${item['arv']:,}
