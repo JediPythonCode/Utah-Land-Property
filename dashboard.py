@@ -9,6 +9,14 @@ import pandas as pd
 import pydeck as pdk
 import streamlit as st
 
+# ---> PAGE CONFIGURATION <---
+st.set_page_config(
+    page_title="Utah Land & Property Inc.",
+    page_icon="🏡",
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
+
 # ---> AUTHENTICATION SESSION STATE SETUP <---
 if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
@@ -174,11 +182,11 @@ st.markdown(
             max-width: 100% !important;
         }
 
-        /* Immersive Style Hero Banner */
+        /* Immersive Welcoming Style Hero Banner with Bright Landscaping / House Background */
         .hero-container {
             position: relative;
-            background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), 
-                        url('https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=2000&q=80');
+            background: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)), 
+                        url('https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=2000&q=80');
             background-size: cover;
             background-position: center;
             height: 380px;
@@ -242,14 +250,14 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Hero Section Focused on Equitable Interest & Contract Assignment
+# Welcoming Hero Section with Bright Residential Landscaping & Property Background
 st.markdown(
     """
     <div class="hero-container">
         <div class="hero-title">Utah Land & Property Inc.</div>
         <div class="hero-subtitle">Wholesale Real Estate Contract Assignments & Equitable Interest Opportunities in Utah</div>
         <div class="hero-subtitle">We are not real estate agents or brokers. We market our equitable interest in signed purchase contracts.</div>
-        <div class="hero-subtitle">Enter your email and investor access code to review available contract assignments.</div>
+        <div class="hero-subtitle">Review available contract assignments below.</div>
     </div>
     <div id="contracts-section"></div>
     """,
@@ -276,7 +284,7 @@ if not st.session_state["authenticated"]:
     
     st.stop()  # Halts execution until authenticated
 
-# Contract Assignment Database (Focusing strictly on contractual rights, no residential street addresses or property structural specs)
+# Contract Assignment Database
 @st.cache_data
 def load_utah_property_database():
     data = [
@@ -291,7 +299,7 @@ def load_utah_property_database():
             "arv": 217800,
             "status": "UNDER CONTRACT",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1558904541-efa843a88f01?auto=format&fit=crop&w=800&q=80",
             "lat": 40.6977,
             "lon": -111.8550,
         },
@@ -305,7 +313,7 @@ def load_utah_property_database():
             "arv": 796500,
             "status": "UNDER CONTRACT",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1584467735811-628a8d3c74f5?auto=format&fit=crop&w=800&q=80",
             "lat": 40.6979,
             "lon": -111.8552,
         },
@@ -319,7 +327,7 @@ def load_utah_property_database():
             "arv": 289800,
             "status": "UNDER CONTRACT",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1558904541-efa843a88f01?auto=format&fit=crop&w=800&q=80",
             "lat": 40.6985,
             "lon": -111.8560,
         },
@@ -333,7 +341,7 @@ def load_utah_property_database():
             "arv": 329000,
             "status": "Available",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1584467735811-628a8d3c74f5?auto=format&fit=crop&w=800&q=80",
             "lat": 40.6990,
             "lon": -111.8570,
         },
@@ -347,7 +355,7 @@ def load_utah_property_database():
             "arv": 546000,
             "status": "Available",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1558904541-efa843a88f01?auto=format&fit=crop&w=800&q=80",
             "lat": 40.7012,
             "lon": -111.8670,
         },
@@ -361,7 +369,7 @@ def load_utah_property_database():
             "arv": 598500,
             "status": "Available",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1584467735811-628a8d3c74f5?auto=format&fit=crop&w=800&q=80",
             "lat": 40.7015,
             "lon": -111.8675,
         },
@@ -375,7 +383,7 @@ def load_utah_property_database():
             "arv": 652800,
             "status": "UNDER CONTRACT",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1558904541-efa843a88f01?auto=format&fit=crop&w=800&q=80",
             "lat": 40.7018,
             "lon": -111.8680,
         },
@@ -389,7 +397,7 @@ def load_utah_property_database():
             "arv": 708900,
             "status": "Available",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1584467735811-628a8d3c74f5?auto=format&fit=crop&w=800&q=80",
             "lat": 40.7020,
             "lon": -111.8685,
         },
@@ -403,7 +411,7 @@ def load_utah_property_database():
             "arv": 364800,
             "status": "Available",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1558904541-efa843a88f01?auto=format&fit=crop&w=800&q=80",
             "lat": 41.1118,
             "lon": -112.2426,
         },
@@ -417,7 +425,7 @@ def load_utah_property_database():
             "arv": 386450,
             "status": "UNDER CONTRACT",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1584467735811-628a8d3c74f5?auto=format&fit=crop&w=800&q=80",
             "lat": 41.1120,
             "lon": -112.2430,
         },
@@ -431,7 +439,7 @@ def load_utah_property_database():
             "arv": 415400,
             "status": "Available",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1558904541-efa843a88f01?auto=format&fit=crop&w=800&q=80",
             "lat": 41.1125,
             "lon": -112.2435,
         },
@@ -445,7 +453,7 @@ def load_utah_property_database():
             "arv": 445250,
             "status": "UNDER CONTRACT",
             "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+            "image": "https://images.unsplash.com/photo-1584467735811-628a8d3c74f5?auto=format&fit=crop&w=800&q=80",
             "lat": 41.1130,
             "lon": -112.2440,
         },
@@ -705,3 +713,47 @@ def load_utah_property_database():
         }
     ]
     return data
+
+# ---> MAIN DASHBOARD LAYOUT (RENDERED UPON SUCCESSFUL AUTHENTICATION) --->
+database = load_utah_property_database()
+df = pd.DataFrame(database)
+
+st.markdown('<div id="residential-section" class="section-header">Residential Contract Assignments</div>', unsafe_allow_html=True)
+
+# Render Residential Cards in a grid
+residential_items = [item for item in database if item["category"] == "Residential"]
+cols = st.resize_columns if hasattr(st, "resize_columns") else None
+
+for i in range(0, len(residential_items), 3):
+    row_items = residential_items[i:i+3]
+    c_cols = st.columns(len(row_items))
+    for idx, item in enumerate(row_items):
+        with c_cols[idx]:
+            st.image(item["image"], use_container_width=True)
+            st.markdown(f"**{item['title']}**")
+            st.markdown(f"Status: `{item['status']}` | City: **{item['city']}**")
+            st.markdown("---")
+
+st.markdown('<div id="raw-land-section" class="section-header">Raw Land Contract Assignments</div>', unsafe_allow_html=True)
+land_items = [item for item in database if item["category"] == "Raw Land"]
+for i in range(0, len(land_items), 3):
+    row_items = land_items[i:i+3]
+    c_cols = st.columns(len(row_items))
+    for idx, item in enumerate(row_items):
+        with c_cols[idx]:
+            st.image(item["image"], use_container_width=True)
+            st.markdown(f"**{item['title']}**")
+            st.markdown(f"Status: `{item['status']}` | City: **{item['city']}**")
+            st.markdown("---")
+
+st.markdown('<div id="commercial-section" class="section-header">Commercial Contract Assignments</div>', unsafe_allow_html=True)
+comm_items = [item for item in database if item["category"] == "Commercial"]
+for i in range(0, len(comm_items), 3):
+    row_items = comm_items[i:i+3]
+    c_cols = st.columns(len(row_items))
+    for idx, item in enumerate(row_items):
+        with c_cols[idx]:
+            st.image(item["image"], use_container_width=True)
+            st.markdown(f"**{item['title']}**")
+            st.markdown(f"Status: `{item['status']}` | City: **{item['city']}**")
+            st.markdown("---")
