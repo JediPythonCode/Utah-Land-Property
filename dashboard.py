@@ -17,19 +17,21 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ---> AUTHENTICATION SESSION STATE SETUP <---
-if "authenticated" not in st.session_state:
-    st.session_state["authenticated"] = False
-
-# ---> CUSTOM STYLING & CLEAN LAYOUT <---
+# ---> CUSTOM STYLING & CLEAN LAYOUT (ZILLOW UI INSPIRATION + HIDE STREAMLIT CHROME & HOUSING CARD IMAGES) <---
 st.markdown(
     """
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap');
+
+        /* Hide Streamlit Header, Menu, and Footer */
+        #MainMenu {visibility: hidden;}
+        header {visibility: hidden;}
+        footer {visibility: hidden;}
+        .stDeployButton {display:none;}
 
         .stApp {
-            background-color: #f8fafc;
-            color: #1e293b;
+            background-color: #f7f8fa;
+            color: #2c3e50;
             font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
@@ -38,59 +40,107 @@ st.markdown(
                         url('https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=2000&q=80');
             background-size: cover;
             background-position: center;
-            padding: 80px 20px;
+            padding: 70px 20px;
             text-align: center;
             color: white;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
         .main-title {
             font-family: 'Playfair Display', Georgia, serif;
-            font-size: 48px;
+            font-size: 42px;
             font-weight: 900;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             letter-spacing: -0.5px;
-            text-shadow: 0 4px 8px rgba(0,0,0,0.4);
+            text-shadow: 0 3px 6px rgba(0,0,0,0.4);
         }
 
         .main-subtitle {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 500;
             max-width: 800px;
-            margin: 0 auto 8px auto;
+            margin: 0 auto 6px auto;
             text-shadow: 0 2px 4px rgba(0,0,0,0.4);
         }
 
         .section-header {
-            font-family: 'Playfair Display', Georgia, serif;
-            font-size: 2rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.5rem;
             font-weight: 700;
-            color: #0f172a;
-            margin: 40px 0 20px 0;
-            padding-bottom: 10px;
-            border-bottom: 3px solid #d92228;
+            color: #1a1a1a;
+            margin: 35px 0 15px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #006aff;
         }
 
-        .property-card {
+        /* Zillow UI Style Listing Cards (Clean, Modern Border, No Card Images) */
+        .zillow-card {
             background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 18px;
             margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            transition: all 0.2s ease-in-out;
         }
 
-        .property-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+        .zillow-card:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            border-color: #cbd5e1;
+            transform: translateY(-2px);
+        }
+
+        .price-tag {
+            font-size: 22px;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .card-meta {
+            font-size: 14px;
+            color: #4b5563;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .card-location {
+            font-size: 13px;
+            color: #6b7280;
+            margin-bottom: 12px;
+        }
+
+        .badge-available {
+            background-color: #ecfdf5;
+            color: #065f46;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-contract {
+            background-color: #fff1f2;
+            color: #9f1239;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
     </style>
     """,
     unsafe_allow_html=True,
 )
+
+# ---> AUTHENTICATION SESSION STATE SETUP <---
+if "authenticated" not in st.session_state:
+    st.session_state["authenticated"] = False
 
 # ---> MAIN HEADER SECTION <---
 st.markdown(
@@ -98,7 +148,7 @@ st.markdown(
     <div class="main-header">
         <div class="main-title">Utah Land & Property Inc.</div>
         <div class="main-subtitle">Wholesale Real Estate Contract Assignments & Equitable Interest Opportunities</div>
-        <div class="main-subtitle" style="font-size: 15px; opacity: 0.9;">We are not real estate agents or brokers. We market our equitable interest in signed purchase contracts.</div>
+        <div class="main-subtitle" style="font-size: 14px; opacity: 0.85;">We are not real estate agents or brokers. We market our equitable interest in signed purchase contracts.</div>
     </div>
     """,
     unsafe_allow_html=True,
@@ -131,50 +181,9 @@ status_filter = st.sidebar.selectbox("Contract Status", ["All", "Available", "UN
 st.sidebar.markdown("---")
 st.sidebar.info("Logged in as Verified Investor.\nUtah Land & Property Inc. Portfolio Manager.")
 
-# ---> DATABASE GENERATOR (32 LISTINGS PER CATEGORY WITH TREE/LANDSCAPE IMAGERY, CITY & ZIP ONLY) <---
+# ---> DATABASE GENERATOR (32 LISTINGS PER CATEGORY, ZILLOW UI CLEAN STYLE, NO CARD IMAGES) <---
 @st.cache_data
 def load_utah_property_database():
-    residential_images = [
-        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1600573472550-8090b5e0745e?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1600585152220-90363fe7e115?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1600585154363-67eb9e2e2099?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1600566753086-acf0c8d7699f?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=800&q=80"
-    ]
-    
-    land_images = [
-        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1426604966848-d7adacbd02bf?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1511497584788-876761197069?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1434725039720-aaad6dd32dfe?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?auto=format&fit=crop&w=800&q=80"
-    ]
-
-    commercial_images = [
-        "https://images.unsplash.com/photo-1444703686981-a3bb84d82f60?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1554469384-e58fac16e23a?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=800&q=80"
-    ]
-
     data = []
     statuses = ["Available", "UNDER CONTRACT"]
     
@@ -185,14 +194,13 @@ def load_utah_property_database():
         contract_price = 5000 + (i * 300)
         data.append({
             "id": f"RES-{1000+i}",
-            "title": f"ASSIGNMENT OF PURCHASE CONTRACT. Equitable Interest, Utah Land & Property Inc. is selling contractual rights to purchase property, Millcreek 84117, Contract Purchase Price ${purchase_price:,} and Assignment Fee: $10,000 Estimated ARV Price: ${arv:,}",
+            "title": f"Equitable Interest Purchase Contract Assignment",
             "category": "Residential",
-            "city": "Millcreek, UT 84117",
+            "location": "Millcreek, UT 84117",
             "contract_price": contract_price,
             "purchase_price": purchase_price,
             "arv": arv,
             "status": statuses[i % 2],
-            "image": residential_images[(i - 1) % len(residential_images)],
             "lat": 40.6900 + (i * 0.001),
             "lon": -111.8500 - (i * 0.001)
         })
@@ -204,14 +212,13 @@ def load_utah_property_database():
         contract_price = 4000 + (i * 200)
         data.append({
             "id": f"LAND-{2000+i}",
-            "title": f"ASSIGNMENT OF PURCHASE CONTRACT. Equitable Interest, Utah Land & Property Inc. is selling contractual rights to purchase land parcel, Elko County 89801, Contract Purchase Price ${purchase_price:,} and Assignment Fee: $10,000 Estimated ARV Price: ${arv:,}",
+            "title": f"Land Parcel Purchase Contract Assignment",
             "category": "Raw Land",
-            "city": "Elko County, NV 89801",
+            "location": "Elko County, NV 89801",
             "contract_price": contract_price,
             "purchase_price": purchase_price,
             "arv": arv,
             "status": statuses[(i + 1) % 2],
-            "image": land_images[(i - 1) % len(land_images)],
             "lat": 41.5000 + (i * 0.001),
             "lon": -115.5000 - (i * 0.001)
         })
@@ -223,14 +230,13 @@ def load_utah_property_database():
         contract_price = 12000 + (i * 500)
         data.append({
             "id": f"COMM-{3000+i}",
-            "title": f"ASSIGNMENT OF PURCHASE CONTRACT. Equitable Interest, Utah Land & Property Inc. is selling contractual rights to purchase commercial property, Draper 84020, Contract Purchase Price ${purchase_price:,} and Assignment Fee: $10,000 Estimated ARV Price: ${arv:,}",
+            "title": f"Commercial Purchase Contract Assignment",
             "category": "Commercial",
-            "city": "Draper, UT 84020",
+            "location": "Draper, UT 84020",
             "contract_price": contract_price,
             "purchase_price": purchase_price,
             "arv": arv,
             "status": statuses[i % 2],
-            "image": commercial_images[(i - 1) % len(commercial_images)],
             "lat": 40.5200 + (i * 0.001),
             "lon": -111.8600 - (i * 0.001)
         })
@@ -254,11 +260,26 @@ for cat in categories_to_show:
         cols = st.columns(len(row_items))
         for idx, item in enumerate(row_items):
             with cols[idx]:
-                st.markdown('<div class="property-card">', unsafe_allow_html=True)
-                st.image(item["image"], use_container_width=True)
-                st.markdown(f"**{item['title']}**")
-                st.markdown(f"Status: `{item['status']}` | Location: **{item['city']}**")
-                st.markdown(f"Assignment Price: **${item['contract_price']:,}**")
-                if st.button(f"View Details", key=f"btn_{item['id']}"):
-                    st.success(f"Viewing documentation package for {item['id']}")
-                st.markdown('</div>', unsafe_allow_html=True)
+                badge_html = f'<span class="badge-available">{item["status"]}</span>' if item["status"] == "Available" else f'<span class="badge-contract">{item["status"]}</span>'
+                
+                st.markdown(
+                    f"""
+                    <div class="zillow-card">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                            <div class="price-tag">${item['contract_price']:,} <span style="font-size: 13px; font-weight: 400; color: #6b7280;">Assignment Fee</span></div>
+                            <div>{badge_html}</div>
+                        </div>
+                        <div class="card-meta">
+                            <b>Underlying Purchase Price:</b> ${item['purchase_price']:,}<br>
+                            <b>Estimated ARV:</b> ${item['arv']:,}
+                        </div>
+                        <div class="card-location">
+                            📍 <b>{item['location']}</b> &nbsp;|&nbsp; ID: <code>{item['id']}</code>
+                        </div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+                
+                if st.button("View Documentation", key=f"btn_{item['id']}"):
+                    st.success(f"Accessing secure package for {item['id']}")
