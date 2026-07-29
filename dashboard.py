@@ -104,7 +104,7 @@ st.markdown(
         .berkshire-brand-header {
             text-align: center;
             margin-bottom: 25px;
-            border-bottom: 2px solid #0f172a;
+            border-bottom: 2px solid #1e3a8a;
             padding-bottom: 18px;
         }
 
@@ -114,13 +114,13 @@ st.markdown(
             font-weight: 900;
             letter-spacing: 0.05em;
             text-transform: uppercase;
-            color: #0f172a;
+            color: #1e3a8a;
             margin-bottom: 6px;
         }
 
         .berkshire-brand-header p {
             font-size: 13px;
-            color: #4b5563;
+            color: #3b82f6;
             letter-spacing: 0.15em;
             text-transform: uppercase;
             font-weight: 700;
