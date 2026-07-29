@@ -17,7 +17,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ---> CUSTOM STYLING: STICKY BERKSHIRE HATHAWAY EXECUTIVE LOGIN & ZILLOW/HUD ASSET DASHBOARD <---
+# ---> CUSTOM STYLING: LIGHT APP BACKGROUND & CENTERED ZILLOW CARD DETAILS <---
 st.markdown(
     """
     <style>
@@ -29,9 +29,10 @@ st.markdown(
         footer {visibility: hidden;}
         .stDeployButton {display:none;}
 
+        /* Overall App Background: LIGHT */
         .stApp {
-            background-color: #0b0f19;
-            color: #f3f4f6;
+            background-color: #f8fafc;
+            color: #1e293b;
             font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
@@ -51,7 +52,7 @@ st.markdown(
             background-color: #ffffff;
             border: 1px solid #cbd5e1;
             border-radius: 8px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
             overflow: hidden;
             color: #111827;
         }
@@ -120,115 +121,134 @@ st.markdown(
 
         /* --- DASHBOARD STYLING --- */
         .main-header {
-            background: linear-gradient(rgba(11, 15, 25, 0.75), rgba(11, 15, 25, 0.75)), 
+            background: linear-gradient(rgba(11, 15, 25, 0.8), rgba(11, 15, 25, 0.8)), 
                         url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=2400&q=80');
             background-size: cover;
             background-position: center;
-            padding: 100px 20px;
+            padding: 80px 20px;
             text-align: center;
             color: white;
             border-radius: 12px;
             margin-bottom: 30px;
-            border: 1px solid rgba(0, 242, 254, 0.2);
-            box-shadow: 0 0 40px rgba(0, 242, 254, 0.15), inset 0 0 20px rgba(0, 242, 254, 0.05);
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
 
         .main-title {
             font-family: 'Orbitron', sans-serif;
-            font-size: 56px;
+            font-size: 48px;
             font-weight: 900;
             margin-bottom: 15px;
             letter-spacing: 1px;
             color: #ffffff;
-            text-shadow: 0 0 20px rgba(0, 242, 254, 0.6), 0 0 40px rgba(0, 242, 254, 0.3);
-            background: linear-gradient(90deg, #ffffff, #00f2fe);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
         }
 
         .main-subtitle {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 500;
             max-width: 900px;
             margin: 0 auto 8px auto;
-            color: #cbd5e1;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+            color: #e2e8f0;
         }
 
         .section-header {
             font-family: 'Orbitron', sans-serif;
-            font-size: 2.4rem;
+            font-size: 2rem;
             font-weight: 900;
-            color: #00f2fe;
-            margin: 55px 0 20px 0;
-            padding-bottom: 12px;
-            border-bottom: 3px solid rgba(0, 242, 254, 0.4);
+            color: #0f172a;
+            margin: 45px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #cbd5e1;
             letter-spacing: 1px;
-            text-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
         }
 
-        /* Zillow UI Style Listing Cards with High-End Cyber Gaming HUD Accents */
+        /* Zillow UI Style Listing Cards: Dark Background, White Lettering, Centered Content */
         .zillow-card {
-            background: #131b2e;
-            border: 1px solid rgba(0, 242, 254, 0.2);
+            background: #0f172a;
+            border: 1px solid #334155;
             border-radius: 10px;
-            padding: 20px;
+            padding: 24px 20px;
             margin-bottom: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            color: #ffffff;
+            transition: all 0.2s ease-in-out;
         }
 
         .zillow-card:hover {
-            box-shadow: 0 0 25px rgba(0, 242, 254, 0.35);
-            border-color: #00f2fe;
-            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+            border-color: #64748b;
+            transform: translateY(-2px);
         }
 
         .price-tag {
             font-family: 'Orbitron', sans-serif;
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 700;
             color: #ffffff;
-            margin-bottom: 6px;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+            margin-bottom: 8px;
         }
 
         .card-meta {
             font-size: 14px;
-            color: #94a3b8;
+            color: #cbd5e1;
             margin-bottom: 12px;
             font-weight: 500;
-            line-height: 1.5;
+            line-height: 1.6;
         }
 
         .card-location {
             font-size: 13px;
-            color: #64748b;
-            margin-bottom: 14px;
+            color: #94a3b8;
+            margin-bottom: 16px;
         }
 
         .badge-available {
-            background-color: rgba(6, 95, 70, 0.4);
+            background-color: rgba(6, 95, 70, 0.6);
             color: #34d399;
-            border: 1px solid rgba(52, 211, 153, 0.3);
-            padding: 4px 10px;
+            border: 1px solid rgba(52, 211, 153, 0.4);
+            padding: 4px 12px;
             border-radius: 4px;
             font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            display: inline-block;
+            margin-bottom: 10px;
         }
 
         .badge-contract {
-            background-color: rgba(159, 18, 57, 0.4);
+            background-color: rgba(159, 18, 57, 0.6);
             color: #fb7185;
-            border: 1px solid rgba(251, 113, 133, 0.3);
-            padding: 4px 10px;
+            border: 1px solid rgba(251, 113, 133, 0.4);
+            padding: 4px 12px;
             border-radius: 4px;
             font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        /* Center Streamlit buttons inside columns */
+        .stButton {
+            display: flex;
+            justify-content: center;
+        }
+        .stButton > button {
+            width: 100%;
+            background-color: #1e293b;
+            color: #ffffff;
+            border: 1px solid #475569;
+            font-weight: 600;
+            border-radius: 6px;
+            padding: 8px 16px;
+        }
+        .stButton > button:hover {
+            background-color: #334155;
+            border-color: #94a3b8;
+            color: #ffffff;
         }
 
         /* Cinematic Inter-Category Banner Styles */
@@ -237,15 +257,15 @@ st.markdown(
             border-radius: 12px;
             overflow: hidden;
             margin: 45px 0 15px 0;
-            border: 1px solid rgba(0, 242, 254, 0.3);
-            box-shadow: 0 6px 30px rgba(0,0,0,0.6);
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
         }
         .category-banner img {
             width: 100%;
-            height: 260px;
+            height: 240px;
             object-fit: cover;
             display: block;
-            filter: brightness(0.7) contrast(1.1);
+            filter: brightness(0.75) contrast(1.05);
         }
         .category-banner-text {
             position: absolute;
@@ -253,13 +273,10 @@ st.markdown(
             left: 30px;
             color: #ffffff;
             font-family: 'Orbitron', sans-serif;
-            font-size: 32px;
+            font-size: 30px;
             font-weight: 900;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.9);
+            text-shadow: 0 2px 8px rgba(0,0,0,0.9);
             letter-spacing: 1px;
-            background: linear-gradient(90deg, #ffffff, #00f2fe);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
         }
     </style>
     """,
@@ -308,7 +325,7 @@ if not st.session_state["authenticated"]:
             """,
             unsafe_allow_html=True
         )
-        secret_code = st.text_input("Secret Access Code", type="password", label_visibility="collapsed", placeholder="••••••••••••")
+        secret_code = st.text_input("Security Password", type="password", label_visibility="collapsed", placeholder="••••••••••••")
         
         st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
         submit_login = st.form_submit_button("Authenticate Securely", use_container_width=True)
@@ -350,7 +367,7 @@ st.markdown(
     <div class="main-header">
         <div class="main-title">UTAH LAND & PROPERTY INC.</div>
         <div class="main-subtitle">TACTICAL REAL ESTATE CONTRACT ASSIGNMENTS & EQUITABLE INTEREST OPERATIONS</div>
-        <div class="main-subtitle" style="font-size: 14px; color: #94a3b8; margin-top: 10px;">[SYSTEM NOTICE]: We are not brokers. We market our verified equitable interest in signed purchase contracts.</div>
+        <div class="main-subtitle" style="font-size: 13px; color: #94a3b8; margin-top: 10px;">[SYSTEM NOTICE]: We are not brokers. We market our verified equitable interest in signed purchase contracts.</div>
     </div>
     """,
     unsafe_allow_html=True,
@@ -459,10 +476,8 @@ for cat in categories_to_show:
                 st.markdown(
                     f"""
                     <div class="zillow-card">
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                            <div class="price-tag">${item['contract_price']:,} <span style="font-size: 12px; font-weight: 400; color: #64748b; font-family: 'Inter', sans-serif;">Fee</span></div>
-                            <div>{badge_html}</div>
-                        </div>
+                        <div>{badge_html}</div>
+                        <div class="price-tag">${item['contract_price']:,} <span style="font-size: 12px; font-weight: 400; color: #94a3b8; font-family: 'Inter', sans-serif;">Fee</span></div>
                         <div class="card-meta">
                             <b>Underlying Price:</b> ${item['purchase_price']:,}<br>
                             <b>Target ARV:</b> ${item['arv']:,}
