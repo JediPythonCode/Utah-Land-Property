@@ -128,7 +128,7 @@ st.markdown(
 
         /* --- DASHBOARD STYLING --- */
         .main-header {
-            background: linear-gradient(rgba(11, 15, 25, 0.8), rgba(11, 15, 25, 0.8)), 
+            background: linear-gradient(rgba(30, 58, 138, 0.85), rgba(30, 58, 138, 0.92)), 
                         url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=2400&q=80');
             background-size: cover;
             background-position: center;
@@ -142,11 +142,12 @@ st.markdown(
         }
 
         .main-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 48px;
+            font-family: 'Playfair Display', serif;
+            font-size: 46px;
             font-weight: 900;
             margin-bottom: 15px;
-            letter-spacing: 1px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
             color: #ffffff;
         }
 
@@ -156,17 +157,20 @@ st.markdown(
             max-width: 900px;
             margin: 0 auto 8px auto;
             color: #e2e8f0;
+            text-align: center;
         }
 
         .section-header {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 2rem;
+            font-family: 'Playfair Display', serif;
+            font-size: 2.4rem;
             font-weight: 900;
-            color: #0f172a;
+            text-transform: uppercase;
+            color: #1e3a8a;
             margin: 45px 0 20px 0;
             padding-bottom: 10px;
             border-bottom: 3px solid #cbd5e1;
-            letter-spacing: 1px;
+            letter-spacing: 0.05em;
+            text-align: center;
         }
 
         /* Zillow UI Style Listing Cards: Dark Background, White Lettering, Centered Content */
@@ -272,18 +276,21 @@ st.markdown(
             height: 240px;
             object-fit: cover;
             display: block;
-            filter: brightness(0.75) contrast(1.05);
+            filter: brightness(0.65) contrast(1.05);
         }
         .category-banner-text {
             position: absolute;
             bottom: 25px;
-            left: 30px;
+            left: 0;
+            right: 0;
+            text-align: center;
             color: #ffffff;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 30px;
+            font-family: 'Playfair Display', serif;
+            font-size: 34px;
             font-weight: 900;
             text-shadow: 0 2px 8px rgba(0,0,0,0.9);
-            letter-spacing: 1px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
         }
     </style>
     """,
@@ -379,9 +386,9 @@ st.sidebar.info("STATUS: SECURE 🟢\nOPERATOR: CEO / ADMIN\nSYSTEM: ACTIVE")
 st.markdown(
     """
     <div class="main-header">
-        <div class="main-title">UTAH LAND & PROPERTY INC.</div>
-        <div class="main-subtitle">TACTICAL REAL ESTATE CONTRACT ASSIGNMENTS & EQUITABLE INTEREST OPERATIONS</div>
-        <div class="main-subtitle" style="font-size: 13px; color: #94a3b8; margin-top: 10px;">[SYSTEM NOTICE]: We are a principal contract holder marketing equitable interests. Pursuant to Utah Code § 61-2f-202, we operate under statutory exemptions.</div>
+        <div class="main-title">Utah Land & Property Inc.</div>
+        <div class="main-subtitle" style="font-size: 18px; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 12px; text-transform: uppercase;">Tactical Real Estate Contract Assignments & Equitable Interest Operations</div>
+        <div class="main-subtitle" style="font-size: 12px; color: #cbd5e1; margin-top: 15px; line-height: 1.5;">[SYSTEM NOTICE]: We are a principal contract holder marketing equitable interests. Pursuant to Utah Code § 61-2f-202, we operate under statutory exemptions.</div>
     </div>
     """,
     unsafe_allow_html=True,
@@ -467,14 +474,14 @@ for cat in categories_to_show:
         st.markdown(
             f"""
             <div class="category-banner">
-                <img src="{category_banners[cat]}" alt="{cat} Sector">
-                <div class="category-banner-text">SECTOR // {cat.upper()} ASSETS</div>
+                <img src="{category_banners[cat]}" alt="{cat} Assets">
+                <div class="category-banner-text">{cat} Contract Assignments</div>
             </div>
             """,
             unsafe_allow_html=True
         )
 
-    st.markdown(f'<div class="section-header">⚡ {cat} Contract Assignments</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="section-header">{cat} Contract Assignments</div>', unsafe_allow_html=True)
     
     cat_items = [item for item in database if item["category"] == cat]
     if status_filter != "All":
