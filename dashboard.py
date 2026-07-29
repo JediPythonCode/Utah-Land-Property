@@ -59,31 +59,37 @@ st.markdown(
 
         .berkshire-login-image-pane {
             flex: 1.2;
-            background: linear-gradient(rgba(15, 23, 42, 0.55), rgba(15, 23, 42, 0.88)), 
+            background: linear-gradient(rgba(11, 15, 25, 0.88), rgba(11, 15, 25, 0.94)), 
                         url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80');
             background-size: cover;
             background-position: center;
-            padding: 60px 45px;
+            padding: 50px 45px;
             display: flex;
             flex-direction: column;
-            justify-content: flex-end;
+            justify-content: space-between;
             color: #ffffff;
         }
 
-        .berkshire-login-image-pane h3 {
+        .berkshire-login-image-top h3 {
             font-family: 'Playfair Display', serif;
-            font-size: 32px;
+            font-size: 30px;
             font-weight: 700;
             margin-bottom: 14px;
             line-height: 1.3;
             text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
 
-        .berkshire-login-image-pane p {
-            font-size: 17px;
+        .berkshire-login-image-top p {
+            font-size: 16px;
             color: #e2e8f0;
             line-height: 1.6;
             text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+        }
+
+        .berkshire-login-image-bottom {
+            margin-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding-top: 20px;
         }
 
         .berkshire-login-form-pane {
@@ -295,8 +301,18 @@ if not st.session_state["authenticated"]:
         <div class="login-outer-wrapper">
             <div class="berkshire-sticky-card">
                 <div class="berkshire-login-image-pane">
-                    <h3>Uncompromising Integrity. Exceptional Value.</h3>
-                    <p>Welcome to the Utah Land & Property executive investment portal. Dedicated to precision contract acquisitions, asset transparency, and long-term equity growth.</p>
+                    <div class="berkshire-login-image-top">
+                        <h3>Uncompromising Integrity. Exceptional Value.</h3>
+                        <p>Welcome to the Utah Land & Property executive investment portal. Dedicated to precision contract acquisitions, asset transparency, and long-term equity growth.</p>
+                    </div>
+                    <div class="berkshire-login-image-bottom">
+                        <div id="portal-disclaimer" style="font-size: 11px; color: #cbd5e1; line-height: 1.5; border-left: 3px solid #38bdf8; padding-left: 10px; background-color: rgba(15, 23, 42, 0.6); padding-top: 6px; padding-bottom: 6px; border-radius: 0 4px 4px 0; margin-bottom: 12px;">
+                            <strong>Disclosures:</strong> Utah Land & Property Inc. is a principal contract holder and is marketing the assignment of a legal purchase agreement. We are not licensed real estate agents or brokerages and do not represent the property owner. We are not selling the real property itself. Pursuant to Utah Code § 61-2f-202 and applicable statutory exemptions, transactions are executed as direct principal equitable interest assignments.
+                        </div>
+                        <div style="text-align: center; font-size: 11px; color: #94a3b8; line-height: 1.4;">
+                            &copy; 2026 Utah Land & Property Inc. All rights reserved.<br>Protected by advanced encryption protocols.
+                        </div>
+                    </div>
                 </div>
                 <div class="berkshire-login-form-pane">
                     <div class="berkshire-brand-header">
@@ -344,14 +360,6 @@ if not st.session_state["authenticated"]:
     
     st.markdown(
         """
-                    <!-- MANDATORY LEGAL DISCLAIMER WITH UTAH LAW EXEMPTIONS -->
-                    <div id="portal-disclaimer" style="font-size: 11px; color: #334155; margin-top: 16px; line-height: 1.5; border-left: 3px solid #0f172a; padding-left: 10px; background-color: #f8fafc; padding-top: 6px; padding-bottom: 6px; border-radius: 0 4px 4px 0;">
-                        <strong>Disclosures:</strong> Utah Land & Property Inc. is a principal contract holder and is marketing the assignment of a legal purchase agreement. We are not licensed real estate agents or brokerages and do not represent the property owner. We are not selling the real property itself. Pursuant to Utah Code § 61-2f-202 and applicable statutory exemptions, transactions are executed as direct principal equitable interest assignments.
-                    </div>
-
-                    <div style="text-align: center; font-size: 11px; color: #6b7280; margin-top: 18px; border-top: 1px solid #e5e7eb; padding-top: 12px; line-height: 1.4;">
-                        &copy; 2026 Utah Land & Property Inc. All rights reserved.<br>Protected by advanced encryption protocols.
-                    </div>
                 </div>
             </div>
         </div>
