@@ -17,7 +17,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ---> CUSTOM STYLING: LIGHT APP BACKGROUND & CENTERED ZILLOW CARD DETAILS <---
+# ---> CUSTOM STYLING: LIGHT APP BACKGROUND & ENLARGED LOGIN TEXT PANES <---
 st.markdown(
     """
     <style>
@@ -36,34 +36,34 @@ st.markdown(
             font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
-        /* --- STICKY DUAL-PANEL BERKSHIRE-STYLE LOGIN GATEWAY --- */
+        /* --- STICKY DUAL-PANEL BERKSHIRE-STYLE LOGIN GATEWAY (LARGER & EXPANDED) --- */
         .login-outer-wrapper {
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 85vh;
-            padding: 20px;
+            min-height: 90vh;
+            padding: 30px;
         }
 
         .berkshire-sticky-card {
             display: flex;
             width: 100%;
-            max-width: 900px;
+            max-width: 1100px;
             background-color: #ffffff;
             border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+            border-radius: 12px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
             overflow: hidden;
             color: #111827;
         }
 
         .berkshire-login-image-pane {
-            flex: 1;
-            background: linear-gradient(rgba(15, 23, 42, 0.5), rgba(15, 23, 42, 0.85)), 
-                        url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1000&q=80');
+            flex: 1.2;
+            background: linear-gradient(rgba(15, 23, 42, 0.55), rgba(15, 23, 42, 0.88)), 
+                        url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80');
             background-size: cover;
             background-position: center;
-            padding: 40px 30px;
+            padding: 60px 45px;
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
@@ -72,22 +72,23 @@ st.markdown(
 
         .berkshire-login-image-pane h3 {
             font-family: 'Playfair Display', serif;
-            font-size: 22px;
+            font-size: 32px;
             font-weight: 700;
-            margin-bottom: 8px;
+            margin-bottom: 14px;
+            line-height: 1.3;
             text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
 
         .berkshire-login-image-pane p {
-            font-size: 13px;
-            color: #cbd5e1;
-            line-height: 1.5;
+            font-size: 17px;
+            color: #e2e8f0;
+            line-height: 1.6;
             text-shadow: 0 1px 3px rgba(0,0,0,0.8);
         }
 
         .berkshire-login-form-pane {
-            flex: 1.1;
-            padding: 45px 40px;
+            flex: 1.3;
+            padding: 50px 50px;
             background-color: #ffffff;
             display: flex;
             flex-direction: column;
@@ -103,20 +104,20 @@ st.markdown(
 
         .berkshire-brand-header h1 {
             font-family: 'Playfair Display', serif;
-            font-size: 22px;
+            font-size: 32px;
             font-weight: 900;
             letter-spacing: 0.05em;
             text-transform: uppercase;
             color: #0f172a;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
 
         .berkshire-brand-header p {
-            font-size: 10px;
+            font-size: 13px;
             color: #4b5563;
             letter-spacing: 0.15em;
             text-transform: uppercase;
-            font-weight: 600;
+            font-weight: 700;
         }
 
         /* --- DASHBOARD STYLING --- */
@@ -309,7 +310,7 @@ if not st.session_state["authenticated"]:
     with st.form("login_form"):
         st.markdown(
             """
-            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #374151; margin-bottom: 5px; letter-spacing: 0.05em;">
+            <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: #374151; margin-bottom: 6px; letter-spacing: 0.05em;">
                 Corporate Identifier / Email
             </div>
             """,
@@ -319,7 +320,7 @@ if not st.session_state["authenticated"]:
         
         st.markdown(
             """
-            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #374151; margin: 12px 0 5px 0; letter-spacing: 0.05em;">
+            <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: #374151; margin: 16px 0 6px 0; letter-spacing: 0.05em;">
                 Security Password
             </div>
             """,
@@ -343,7 +344,12 @@ if not st.session_state["authenticated"]:
     
     st.markdown(
         """
-                    <div style="text-align: center; font-size: 10px; color: #6b7280; margin-top: 20px; border-top: 1px solid #e5e7eb; padding-top: 12px; line-height: 1.4;">
+                    <!-- MANDATORY LEGAL DISCLAIMER WITH UTAH LAW EXEMPTIONS -->
+                    <div id="portal-disclaimer" style="font-size: 11px; color: #334155; margin-top: 16px; line-height: 1.5; border-left: 3px solid #0f172a; padding-left: 10px; background-color: #f8fafc; padding-top: 6px; padding-bottom: 6px; border-radius: 0 4px 4px 0;">
+                        <strong>Disclosures:</strong> Utah Land & Property Inc. is a principal contract holder and is marketing the assignment of a legal purchase agreement. We are not licensed real estate agents or brokerages and do not represent the property owner. We are not selling the real property itself. Pursuant to Utah Code § 61-2f-202 and applicable statutory exemptions, transactions are executed as direct principal equitable interest assignments.
+                    </div>
+
+                    <div style="text-align: center; font-size: 11px; color: #6b7280; margin-top: 18px; border-top: 1px solid #e5e7eb; padding-top: 12px; line-height: 1.4;">
                         &copy; 2026 Utah Land & Property Inc. All rights reserved.<br>Protected by advanced encryption protocols.
                     </div>
                 </div>
@@ -367,7 +373,7 @@ st.markdown(
     <div class="main-header">
         <div class="main-title">UTAH LAND & PROPERTY INC.</div>
         <div class="main-subtitle">TACTICAL REAL ESTATE CONTRACT ASSIGNMENTS & EQUITABLE INTEREST OPERATIONS</div>
-        <div class="main-subtitle" style="font-size: 13px; color: #94a3b8; margin-top: 10px;">[SYSTEM NOTICE]: We are not brokers. We market our verified equitable interest in signed purchase contracts.</div>
+        <div class="main-subtitle" style="font-size: 13px; color: #94a3b8; margin-top: 10px;">[SYSTEM NOTICE]: We are a principal contract holder marketing equitable interests. Pursuant to Utah Code § 61-2f-202, we operate under statutory exemptions.</div>
     </div>
     """,
     unsafe_allow_html=True,
