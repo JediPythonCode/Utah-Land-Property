@@ -244,6 +244,8 @@ st.markdown(
     <div class="hero-container">
         <div class="hero-title"> Utah Land & Property For Sale </div>
         <div class="hero-subtitle"> Utah Investment Property for Sale. Investment Real Estate & Land For Sale in Utah. </div>
+        <div class="hero-subtitle"> Utah Land & Property Inc. Finds deeply discounted off-market contract assignments in Utah. </div>
+        <div class="hero-subtitle"> Enter your email and verify your cash-buyer or invetor status to view our inventory. </div>
     </div>
     <div id="contracts-section"></div>
     """,
