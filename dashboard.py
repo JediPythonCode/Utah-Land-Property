@@ -1,358 +1,264 @@
-import smtplib
+from email import encoders
+from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import random
+import re
+import smtplib
 import pandas as pd
+import pydeck as pdk
 import streamlit as st
 
-# --- PAGE CONFIGURATION ---
+# ---> PAGE CONFIGURATION <---
 st.set_page_config(
-    page_title="Utah Land & Property Inc. | Wholesale Portals",
-    page_icon="🏢",
+    page_title="Utah Land & Property Inc.",
+    page_icon="🏡",
     layout="wide",
+    initial_sidebar_state="expanded"
 )
 
-# --- GLOBAL STYLING ---
+# ---> AUTHENTICATION SESSION STATE SETUP <---
+if "authenticated" not in st.session_state:
+    st.session_state["authenticated"] = False
+
+# ---> CUSTOM STYLING & CLEAN LAYOUT <---
 st.markdown(
     """
     <style>
-        .main {
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700;900&display=swap');
+
+        .stApp {
             background-color: #f8fafc;
-        }
-        .section-header {
-            font-size: 24px;
-            font-weight: 800;
             color: #1e293b;
-            margin-top: 30px;
-            margin-bottom: 15px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid #e2e8f0;
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        .main-header {
+            background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), 
+                        url('https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=2000&q=80');
+            background-size: cover;
+            background-position: center;
+            padding: 80px 20px;
+            text-align: center;
+            color: white;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .main-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 48px;
+            font-weight: 900;
+            margin-bottom: 12px;
             letter-spacing: -0.5px;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.4);
+        }
+
+        .main-subtitle {
+            font-size: 18px;
+            font-weight: 500;
+            max-width: 800px;
+            margin: 0 auto 8px auto;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+        }
+
+        .section-header {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 40px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #d92228;
+        }
+
+        .property-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .property-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
         }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-
-# --- PROPERTY DATABASE LOADER (TILA REGULATION Z COMPLIANT) ---
-def load_utah_property_database():
-    data = [
-        # --- RESIDENTIAL ---
-        {
-            "id": "UT-RES-0101",
-            "title": "Millcreek Condominium Asset",
-            "category": "Residential",
-            "city": "Millcreek, UT",
-            "contract_price": 5000,
-            "purchase_price": 150000,
-            "arv": 210000,
-            "beds": 1,
-            "baths": 1,
-            "sqft": 750,
-            "status": "Available",
-            "address": "4629 S Quail Vista Cove, Millcreek, UT 84117",
-            "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80",
-            "lat": 40.6782,
-            "lon": -111.8385,
-        },
-        {
-            "id": "UT-RES-0102",
-            "title": "Herriman Townhouse Opportunity",
-            "category": "Residential",
-            "city": "Herriman, UT",
-            "contract_price": 7500,
-            "purchase_price": 385000,
-            "arv": 465000,
-            "beds": 3,
-            "baths": 2,
-            "sqft": 1820,
-            "status": "Available",
-            "address": "5186 W Koppers Ln, Herriman, UT 84096",
-            "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80",
-            "lat": 40.5283,
-            "lon": -112.0194,
-        },
-        # --- RAW LAND ---
-        {
-            "id": "UT-LND-0201",
-            "title": "Montello Desert Acreage Parcel",
-            "category": "Raw Land",
-            "city": "Montello, NV",
-            "contract_price": 4000,
-            "purchase_price": 45000,
-            "arv": 85000,
-            "beds": 0,
-            "baths": 0,
-            "sqft": 304920,  # 7 Acres
-            "status": "Available",
-            "address": "7-Acre Desert Parcel, Montello, NV 89830",
-            "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=800&q=80",
-            "lat": 41.2589,
-            "lon": -114.2156,
-        },
-        {
-            "id": "UT-LND-0202",
-            "title": "St. George Airport Development Tract",
-            "category": "Raw Land",
-            "city": "St. George, UT",
-            "contract_price": 25000,
-            "purchase_price": 1850000,
-            "arv": 3200000,
-            "beds": 0,
-            "baths": 0,
-            "sqft": 20037600,  # 460+ Acres
-            "status": "UNDER CONTRACT",
-            "address": "SGU Regional Growth Corridor, St. George, UT 84790",
-            "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
-            "lat": 37.0965,
-            "lon": -113.5184,
-        },
-        # --- COMMERCIAL ---
-        {
-            "id": "UT-COM-0301",
-            "title": "Draper Town Center Commercial Infill",
-            "category": "Commercial",
-            "city": "Draper, UT",
-            "contract_price": 15000,
-            "purchase_price": 620000,
-            "arv": 950000,
-            "beds": 0,
-            "baths": 0,
-            "sqft": 15240,
-            "status": "Available",
-            "address": "12614 S Fort Street, Draper, UT 84020",
-            "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80",
-            "lat": 40.5273,
-            "lon": -111.8591,
-        },
-        # --- INDUSTRIAL / SPECIAL USE ---
-        {
-            "id": "UT-IND-0401",
-            "title": "North Salt Lake Industrial Off-Market Yard",
-            "category": "Industrial",
-            "city": "North Salt Lake, UT",
-            "contract_price": 12500,
-            "purchase_price": 480000,
-            "arv": int(480000 * 1.32),
-            "beds": 0,
-            "baths": 0,
-            "sqft": 21780,
-            "status": "Available",
-            "address": "Off-Market Industrial Way, North Salt Lake, UT 84054",
-            "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
-            "lat": 40.8351,
-            "lon": -111.9132,
-        },
-        {
-            "id": "UT-IND-0401-B",
-            "title": "North Salt Lake Fleet Storage Yard",
-            "category": "Industrial",
-            "city": "North Salt Lake, UT",
-            "contract_price": 14000,
-            "purchase_price": 510000,
-            "arv": int(510000 * 1.35),
-            "beds": 0,
-            "baths": 0,
-            "sqft": 32670,
-            "status": "UNDER CONTRACT",
-            "address": "Off-Market Industrial Way Parcel B, North Salt Lake, UT 84054",
-            "broker": "Utah Land & Property Inc.",
-            "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
-            "lat": 40.8355,
-            "lon": -111.9138,
-        },
-    ]
-    return pd.DataFrame(data)
-
-
-df = load_utah_property_database()
-
-
-# --- AUTOMATED EMAIL / OFFER DISPATCH HELPER ---
-def send_offer_dispatch(
-    property_id, property_title, recipient_email, selected_term, custom_terms
-):
-    smtp_server = "smtp.gmail.com"
-    port = 587
-    sender_email = st.secrets.get("EMAIL_USER", "your-email@domain.com")
-    sender_password = st.secrets.get("EMAIL_PASS", "your-app-password")
-
-    subject = f"Official Offer / Escrow Submission: {property_id}"
-    body = f"""
-    Automated Transaction & Offer Workflow Dispatch:
-    Property ID: {property_id}
-    Asset Title: {property_title}
-    Submitter Contact: {recipient_email}
-    Selected Financing/Contract Terms: {selected_term}
-    Custom Addendums / Conditions: {custom_terms}
-    ---
-    Notice: Utah Land & Property Inc. - Secure Escrow & Offer Routing Engine.
-    """
-
-    msg = MIMEMultipart()
-    msg["From"] = sender_email
-    msg["To"] = recipient_email
-    msg["Subject"] = subject
-    msg.attach(MIMEText(body, "plain"))
-
-    try:
-        server = smtplib.SMTP(smtp_server, port)
-        server.starttls()
-        server.login(sender_email, sender_password)
-        server.sendmail(sender_email, recipient_email, msg.as_string())
-        server.quit()
-        return True
-    except Exception:
-        return False
-
-
-# --- RENDER FUNCTION FOR PROPERTY GRIDS (TILA REGULATION Z COMPLIANT) ---
-def render_property_grid(subset_df, category_title, anchor_id):
-    st.markdown(
-        f'<div id="{anchor_id}" class="section-header">{category_title} ({len(subset_df)})</div>',
-        unsafe_allow_html=True,
-    )
-    st.markdown("<div style='padding: 0 20px;'>", unsafe_allow_html=True)
-
-    if subset_df.empty:
-        st.info(f"No {category_title.lower()} listings available.")
-    else:
-        cols_per_row = 3
-        rows = [
-            subset_df.iloc[i : i + cols_per_row]
-            for i in range(0, len(subset_df), cols_per_row)
-        ]
-
-        for row_batch in rows:
-            cols = st.columns(cols_per_row, gap="medium")
-            for idx, (_, row) in enumerate(row_batch.iterrows()):
-                listing_images = (
-                    row["image"].split(",")
-                    if isinstance(row["image"], str)
-                    else [row["image"]]
-                )
-                first_image = listing_images[0].strip()
-
-                badge_bg = (
-                    "#b91c1c"
-                    if row["status"] == "UNDER CONTRACT"
-                    else "rgba(0,0,0,0.7)"
-                )
-
-                with cols[idx]:
-                    st.markdown(
-                        f"""
-                            <div style="background: white; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-                                <div style="position: relative;">
-                                    <img src="{first_image}" style="width: 100%; height: 200px; object-fit: cover;">
-                                    <div style="position: absolute; top: 12px; left: 12px; background: {badge_bg}; color: white; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px;">{row['status']}</div>
-                                </div>
-                                <div style="padding: 16px;">
-                                    <div style="font-size: 11px; text-transform: uppercase; color: #6b7280; font-weight: 700; margin-bottom: 4px;">{row['broker']}</div>
-                                    <div style="font-size: 16px; font-weight: 800; color: #111827; margin-bottom: 6px;">Contract Assignment Fee: ${row['contract_price']:,}</div>
-                                    <div style="font-size: 13px; color: #374151; margin-bottom: 2px;">Property Purchase Price: <b>${row['purchase_price']:,}</b></div>
-                                    <div style="font-size: 13px; color: #047857; font-weight: 600; margin-bottom: 8px;">ARV: ${row['arv']:,}</div>
-                                    <div style="font-size: 13px; color: #374151; margin-bottom: 8px;"><b>{row['beds']}</b> bds &nbsp;|&nbsp; <b>{row['baths']}</b> ba &nbsp;|&nbsp; <b>{row['sqft']:,}</b> sqft</div>
-                                    <div style="font-size: 13px; color: #6b7280;">{row['address']}</div>
-                                </div>
-                            </div>
-                        """,
-                        unsafe_allow_html=True,
-                    )
-
-                    with st.expander(
-                        f"Review Terms / Submit Offer ({row['id']})"
-                    ):
-                        user_email = st.text_input(
-                            "Your Email",
-                            key=f"p_email_{row['id']}",
-                            placeholder="name@domain.com",
-                        )
-
-                        contract_terms_options = [
-                            "Standard Cash Purchase (14-Day Close)",
-                            "Subject-To Existing Mortgage Takeover",
-                            "Seller Financing Options",
-                            "Equitable Interest Assignment (REPC Assignment Fee)",
-                            "Wholesale Cash Offer (7-Day Inspection Waiver)",
-                        ]
-                        selected_term = st.selectbox(
-                            "Contract & Financing Terms",
-                            contract_terms_options,
-                            key=f"term_select_{row['id']}",
-                        )
-
-                        offer_terms = st.text_area(
-                            "Offer Terms & Conditions",
-                            key=f"p_msg_{row['id']}",
-                            placeholder="Enter earnest money deposit, closing date, or escrow contingencies...",
-                        )
-                        if st.button(
-                            "Submit Official Offer", key=f"p_btn_{row['id']}"
-                        ):
-                            if user_email:
-                                send_offer_dispatch(
-                                    row["id"],
-                                    row["title"],
-                                    user_email,
-                                    selected_term,
-                                    offer_terms,
-                                )
-                                st.success(
-                                    "Offer successfully dispatched to escrow!"
-                                )
-                            else:
-                                st.error("Please enter a valid email address.")
-    st.markdown("</div>", unsafe_allow_html=True)
-
-
-# --- RENDER SEPARATED CATEGORY SECTIONS ---
-render_property_grid(
-    df[df["category"] == "Residential"], "Residential", "residential-section"
-)
-render_property_grid(
-    df[df["category"] == "Raw Land"], "Raw Land", "raw-land-section"
-)
-render_property_grid(
-    df[df["category"] == "Commercial"], "Commercial", "commercial-section"
-)
-render_property_grid(
-    df[df["category"] == "Industrial"], "Industrial", "industrial-section"
-)
-
-# --- RENDER LEGAL NOTICE FOOTER ---
+# ---> MAIN HEADER SECTION <---
 st.markdown(
     """
-    <style>
-        .legal-footer {
-            background-color: #111827;
-            color: #9ca3af;
-            font-size: 12px;
-            line-height: 1.6;
-            padding: 40px 20px;
-            text-align: center;
-            margin-top: 60px;
-            border-top: 1px solid #374151;
-        }
-        .legal-footer-content {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-    </style>
-    <div class="legal-footer">
-        <div class="legal-footer-content">
-            <strong>Notice:</strong> Utah Land & Property Inc. is a private investment firm and is not a licensed real estate broker or agent.<br>
-            We do not represent third parties in the purchase, sale, or management of outside real estate.<br>
-            Pursuant to the exemption under Utah Code § 61-2f-202, all property management functions are executed solely by individuals, 
-            operating as regular salaried employees of the specific legal entities that own the underlying real estate assets.
-        </div>
+    <div class="main-header">
+        <div class="main-title">Utah Land & Property Inc.</div>
+        <div class="main-subtitle">Wholesale Real Estate Contract Assignments & Equitable Interest Opportunities</div>
+        <div class="main-subtitle" style="font-size: 15px; opacity: 0.9;">We are not real estate agents or brokers. We market our equitable interest in signed purchase contracts.</div>
     </div>
     """,
     unsafe_allow_html=True,
 )
+
+# ---> INVESTOR LOGIN GATEWAY <---
+if not st.session_state["authenticated"]:
+    st.markdown("### 🔒 Investor Portfolio Access Portal")
+    st.markdown("Please enter your verified investor email and secure access code to unlock off-market contract assignment details.")
+    
+    with st.form("login_form"):
+        investor_email = st.text_input("Investor Email")
+        secret_code = st.text_input("Secret Access Code", type="password")
+        submit_login = st.form_submit_button("Authenticate & View Contracts")
+        
+        if submit_login:
+            if investor_email.strip() != "" and secret_code == "UTAH2026!":
+                st.session_state["authenticated"] = True
+                st.success("Authentication successful! Loading contract assignments...")
+                st.rerun()
+            else:
+                st.error("Invalid credentials. Please enter a valid email and correct secret code.")
+    
+    st.stop()
+
+# ---> SIDEBAR FILTERS & CONTROLS <---
+st.sidebar.title("Navigation & Filters")
+category_filter = st.sidebar.selectbox("Filter by Category", ["All", "Residential", "Raw Land", "Commercial"])
+status_filter = st.sidebar.selectbox("Contract Status", ["All", "Available", "UNDER CONTRACT"])
+st.sidebar.markdown("---")
+st.sidebar.info("Logged in as Verified Investor.\nUtah Land & Property Inc. Portfolio Manager.")
+
+# ---> DATABASE GENERATOR (32 LISTINGS PER CATEGORY WITH TREE/LANDSCAPE IMAGERY, CITY & ZIP ONLY) <---
+@st.cache_data
+def load_utah_property_database():
+    residential_images = [
+        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1600573472550-8090b5e0745e?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1600585152220-90363fe7e115?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1600585154363-67eb9e2e2099?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1600566753086-acf0c8d7699f?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=800&q=80"
+    ]
+    
+    land_images = [
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1426604966848-d7adacbd02bf?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1511497584788-876761197069?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1434725039720-aaad6dd32dfe?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?auto=format&fit=crop&w=800&q=80"
+    ]
+
+    commercial_images = [
+        "https://images.unsplash.com/photo-1444703686981-a3bb84d82f60?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1554469384-e58fac16e23a?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=800&q=80"
+    ]
+
+    data = []
+    statuses = ["Available", "UNDER CONTRACT"]
+    
+    # Generate 32 Residential Listings
+    for i in range(1, 33):
+        purchase_price = 150000 + (i * 12500)
+        arv = int(purchase_price * 1.3)
+        contract_price = 5000 + (i * 300)
+        data.append({
+            "id": f"RES-{1000+i}",
+            "title": f"ASSIGNMENT OF PURCHASE CONTRACT. Equitable Interest, Utah Land & Property Inc. is selling contractual rights to purchase property, Millcreek 84117, Contract Purchase Price ${purchase_price:,} and Assignment Fee: $10,000 Estimated ARV Price: ${arv:,}",
+            "category": "Residential",
+            "city": "Millcreek, UT 84117",
+            "contract_price": contract_price,
+            "purchase_price": purchase_price,
+            "arv": arv,
+            "status": statuses[i % 2],
+            "image": residential_images[(i - 1) % len(residential_images)],
+            "lat": 40.6900 + (i * 0.001),
+            "lon": -111.8500 - (i * 0.001)
+        })
+
+    # Generate 32 Raw Land Listings
+    for i in range(1, 33):
+        purchase_price = 45000 + (i * 4500)
+        arv = int(purchase_price * 1.35)
+        contract_price = 4000 + (i * 200)
+        data.append({
+            "id": f"LAND-{2000+i}",
+            "title": f"ASSIGNMENT OF PURCHASE CONTRACT. Equitable Interest, Utah Land & Property Inc. is selling contractual rights to purchase land parcel, Elko County 89801, Contract Purchase Price ${purchase_price:,} and Assignment Fee: $10,000 Estimated ARV Price: ${arv:,}",
+            "category": "Raw Land",
+            "city": "Elko County, NV 89801",
+            "contract_price": contract_price,
+            "purchase_price": purchase_price,
+            "arv": arv,
+            "status": statuses[(i + 1) % 2],
+            "image": land_images[(i - 1) % len(land_images)],
+            "lat": 41.5000 + (i * 0.001),
+            "lon": -115.5000 - (i * 0.001)
+        })
+
+    # Generate 32 Commercial Listings
+    for i in range(1, 33):
+        purchase_price = 280000 + (i * 18000)
+        arv = int(purchase_price * 1.28)
+        contract_price = 12000 + (i * 500)
+        data.append({
+            "id": f"COMM-{3000+i}",
+            "title": f"ASSIGNMENT OF PURCHASE CONTRACT. Equitable Interest, Utah Land & Property Inc. is selling contractual rights to purchase commercial property, Draper 84020, Contract Purchase Price ${purchase_price:,} and Assignment Fee: $10,000 Estimated ARV Price: ${arv:,}",
+            "category": "Commercial",
+            "city": "Draper, UT 84020",
+            "contract_price": contract_price,
+            "purchase_price": purchase_price,
+            "arv": arv,
+            "status": statuses[i % 2],
+            "image": commercial_images[(i - 1) % len(commercial_images)],
+            "lat": 40.5200 + (i * 0.001),
+            "lon": -111.8600 - (i * 0.001)
+        })
+
+    return data
+
+database = load_utah_property_database()
+
+# ---> RENDER SECTIONS <---
+categories_to_show = ["Residential", "Raw Land", "Commercial"] if category_filter == "All" else [category_filter]
+
+for cat in categories_to_show:
+    st.markdown(f'<div class="section-header">{cat} Contract Assignments</div>', unsafe_allow_html=True)
+    
+    cat_items = [item for item in database if item["category"] == cat]
+    if status_filter != "All":
+        cat_items = [item for item in cat_items if item["status"] == status_filter]
+        
+    for i in range(0, len(cat_items), 3):
+        row_items = cat_items[i:i+3]
+        cols = st.columns(len(row_items))
+        for idx, item in enumerate(row_items):
+            with cols[idx]:
+                st.markdown('<div class="property-card">', unsafe_allow_html=True)
+                st.image(item["image"], use_container_width=True)
+                st.markdown(f"**{item['title']}**")
+                st.markdown(f"Status: `{item['status']}` | Location: **{item['city']}**")
+                st.markdown(f"Assignment Price: **${item['contract_price']:,}**")
+                if st.button(f"View Details", key=f"btn_{item['id']}"):
+                    st.success(f"Viewing documentation package for {item['id']}")
+                st.markdown('</div>', unsafe_allow_html=True)
