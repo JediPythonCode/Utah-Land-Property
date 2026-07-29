@@ -158,18 +158,18 @@ st.markdown(
             margin: 0 auto 8px auto;
             color: #e2e8f0;
             text-align: center;
+            font-family: 'Inter', sans-serif;
         }
 
         .section-header {
             font-family: 'Playfair Display', serif;
-            font-size: 2.4rem;
-            font-weight: 900;
-            text-transform: uppercase;
+            font-size: 2.2rem;
+            font-weight: 700;
             color: #1e3a8a;
             margin: 45px 0 20px 0;
             padding-bottom: 10px;
-            border-bottom: 3px solid #cbd5e1;
-            letter-spacing: 0.05em;
+            border-bottom: 2px solid #cbd5e1;
+            letter-spacing: 0.02em;
             text-align: center;
         }
 
@@ -193,8 +193,8 @@ st.markdown(
         }
 
         .price-tag {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 26px;
+            font-family: 'Inter', sans-serif;
+            font-size: 24px;
             font-weight: 700;
             color: #ffffff;
             margin-bottom: 8px;
@@ -204,14 +204,16 @@ st.markdown(
             font-size: 14px;
             color: #cbd5e1;
             margin-bottom: 12px;
-            font-weight: 500;
+            font-weight: 400;
             line-height: 1.6;
+            font-family: 'Inter', sans-serif;
         }
 
         .card-location {
             font-size: 13px;
             color: #94a3b8;
             margin-bottom: 16px;
+            font-family: 'Inter', sans-serif;
         }
 
         .badge-available {
@@ -221,11 +223,12 @@ st.markdown(
             padding: 4px 12px;
             border-radius: 4px;
             font-size: 11px;
-            font-weight: 700;
+            font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             display: inline-block;
             margin-bottom: 10px;
+            font-family: 'Inter', sans-serif;
         }
 
         .badge-contract {
@@ -235,11 +238,12 @@ st.markdown(
             padding: 4px 12px;
             border-radius: 4px;
             font-size: 11px;
-            font-weight: 700;
+            font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             display: inline-block;
             margin-bottom: 10px;
+            font-family: 'Inter', sans-serif;
         }
 
         /* Center Streamlit buttons inside columns */
@@ -252,9 +256,10 @@ st.markdown(
             background-color: #1e293b;
             color: #ffffff;
             border: 1px solid #475569;
-            font-weight: 600;
+            font-weight: 500;
             border-radius: 6px;
             padding: 8px 16px;
+            font-family: 'Inter', sans-serif;
         }
         .stButton > button:hover {
             background-color: #334155;
@@ -286,11 +291,10 @@ st.markdown(
             text-align: center;
             color: #ffffff;
             font-family: 'Playfair Display', serif;
-            font-size: 34px;
-            font-weight: 900;
+            font-size: 32px;
+            font-weight: 700;
             text-shadow: 0 2px 8px rgba(0,0,0,0.9);
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
+            letter-spacing: 0.03em;
         }
     </style>
     """,
@@ -376,19 +380,19 @@ if not st.session_state["authenticated"]:
     st.stop()
 
 # ---> SIDEBAR CONTROLS <---
-st.sidebar.title("🎮 HUD Control Matrix")
+st.sidebar.title("Investor Menu")
 category_filter = st.sidebar.selectbox("Filter Asset Sector", ["All", "Residential", "Raw Land", "Commercial"])
 status_filter = st.sidebar.selectbox("Contract Status", ["All", "Available", "UNDER CONTRACT"])
 st.sidebar.markdown("---")
-st.sidebar.info("STATUS: SECURE 🟢\nOPERATOR: CEO / ADMIN\nSYSTEM: ACTIVE")
+st.sidebar.info("Portal Status: Secure\nOperator: Executive Admin\nSystem: Active")
 
 # ---> MAIN HEADER SECTION <---
 st.markdown(
     """
     <div class="main-header">
         <div class="main-title">Utah Land & Property Inc.</div>
-        <div class="main-subtitle" style="font-size: 18px; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 12px; text-transform: uppercase;">Tactical Real Estate Contract Assignments & Equitable Interest Operations</div>
-        <div class="main-subtitle" style="font-size: 12px; color: #cbd5e1; margin-top: 15px; line-height: 1.5;">[SYSTEM NOTICE]: We are a principal contract holder marketing equitable interests. Pursuant to Utah Code § 61-2f-202, we operate under statutory exemptions.</div>
+        <div class="main-subtitle" style="font-size: 16px; font-weight: 500; letter-spacing: 0.02em; margin-bottom: 12px;">Verified Contract Assignments & Equitable Interest Portfolio</div>
+        <div class="main-subtitle" style="font-size: 11px; color: #cbd5e1; margin-top: 15px; line-height: 1.5; max-width: 800px; margin-left: auto; margin-right: auto;">[Notice]: Acting as principal contract holder marketing equitable interests. Pursuant to Utah Code § 61-2f-202 and statutory exemptions, transactions are executed as direct principal assignments.</div>
     </div>
     """,
     unsafe_allow_html=True,
@@ -458,7 +462,7 @@ def load_utah_property_database():
 
 database = load_utah_property_database()
 
-# ---> RENDER SECTIONS WITH CINEMATIC BETWEEN-CATEGORY IMAGES & LARGER HEADERS <---
+# ---> RENDER SECTIONS WITH CINEMATIC BETWEEN-CATEGORY IMAGES & CLEAN HEADERS <---
 categories_to_show = ["Residential", "Raw Land", "Commercial"] if category_filter == "All" else [category_filter]
 
 # Banner image URLs mapped to category themes
