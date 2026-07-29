@@ -17,7 +17,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ---> CUSTOM STYLING: BERKSHIRE HATHAWAY EXECUTIVE LOGIN & ZILLOW/HUD ASSET DASHBOARD <---
+# ---> CUSTOM STYLING: STICKY BERKSHIRE HATHAWAY EXECUTIVE LOGIN & ZILLOW/HUD ASSET DASHBOARD <---
 st.markdown(
     """
     <style>
@@ -35,45 +35,83 @@ st.markdown(
             font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
-        /* --- PROFESSIONAL BERKSHIRE-STYLE LOGIN GATEWAY --- */
-        .login-wrapper {
+        /* --- STICKY DUAL-PANEL BERKSHIRE-STYLE LOGIN GATEWAY --- */
+        .login-outer-wrapper {
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 80vh;
+            min-height: 85vh;
             padding: 20px;
         }
 
-        .berkshire-login-card {
+        .berkshire-sticky-card {
+            display: flex;
             width: 100%;
-            max-width: 440px;
+            max-width: 900px;
             background-color: #ffffff;
             border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            padding: 40px 35px;
+            border-radius: 8px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+            overflow: hidden;
             color: #111827;
+        }
+
+        .berkshire-login-image-pane {
+            flex: 1;
+            background: linear-gradient(rgba(15, 23, 42, 0.5), rgba(15, 23, 42, 0.85)), 
+                        url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1000&q=80');
+            background-size: cover;
+            background-position: center;
+            padding: 40px 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            color: #ffffff;
+        }
+
+        .berkshire-login-image-pane h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .berkshire-login-image-pane p {
+            font-size: 13px;
+            color: #cbd5e1;
+            line-height: 1.5;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+        }
+
+        .berkshire-login-form-pane {
+            flex: 1.1;
+            padding: 45px 40px;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .berkshire-brand-header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             border-bottom: 2px solid #0f172a;
-            padding-bottom: 20px;
+            padding-bottom: 18px;
         }
 
         .berkshire-brand-header h1 {
             font-family: 'Playfair Display', serif;
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 900;
             letter-spacing: 0.05em;
             text-transform: uppercase;
             color: #0f172a;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
         }
 
         .berkshire-brand-header p {
-            font-size: 11px;
+            font-size: 10px;
             color: #4b5563;
             letter-spacing: 0.15em;
             text-transform: uppercase;
@@ -232,16 +270,21 @@ st.markdown(
 if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
 
-# ---> INVESTOR LOGIN GATEWAY (BERKSHIRE HATHAWAY STYLE) <---
+# ---> INVESTOR LOGIN GATEWAY (STICKY DUAL-PANEL BERKSHIRE HATHAWAY STYLE) <---
 if not st.session_state["authenticated"]:
     st.markdown(
         """
-        <div class="login-wrapper">
-            <div class="berkshire-login-card">
-                <div class="berkshire-brand-header">
-                    <h1>Utah Land & Property</h1>
-                    <p>Executive Investor Secure Portal</p>
+        <div class="login-outer-wrapper">
+            <div class="berkshire-sticky-card">
+                <div class="berkshire-login-image-pane">
+                    <h3>Uncompromising Integrity. Exceptional Value.</h3>
+                    <p>Welcome to the Utah Land & Property executive investment portal. Dedicated to precision contract acquisitions, asset transparency, and long-term equity growth.</p>
                 </div>
+                <div class="berkshire-login-form-pane">
+                    <div class="berkshire-brand-header">
+                        <h1>Utah Land & Property</h1>
+                        <p>Executive Investor Secure Portal</p>
+                    </div>
         """,
         unsafe_allow_html=True,
     )
@@ -249,7 +292,7 @@ if not st.session_state["authenticated"]:
     with st.form("login_form"):
         st.markdown(
             """
-            <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: #374151; margin-bottom: 6px; letter-spacing: 0.05em;">
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #374151; margin-bottom: 5px; letter-spacing: 0.05em;">
                 Corporate Identifier / Email
             </div>
             """,
@@ -259,7 +302,7 @@ if not st.session_state["authenticated"]:
         
         st.markdown(
             """
-            <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: #374151; margin: 15px 0 6px 0; letter-spacing: 0.05em;">
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #374151; margin: 12px 0 5px 0; letter-spacing: 0.05em;">
                 Security Password
             </div>
             """,
@@ -267,7 +310,7 @@ if not st.session_state["authenticated"]:
         )
         secret_code = st.text_input("Secret Access Code", type="password", label_visibility="collapsed", placeholder="••••••••••••")
         
-        st.markdown("<div style='margin-top: 25px;'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
         submit_login = st.form_submit_button("Authenticate Securely", use_container_width=True)
         
         if submit_login:
@@ -283,8 +326,9 @@ if not st.session_state["authenticated"]:
     
     st.markdown(
         """
-                <div style="text-align: center; font-size: 11px; color: #6b7280; margin-top: 25px; border-top: 1px solid #e5e7eb; pt: 15px; line-height: 1.4;">
-                    &copy; 2026 Utah Land & Property Inc. All rights reserved.<br>Protected by advanced encryption and structural authorization protocols.
+                    <div style="text-align: center; font-size: 10px; color: #6b7280; margin-top: 20px; border-top: 1px solid #e5e7eb; padding-top: 12px; line-height: 1.4;">
+                        &copy; 2026 Utah Land & Property Inc. All rights reserved.<br>Protected by advanced encryption protocols.
+                    </div>
                 </div>
             </div>
         </div>
