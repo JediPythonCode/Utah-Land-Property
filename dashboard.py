@@ -11,7 +11,7 @@ import streamlit as st
 
 # ---> PAGE CONFIGURATION <---
 st.set_page_config(
-    page_title="Utah Land & Property Inc.",
+    page_title="Utah Land & Property",
     page_icon="🏡",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -328,15 +328,15 @@ if not st.session_state["authenticated"]:
                     </div>
                     <div class="berkshire-login-image-bottom">
                         <div id="portal-disclaimer" style="font-size: 11px; color: #cbd5e1; line-height: 1.5; border-left: 3px solid #38bdf8; padding-left: 10px; background-color: rgba(15, 23, 42, 0.6); padding-top: 6px; padding-bottom: 6px; border-radius: 0 4px 4px 0; margin-bottom: 12px;">
-                            <strong>Disclosures:</strong> Utah Land & Property Inc. is a principal contract holder and is marketing the assignment of a legal purchase agreement. We are not licensed real estate agents or brokerages and do not represent the property owner. We are not selling the real property itself. Pursuant to Utah Code § 61-2f-202 and applicable statutory exemptions, transactions are executed as direct principal equitable interest assignments. Transaction represent the transfer of an executory commercial instrument rather than brokerage services. Consequently, all agreements are executed strictly in a principal capacity pursuant to established common law doctrines.
+                            <strong>Disclosures:</strong> Utah Land & Property is a principal contract holder and is marketing the assignment of a legal purchase agreement. We are not licensed real estate agents or brokerages and do not represent the property owner. We are not selling the real property itself. Pursuant to Utah Code § 61-2f-202 and applicable statutory exemptions, transactions are executed as direct principal equitable interest assignments. Transaction represent the transfer of an executory commercial instrument rather than brokerage services. Consequently, all agreements are executed strictly in a principal capacity pursuant to established common law doctrines.
                         </div>
                         <div style="text-align: center; font-size: 11px; color: #94a3b8; line-height: 1.4;">
-                            &copy; 2026 Utah Land & Property Inc. All rights reserved.<br>Protected by advanced encryption protocols.
+                            &copy; 2026 Utah Land & Property All rights reserved.<br>Protected by advanced encryption protocols.
                         </div>
                     </div>
                 </div>
                 <div class="berkshire-login-form-pane">
-                    <div class="berkshire-brand-header">
+                    <div class="utah-land-property-brand-header">
                         <h1>Utah Land & Property</h1>
                         <p>Executive Investor Secure Portal</p>
                     </div>
@@ -400,7 +400,7 @@ st.sidebar.info("PORTAL STATUS: SECURE 🟢\nOPERATOR: EXECUTIVE ADMIN\nSYSTEM: 
 st.markdown(
     """
     <div class="main-header">
-        <div class="main-title">Utah Land & Property Inc.</div>
+        <div class="main-title">Utah Land & Property</div>
         <div class="main-subtitle">High-Yield Contract Assignments & Deeply Discounted Equitable Portfolios</div>
         <div class="main-subtitle" style="font-size: 13px; color: #93c5fd; margin-top: 18px; line-height: 1.6; max-width: 850px; margin-left: auto; margin-right: auto; font-weight: 700;">[SYSTEM NOTICE]: Acting as principal contract holder marketing equitable interests at aggressive wholesale discounts. Pursuant to Utah Code § 61-2f-202 and statutory exemptions, transactions are executed as direct principal assignments.</div>
     </div>
