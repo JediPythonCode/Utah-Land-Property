@@ -91,6 +91,8 @@
       <input id="details" placeholder="3 bd, 2 ba, 1,800 sqft">
       <label>Notes</label>
       <textarea id="notes" placeholder="Condition, off-market details, or why you're listing."></textarea>
+      <label>Photos</label>
+      <input id="photos" type="file" accept="image/*" multiple style="padding:0.5rem;">
       <button type="submit">Submit for Review</button>
     </form>
     <div class="note">Analysis only — not a brokerage. Submissions are reviewed before publication.</div>
@@ -98,6 +100,9 @@
   <script>
     document.getElementById("form").onsubmit = (e) => {
       e.preventDefault();
+      if (!confirm("Submit this listing for review?")) return;
+      const files = document.getElementById("photos").files;
+      const photoNote = files.length ? "\n**Photos:** " + files.length + " selected (attach manually)" : "";
       const title = encodeURIComponent("Listing: " + document.getElementById("address").value);
       const body = encodeURIComponent(
         "**Address:** " + document.getElementById("address").value + "\n" +
@@ -105,7 +110,7 @@
         "**Price:** " + (document.getElementById("price").value || "—") + "\n" +
         "**Type:** " + document.getElementById("type").value + "\n" +
         "**Details:** " + (document.getElementById("details").value || "—") + "\n\n" +
-        "**Notes:**\n" + (document.getElementById("notes").value || "—")
+        "**Notes:**\n" + (document.getElementById("notes").value || "—") + photoNote
       );
       window.open("https://github.com/JediPythonCode/Utah-Land-Property/issues/new?title=" + title + "&body=" + body, "_blank");
     };
