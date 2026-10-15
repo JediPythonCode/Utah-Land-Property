@@ -19,7 +19,7 @@ from apscheduler.triggers.interval import IntervalTrigger
 from apscheduler.triggers.cron import CronTrigger
 
 from src.feeds.wfrmls import pull_active_listings, pull_closed_sales
-from src.feeds.fred import fetch_all, fetch_fred_series
+from src.feeds.fred import fetch_all, fetch_series
 from src.feeds.news import pull_news, filter_anomalies
 from src.feeds.distressed import pull_distressed_utah
 from src.feeds.parcels import pull_raw_land_utah
@@ -178,7 +178,7 @@ async def health_check():
         checks = {
             "hud": len(pull_distressed_utah() or []),
             "parcels": len(pull_raw_land_utah() or []),
-            "fred": len(fetch_fred_series("MORTGAGE30US", limit=2) or []),
+            "fred": len(fetch_series("MORTGAGE30US", limit=2) or []),
         }
         if os.getenv("WFRMLS_TOKEN") or os.getenv("WFRMLS_BEARER_TOKEN"):
             checks["wfrmls"] = len(pull_active_listings() or [])
