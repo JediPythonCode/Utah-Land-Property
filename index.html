@@ -3,21 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Utah Land Desk — Market Analysis</title>
+  <title>Utah Land & Property — Market Analysis</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     :root {
-      --bg: #f7f8fa;
-      --surface: #ffffff;
-      --border: #e5e7eb;
-      --text: #111827;
-      --muted: #6b7280;
-      --accent: #006aff;
-      --buy: #0d9488;
-      --fade: #d97706;
-      --distressed: #dc2626;
+      --bg: #0f1419;
+      --surface: #1a1f26;
+      --surface-2: #242b33;
+      --border: #2f3842;
+      --text: #e8eaed;
+      --muted: #9aa0a6;
+      --accent: #4a9eff;
+      --below: #34d399;
+      --above: #fbbf24;
+      --flag: #f87171;
     }
     * { box-sizing: border-box; }
     body {
@@ -28,124 +29,130 @@
       height: 100vh;
       overflow: hidden;
     }
-    .topbar {
-      height: 64px;
-      background: #fff;
+    .header {
+      height: 60px;
+      background: var(--surface);
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       padding: 0 1.5rem;
-      gap: 1.5rem;
+      gap: 1.25rem;
     }
-    .brand { font-weight: 800; font-size: 1.25rem; color: var(--accent); letter-spacing: -0.02em; }
+    .brand {
+      font-family: 'Source Serif 4', serif;
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: #fff;
+    }
+    .brand span { color: var(--accent); }
     .search {
       flex: 1;
-      max-width: 480px;
-      background: #f3f4f6;
+      max-width: 420px;
+      background: var(--surface-2);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.6rem 1rem;
-      font-size: 0.95rem;
+      border-radius: 6px;
+      padding: 0.5rem 0.85rem;
+      color: #fff;
+      font-size: 0.9rem;
     }
-    .filters { display: flex; gap: 0.5rem; }
+    .filters { display: flex; gap: 0.4rem; }
     .filter-btn {
-      background: #fff;
+      background: transparent;
       border: 1px solid var(--border);
-      padding: 0.45rem 0.9rem;
-      border-radius: 8px;
+      color: var(--muted);
+      padding: 0.4rem 0.75rem;
+      border-radius: 6px;
       cursor: pointer;
-      font-size: 0.85rem;
-      font-weight: 500;
+      font-size: 0.8rem;
     }
     .filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .disclaimer-bar {
-      background: #fffbeb;
-      border-bottom: 1px solid #fde68a;
-      padding: 0.45rem 1.5rem;
-      font-size: 0.78rem;
-      color: #92400e;
+    .disclaimer {
+      background: #1e293b;
+      border-bottom: 1px solid var(--border);
+      padding: 0.4rem 1.5rem;
+      font-size: 0.75rem;
+      color: #94a3b8;
     }
     .layout {
       display: grid;
-      grid-template-columns: 1fr 480px;
-      height: calc(100vh - 64px - 36px);
+      grid-template-columns: 1fr 420px;
+      height: calc(100vh - 60px - 32px);
     }
     #map { height: 100%; }
-    .list {
+    .panel {
       overflow-y: auto;
-      padding: 1rem;
-      background: #f9fafb;
+      background: var(--surface);
       border-left: 1px solid var(--border);
+      padding: 1rem;
     }
-    .results-count { font-size: 0.85rem; color: var(--muted); margin: 0 0 0.75rem 0.25rem; }
-    .card {
-      background: #fff;
+    .count { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.75rem; }
+    .item {
+      background: var(--surface-2);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-      margin-bottom: 1rem;
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+      margin-bottom: 0.65rem;
       cursor: pointer;
-      transition: box-shadow 0.15s;
+      transition: border-color 0.15s;
     }
-    .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
-    .card img { width: 100%; height: 180px; object-fit: cover; display: block; }
-    .card-body { padding: 0.9rem 1rem 1rem; }
-    .price { font-size: 1.35rem; font-weight: 800; margin: 0 0 0.2rem; }
-    .details { font-size: 0.85rem; color: var(--muted); margin-bottom: 0.35rem; }
-    .addr { font-weight: 600; font-size: 0.95rem; }
-    .why { font-size: 0.8rem; color: var(--muted); margin-top: 0.4rem; line-height: 1.4; }
-    .badge {
+    .item:hover { border-color: var(--accent); }
+    .signal {
       display: inline-block;
       font-size: 0.65rem;
-      font-weight: 700;
+      font-weight: 600;
       letter-spacing: 0.04em;
       padding: 2px 6px;
       border-radius: 4px;
       text-transform: uppercase;
       margin-bottom: 0.3rem;
     }
-    .BUY { background: #ccfbf1; color: #0f766e; }
-    .FADE { background: #fef3c7; color: #b45309; }
-    .DISTRESSED { background: #fee2e2; color: #b91c1c; }
-    .agent { font-size: 0.75rem; color: #9ca3af; margin-top: 0.35rem; }
+    .BUY { background: rgba(52,211,153,0.15); color: var(--below); }
+    .FADE { background: rgba(251,191,36,0.15); color: var(--above); }
+    .DISTRESSED { background: rgba(248,113,113,0.15); color: var(--flag); }
+    .price { font-size: 1.25rem; font-weight: 700; margin: 0.15rem 0; }
+    .delta { font-size: 0.8rem; color: var(--muted); }
+    .addr { font-weight: 600; }
+    .city { font-size: 0.85rem; color: var(--muted); }
+    .note { font-size: 0.8rem; color: #cbd5e1; margin-top: 0.35rem; line-height: 1.4; }
+    .meta { font-size: 0.75rem; color: #6b7280; margin-top: 0.4rem; }
     @media (max-width: 900px) {
-      .layout { grid-template-columns: 1fr; grid-template-rows: 40vh 1fr; }
-      .list { border-left: none; border-top: 1px solid var(--border); }
+      .layout { grid-template-columns: 1fr; grid-template-rows: 42vh 1fr; }
+      .panel { border-left: none; border-top: 1px solid var(--border); }
     }
   </style>
 </head>
 <body>
-  <div class="topbar">
-    <div class="brand">Utah Land Desk</div>
-    <input class="search" id="search" placeholder="Search city, address, or neighborhood…" oninput="render()">
+  <div class="header">
+    <div class="brand">Utah Land <span>& Property</span></div>
+    <input class="search" id="search" placeholder="Search address or city…" oninput="render()">
     <div class="filters">
       <button class="filter-btn active" data-filter="all">All</button>
-      <button class="filter-btn" data-filter="BUY">Below ELO</button>
-      <button class="filter-btn" data-filter="FADE">Above ELO</button>
+      <button class="filter-btn" data-filter="BUY">Below</button>
+      <button class="filter-btn" data-filter="FADE">Above</button>
       <button class="filter-btn" data-filter="DISTRESSED">Flags</button>
     </div>
   </div>
 
-  <div class="disclaimer-bar">
-    <strong>Analysis only — not a brokerage.</strong> Independent market observations for Utah property. We do not list, sell, or broker real estate. No agency relationship is created. All data is informational and should be independently verified.
+  <div class="disclaimer">
+    Independent market analysis — not a brokerage. We do not list, sell, or broker real estate. Observations only; verify independently.
   </div>
 
   <div class="layout">
     <div id="map"></div>
-    <div class="list">
-      <div class="results-count" id="count">5 analytical signals</div>
-      <div id="cards"></div>
+    <div class="panel">
+      <div class="count" id="count">5 signals</div>
+      <div id="items"></div>
     </div>
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     const sample = [
-      { call: "BUY", price: "$389,000", delta: "−12% vs ELO", address: "4200 S Highland Dr", city: "Salt Lake City, UT", beds: 3, baths: 2, sqft: "1,840", why: "Priced 12% below neighborhood ELO baseline. Analytical observation only.", agent: "Smith", elo: 1458, lat: 40.685, lon: -111.84, img: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=800&q=80" },
-      { call: "FADE", price: "$749,000", delta: "+18% vs ELO", address: "1800 E 900 S", city: "Salt Lake City, UT", beds: 4, baths: 3, sqft: "2,650", why: "18% above ELO in a softening context. Inventory rising.", agent: "Jones", elo: 1512, lat: 40.748, lon: -111.845, img: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=800&q=80" },
-      { call: "DISTRESSED", price: "$412,000", delta: "Short sale flag", address: "77 N 500 E", city: "Salt Lake City, UT", beds: 3, baths: 2, sqft: "1,520", why: "Distressed indicator present. Independent verification required.", agent: "Park", elo: 1480, lat: 40.77, lon: -111.885, img: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80" },
-      { call: "BUY", price: "$275,000", delta: "−9% vs ELO", address: "1450 W 3300 S", city: "Provo, UT", beds: 3, baths: 2, sqft: "1,680", why: "Below neighborhood ELO with stable macro backdrop.", agent: "Lee", elo: 1522, lat: 40.22, lon: -111.68, img: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80" },
-      { call: "FADE", price: "$620,000", delta: "+14% vs ELO", address: "890 E 2100 N", city: "Ogden, UT", beds: 4, baths: 2.5, sqft: "2,210", why: "Pricing above recent neighborhood ELO range.", agent: "Taylor", elo: 1445, lat: 41.24, lon: -111.95, img: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80" }
+      { call: "BUY", price: "$389,000", delta: "−12% vs ELO", address: "4200 S Highland Dr", city: "Salt Lake City", why: "Priced below neighborhood ELO baseline. Observation only.", agent: "Smith", elo: 1458, lat: 40.685, lon: -111.84 },
+      { call: "FADE", price: "$749,000", delta: "+18% vs ELO", address: "1800 E 900 S", city: "Salt Lake City", why: "Above ELO in a softening context.", agent: "Jones", elo: 1512, lat: 40.748, lon: -111.845 },
+      { call: "DISTRESSED", price: "$412,000", delta: "Short sale flag", address: "77 N 500 E", city: "Salt Lake City", why: "Distressed indicator. Verify independently.", agent: "Park", elo: 1480, lat: 40.77, lon: -111.885 },
+      { call: "BUY", price: "$275,000", delta: "−9% vs ELO", address: "1450 W 3300 S", city: "Provo", why: "Below neighborhood ELO with stable macro.", agent: "Lee", elo: 1522, lat: 40.22, lon: -111.68 },
+      { call: "FADE", price: "$620,000", delta: "+14% vs ELO", address: "890 E 2100 N", city: "Ogden", why: "Pricing above recent neighborhood range.", agent: "Taylor", elo: 1445, lat: 41.24, lon: -111.95 }
     ];
 
     let filter = "all";
@@ -176,60 +183,47 @@
       if (filter !== "all") rows = rows.filter(r => r.call === filter);
       if (q) rows = rows.filter(r => (r.address + r.city).toLowerCase().includes(q));
 
-      document.getElementById("count").textContent = rows.length + " analytical signal" + (rows.length === 1 ? "" : "s");
+      document.getElementById("count").textContent = rows.length + " signal" + (rows.length === 1 ? "" : "s");
 
-      document.getElementById("cards").innerHTML = rows.map((r, i) => `
-        <div class="card" onclick="focusMarker(${i})">
-          <img src="${r.img}" alt="">
-          <div class="card-body">
-            <span class="badge ${r.call}">${r.call === "BUY" ? "Below ELO" : r.call === "FADE" ? "Above ELO" : "Flag"}</span>
-            <div class="price">${r.price} <span style="font-size:0.8rem;font-weight:500;color:#6b7280">${r.delta}</span></div>
-            <div class="details">${r.beds} bd · ${r.baths} ba · ${r.sqft} sqft</div>
-            <div class="addr">${r.address}</div>
-            <div style="font-size:0.85rem;color:#6b7280">${r.city}</div>
-            <div class="why">${r.why}</div>
-            <div class="agent">Agent context: ${r.agent} (ELO ${r.elo}) — analysis only</div>
-          </div>
+      document.getElementById("items").innerHTML = rows.map((r, i) => `
+        <div class="item" onclick="focusMarker(${i})">
+          <span class="signal ${r.call}">${r.call === "BUY" ? "Below ELO" : r.call === "FADE" ? "Above ELO" : "Flag"}</span>
+          <div class="price">${r.price} <span class="delta">${r.delta}</span></div>
+          <div class="addr">${r.address}</div>
+          <div class="city">${r.city}, UT</div>
+          <div class="note">${r.why}</div>
+          <div class="meta">Agent context: ${r.agent} (ELO ${r.elo})</div>
         </div>
-      `).join("") || '<div style="padding:1rem;color:#6b7280">No matches.</div>';
+      `).join("") || '<div style="color:#6b7280;padding:0.5rem">No matches.</div>';
 
       clearMarkers();
       rows.forEach((r, i) => {
-        const color = r.call === "BUY" ? "#0d9488" : r.call === "FADE" ? "#d97706" : "#dc2626";
+        const color = r.call === "BUY" ? "#34d399" : r.call === "FADE" ? "#fbbf24" : "#f87171";
         const m = L.circleMarker([r.lat, r.lon], {
-          radius: 9,
+          radius: 8,
           color: "#fff",
-          weight: 2,
+          weight: 1.5,
           fillColor: color,
-          fillOpacity: 0.95
+          fillOpacity: 0.9
         }).addTo(map).bindPopup(`<b>${r.price}</b><br>${r.address}<br><small>${r.delta}</small>`);
         m.on("click", () => {
-          document.querySelectorAll(".card")[i]?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+          document.querySelectorAll(".item")[i]?.scrollIntoView({ behavior: "smooth", block: "nearest" });
         });
         markers.push(m);
       });
 
       if (rows.length) {
         const group = L.featureGroup(markers);
-        map.fitBounds(group.getBounds().pad(0.2));
+        map.fitBounds(group.getBounds().pad(0.25));
       }
     }
 
     window.focusMarker = function(i) {
-      const rows = getFiltered();
       if (markers[i]) {
-        map.setView(markers[i].getLatLng(), 14);
+        map.setView(markers[i].getLatLng(), 13);
         markers[i].openPopup();
       }
     };
-
-    function getFiltered() {
-      const q = (document.getElementById("search").value || "").toLowerCase();
-      let rows = sample;
-      if (filter !== "all") rows = rows.filter(r => r.call === filter);
-      if (q) rows = rows.filter(r => (r.address + r.city).toLowerCase().includes(q));
-      return rows;
-    }
 
     render();
   </script>
