@@ -100,12 +100,35 @@
   
 <div id="signin-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
   <div style="background:#fff;padding:1.5rem;border-radius:12px;width:320px;">
-    <h3 style="margin:0 0 1rem;font-family:'Playfair Display',serif;">Sign In</h3>
+    <h3 id="modal-title" style="margin:0 0 1rem;font-family:'Playfair Display',serif;">Sign In</h3>
     <input id="si-email" placeholder="Email" style="width:100%;padding:0.6rem;margin-bottom:0.5rem;border:1px solid #ddd;border-radius:6px;">
-    <input id="si-pass" type="password" placeholder="Password" style="width:100%;padding:0.6rem;margin-bottom:1rem;border:1px solid #ddd;border-radius:6px;">
-    <button onclick="document.getElementById('signin-modal').style.display='none'" style="background:#006aff;color:#fff;border:none;padding:0.6rem 1rem;border-radius:6px;width:100%;font-weight:600;">Continue</button>
+    <input id="si-pass" type="password" placeholder="Password" style="width:100%;padding:0.6rem;margin-bottom:0.5rem;border:1px solid #ddd;border-radius:6px;">
+    <input id="si-name" placeholder="Name" style="width:100%;padding:0.6rem;margin-bottom:1rem;border:1px solid #ddd;border-radius:6px;display:none;">
+    <button id="modal-btn" onclick="document.getElementById('signin-modal').style.display='none'" style="background:#006aff;color:#fff;border:none;padding:0.6rem 1rem;border-radius:6px;width:100%;font-weight:600;">Continue</button>
+    <div style="text-align:center;margin-top:0.75rem;font-size:0.8rem;color:#6b7280;">
+      <span id="modal-switch" style="cursor:pointer;color:#006aff;">Create Account</span>
+    </div>
   </div>
 </div>
+<script>
+document.getElementById("modal-switch").onclick = () => {
+  const title = document.getElementById("modal-title");
+  const name = document.getElementById("si-name");
+  const btn = document.getElementById("modal-btn");
+  const sw = document.getElementById("modal-switch");
+  if (title.textContent === "Sign In") {
+    title.textContent = "Create Account";
+    name.style.display = "block";
+    btn.textContent = "Create Account";
+    sw.textContent = "Already have an account? Sign In";
+  } else {
+    title.textContent = "Sign In";
+    name.style.display = "none";
+    btn.textContent = "Continue";
+    sw.textContent = "Create Account";
+  }
+};
+</script>
 
   <div class="header">
     <div class="nav-left">
