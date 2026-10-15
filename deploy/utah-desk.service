@@ -1,0 +1,14 @@
+[Unit]
+Description=Utah Land Desk Autonomous Engine
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/opt/utah-land-property
+ExecStart=/opt/utah-land-property/.venv/bin/python scripts/run_desk.py
+Restart=always
+RestartSec=10
+Environment=PYTHONPATH=/opt/utah-land-property
+
+[Install]
+WantedBy=multi-user.target
