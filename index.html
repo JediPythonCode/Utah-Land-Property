@@ -1,393 +1,231 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Utah Land & Property | Secure Asset Portal</title>
-    <!-- Premium Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,900&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --bhhs-cabernet: #631D33;
-            --bhhs-gold: #85714D;
-            --overlay: rgba(0, 0, 0, 0.45);
-        }
-
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            font-family: 'Montserrat', sans-serif;
-            background-color: #fcfcfc;
-            color: #1a1a1a;
-            scroll-behavior: smooth;
-        }
-
-        /* Hero Background Section */
-        .hero-container {
-            position: relative;
-            height: 100vh;
-            width: 100%;
-            background-image: linear-gradient(var(--overlay), var(--overlay)), 
-                              url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=2070');
-            background-size: cover;
-            background-position: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            text-align: center;
-            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.6s ease;
-        }
-
-        /* Navigation Header */
-        .header-nav {
-            position: absolute;
-            top: 0;
-            width: 100%;
-            padding: 2.5rem 4rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 50;
-        }
-
-        .logo-text {
-            font-family: 'Playfair Display', serif;
-            font-weight: 700;
-            font-size: 1.5rem;
-            letter-spacing: 1px;
-            line-height: 1.1;
-        }
-
-        .logo-subtext {
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            font-weight: 400;
-        }
-
-        /* Main Hero Text */
-        .hero-title {
-            font-family: 'Playfair Display', serif;
-            font-size: clamp(2.5rem, 6vw, 5rem);
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            text-shadow: 2px 2px 10px rgba(0,0,0,0.3);
-        }
-
-        .hero-subtitle {
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 6px;
-            margin-bottom: 3rem;
-            font-weight: 300;
-        }
-
-        /* The BHHS Action Bar */
-        .action-bar {
-            background: white;
-            padding: 0.5rem;
-            display: flex;
-            width: 90%;
-            max-width: 900px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
-            border-radius: 2px;
-        }
-
-        .action-input {
-            flex-grow: 1;
-            border: none;
-            padding: 1.2rem 2rem;
-            font-size: 1rem;
-            color: #333;
-            outline: none;
-        }
-
-        .action-button {
-            background: var(--bhhs-cabernet);
-            color: white;
-            padding: 0 2.5rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            transition: background 0.3s;
-            cursor: pointer;
-            border: none;
-        }
-
-        .action-button:hover { background: #4a1526; }
-
-        /* Secure Portal Overlay */
-        #portal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(99, 29, 51, 0.98);
-            z-index: 100;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            backdrop-filter: blur(10px);
-        }
-
-        .portal-card {
-            background: white;
-            padding: 3.5rem;
-            width: 100%;
-            max-width: 480px;
-            text-align: center;
-            color: #333;
-            border-radius: 0px;
-        }
-
-        .btn-cabernet {
-            background: var(--bhhs-cabernet);
-            color: white;
-            width: 100%;
-            padding: 1.2rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-weight: 600;
-            margin-top: 1.5rem;
-            transition: all 0.3s;
-            border: none;
-        }
-
-        .btn-cabernet:hover { opacity: 0.95; transform: translateY(-1px); }
-
-        /* Dashboard Styles */
-        #dashboard-view {
-            display: none;
-            opacity: 0;
-            transition: opacity 1s ease-in-out;
-        }
-
-        .glass-card {
-            background: white;
-            border: 1px solid #e5e7eb;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            border-radius: 0px;
-        }
-
-        .accent-border { border-left: 5px solid var(--bhhs-cabernet); }
-
-        .fade-out-up {
-            transform: translateY(-100%);
-            opacity: 0;
-        }
-
-        .visible {
-            display: block !important;
-            opacity: 1 !important;
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: var(--bhhs-cabernet); }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Utah Land & Property — Open Desk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    :root {
+      --bg: #0b1220;
+      --surface: #111827;
+      --surface-2: #1f2937;
+      --border: #374151;
+      --text: #f3f4f6;
+      --muted: #9ca3af;
+      --accent: #3b82f6;
+      --buy: #10b981;
+      --fade: #f59e0b;
+      --distressed: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .app {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      min-height: 100vh;
+    }
+    .sidebar {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 1.5rem 1rem;
+    }
+    .brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.35rem;
+      margin-bottom: 1.5rem;
+    }
+    .brand span { color: var(--accent); }
+    .main { padding: 1.25rem 1.5rem; }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+    .macro { display: flex; gap: 1.25rem; font-size: 0.85rem; color: var(--muted); }
+    .macro strong { color: #fff; }
+    .filters { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .filter-btn {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+    .filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 1.25rem;
+    }
+    .cards { display: flex; flex-direction: column; gap: 0.75rem; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.1rem 1.2rem;
+      transition: transform 0.15s, border-color 0.15s;
+    }
+    .card:hover { transform: translateY(-2px); border-color: var(--accent); }
+    .call {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      padding: 3px 8px;
+      border-radius: 999px;
+      text-transform: uppercase;
+    }
+    .BUY { background: rgba(16,185,129,0.15); color: var(--buy); }
+    .FADE { background: rgba(245,158,11,0.15); color: var(--fade); }
+    .DISTRESSED { background: rgba(239,68,68,0.15); color: var(--distressed); }
+    .price { font-size: 1.45rem; font-weight: 800; margin: 0.35rem 0 0.15rem; }
+    .addr { font-weight: 600; }
+    .why { font-size: 0.85rem; color: var(--muted); margin-top: 0.35rem; line-height: 1.45; }
+    .meta { font-size: 0.75rem; color: #6b7280; margin-top: 0.5rem; }
+    #map { height: 260px; border-radius: 12px; margin-bottom: 1rem; }
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .panel h3 { margin: 0 0 0.6rem; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+    .search {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 0.45rem 0.7rem;
+      border-radius: 8px;
+      width: 200px;
+    }
+    @media (max-width: 900px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { border-right: none; border-bottom: 1px solid var(--border); }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">Utah Land <span>Desk</span></div>
+      <p style="font-size:0.8rem;color:var(--muted);line-height:1.4;">
+        Public opportunity board for Utah land & property assignments.<br><br>
+        No login required. Live data coming soon.
+      </p>
+    </aside>
 
-    <!-- Top Branding Bar -->
-    <div style="height: 6px; background: var(--bhhs-cabernet); position: fixed; top:0; width: 100%; z-index: 1000;"></div>
-
-    <!-- 1. LANDING PAGE (HERO) -->
-    <section id="hero-section" class="hero-container">
-        <header class="header-nav">
-            <div class="flex flex-col text-left">
-                <div class="logo-text">UTAH LAND & PROPERTY</div>
-                <div class="logo-subtext">Real Estate & Land Asset Management</div>
-            </div>
-            <div class="hidden md:flex gap-10 text-[11px] uppercase tracking-[3px] font-medium items-center">
-                <a href="#" class="hover:text-gray-300 transition">Portfolios</a>
-                <a href="#" class="hover:text-gray-300 transition">Valuations</a>
-                <button onclick="togglePortal()" class="border border-white px-8 py-2 hover:bg-white hover:text-black transition">Secure Login</button>
-            </div>
-        </header>
-
-        <div class="z-10 px-6">
-            <h1 class="hero-title">Experience Elevated.</h1>
-            <p class="hero-subtitle">The Gold Standard in Utah Real Estate Portfolio Management</p>
-
-            <div class="action-bar mx-auto">
-                <input type="text" id="main-search" class="action-input" placeholder="Enter Portfolio ID or Asset Address...">
-                <button onclick="togglePortal()" class="action-button">Access Vault</button>
-            </div>
-
-            <div class="mt-16 flex justify-center gap-12 text-[10px] uppercase tracking-[5px] font-semibold opacity-80">
-                <div class="flex items-center gap-2 cursor-default"><i class="fa-solid fa-mountain text-xs"></i> Acreage</div>
-                <div class="flex items-center gap-2 cursor-default"><i class="fa-solid fa-chart-line text-xs"></i> Stochastic Models</div>
-                <div class="flex items-center gap-2 cursor-default"><i class="fa-solid fa-shield-halved text-xs"></i> Encrypted</div>
-            </div>
+    <main class="main">
+      <div class="header">
+        <div class="macro">
+          <span>30yr <strong>7.40%</strong></span>
+          <span>UE <strong>3.6%</strong></span>
+          <span>Market <strong>Open</strong></span>
         </div>
-    </section>
+        <input class="search" id="search" placeholder="Search…" oninput="render()">
+      </div>
 
-    <!-- 2. SECURE DASHBOARD (HIDDEN UNTIL AUTHENTICATED) -->
-    <section id="dashboard-view" class="min-h-screen bg-[#FDFDFD] pb-24">
-        <!-- Dashboard Nav -->
-        <nav class="bg-white border-b border-gray-100 px-10 py-8 flex justify-between items-center sticky top-0 z-50">
-            <div class="flex flex-col">
-                <div class="text-[var(--bhhs-cabernet)] font-serif font-bold text-2xl tracking-tight">PRIVATE CLIENT PORTFOLIO</div>
-                <div class="text-[10px] uppercase tracking-[4px] text-gray-400 mt-1" id="active-id-display">ID: NOT_LOADED</div>
-            </div>
-            <div class="flex gap-8 items-center">
-                <div class="text-[10px] font-bold text-[var(--bhhs-gold)] tracking-[2px] uppercase">Stochastic Analysis: Active</div>
-                <button onclick="logout()" class="text-gray-400 hover:text-[var(--bhhs-cabernet)] transition text-lg"><i class="fa-solid fa-circle-xmark"></i></button>
-            </div>
-        </nav>
+      <div class="filters">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="BUY">Buy</button>
+        <button class="filter-btn" data-filter="FADE">Fade</button>
+        <button class="filter-btn" data-filter="DISTRESSED">Distressed</button>
+      </div>
 
-        <div class="max-w-7xl mx-auto px-10 mt-16">
-            <!-- Asset Highlights -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-16">
-                <div class="glass-card accent-border p-10">
-                    <div class="text-[10px] uppercase tracking-[3px] text-gray-400 mb-2 font-bold">Projected Asset Value</div>
-                    <div class="text-4xl font-serif font-bold text-[var(--bhhs-cabernet)]">$8,740,200</div>
-                    <div class="text-[10px] text-emerald-600 mt-3 font-bold tracking-widest"><i class="fa-solid fa-arrow-trend-up mr-1"></i> +8.15% MODEL CONFIDENCE</div>
-                </div>
-                <div class="glass-card p-10">
-                    <div class="text-[10px] uppercase tracking-[3px] text-gray-400 mb-2 font-bold">Land Utilization</div>
-                    <div class="text-4xl font-serif font-bold">18.42 <span class="text-lg text-gray-400">AC</span></div>
-                    <div class="text-[10px] text-gray-500 mt-3 tracking-widest uppercase">Zoning: Luxury Residential</div>
-                </div>
-                <div class="glass-card p-10">
-                    <div class="text-[10px] uppercase tracking-[3px] text-gray-400 mb-2 font-bold">Market Liquidity</div>
-                    <div class="text-4xl font-serif font-bold">Premium</div>
-                    <div class="text-[10px] text-[var(--bhhs-gold)] mt-3 font-bold tracking-widest uppercase">High Demand Tier</div>
-                </div>
-            </div>
+      <div class="grid">
+        <div class="cards" id="cards"></div>
 
-            <!-- Deep Analytics Section -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                <div class="glass-card p-12 h-[500px] flex flex-col">
-                    <div class="flex justify-between items-center mb-8">
-                        <h2 class="font-serif text-3xl">Terrain Mapping</h2>
-                        <span class="text-[9px] uppercase tracking-[2px] font-bold text-gray-300">LiDAR Active</span>
-                    </div>
-                    <div class="flex-grow bg-gray-50 border border-gray-100 flex items-center justify-center relative">
-                         <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(#631D33 1px, transparent 1px); background-size: 30px 30px;"></div>
-                         <div class="text-center z-10">
-                            <i class="fa-solid fa-mountain-city text-5xl text-[var(--bhhs-cabernet)] opacity-10 mb-6"></i>
-                            <p class="text-[11px] uppercase tracking-[4px] text-gray-400">Building Topographic Projection...</p>
-                         </div>
-                    </div>
-                </div>
-
-                <div class="glass-card p-12 flex flex-col">
-                    <h2 class="font-serif text-3xl mb-8">Stochastic Breakdown</h2>
-                    <div class="space-y-8">
-                        <div>
-                            <div class="flex justify-between text-[11px] uppercase tracking-[2px] mb-2 font-bold">
-                                <span>Equity Stability</span>
-                                <span>94%</span>
-                            </div>
-                            <div class="w-full bg-gray-100 h-[3px]">
-                                <div class="bg-[var(--bhhs-cabernet)] h-[3px]" style="width: 94%"></div>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="flex justify-between text-[11px] uppercase tracking-[2px] mb-2 font-bold">
-                                <span>Market Momentum</span>
-                                <span>78%</span>
-                            </div>
-                            <div class="w-full bg-gray-100 h-[3px]">
-                                <div class="bg-[var(--bhhs-gold)] h-[3px]" style="width: 78%"></div>
-                            </div>
-                        </div>
-                        <div class="pt-6 space-y-4">
-                            <div class="flex justify-between text-sm py-2 border-b border-gray-50">
-                                <span class="text-gray-400 italic">Property Tax Est.</span>
-                                <span class="font-semibold">$24,192.00</span>
-                            </div>
-                            <div class="flex justify-between text-sm py-2 border-b border-gray-50">
-                                <span class="text-gray-400 italic">Assessed Value</span>
-                                <span class="font-semibold">$7,100,000</span>
-                            </div>
-                        </div>
-                    </div>
-                    <button class="btn-cabernet mt-auto">Generate Audit Report</button>
-                </div>
+        <aside>
+          <div id="map"></div>
+          <div class="panel">
+            <h3>Sample Neighborhoods</h3>
+            <div style="font-size:0.85rem;line-height:1.6;">
+              Salt Lake City — ELO 1524<br>
+              Provo — ELO 1488<br>
+              Ogden — ELO 1511<br>
+              St. George — ELO 1540<br>
+              Draper — ELO 1495
             </div>
+          </div>
+          <div class="panel">
+            <h3>Public Access</h3>
+            <p style="font-size:0.85rem;color:var(--muted);margin:0;">
+              This board is open for marketing and discovery. Full live ELO engine and alerts available on the private desk.
+            </p>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const sample = [
+      { call: "BUY", line: "$389,000 (−12% vs ELO)", address: "4200 S Highland Dr, Salt Lake City", why: "Priced 12% below neighborhood ELO. Rates stable. Strong entry.", agent: "Smith", elo: 1458 },
+      { call: "FADE", line: "$749,000 (+18% vs ELO)", address: "1800 E 900 S, Salt Lake City", why: "18% above ELO in a softening market. Inventory rising.", agent: "Jones", elo: 1512 },
+      { call: "DISTRESSED", line: "$412,000 (short sale)", address: "77 N 500 E, Salt Lake City", why: "Short sale. Seller motivated. Verify with title company.", agent: "Park", elo: 1480 },
+      { call: "BUY", line: "$275,000 (−9% vs ELO)", address: "1450 W 3300 S, Provo", why: "Below neighborhood ELO with stable macro. Good assignment candidate.", agent: "Lee", elo: 1522 },
+      { call: "FADE", line: "$620,000 (+14% vs ELO)", address: "890 E 2100 N, Ogden", why: "Agent pattern of overpricing. Expect a cut.", agent: "Taylor", elo: 1445 }
+    ];
+
+    let filter = "all";
+
+    document.querySelectorAll(".filter-btn").forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        filter = btn.dataset.filter;
+        render();
+      };
+    });
+
+    function render() {
+      const q = (document.getElementById("search").value || "").toLowerCase();
+      let rows = sample;
+      if (filter !== "all") rows = rows.filter(r => r.call === filter);
+      if (q) rows = rows.filter(r => r.address.toLowerCase().includes(q));
+
+      document.getElementById("cards").innerHTML = rows.map(r => `
+        <div class="card">
+          <span class="call ${r.call}">${r.call}</span>
+          <div class="price">${r.line}</div>
+          <div class="addr">${r.address}</div>
+          <div class="why">${r.why}</div>
+          <div class="meta">Agent: ${r.agent} (ELO ${r.elo})</div>
         </div>
-    </section>
+      `).join("") || '<div class="card">No matches.</div>';
+    }
 
-    <!-- SECURE PORTAL OVERLAY (LOGIN MODAL) -->
-    <div id="portal-overlay">
-        <div class="portal-card shadow-2xl">
-            <div class="text-[var(--bhhs-cabernet)] font-serif text-3xl mb-3">Private Access Vault</div>
-            <p class="text-[10px] uppercase tracking-[3px] text-gray-400 mb-12">Authorized Client Entrance Only</p>
-            
-            <div class="text-left mb-8">
-                <label class="text-[10px] uppercase tracking-[2px] font-bold text-gray-400 block mb-2">Access Token / Parcel ID</label>
-                <input type="password" id="token" class="w-full border-b border-gray-300 py-3 outline-none focus:border-[var(--bhhs-cabernet)] transition-all text-xl tracking-[5px]" placeholder="••••••••">
-            </div>
+    // Map
+    const map = L.map("map").setView([39.32, -111.09], 6);
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+      attribution: "&copy; OpenStreetMap &copy; CARTO"
+    }).addTo(map);
+    [
+      [40.7608, -111.8910, "Salt Lake City"],
+      [40.2338, -111.6585, "Provo"],
+      [41.2230, -111.9738, "Ogden"],
+      [37.0965, -113.5684, "St. George"],
+      [40.5247, -111.8638, "Draper"]
+    ].forEach(([lat, lon, name]) => {
+      L.circleMarker([lat, lon], { radius: 6, color: "#3b82f6", fillOpacity: 0.85 })
+        .addTo(map).bindPopup(name);
+    });
 
-            <button onclick="handleLogin()" class="btn-cabernet">Enter Secure Portal</button>
-            <button onclick="togglePortal()" class="mt-8 text-[10px] uppercase tracking-[2px] text-gray-400 hover:text-black font-bold">Return to Search</button>
-        </div>
-    </div>
-
-    <script>
-        // Toggle the Login Modal
-        function togglePortal() {
-            const overlay = document.getElementById('portal-overlay');
-            const searchVal = document.getElementById('main-search').value;
-            
-            // If user typed in the main search bar, pre-fill the token field
-            if (searchVal && overlay.style.display !== 'flex') {
-                document.getElementById('token').value = searchVal;
-            }
-
-            overlay.style.display = (overlay.style.display === 'flex') ? 'none' : 'flex';
-            if (overlay.style.display === 'flex') document.getElementById('token').focus();
-        }
-
-        // Logic to transition from Hero to Dashboard
-        function handleLogin() {
-            const token = document.getElementById('token').value;
-            if(token.length >= 2) {
-                // Animation phase
-                document.getElementById('portal-overlay').style.opacity = '0';
-                document.getElementById('hero-section').classList.add('fade-out-up');
-                
-                setTimeout(() => {
-                    document.getElementById('portal-overlay').style.display = 'none';
-                    document.getElementById('hero-section').style.display = 'none';
-                    
-                    const dashboard = document.getElementById('dashboard-view');
-                    dashboard.classList.add('visible');
-                    
-                    // Display the search query as the active ID in the dashboard
-                    document.getElementById('active-id-display').innerText = `ID: ${token.toUpperCase()}`;
-                    window.scrollTo(0,0);
-                }, 700);
-            } else {
-                alert("Security Verification Failed. Please enter a valid Parcel ID or Access Token.");
-            }
-        }
-
-        // Logout/Reset logic
-        function logout() {
-            location.reload();
-        }
-
-        // Global Event Listeners for Keyboard
-        document.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const overlay = document.getElementById('portal-overlay');
-                if (overlay.style.display === 'flex') {
-                    handleLogin();
-                } else if (document.activeElement.id === 'main-search' || document.getElementById('main-search').value) {
-                    togglePortal();
-                }
-            }
-        });
-    </script>
+    render();
+  </script>
 </body>
 </html>
