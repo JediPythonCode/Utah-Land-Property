@@ -31,8 +31,8 @@
     .filter-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.35); color: #fff; padding: 0.35rem 0.75rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
     .filter-btn.active { background: #fff; color: #111; }
     .disclaimer { background: #fffbeb; padding: 0.35rem 1.5rem; font-size: 0.72rem; color: #92400e; text-align: center; }
-    .layout { display: grid; grid-template-columns: 1fr 460px; height: calc(100vh - 64px - 300px - 26px); min-height: 420px; }
-    #map { height: 100%; }
+    .layout { display: grid; grid-template-columns: 1fr 460px; height: calc(100vh - 64px - 300px - 26px); min-height: 500px; }
+    #map { height: 100%; min-height: 400px; background: #e5e7eb; }
     .list { overflow-y: auto; padding: 0.9rem; background: #fafafa; border-left: 1px solid #eee; }
     .count { font-size: 0.82rem; color: var(--muted); margin: 0 0 0.6rem 0.15rem; }
     .card { background: #fff; border: 1px solid #eee; border-radius: 10px; overflow: hidden; margin-bottom: 0.7rem; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
@@ -192,12 +192,14 @@
     let map, markers = [];
     let currentRows = [];
 
-    map = L.map("map", { zoomControl: true }).setView([40.7, -111.9], 9);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '&copy; OpenStreetMap',
-      maxZoom: 18
+    map = L.map("map", { zoomControl: true }).setView([40.7, -111.9], 10);
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+      attribution: '&copy; OpenStreetMap &copy; CARTO',
+      maxZoom: 19,
+      subdomains: "abcd"
     }).addTo(map);
-    setTimeout(() => map.invalidateSize(), 200);
+    window.addEventListener("load", () => setTimeout(() => map.invalidateSize(), 300));
+    setTimeout(() => map.invalidateSize(), 500);
 
     async function tryLive() {
       try {
