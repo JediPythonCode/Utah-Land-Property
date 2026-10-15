@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Utah Land & Property — Market Analysis</title>
+  <title>Utah Land & Property — Live Desk</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -38,6 +38,12 @@
       gap: 1.5rem;
     }
     .brand { font-weight: 800; font-size: 1.25rem; color: var(--accent); letter-spacing: -0.02em; }
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #22c55e; display: inline-block; margin-right: 6px;
+    }
+    .status-dot.offline { background: #ef4444; }
+    .status-text { font-size: 0.75rem; color: var(--muted); }
     .search {
       flex: 1;
       max-width: 480px;
@@ -58,6 +64,17 @@
       font-weight: 500;
     }
     .filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .macro-strip {
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      padding: 0.5rem 1.5rem;
+      display: flex;
+      gap: 2rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .macro-strip strong { color: var(--text); font-weight: 600; }
+    .macro-strip .flag { color: var(--distressed); font-weight: 600; }
     .disclaimer-bar {
       background: #fffbeb;
       border-bottom: 1px solid #fde68a;
@@ -68,7 +85,7 @@
     .layout {
       display: grid;
       grid-template-columns: 1fr 480px;
-      height: calc(100vh - 64px - 36px);
+      height: calc(100vh - 64px - 36px - 38px);
     }
     #map { height: 100%; }
     .list {
@@ -107,17 +124,61 @@
     .BUY { background: #ccfbf1; color: #0f766e; }
     .FADE { background: #fef3c7; color: #b45309; }
     .DISTRESSED { background: #fee2e2; color: #b91c1c; }
+    .HOLD { background: #e5e7eb; color: #374151; }
+    .STANDARD { background: #f3f4f6; color: #6b7280; }
     .agent { font-size: 0.75rem; color: #9ca3af; margin-top: 0.35rem; }
+    .source-tag {
+      font-size: 0.65rem;
+      background: #f3f4f6;
+      padding: 1px 5px;
+      border-radius: 3px;
+      color: #6b7280;
+      margin-left: 6px;
+    }
+    .anomaly-icons { font-size: 0.8rem; margin-top: 0.3rem; }
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 200px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .loading::after {
+      content: "";
+      width: 16px; height: 16px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      margin-left: 10px;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .error-box {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1rem 0;
+      font-size: 0.85rem;
+      color: #991b1b;
+    }
+    .error-box code { background: #fee2e2; padding: 1px 4px; border-radius: 3px; font-size: 0.8rem; }
     @media (max-width: 900px) {
       .layout { grid-template-columns: 1fr; grid-template-rows: 40vh 1fr; }
       .list { border-left: none; border-top: 1px solid var(--border); }
+      .macro-strip { flex-wrap: wrap; gap: 1rem; }
     }
   </style>
 </head>
 <body>
   <div class="topbar">
-    <div class="brand">Utah Land & Property</div>
-    <input class="search" id="search" placeholder="Search city, address, or neighborhood…" oninput="render()">
+    <div class="brand">Utah Land Desk</div>
+    <div>
+      <span class="status-dot" id="status-dot"></span>
+      <span class="status-text" id="status-text">Connecting…</span>
+    </div>
+    <input class="search" id="search" placeholder="Search city, address…" oninput="render()">
     <div class="filters">
       <button class="filter-btn active" data-filter="all">All</button>
       <button class="filter-btn" data-filter="BUY">Below ELO</button>
@@ -126,36 +187,39 @@
     </div>
   </div>
 
+  <div class="macro-strip" id="macro-strip">
+    <span>Loading macro…</span>
+  </div>
+
   <div class="disclaimer-bar">
-    <strong>Analysis only — not a brokerage.</strong> Independent market observations for Utah property. We do not list, sell, or broker real estate. No agency relationship is created. All data is informational and should be independently verified.
+    <strong>Analysis only — not a brokerage.</strong> Independent market observations for Utah property. All data is informational and should be independently verified.
   </div>
 
   <div class="layout">
     <div id="map"></div>
     <div class="list">
-      <div class="results-count" id="count">5 analytical signals</div>
-      <div id="cards"></div>
+      <div class="results-count" id="count">Loading…</div>
+      <div id="cards"><div class="loading">Fetching live listings</div></div>
     </div>
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    const sample = [
-      { call: "BUY", price: "$389,000", delta: "−12% vs ELO", address: "4200 S Highland Dr", city: "Salt Lake City, UT", beds: 3, baths: 2, sqft: "1,840", why: "Priced 12% below neighborhood ELO baseline. Analytical observation only.", agent: "Smith", elo: 1458, lat: 40.685, lon: -111.84, img: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=800&q=80" },
-      { call: "FADE", price: "$749,000", delta: "+18% vs ELO", address: "1800 E 900 S", city: "Salt Lake City, UT", beds: 4, baths: 3, sqft: "2,650", why: "18% above ELO in a softening context. Inventory rising.", agent: "Jones", elo: 1512, lat: 40.748, lon: -111.845, img: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=800&q=80" },
-      { call: "DISTRESSED", price: "$412,000", delta: "Short sale flag", address: "77 N 500 E", city: "Salt Lake City, UT", beds: 3, baths: 2, sqft: "1,520", why: "Distressed indicator present. Independent verification required.", agent: "Park", elo: 1480, lat: 40.77, lon: -111.885, img: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80" },
-      { call: "BUY", price: "$275,000", delta: "−9% vs ELO", address: "1450 W 3300 S", city: "Provo, UT", beds: 3, baths: 2, sqft: "1,680", why: "Below neighborhood ELO with stable macro backdrop.", agent: "Lee", elo: 1522, lat: 40.22, lon: -111.68, img: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80" },
-      { call: "FADE", price: "$620,000", delta: "+14% vs ELO", address: "890 E 2100 N", city: "Ogden, UT", beds: 4, baths: 2.5, sqft: "2,210", why: "Pricing above recent neighborhood ELO range.", agent: "Taylor", elo: 1445, lat: 41.24, lon: -111.95, img: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80" }
-    ];
-
+    // ─── State ────────────────────────────────────────────────────────────────
+    let allRows = [];
+    let macroData = {};
     let filter = "all";
     let map, markers = [];
+    let lastUpdated = "";
+    let refreshTimer = null;
 
-    map = L.map("map").setView([40.76, -111.89], 10);
+    // ─── Map ──────────────────────────────────────────────────────────────────
+    map = L.map("map").setView([39.9, -111.85], 7);
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: '&copy; OpenStreetMap'
     }).addTo(map);
 
+    // ─── Filters ──────────────────────────────────────────────────────────────
     document.querySelectorAll(".filter-btn").forEach(btn => {
       btn.onclick = () => {
         document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
@@ -165,54 +229,145 @@
       };
     });
 
-    function clearMarkers() {
-      markers.forEach(m => map.removeLayer(m));
-      markers = [];
+    // ─── Fetch ────────────────────────────────────────────────────────────────
+    async function fetchDesk() {
+      try {
+        const resp = await fetch("/api/desk", { signal: AbortSignal.timeout(15000) });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const data = await resp.json();
+        allRows = data.rows || [];
+        macroData = data.macro || {};
+        lastUpdated = data.updated || "";
+        setStatus(true, allRows.length);
+        renderMacro();
+        render();
+      } catch (e) {
+        setStatus(false, 0);
+        document.getElementById("cards").innerHTML = `
+          <div class="error-box">
+            <strong>Backend not reachable.</strong><br>
+            ${e.message}<br><br>
+            Make sure the autonomous engine is running:<br>
+            <code>python scripts/run_desk.py</code><br><br>
+            The page will retry automatically in 30s.
+          </div>`;
+        document.getElementById("count").textContent = "Offline";
+      }
+    }
+
+    function setStatus(ok, count) {
+      const dot = document.getElementById("status-dot");
+      const text = document.getElementById("status-text");
+      if (ok) {
+        dot.classList.remove("offline");
+        const t = lastUpdated ? new Date(lastUpdated).toLocaleTimeString() : "just now";
+        text.textContent = `Live · ${count} listings · ${t}`;
+      } else {
+        dot.classList.add("offline");
+        text.textContent = "Offline";
+      }
+    }
+
+    // ─── Macro Strip ──────────────────────────────────────────────────────────
+    function renderMacro() {
+      const el = document.getElementById("macro-strip");
+      const parts = [];
+      if (macroData.rate_30yr) {
+        const arrow = macroData.rates_rising ? "↑" : "↓";
+        const cls = macroData.rates_rising ? "flag" : "";
+        parts.push(`<span>30yr Rate: <strong class="${cls}">${macroData.rate_30yr.toFixed(2)}% ${arrow}</strong></span>`);
+      }
+      if (macroData.unemployment_ut) {
+        const cls = macroData.ue_rising ? "flag" : "";
+        parts.push(`<span>UE (UT): <strong class="${cls}">${macroData.unemployment_ut.toFixed(1)}%</strong></span>`);
+      }
+      if (macroData.months_of_supply) {
+        parts.push(`<span>MoS: <strong>${macroData.months_of_supply.toFixed(1)}</strong></span>`);
+      }
+      if (macroData.inventory_change_pct) {
+        const cls = macroData.inventory_rising ? "flag" : "";
+        parts.push(`<span>Inventory Δ30d: <strong class="${cls}">${macroData.inventory_change_pct > 0 ? "+" : ""}${macroData.inventory_change_pct.toFixed(0)}%</strong></span>`);
+      }
+      if (macroData.news_flags && macroData.news_flags.length) {
+        parts.push(`<span class="flag">📰 ${macroData.news_flags[0].slice(0, 60)}…</span>`);
+      }
+      el.innerHTML = parts.length ? parts.join("") : "<span>No macro data yet</span>";
+    }
+
+    // ─── Render ───────────────────────────────────────────────────────────────
+    function getFiltered() {
+      const q = (document.getElementById("search").value || "").toLowerCase();
+      let rows = allRows;
+      if (filter !== "all") rows = rows.filter(r => r.grade?.call === filter);
+      if (q) rows = rows.filter(r => (r.address || "").toLowerCase().includes(q));
+      return rows;
     }
 
     function render() {
-      const q = (document.getElementById("search").value || "").toLowerCase();
-      let rows = sample;
-      if (filter !== "all") rows = rows.filter(r => r.call === filter);
-      if (q) rows = rows.filter(r => (r.address + r.city).toLowerCase().includes(q));
+      const rows = getFiltered();
+      document.getElementById("count").textContent =
+        `${rows.length} listing${rows.length === 1 ? "" : "s"}${lastUpdated ? ` · Updated ${new Date(lastUpdated).toLocaleTimeString()}` : ""}`;
 
-      document.getElementById("count").textContent = rows.length + " analytical signal" + (rows.length === 1 ? "" : "s");
+      const container = document.getElementById("cards");
+      if (!allRows.length) {
+        container.innerHTML = '<div class="loading">Waiting for data</div>';
+        return;
+      }
+      if (!rows.length) {
+        container.innerHTML = '<div style="padding:1rem;color:#6b7280">No matches.</div>';
+      } else {
+        container.innerHTML = rows.map((r, i) => {
+          const call = r.grade?.call || "STANDARD";
+          const label = { BUY: "Below ELO", FADE: "Above ELO", DISTRESSED: "Flag", HOLD: "Hold", STANDARD: "Fair" }[call] || call;
+          const anomalies = (r.grade?.anomalies || []).map(a => `⚡${a}`).join(" ");
+          const agent = r.agent ? `Agent: ${r.agent.name}${r.agent.elo ? ` (ELO ${Math.round(r.agent.elo)})` : ""}` : "";
+          const source = r.source ? `<span class="source-tag">${r.source}</span>` : "";
+          return `
+            <div class="card" data-idx="${i}" onclick="focusMarker(${i})">
+              ${r.img ? `<img src="${r.img}" alt="" loading="lazy">` : ""}
+              <div class="card-body">
+                <span class="badge ${call}">${label}</span>
+                <div class="price">${formatPrice(r.price)} <span style="font-size:0.8rem;font-weight:500;color:#6b7280">${r.grade?.line || ""}</span></div>
+                ${r.beds ? `<div class="details">${r.beds} bd · ${r.baths || "?"} ba · ${r.sqft ? r.sqft.toLocaleString() + " sqft" : ""}</div>` : ""}
+                <div class="addr">${r.address || "Unknown address"}</div>
+                ${r.city ? `<div style="font-size:0.85rem;color:#6b7280">${r.city}</div>` : ""}
+                ${r.grade?.why ? `<div class="why">${r.grade.why}</div>` : ""}
+                ${anomalies ? `<div class="anomaly-icons">${anomalies}</div>` : ""}
+                ${agent ? `<div class="agent">${agent}</div>` : ""}
+                ${source}
+              </div>
+            </div>`;
+        }).join("");
+      }
 
-      document.getElementById("cards").innerHTML = rows.map((r, i) => `
-        <div class="card" onclick="focusMarker(${i})">
-          <img src="${r.img}" alt="">
-          <div class="card-body">
-            <span class="badge ${r.call}">${r.call === "BUY" ? "Below ELO" : r.call === "FADE" ? "Above ELO" : "Flag"}</span>
-            <div class="price">${r.price} <span style="font-size:0.8rem;font-weight:500;color:#6b7280">${r.delta}</span></div>
-            <div class="details">${r.beds} bd · ${r.baths} ba · ${r.sqft} sqft</div>
-            <div class="addr">${r.address}</div>
-            <div style="font-size:0.85rem;color:#6b7280">${r.city}</div>
-            <div class="why">${r.why}</div>
-            <div class="agent">Agent context: ${r.agent} (ELO ${r.elo}) — analysis only</div>
-          </div>
-        </div>
-      `).join("") || '<div style="padding:1rem;color:#6b7280">No matches.</div>';
-
+      // Map markers
       clearMarkers();
       rows.forEach((r, i) => {
-        const color = r.call === "BUY" ? "#0d9488" : r.call === "FADE" ? "#d97706" : "#dc2626";
-        const m = L.circleMarker([r.lat, r.lon], {
-          radius: 9,
-          color: "#fff",
-          weight: 2,
-          fillColor: color,
-          fillOpacity: 0.95
-        }).addTo(map).bindPopup(`<b>${r.price}</b><br>${r.address}<br><small>${r.delta}</small>`);
+        const lat = r.lat, lon = r.lon;
+        if (!lat || !lon) return;
+        const call = r.grade?.call || "STANDARD";
+        const color = { BUY: "#0d9488", FADE: "#d97706", DISTRESSED: "#dc2626", HOLD: "#6b7280", STANDARD: "#9ca3af" }[call] || "#9ca3af";
+        const m = L.circleMarker([lat, lon], {
+          radius: 9, color: "#fff", weight: 2, fillColor: color, fillOpacity: 0.95
+        }).addTo(map).bindPopup(`<b>${formatPrice(r.price)}</b><br>${r.address}<br><small>${r.grade?.line || ""}</small>`);
         m.on("click", () => {
-          document.querySelectorAll(".card")[i]?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+          document.querySelector(`.card[data-idx="${i}"]`)?.scrollIntoView({ behavior: "smooth", block: "nearest" });
         });
         markers.push(m);
       });
-
-      if (rows.length) {
-        const group = L.featureGroup(markers);
-        map.fitBounds(group.getBounds().pad(0.2));
+      if (markers.length) {
+        map.fitBounds(L.featureGroup(markers).getBounds().pad(0.2));
       }
+    }
+
+    function formatPrice(p) {
+      if (!p) return "—";
+      return "$" + Number(p).toLocaleString();
+    }
+
+    function clearMarkers() {
+      markers.forEach(m => map.removeLayer(m));
+      markers = [];
     }
 
     window.focusMarker = function(i) {
@@ -223,15 +378,14 @@
       }
     };
 
-    function getFiltered() {
-      const q = (document.getElementById("search").value || "").toLowerCase();
-      let rows = sample;
-      if (filter !== "all") rows = rows.filter(r => r.call === filter);
-      if (q) rows = rows.filter(r => (r.address + r.city).toLowerCase().includes(q));
-      return rows;
+    // ─── Auto-refresh every 60s ───────────────────────────────────────────────
+    function startPolling() {
+      refreshTimer = setInterval(fetchDesk, 60_000);
     }
 
-    render();
+    // ─── Init ─────────────────────────────────────────────────────────────────
+    fetchDesk();
+    startPolling();
   </script>
 </body>
-</html>
+</html>   
