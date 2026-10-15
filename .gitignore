@@ -1,3 +1,7 @@
 .streamlit/secrets.toml
+secrets.toml
 vault/
 __pycache__/
+*.pyc
+data/elo_state.json
+.env

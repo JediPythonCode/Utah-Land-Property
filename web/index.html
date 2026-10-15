@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Utah Land Desk — Executive Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    :root {
+      --bg: #0b1220;
+      --surface: #111827;
+      --surface-2: #1f2937;
+      --border: #374151;
+      --text: #f3f4f6;
+      --muted: #9ca3af;
+      --accent: #3b82f6;
+      --buy: #10b981;
+      --fade: #f59e0b;
+      --distressed: #ef4444;
+      --hold: #6b7280;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      overflow: hidden;
+    }
+    .app {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      grid-template-rows: 64px 1fr;
+      height: 100vh;
+    }
+    .sidebar {
+      grid-row: 1 / -1;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 1.25rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      letter-spacing: 0.02em;
+      color: #fff;
+    }
+    .brand span { color: var(--accent); }
+    .nav-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      padding: 0.65rem 0.8rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+    .nav-btn:hover, .nav-btn.active {
+      background: var(--surface-2);
+      color: #fff;
+    }
+    .header {
+      grid-column: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.5rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .macro {
+      display: flex;
+      gap: 1.5rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .macro strong { color: #fff; }
+    .main {
+      grid-column: 2;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 1rem;
+      padding: 1rem;
+      overflow: hidden;
+    }
+    .board {
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      padding-right: 0.25rem;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.1rem 1.2rem;
+      transition: transform 0.15s, border-color 0.15s;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent);
+    }
+    .call {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      padding: 3px 8px;
+      border-radius: 999px;
+      text-transform: uppercase;
+    }
+    .BUY { background: rgba(16,185,129,0.15); color: var(--buy); }
+    .FADE { background: rgba(245,158,11,0.15); color: var(--fade); }
+    .DISTRESSED { background: rgba(239,68,68,0.15); color: var(--distressed); }
+    .HOLD, .STANDARD { background: rgba(107,114,128,0.2); color: var(--hold); }
+    .price { font-size: 1.5rem; font-weight: 800; margin: 0.4rem 0 0.2rem; }
+    .addr { font-weight: 600; }
+    .why { font-size: 0.85rem; color: var(--muted); margin-top: 0.4rem; line-height: 1.4; }
+    .meta { font-size: 0.75rem; color: #6b7280; margin-top: 0.5rem; display: flex; justify-content: space-between; }
+    .side {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      overflow-y: auto;
+    }
+    #map { height: 280px; border-radius: 12px; background: #1f2937; }
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+    }
+    .panel h3 { margin: 0 0 0.75rem; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+    .agent-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.45rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.85rem;
+    }
+    .elo-bar {
+      height: 4px;
+      background: var(--surface-2);
+      border-radius: 2px;
+      margin-top: 4px;
+      overflow: hidden;
+    }
+    .elo-fill { height: 100%; background: var(--accent); }
+    .filters {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .filter-btn {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+    .filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .search {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 0.5rem 0.75rem;
+      border-radius: 8px;
+      width: 220px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">Utah Land <span>Desk</span></div>
+      <div>
+        <button class="nav-btn active" data-view="board">Opportunity Board</button>
+        <button class="nav-btn" data-view="agents">Agent Leaderboard</button>
+        <button class="nav-btn" data-view="macro">Macro & News</button>
+      </div>
+      <div style="margin-top:auto;font-size:0.75rem;color:#6b7280;">
+        Autonomous ELO engine<br>Active listings only
+      </div>
+    </aside>
+
+    <header class="header">
+      <div class="macro">
+        <span>30yr <strong id="rate">—</strong></span>
+        <span>UE <strong id="ue">—</strong></span>
+        <span>Source <strong id="source">—</strong></span>
+        <span>Updated <strong id="updated">—</strong></span>
+      </div>
+      <input class="search" id="search" placeholder="Search address or city…" oninput="renderBoard()">
+    </header>
+
+    <main class="main">
+      <section class="board" id="board">
+        <div class="filters">
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="BUY">Buy</button>
+          <button class="filter-btn" data-filter="FADE">Fade</button>
+          <button class="filter-btn" data-filter="DISTRESSED">Distressed</button>
+          <button class="filter-btn" data-filter="HOLD">Hold</button>
+        </div>
+        <div id="cards">Loading desk…</div>
+      </section>
+
+      <aside class="side">
+        <div id="map"></div>
+        <div class="panel">
+          <h3>Top Agents by |ELO|</h3>
+          <div id="agents">—</div>
+        </div>
+        <div class="panel">
+          <h3>News & Policy Flags</h3>
+          <div id="news" style="font-size:0.85rem;color:var(--muted);">—</div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    let deskData = { rows: [], macro: {}, updated: '' };
+    let currentFilter = 'all';
+    let map, markers = [];
+
+    // Utah center
+    map = L.map('map').setView([39.32, -111.09], 6);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap &copy; CARTO',
+      subdomains: 'abcd',
+      maxZoom: 19
+    }).addTo(map);
+
+    // Seed markers for major cities
+    const cities = [
+      { name: 'Salt Lake City', lat: 40.7608, lon: -111.8910 },
+      { name: 'Provo', lat: 40.2338, lon: -111.6585 },
+      { name: 'Ogden', lat: 41.2230, lon: -111.9738 },
+      { name: 'St. George', lat: 37.0965, lon: -113.5684 },
+      { name: 'Draper', lat: 40.5247, lon: -111.8638 }
+    ];
+    cities.forEach(c => {
+      L.circleMarker([c.lat, c.lon], { radius: 6, color: '#3b82f6', fillOpacity: 0.8 })
+        .addTo(map).bindPopup(c.name);
+    });
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        renderBoard();
+      };
+    });
+
+    async function loadDesk() {
+      try {
+        const res = await fetch('/api/desk');
+        deskData = await res.json();
+        document.getElementById('rate').textContent = (deskData.macro?.rate_30yr || 0).toFixed(2) + '%';
+        document.getElementById('ue').textContent = (deskData.macro?.unemployment_ut || 0).toFixed(1) + '%';
+        document.getElementById('source').textContent = deskData.source || '—';
+        document.getElementById('updated').textContent = deskData.updated ? new Date(deskData.updated).toLocaleTimeString() : '—';
+        renderBoard();
+
+        const agents = await (await fetch('/api/agents')).json();
+        document.getElementById('agents').innerHTML = agents.slice(0, 8).map(a => {
+          const elo = Math.round(a.elo || 1500);
+          const pct = Math.min(100, Math.max(0, (elo - 1400) / 3));
+          return `<div class="agent-row">
+            <div>${a.name || 'Unknown'}<div class="elo-bar"><div class="elo-fill" style="width:${pct}%"></div></div></div>
+            <div style="color:${elo > 1500 ? '#10b981' : '#ef4444'}">${elo}</div>
+          </div>`;
+        }).join('') || '—';
+
+        const flags = deskData.macro?.news_flags || [];
+        document.getElementById('news').innerHTML = flags.length
+          ? flags.map(f => `<div style="margin-bottom:0.4rem">⚠️ ${f}</div>`).join('')
+          : 'No recent anomalies';
+      } catch (e) {
+        document.getElementById('cards').innerHTML = '<div class="card">Unable to load desk. Is the server running?</div>';
+      }
+    }
+
+    function renderBoard() {
+      const q = (document.getElementById('search').value || '').toLowerCase();
+      let rows = deskData.rows || [];
+      if (currentFilter !== 'all') rows = rows.filter(r => r.grade.call === currentFilter);
+      if (q) rows = rows.filter(r => (r.address || '').toLowerCase().includes(q));
+
+      document.getElementById('cards').innerHTML = rows.length
+        ? rows.map(r => `
+            <div class="card">
+              <span class="call ${r.grade.call}">${r.grade.call}</span>
+              <div class="price">${r.grade.line}</div>
+              <div class="addr">${r.address}</div>
+              <div class="why">${r.grade.why}</div>
+              <div class="meta">
+                <span>Agent: ${r.agent?.name || '—'} (ELO ${Math.round(r.agent?.elo || 1500)})</span>
+                <span>Nbhd ELO ${Math.round(r.neighborhood?.elo || 1500)}</span>
+              </div>
+            </div>
+          `).join('')
+        : '<div class="card">No listings match the current filter.</div>';
+    }
+
+    loadDesk();
+    setInterval(loadDesk, 45000);
+  </script>
+</body>
+</html>
