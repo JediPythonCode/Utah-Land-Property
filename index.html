@@ -197,7 +197,7 @@
 
     async function tryLive() {
       try {
-        const resp = await fetch("https://utah-land-property.onrender.com/api/desk", { signal: AbortSignal.timeout(15000) });
+        const resp = await fetch("./data/signals.json");
         if (!resp.ok) throw new Error();
         const data = await resp.json();
         if (data.rows && data.rows.length) {
