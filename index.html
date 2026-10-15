@@ -193,10 +193,9 @@
     let currentRows = [];
 
     map = L.map("map", { zoomControl: true }).setView([40.7, -111.9], 10);
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-      attribution: '&copy; OpenStreetMap &copy; CARTO',
-      maxZoom: 19,
-      subdomains: "abcd"
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; OpenStreetMap',
+      maxZoom: 18
     }).addTo(map);
     window.addEventListener("load", () => setTimeout(() => map.invalidateSize(), 300));
     setTimeout(() => map.invalidateSize(), 500);
