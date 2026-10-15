@@ -152,9 +152,47 @@ def pull_county_lir(county, limit=100):
         print(f"{county} error: {e}")
         return []
 
+
+def pull_hud_reo(limit=200):
+    """Pull FHA/HUD REO properties in Utah."""
+    url = "https://services.arcgis.com/VTyQ9soqVukalItT/arcgis/rest/services/SF_REO/FeatureServer/0/query"
+    params = {
+        "where": "STATE = 'UT'",
+        "outFields": "STREET_NAME,CITY,STATE,ZIP,PRICE,BEDS,BATHS,SQFT,LATITUDE,LONGITUDE",
+        "returnGeometry": "false",
+        "f": "json",
+        "resultRecordCount": limit,
+    }
+    try:
+        r = requests.get(url, params=params, timeout=25)
+        r.raise_for_status()
+        features = r.json().get("features", [])
+        rows = []
+        for f in features:
+            attrs = f.get("attributes", {})
+            rows.append({
+                "call": "REO",
+                "source": "HUD REO",
+                "price": attrs.get("PRICE") or 0,
+                "address": attrs.get("STREET_NAME") or "HUD REO",
+                "city": attrs.get("CITY") or "Utah",
+                "beds": attrs.get("BEDS") or 0,
+                "baths": attrs.get("BATHS") or 0,
+                "sqft": attrs.get("SQFT") or 0,
+                "why": "HUD REO. Foreclosure inventory.",
+                "lat": attrs.get("LATITUDE"),
+                "lon": attrs.get("LONGITUDE"),
+                "img": random.choice(LAND_IMAGES),
+            })
+        print(f"HUD REO: {len(rows)}")
+        return rows
+    except Exception as e:
+        print(f"HUD REO error: {e}")
+        return []
+
 def main():
     counties = ["Davis", "Utah", "Weber", "Cache", "Washington", "Tooele", "BoxElder", "Uintah"]
-    rows = pull_slco_parcels() + pull_gov_parcels()
+    rows = pull_slco_parcels() + pull_gov_parcels() + pull_hud_reo()
     for c in counties:
         rows += pull_county_lir(c, limit=80)
     # Deduplicate by address
