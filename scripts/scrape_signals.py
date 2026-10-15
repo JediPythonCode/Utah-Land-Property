@@ -106,8 +106,57 @@ def pull_gov_parcels(limit=100):
         print(f"Gov parcels error: {e}")
         return []
 
+
+
+def pull_county_lir(county, limit=100):
+    """Pull vacant/raw parcels from a county LIR FeatureServer."""
+    url = f"https://services1.arcgis.com/99lidPhWCzftIe9K/ArcGIS/rest/services/Parcels_{county}_LIR/FeatureServer/0/query"
+    params = {
+        "where": "BLDG_SQFT IS NULL OR BLDG_SQFT = 0 OR PROP_CLASS LIKE '%Vacant%' OR PROP_CLASS LIKE '%Agricultural%'",
+        "outFields": "PARCEL_ID,PARCEL_ADD,PARCEL_CITY,LAND_MKT_VALUE,PARCEL_ACRES,PROP_CLASS,COUNTY_NAME",
+        "returnGeometry": "true",
+        "f": "json",
+        "resultRecordCount": limit,
+    }
+    try:
+        r = requests.get(url, params=params, timeout=25)
+        r.raise_for_status()
+        features = r.json().get("features", [])
+        rows = []
+        for f in features:
+            attrs = f.get("attributes", {})
+            geom = f.get("geometry") or {}
+            lat = lon = None
+            rings = geom.get("rings")
+            if rings and rings[0]:
+                pts = rings[0]
+                mx = sum(p[0] for p in pts) / len(pts)
+                my = sum(p[1] for p in pts) / len(pts)
+                lat, lon = mercator_to_latlon(mx, my)
+            acres = attrs.get("PARCEL_ACRES") or 0
+            rows.append({
+                "call": "RAWLAND",
+                "source": "Raw Land",
+                "price": attrs.get("LAND_MKT_VALUE") or 0,
+                "address": attrs.get("PARCEL_ADD") or "Raw land",
+                "city": attrs.get("PARCEL_CITY") or attrs.get("COUNTY_NAME") or county,
+                "beds": 0, "baths": 0, "sqft": 0,
+                "why": f"Public parcel. {acres:.1f} acres. {county} County.",
+                "lat": lat, "lon": lon,
+                "acres": acres,
+                "img": random.choice(LAND_IMAGES),
+            })
+        print(f"{county}: {len(rows)}")
+        return rows
+    except Exception as e:
+        print(f"{county} error: {e}")
+        return []
+
 def main():
+    counties = ["Davis", "Utah", "Weber", "Cache", "Washington", "Tooele", "BoxElder", "Uintah"]
     rows = pull_slco_parcels() + pull_gov_parcels()
+    for c in counties:
+        rows += pull_county_lir(c, limit=80)
     # Deduplicate by address
     seen = set()
     unique = []
