@@ -3,168 +3,138 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Utah Land & Property — Live Desk</title>
+  <title>Utah Land & Property — Market Analysis</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
-    :root {
-      --bg: #ffffff;
-      --surface: #ffffff;
-      --border: #e5e7eb;
-      --text: #111827;
-      --muted: #6b7280;
-      --accent: #006aff;
-    }
+    :root { --accent: #006aff; --muted: #6b7280; --border: #e5e7eb; }
     * { box-sizing: border-box; }
-    body { margin: 0; font-family: 'Inter', system-ui, sans-serif; background: #fff; color: var(--text); }
-    .header {
-      height: 68px; background: #fff; border-bottom: 1px solid #f0f0f0;
-      display: flex; align-items: center; padding: 0 1.75rem; gap: 2rem;
-    }
-    .brand { font-weight: 800; font-size: 1.35rem; color: var(--accent); letter-spacing: -0.02em; }
-    .status { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--muted); }
+    body { margin: 0; font-family: 'Inter', system-ui, sans-serif; background: #fff; color: #111827; }
+    .header { height: 64px; background: #fff; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; padding: 0 1.5rem; gap: 1.5rem; }
+    .brand { font-weight: 800; font-size: 1.3rem; color: var(--accent); }
+    .status { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--muted); margin-left: auto; }
     .status .dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; }
-    .status .dot.off { background: #ef4444; }
-    .nav { display: flex; gap: 1.5rem; font-size: 0.95rem; font-weight: 500; color: #374151; }
-    .nav span { cursor: pointer; }
-    .nav span.active { color: var(--accent); border-bottom: 2px solid var(--accent); padding-bottom: 4px; }
+    .status .dot.off { background: #f59e0b; }
     .hero {
-      height: 320px;
-      background: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)),
+      height: 300px;
+      background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)),
                   url('https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=1600&q=80') center/cover;
       display: flex; flex-direction: column; justify-content: center; align-items: center;
-      text-align: center; color: #fff; padding: 2rem;
+      text-align: center; color: #fff; padding: 1.5rem;
     }
-    .hero h1 { font-size: 2.8rem; font-weight: 800; margin: 0 0 0.5rem; letter-spacing: -0.03em; text-shadow: 0 2px 12px rgba(0,0,0,0.3); }
-    .hero p { margin: 0 0 1.25rem; font-size: 1rem; opacity: 0.9; max-width: 520px; }
-    .macro-row { display: flex; gap: 1.5rem; font-size: 0.8rem; margin-bottom: 1rem; opacity: 0.95; }
-    .macro-row span { background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 6px; }
-    .macro-row .alert { background: rgba(220,38,38,0.4); font-weight: 600; }
-    .search-wrap {
-      background: #fff; border-radius: 12px; padding: 0.35rem;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.18); display: flex; width: 100%; max-width: 540px;
-    }
-    .search { flex: 1; border: none; padding: 0.8rem 1rem; font-size: 1rem; outline: none; border-radius: 10px; }
-    .filters { display: flex; gap: 0.4rem; margin-top: 1rem; flex-wrap: wrap; justify-content: center; }
-    .filter-btn {
-      background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.35);
-      color: #fff; padding: 0.35rem 0.75rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem;
-    }
+    .hero h1 { font-size: 2.6rem; font-weight: 800; margin: 0 0 0.5rem; letter-spacing: -0.03em; text-shadow: 0 2px 8px rgba(0,0,0,0.25); }
+    .hero p { margin: 0 0 1.1rem; font-size: 1rem; opacity: 0.95; }
+    .search-wrap { background: #fff; border-radius: 10px; padding: 0.3rem; box-shadow: 0 6px 24px rgba(0,0,0,0.15); width: 100%; max-width: 520px; }
+    .search { width: 100%; border: none; padding: 0.75rem 1rem; font-size: 1rem; outline: none; border-radius: 8px; }
+    .filters { display: flex; gap: 0.4rem; margin-top: 0.9rem; flex-wrap: wrap; justify-content: center; }
+    .filter-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.35); color: #fff; padding: 0.35rem 0.75rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
     .filter-btn.active { background: #fff; color: #111; }
-    .disclaimer { background: #fffbeb; padding: 0.4rem 1.5rem; font-size: 0.72rem; color: #92400e; text-align: center; }
-    .layout { display: grid; grid-template-columns: 1fr 480px; height: calc(100vh - 68px - 320px - 28px); min-height: 400px; }
+    .disclaimer { background: #fffbeb; padding: 0.35rem 1.5rem; font-size: 0.72rem; color: #92400e; text-align: center; }
+    .layout { display: grid; grid-template-columns: 1fr 460px; height: calc(100vh - 64px - 300px - 26px); min-height: 420px; }
     #map { height: 100%; }
-    .list { overflow-y: auto; padding: 1rem; background: #fafafa; border-left: 1px solid #eee; }
-    .count { font-size: 0.85rem; color: var(--muted); margin: 0 0 0.75rem 0.2rem; }
-    .card {
-      background: #fff; border: 1px solid #eee; border-radius: 12px;
-      overflow: hidden; margin-bottom: 0.85rem; cursor: pointer;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-    }
-    .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
-    .card img { width: 100%; height: 170px; object-fit: cover; display: block; }
-    .card-body { padding: 0.85rem 1rem 1rem; }
-    .price { font-size: 1.3rem; font-weight: 800; margin: 0.15rem 0 0.1rem; }
-    .details { font-size: 0.82rem; color: var(--muted); margin-bottom: 0.25rem; }
-    .addr { font-weight: 600; font-size: 0.95rem; }
-    .city { font-size: 0.8rem; color: #6b7280; }
-    .why { font-size: 0.75rem; color: var(--muted); margin-top: 0.35rem; line-height: 1.4; }
-    .badge {
-      display: inline-block; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.04em;
-      padding: 2px 6px; border-radius: 4px; text-transform: uppercase;
-    }
+    .list { overflow-y: auto; padding: 0.9rem; background: #fafafa; border-left: 1px solid #eee; }
+    .count { font-size: 0.82rem; color: var(--muted); margin: 0 0 0.6rem 0.15rem; }
+    .card { background: #fff; border: 1px solid #eee; border-radius: 10px; overflow: hidden; margin-bottom: 0.7rem; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.07); }
+    .card img { width: 100%; height: 150px; object-fit: cover; display: block; }
+    .card-body { padding: 0.75rem 0.9rem; }
+    .price { font-size: 1.2rem; font-weight: 800; margin: 0.1rem 0; }
+    .details { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.2rem; }
+    .addr { font-weight: 600; font-size: 0.9rem; }
+    .city { font-size: 0.78rem; color: #6b7280; }
+    .why { font-size: 0.72rem; color: var(--muted); margin-top: 0.3rem; line-height: 1.35; }
+    .badge { display: inline-block; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.03em; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
     .BUY { background: #ccfbf1; color: #0f766e; }
     .FADE { background: #fef3c7; color: #b45309; }
     .DISTRESSED { background: #fee2e2; color: #b91c1c; }
-    .HOLD { background: #e5e7eb; color: #374151; }
-    .STANDARD { background: #f3f4f6; color: #6b7280; }
-    .source-tag { font-size: 0.62rem; background: #f3f4f6; padding: 1px 5px; border-radius: 3px; color: #6b7280; margin-left: 6px; }
-    .anomaly { font-size: 0.72rem; margin-top: 0.3rem; color: #92400e; }
-    .agent-line { font-size: 0.72rem; color: #9ca3af; margin-top: 0.3rem; }
-    .loading { display: flex; align-items: center; justify-content: center; height: 150px; color: var(--muted); font-size: 0.9rem; }
-    .loading::after { content: ""; width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; margin-left: 8px; animation: spin 0.8s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .error-box { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem; margin: 0.5rem 0; font-size: 0.82rem; color: #991b1b; }
-    .error-box code { background: #fee2e2; padding: 1px 4px; border-radius: 3px; font-size: 0.78rem; }
+    .REO { background: #ede9fe; color: #6d28d9; }
+    .FSBO { background: #dbeafe; color: #1d4ed8; }
+    .EXPIRED { background: #fce7f3; color: #be185d; }
+    .RAWLAND { background: #d1fae5; color: #047857; }
     @media (max-width: 900px) {
-      .hero { height: 260px; }
-      .hero h1 { font-size: 2rem; }
-      .layout { grid-template-columns: 1fr; grid-template-rows: 40vh 1fr; height: auto; }
+      .hero { height: 240px; }
+      .hero h1 { font-size: 1.9rem; }
+      .layout { grid-template-columns: 1fr; grid-template-rows: 38vh 1fr; height: auto; }
       .list { border-left: none; border-top: 1px solid #eee; }
     }
   </style>
 </head>
 <body>
   <div class="header">
-    <div class="brand">Utah Land Desk</div>
+    <div class="brand">Utah Land & Property</div>
     <div class="status"><span class="dot" id="dot"></span><span id="status-text">Connecting…</span></div>
-    <div class="nav">
-      <span class="active">For Sale</span>
-      <span>Analysis</span>
-    </div>
   </div>
-
   <section class="hero">
     <h1>Homes. Land. Signals.</h1>
-    <p>Live market analysis across Utah. Autonomous desk — updates every 15 min.</p>
-    <div class="macro-row" id="macro-row"><span>Loading…</span></div>
+    <p>Independent market analysis across Utah. Not a brokerage.</p>
     <div class="search-wrap">
       <input class="search" id="search" placeholder="City, address, or neighborhood…" oninput="render()">
     </div>
     <div class="filters" id="filters"></div>
   </section>
-
-  <div class="disclaimer">
-    Analysis only — not a brokerage. Signals from public records and market context. Verify independently.
-  </div>
-
+  <div class="disclaimer">Analysis only — not a brokerage. Signals from public records and market context. Verify independently.</div>
   <div class="layout">
     <div id="map"></div>
     <div class="list">
       <div class="count" id="count">Loading…</div>
-      <div id="cards"><div class="loading">Fetching live data</div></div>
+      <div id="cards"></div>
     </div>
   </div>
-
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    // ─── State ────────────────────────────────────────────────────────────────
-    let allRows = [];
-    let macro = {};
+    const sample = [
+      { call: "BUY", source: "Active", price: "$389,000", delta: "−12% vs ELO", address: "4200 S Highland Dr", city: "Salt Lake City", beds: 3, baths: 2, sqft: "1,840", why: "Below neighborhood ELO baseline.", lat: 40.76, lon: -111.89, img: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=600&q=70" },
+      { call: "FADE", source: "Active", price: "$749,000", delta: "+18% vs ELO", address: "1800 E 900 S", city: "Salt Lake City", beds: 4, baths: 3, sqft: "2,650", why: "Above ELO in softening context.", lat: 40.75, lon: -111.84, img: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=600&q=70" },
+      { call: "DISTRESSED", source: "Short Sale", price: "$412,000", delta: "Short sale", address: "77 N 500 E", city: "Salt Lake City", beds: 3, baths: 2, sqft: "1,520", why: "Short sale flag. Lender approval required.", lat: 40.77, lon: -111.88, img: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=600&q=70" },
+      { call: "REO", source: "HUD REO", price: "$285,000", delta: "REO", address: "1450 W 3300 S", city: "Provo", beds: 3, baths: 1, sqft: "1,420", why: "HUD REO inventory.", lat: 40.23, lon: -111.66, img: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=70" },
+      { call: "FSBO", source: "FSBO", price: "$520,000", delta: "FSBO", address: "890 E 2100 N", city: "Ogden", beds: 4, baths: 2, sqft: "2,100", why: "Owner-listed. No listing agent.", lat: 41.22, lon: -111.97, img: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=70" },
+      { call: "EXPIRED", source: "Expired", price: "$445,000", delta: "Expired 12d", address: "2100 S 200 E", city: "Salt Lake City", beds: 3, baths: 2, sqft: "1,680", why: "Listing expired. Potential re-list.", lat: 40.73, lon: -111.88, img: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=600&q=70" },
+      { call: "RAWLAND", source: "Raw Land", price: "$185,000", delta: "2.4 acres", address: "Near 7800 S 2700 W", city: "West Jordan", beds: 0, baths: 0, sqft: "0", why: "Public parcel. No structure.", lat: 40.61, lon: -111.98, img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=600&q=70" },
+      { call: "REO", source: "HUD REO", price: "$198,000", delta: "REO", address: "450 N 100 W", city: "St. George", beds: 2, baths: 1, sqft: "980", why: "HUD REO. Southern Utah.", lat: 37.1, lon: -113.57, img: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=600&q=70" }
+    ];
+
+    let allRows = sample;
+    let live = false;
     let filter = "all";
     let map, markers = [];
-    let lastUpdated = "";
 
-    // ─── Map ──────────────────────────────────────────────────────────────────
     map = L.map("map").setView([39.32, -111.09], 7);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '&copy; OpenStreetMap'
-    }).addTo(map);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: '&copy; OpenStreetMap' }).addTo(map);
 
-    // ─── Fetch (the only thing that replaced hardcoded data) ─────────────────
-    async function fetchDesk() {
+    async function tryLive() {
       try {
-        const resp = await fetch("/api/desk", { signal: AbortSignal.timeout(20000) });
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const resp = await fetch("/api/desk", { signal: AbortSignal.timeout(8000) });
+        if (!resp.ok) throw new Error();
         const data = await resp.json();
-        allRows = data.rows || [];
-        macro = data.macro || {};
-        lastUpdated = data.updated || "";
-        setStatus(true);
-        renderMacro();
-        renderFilters();
-        render();
-      } catch (e) {
-        setStatus(false);
-        document.getElementById("cards").innerHTML = `
-          <div class="error-box">
-            <strong>Backend unreachable.</strong><br>${e.message}<br><br>
-            Start the engine: <code>python scripts/run_desk.py</code><br>
-            Retrying in 30s…
-          </div>`;
-        document.getElementById("count").textContent = "Offline";
-      }
+        if (data.rows && data.rows.length) {
+          allRows = data.rows.map(r => ({
+            call: r.grade?.call || "STANDARD",
+            source: r.source || "Live",
+            price: r.price ? "$" + Number(r.price).toLocaleString() : "—",
+            delta: r.grade?.line || "",
+            address: r.address || "",
+            city: (r.address || "").split(",").pop()?.trim() || "",
+            beds: r.beds || 0,
+            baths: r.baths || 0,
+            sqft: r.sqft ? Number(r.sqft).toLocaleString() : "0",
+            why: r.grade?.why || "",
+            lat: r.lat,
+            lon: r.lon,
+            img: r.img || sample[0].img
+          }));
+          live = true;
+          setStatus(true);
+          renderFilters();
+          render();
+          return;
+        }
+      } catch (e) {}
+      live = false;
+      allRows = sample;
+      setStatus(false);
+      renderFilters();
+      render();
     }
 
     function setStatus(ok) {
@@ -172,115 +142,67 @@
       const text = document.getElementById("status-text");
       if (ok) {
         dot.classList.remove("off");
-        const t = lastUpdated ? new Date(lastUpdated).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : "";
-        text.textContent = `Live · ${allRows.length} listings${t ? ` · ${t}` : ""}`;
+        text.textContent = "Live";
       } else {
         dot.classList.add("off");
-        text.textContent = "Offline — retrying";
+        text.textContent = "Demo · live engine offline";
       }
     }
 
-    // ─── Macro (populated from backend, not hardcoded) ────────────────────────
-    function renderMacro() {
-      const el = document.getElementById("macro-row");
-      const parts = [];
-      if (macro.rate_30yr) parts.push(`<span>Rate ${macro.rate_30yr.toFixed(2)}%${macro.rates_rising ? " ↑" : ""}</span>`);
-      if (macro.unemployment_ut) parts.push(`<span>UE ${macro.unemployment_ut.toFixed(1)}%${macro.ue_rising ? " ↑" : ""}</span>`);
-      if (macro.months_of_supply) parts.push(`<span>MoS ${macro.months_of_supply.toFixed(1)}</span>`);
-      if (macro.inventory_change_pct) parts.push(`<span>Inv ${macro.inventory_change_pct > 0 ? "+" : ""}${macro.inventory_change_pct.toFixed(0)}%</span>`);
-      if (macro.news_flags?.length) parts.push(`<span class="alert">📰 ${macro.news_flags[0].slice(0, 40)}</span>`);
-      el.innerHTML = parts.length ? parts.join("") : "<span>No macro yet</span>";
-    }
-
-    // ─── Dynamic Filters (generated from actual data, not hardcoded) ─────────
     function renderFilters() {
-      // Collect all unique call values from live data
-      const calls = [...new Set(allRows.map(r => r.grade?.call).filter(Boolean))];
-      const sources = [...new Set(allRows.map(r => r.source).filter(Boolean))];
-
-      // Build filter list: "all" + each call type found in data
-      const labels = { BUY: "Below ELO", FADE: "Above ELO", DISTRESSED: "Distressed", HOLD: "Hold", STANDARD: "Fair" };
-      const btns = [["all", `All (${allRows.length})`]];
-      for (const c of calls.sort()) {
-        const count = allRows.filter(r => r.grade?.call === c).length;
-        btns.push([c, `${labels[c] || c} (${count})`]);
-      }
-
+      const calls = [...new Set(allRows.map(r => r.call))];
+      const labels = { BUY: "Below ELO", FADE: "Above ELO", DISTRESSED: "Short Sale", REO: "REO", FSBO: "FSBO", EXPIRED: "Expired", RAWLAND: "Raw Land" };
+      const btns = [["all", "All"]];
+      calls.forEach(c => btns.push([c, labels[c] || c]));
       document.getElementById("filters").innerHTML = btns.map(([id, label]) =>
-        `<button class="filter-btn ${id === filter ? "active" : ""}" data-filter="${id}">${label}</button>`
+        `<button class="filter-btn ${id === filter ? 'active' : ''}" data-filter="${id}">${label}</button>`
       ).join("");
       document.querySelectorAll(".filter-btn").forEach(btn => {
-        btn.onclick = () => {
-          filter = btn.dataset.filter;
-          renderFilters();
-          render();
-        };
+        btn.onclick = () => { filter = btn.dataset.filter; renderFilters(); render(); };
       });
     }
 
-    // ─── Render ───────────────────────────────────────────────────────────────
-    function getFiltered() {
-      const q = (document.getElementById("search").value || "").toLowerCase();
-      let rows = allRows;
-      if (filter !== "all") rows = rows.filter(r => r.grade?.call === filter);
-      if (q) rows = rows.filter(r => (r.address || "").toLowerCase().includes(q));
-      return rows;
-    }
+    function clearMarkers() { markers.forEach(m => map.removeLayer(m)); markers = []; }
 
     function render() {
-      const rows = getFiltered();
-      document.getElementById("count").textContent =
-        `${rows.length} listing${rows.length === 1 ? "" : "s"}${lastUpdated ? ` · ${new Date(lastUpdated).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}` : ""}`;
+      const q = (document.getElementById("search").value || "").toLowerCase();
+      let rows = allRows;
+      if (filter !== "all") rows = rows.filter(r => r.call === filter);
+      if (q) rows = rows.filter(r => (r.address + r.city).toLowerCase().includes(q));
 
-      const el = document.getElementById("cards");
-      if (!allRows.length) { el.innerHTML = '<div class="loading">Waiting for first pull</div>'; return; }
-      if (!rows.length) { el.innerHTML = '<div style="padding:1rem;color:#6b7280">No matches.</div>'; }
-      else {
-        el.innerHTML = rows.map((r, i) => {
-          const call = r.grade?.call || "STANDARD";
-          const price = r.price ? "$" + Number(r.price).toLocaleString() : "—";
-          const anomalies = (r.grade?.anomalies || []).map(a => `⚡ ${a}`).join("<br>");
-          const agent = r.agent?.name ? `${r.agent.name}${r.agent.elo ? ` (ELO ${Math.round(r.agent.elo)})` : ""}` : "";
-          const src = r.source ? `<span class="source-tag">${r.source}</span>` : "";
-          const beds = r.beds ? `${r.beds} bd · ${r.baths || "?"} ba` : "";
-          const sqft = r.sqft ? ` · ${Number(r.sqft).toLocaleString()} sqft` : "";
-          return `
-            <div class="card" data-idx="${i}" onclick="focusMarker(${i})">
-              ${r.img ? `<img src="${r.img}" alt="" loading="lazy">` : ""}
-              <div class="card-body">
-                <span class="badge ${call}">${call}</span>${src}
-                <div class="price">${price} <span style="font-size:0.75rem;font-weight:500;color:#6b7280">${r.grade?.line || ""}</span></div>
-                ${beds || sqft ? `<div class="details">${beds}${sqft}</div>` : ""}
-                <div class="addr">${r.address || "Unknown"}</div>
-                ${r.grade?.why ? `<div class="why">${r.grade.why}</div>` : ""}
-                ${anomalies ? `<div class="anomaly">${anomalies}</div>` : ""}
-                ${agent ? `<div class="agent-line">Agent: ${agent}</div>` : ""}
-              </div>
-            </div>`;
-        }).join("");
-      }
+      document.getElementById("count").textContent = rows.length + " signal" + (rows.length === 1 ? "" : "s") + (live ? " · live" : "");
 
-      // Map
+      document.getElementById("cards").innerHTML = rows.map((r, i) => `
+        <div class="card" onclick="focusMarker(${i})">
+          <img src="${r.img}" alt="">
+          <div class="card-body">
+            <span class="badge ${r.call}">${r.source}</span>
+            <div class="price">${r.price} <span style="font-size:0.72rem;font-weight:500;color:#6b7280">${r.delta}</span></div>
+            <div class="details">${r.beds > 0 ? r.beds + ' bd · ' + r.baths + ' ba · ' : ''}${r.sqft !== '0' ? r.sqft + ' sqft' : r.delta}</div>
+            <div class="addr">${r.address}</div>
+            <div class="city">${r.city}, UT</div>
+            <div class="why">${r.why}</div>
+          </div>
+        </div>
+      `).join("") || '<div style="padding:1rem;color:#6b7280">No matches.</div>';
+
       clearMarkers();
       rows.forEach((r, i) => {
         if (!r.lat || !r.lon) return;
-        const call = r.grade?.call || "STANDARD";
-        const color = { BUY: "#0d9488", FADE: "#d97706", DISTRESSED: "#dc2626", HOLD: "#6b7280", STANDARD: "#9ca3af" }[call] || "#9ca3af";
-        const m = L.circleMarker([r.lat, r.lon], { radius: 9, color: "#fff", weight: 2, fillColor: color, fillOpacity: 0.9 })
-          .addTo(map)
-          .bindPopup(`<b>${r.price ? "$" + Number(r.price).toLocaleString() : ""}</b><br>${r.address}<br><small>${r.grade?.line || ""}</small>`);
-        m.on("click", () => document.querySelector(`.card[data-idx="${i}"]`)?.scrollIntoView({ behavior: "smooth", block: "nearest" }));
+        const color = r.call === "BUY" ? "#0d9488" : r.call === "FADE" ? "#d97706" : r.call === "REO" ? "#7c3aed" : r.call === "FSBO" ? "#2563eb" : r.call === "EXPIRED" ? "#be185d" : r.call === "RAWLAND" ? "#059669" : "#dc2626";
+        const m = L.circleMarker([r.lat, r.lon], { radius: 8, color: "#fff", weight: 1.5, fillColor: color, fillOpacity: 0.9 })
+          .addTo(map).bindPopup(`<b>${r.price}</b><br>${r.address}`);
+        m.on("click", () => document.querySelectorAll(".card")[i]?.scrollIntoView({ behavior: "smooth", block: "nearest" }));
         markers.push(m);
       });
       if (markers.length) map.fitBounds(L.featureGroup(markers).getBounds().pad(0.25));
     }
 
-    function clearMarkers() { markers.forEach(m => map.removeLayer(m)); markers = []; }
-    window.focusMarker = function(i) { if (markers[i]) { map.setView(markers[i].getLatLng(), 13); markers[i].openPopup(); } };
+    window.focusMarker = function(i) {
+      if (markers[i]) { map.setView(markers[i].getLatLng(), 12); markers[i].openPopup(); }
+    };
 
-    // ─── Auto-refresh ─────────────────────────────────────────────────────────
-    fetchDesk();
-    setInterval(fetchDesk, 60_000); // Poll every 60s (backend updates every 15min)
+    tryLive();
   </script>
 </body>
-</html>   
+</html>
