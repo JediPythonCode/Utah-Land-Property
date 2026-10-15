@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Submit a Signal — Utah Land & Property</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Inter, system-ui, sans-serif; background: #f8fafc; color: #111827; }
+    .header { background: #fff; border-bottom: 1px solid #e5e7eb; padding: 1rem 1.5rem; }
+    .brand { font-weight: 800; color: #006aff; font-size: 1.2rem; text-decoration: none; }
+    .wrap { max-width: 520px; margin: 2rem auto; padding: 0 1rem; }
+    h1 { font-size: 1.5rem; margin: 0 0 0.5rem; }
+    p { color: #6b7280; font-size: 0.9rem; margin: 0 0 1.5rem; }
+    label { display: block; font-size: 0.8rem; font-weight: 600; margin: 1rem 0 0.3rem; }
+    input, select, textarea { width: 100%; padding: 0.6rem 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.95rem; }
+    textarea { min-height: 80px; }
+    button { margin-top: 1.25rem; background: #006aff; color: #fff; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: 600; cursor: pointer; width: 100%; }
+    button:hover { background: #0056cc; }
+    .note { background: #fffbeb; border: 1px solid #fde68a; padding: 0.75rem; border-radius: 6px; font-size: 0.75rem; color: #92400e; margin-top: 1.5rem; }
+    .success { display: none; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 1rem; border-radius: 6px; color: #065f46; }
+  </style>
+</head>
+<body>
+  <div class="header"><a class="brand" href="/">Utah Land & Property</a></div>
+  <div class="wrap">
+    <h1>Submit a Signal</h1>
+    <p>Share a property you know about. Submissions are reviewed before appearing on the desk.</p>
+    <form id="form" action="https://formspree.io/f/xjkvlbwa" method="POST">
+      <label>Address</label>
+      <input name="address" required placeholder="123 Main St">
+      <label>City</label>
+      <input name="city" required placeholder="Salt Lake City">
+      <label>Price (USD)</label>
+      <input name="price" type="number" placeholder="450000">
+      <label>Type</label>
+      <select name="type">
+        <option>Raw Land</option>
+        <option>FSBO</option>
+        <option>Short Sale</option>
+        <option>Expired</option>
+        <option>Other</option>
+      </select>
+      <label>Beds / Baths / Sqft</label>
+      <input name="details" placeholder="3 bd, 2 ba, 1,800 sqft">
+      <label>Notes</label>
+      <textarea name="notes" placeholder="Why this property? Condition, off-market, etc."></textarea>
+      <label>Your email (for follow-up)</label>
+      <input name="email" type="email" placeholder="you@example.com">
+      <button type="submit">Submit for Review</button>
+    </form>
+    <div class="success" id="success">Thanks. Your submission was received and will be reviewed.</div>
+    <div class="note">Analysis only — not a brokerage. Submissions are reviewed manually. Do not include personal documents or sensitive data.</div>
+  </div>
+  <script>
+    document.getElementById("form").onsubmit = async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const data = new FormData(form);
+      try {
+        const resp = await fetch(form.action, { method: "POST", body: data, headers: { Accept: "application/json" } });
+        if (resp.ok) {
+          form.style.display = "none";
+          document.getElementById("success").style.display = "block";
+        } else {
+          alert("Something went wrong. Try again.");
+        }
+      } catch {
+        alert("Network error. Try again.");
+      }
+    };
+  </script>
+</body>
+</html>
