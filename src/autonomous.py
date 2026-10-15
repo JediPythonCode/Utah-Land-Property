@@ -19,7 +19,7 @@ from apscheduler.triggers.interval import IntervalTrigger
 from apscheduler.triggers.cron import CronTrigger
 
 from src.feeds.wfrmls import pull_active_listings, pull_closed_sales
-from src.feeds.fred import fetch_all, fetch_fred_series
+from src.feeds.fred import fetch_all, fetch_series
 from src.feeds.news import pull_news, filter_anomalies
 from src.feeds.distressed import pull_distressed_utah
 from src.feeds.parcels import pull_raw_land_utah
@@ -109,7 +109,8 @@ async def refresh_desk():
         order = {"DISTRESSED": 0, "BUY": 1, "RAWLAND": 2, "FADE": 3, "HOLD": 4, "STANDARD": 5}
         rows.sort(key=lambda r: order.get(r["grade"]["call"], 9))
 
-        desk_memory = {
+        desk_memory.clear()
+        desk_memory.update({
             "updated": datetime.now(timezone.utc).isoformat(),
             "source": "live",
             "rows": rows,
@@ -119,7 +120,7 @@ async def refresh_desk():
                 "rates_rising": macro.rates_rising,
                 "ue_rising": macro.ue_rising,
             },
-        }
+        })
         logger.info(f"Desk refreshed: {len(rows)} signals (free + MLS)")
     except Exception as e:
         logger.error(f"Desk refresh failed: {e}")
@@ -178,7 +179,7 @@ async def health_check():
         checks = {
             "hud": len(pull_distressed_utah() or []),
             "parcels": len(pull_raw_land_utah() or []),
-            "fred": len(fetch_fred_series("MORTGAGE30US", limit=2) or []),
+            "fred": len(fetch_series("MORTGAGE30US", limit=2) or []),
         }
         if os.getenv("WFRMLS_TOKEN") or os.getenv("WFRMLS_BEARER_TOKEN"):
             checks["wfrmls"] = len(pull_active_listings() or [])
