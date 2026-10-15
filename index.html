@@ -11,9 +11,13 @@
     :root { --accent: #006aff; --muted: #6b7280; --border: #e5e7eb; }
     * { box-sizing: border-box; }
     body { margin: 0; font-family: 'Inter', system-ui, sans-serif; background: #fff; color: #111827; }
-    .header { height: 64px; background: #fff; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; padding: 0 1.5rem; gap: 1.5rem; }
-    .brand { font-weight: 800; font-size: 1.3rem; color: var(--accent); }
-    .status { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--muted); margin-left: auto; }
+    .header { height: 68px; background: #fff; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; padding: 0 1.75rem; }
+    .nav-left, .nav-right { display: flex; gap: 1.25rem; align-items: center; font-size: 0.9rem; font-weight: 500; color: #374151; }
+    .nav-left a, .nav-right a { color: inherit; text-decoration: none; }
+    .nav-left a:hover, .nav-right a:hover { color: var(--accent); }
+    .brand { font-weight: 800; font-size: 1.35rem; color: var(--accent); letter-spacing: -0.02em; margin: 0 auto; }
+    .signin { background: var(--accent); color: #fff; border: none; padding: 0.4rem 0.9rem; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; }
+    .status { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--muted); margin-left: 1rem; }
     .status .dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; }
     .status .dot.off { background: #f59e0b; }
     .hero {
@@ -72,6 +76,16 @@
     .detail-item strong { display: block; color: #111; font-size: 0.9rem; }
     .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 999; display: none; }
     .overlay.open { display: block; }
+    .featured { padding: 1.25rem 1.5rem 0.5rem; background: #fff; }
+    .featured-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+    .featured-head h2 { margin: 0; font-size: 1.15rem; }
+    .featured-nav button { width: 32px; height: 32px; border-radius: 50%; border: 1px solid #e5e7eb; background: #fff; cursor: pointer; margin-left: 0.4rem; }
+    .featured-row { display: flex; gap: 0.75rem; overflow: hidden; }
+    .fcard { flex: 0 0 280px; background: #fff; border: 1px solid #eee; border-radius: 10px; overflow: hidden; }
+    .fcard img { width: 100%; height: 140px; object-fit: cover; }
+    .fcard .body { padding: 0.6rem 0.75rem; }
+    .ftag { position: absolute; top: 8px; left: 8px; background: #fff; font-size: 0.65rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
+    .fcard .imgwrap { position: relative; }
     @media (max-width: 900px) {
       .hero { height: 240px; }
       .hero h1 { font-size: 1.9rem; }
@@ -83,8 +97,16 @@
 </head>
 <body>
   <div class="header">
+    <div class="nav-left">
+      <a href="/">Homes</a>
+      <a href="/">Land</a>
+      <a href="/submit.html">List Property</a>
+    </div>
     <div class="brand">Utah Land & Property</div>
-    <a href="/submit.html" style="font-size:0.85rem;color:#006aff;text-decoration:none;margin-right:1rem;">List Property</a><div class="status"><span class="dot" id="dot"></span><span id="status-text">Connecting…</span></div>
+    <div class="nav-right">
+      <button class="signin">Sign In</button>
+      <div class="status"><span class="dot" id="dot"></span><span id="status-text">Connecting…</span></div>
+    </div>
   </div>
   <section class="hero">
     <h1>Homes. Land. Signals.</h1>
@@ -95,6 +117,16 @@
     <div class="filters" id="filters"></div>
   </section>
   <div class="disclaimer">Analysis only — not a brokerage. Signals from public records and market context. Verify independently.</div>
+  <div class="featured">
+    <div class="featured-head">
+      <h2>Signals Across Utah</h2>
+      <div class="featured-nav">
+        <button id="prev">‹</button>
+        <button id="next">›</button>
+      </div>
+    </div>
+    <div class="featured-row" id="featured"></div>
+  </div>
   <div class="layout">
     <div id="map"></div>
     <div class="list">
@@ -333,7 +365,32 @@
     }
 
     window.openDetail = openDetail;
+    
+    let featIndex = 0;
+    function renderFeatured() {
+      const el = document.getElementById("featured");
+      if (!el) return;
+      const slice = allRows.slice(featIndex, featIndex + 3);
+      el.innerHTML = slice.map(r => `
+        <div class="fcard">
+          <div class="imgwrap">
+            <img src="${r.img}" alt="">
+            <span class="ftag">${r.source}</span>
+          </div>
+          <div class="body">
+            <div class="price">${r.price}</div>
+            <div class="details">${r.beds > 0 ? r.beds + ' bd · ' + r.baths + ' ba · ' : ''}${r.acres ? Number(r.acres).toFixed(1) + ' acres' : r.sqft + ' sqft'}</div>
+            <div class="addr">${r.address}</div>
+            <div class="city">${r.city}, UT</div>
+          </div>
+        </div>
+      `).join("");
+    }
+    document.getElementById("next")?.addEventListener("click", () => { featIndex = Math.min(featIndex + 3, allRows.length - 3); renderFeatured(); });
+    document.getElementById("prev")?.addEventListener("click", () => { featIndex = Math.max(featIndex - 3, 0); renderFeatured(); });
+
     tryLive();
+    setTimeout(renderFeatured, 500);
   </script>
 </body>
 </html>
