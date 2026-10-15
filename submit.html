@@ -4,70 +4,36 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>List Your Property — Utah Land & Property</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Inter, system-ui, sans-serif;
-      background: linear-gradient(135deg, #0b1220 0%, #1a2332 100%);
-      color: #f3f4f6;
-      min-height: 100vh;
-    }
-    .header {
-      padding: 1.25rem 2rem;
-      display: flex;
-      align-items: center;
-    }
-    .brand { font-weight: 800; font-size: 1.35rem; color: #3b82f6; text-decoration: none; letter-spacing: -0.02em; }
-    .wrap {
-      max-width: 480px;
-      margin: 2rem auto;
-      padding: 2rem;
-      background: rgba(17, 24, 39, 0.8);
-      border: 1px solid #374151;
-      border-radius: 16px;
-      backdrop-filter: blur(8px);
-    }
-    h1 { font-size: 1.75rem; font-weight: 800; margin: 0 0 0.5rem; letter-spacing: -0.02em; }
-    p { color: #9ca3af; font-size: 0.9rem; margin: 0 0 1.75rem; line-height: 1.5; }
-    label { display: block; font-size: 0.75rem; font-weight: 600; color: #9ca3af; margin: 1rem 0 0.4rem; text-transform: uppercase; letter-spacing: 0.04em; }
-    input, select, textarea {
-      width: 100%;
-      padding: 0.7rem 0.85rem;
-      border: 1px solid #374151;
-      border-radius: 8px;
-      background: #0b1220;
-      color: #f3f4f6;
-      font-size: 0.95rem;
-      outline: none;
-    }
-    input:focus, select:focus, textarea:focus { border-color: #3b82f6; }
-    textarea { min-height: 90px; resize: vertical; }
-    button {
-      margin-top: 1.5rem;
-      background: linear-gradient(135deg, #3b82f6, #2563eb);
-      color: #fff;
-      border: none;
-      padding: 0.85rem;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 0.95rem;
-      cursor: pointer;
-      width: 100%;
-      letter-spacing: 0.02em;
-    }
-    button:hover { opacity: 0.9; }
-    .note {
-      margin-top: 1.25rem;
-      font-size: 0.7rem;
-      color: #6b7280;
-      text-align: center;
-    }
+    body { margin: 0; font-family: Inter, system-ui, sans-serif; background: #f8fafc; color: #111827; }
+    .header { height: 68px; background: #fff; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; padding: 0 1.75rem; position: relative; }
+    .brand { font-family: "Playfair Display", serif; font-weight: 700; font-size: 1.6rem; color: #003d99; letter-spacing: -0.02em; position: absolute; left: 50%; transform: translateX(-50%); text-decoration: none; }
+    .nav-left { display: flex; gap: 1.25rem; align-items: center; font-size: 0.9rem; font-weight: 500; color: #374151; }
+    .nav-left a { color: inherit; text-decoration: none; }
+    .nav-left a:hover { color: #006aff; }
+    .wrap { max-width: 480px; margin: 2.5rem auto; padding: 0 1rem; }
+    h1 { font-size: 1.6rem; font-weight: 800; margin: 0 0 0.5rem; }
+    p { color: #6b7280; font-size: 0.9rem; margin: 0 0 1.5rem; }
+    label { display: block; font-size: 0.75rem; font-weight: 600; color: #6b7280; margin: 1rem 0 0.35rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    input, select, textarea { width: 100%; padding: 0.65rem 0.8rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 0.95rem; background: #fff; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: #006aff; }
+    textarea { min-height: 90px; }
+    button { margin-top: 1.25rem; background: #006aff; color: #fff; border: none; padding: 0.75rem; border-radius: 8px; font-weight: 700; font-size: 0.95rem; cursor: pointer; width: 100%; }
+    button:hover { background: #0056cc; }
+    .note { margin-top: 1.25rem; font-size: 0.7rem; color: #9ca3af; text-align: center; }
   </style>
 </head>
 <body>
-  <div class="header"><a class="brand" href="/">Utah Land & Property</a></div>
+  <div class="header">
+    <div class="nav-left">
+      <a href="/">Homes</a>
+      <a href="/">Land</a>
+      <a href="/submit.html">List Property</a>
+    </div>
+    <a class="brand" href="/">Utah Land & Property</a>
+  </div>
   <div class="wrap">
     <h1>List Your Property</h1>
     <p>Share a home, land, or FSBO. Reviewed before it appears on the desk.</p>
@@ -92,7 +58,7 @@
       <label>Notes</label>
       <textarea id="notes" placeholder="Condition, off-market details, or why you're listing."></textarea>
       <label>Photos</label>
-      <input id="photos" type="file" accept="image/*" multiple style="padding:0.5rem;">
+      <input id="photos" type="file" accept="image/*" multiple>
       <button type="submit">Submit for Review</button>
     </form>
     <div class="note">Analysis only — not a brokerage. Submissions are reviewed before publication.</div>
@@ -102,7 +68,7 @@
       e.preventDefault();
       if (!confirm("Submit this listing for review?")) return;
       const files = document.getElementById("photos").files;
-      const photoNote = files.length ? "\n**Photos:** " + files.length + " selected (attach manually)" : "";
+      const photoNote = files.length ? "\n**Photos:** " + files.length + " selected" : "";
       const title = encodeURIComponent("Listing: " + document.getElementById("address").value);
       const body = encodeURIComponent(
         "**Address:** " + document.getElementById("address").value + "\n" +
