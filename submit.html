@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Submit a Signal — Utah Land & Property</title>
+  <title>List Your Property — Utah Land & Property</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; }
@@ -24,8 +24,8 @@
 <body>
   <div class="header"><a class="brand" href="/">Utah Land & Property</a></div>
   <div class="wrap">
-    <h1>Submit a Signal</h1>
-    <p>Opens a GitHub issue for review. No account required to start; you confirm on GitHub.</p>
+    <h1>List Your Property</h1>
+    <p>Share a home, land, or FSBO listing. Submissions are reviewed before appearing on the desk.</p>
     <form id="form">
       <label>Address</label>
       <input id="address" required placeholder="123 Main St">
@@ -33,26 +33,27 @@
       <input id="city" required placeholder="Salt Lake City">
       <label>Price (USD)</label>
       <input id="price" type="number" placeholder="450000">
-      <label>Type</label>
+      <label>Property Type</label>
       <select id="type">
+        <option>Home</option>
         <option>Raw Land</option>
         <option>FSBO</option>
         <option>Short Sale</option>
-        <option>Expired</option>
+        <option>Expired Listing</option>
         <option>Other</option>
       </select>
       <label>Beds / Baths / Sqft</label>
       <input id="details" placeholder="3 bd, 2 ba, 1,800 sqft">
       <label>Notes</label>
-      <textarea id="notes" placeholder="Why this property? Condition, off-market, etc."></textarea>
-      <button type="submit">Create GitHub Issue</button>
+      <textarea id="notes" placeholder="Condition, off-market details, or why you're listing."></textarea>
+      <button type="submit">Submit for Review</button>
     </form>
-    <div class="note">Analysis only — not a brokerage. Submissions become a GitHub issue for manual review. Do not include personal documents.</div>
+    <div class="note">Analysis only — not a brokerage. Submissions are reviewed before publication. Do not include personal documents.</div>
   </div>
   <script>
     document.getElementById("form").onsubmit = (e) => {
       e.preventDefault();
-      const title = encodeURIComponent("Signal: " + document.getElementById("address").value);
+      const title = encodeURIComponent("Listing: " + document.getElementById("address").value);
       const body = encodeURIComponent(
         "**Address:** " + document.getElementById("address").value + "\n" +
         "**City:** " + document.getElementById("city").value + "\n" +
