@@ -16,6 +16,14 @@ LAND_IMAGES = [
     "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=600&q=70",
 ]
 
+
+def mercator_to_latlon(x, y):
+    import math
+    lon = x / 20037508.34 * 180
+    lat = y / 20037508.34 * 180
+    lat = 180 / math.pi * (2 * math.atan(math.exp(lat * math.pi / 180)) - math.pi / 2)
+    return lat, lon
+
 def pull_slco_parcels(limit=200):
     url = "https://services1.arcgis.com/99lidPhWCzftIe9K/ArcGIS/rest/services/Parcels_SaltLake_LIR/FeatureServer/0/query"
     params = {
@@ -37,8 +45,9 @@ def pull_slco_parcels(limit=200):
             rings = geom.get("rings")
             if rings and rings[0]:
                 pts = rings[0]
-                lon = sum(p[0] for p in pts) / len(pts)
-                lat = sum(p[1] for p in pts) / len(pts)
+                mx = sum(p[0] for p in pts) / len(pts)
+                my = sum(p[1] for p in pts) / len(pts)
+                lat, lon = mercator_to_latlon(mx, my)
             acres = attrs.get("PARCEL_ACRES") or 0
             rows.append({
                 "call": "RAWLAND",
@@ -78,8 +87,9 @@ def pull_gov_parcels(limit=100):
             rings = geom.get("rings")
             if rings and rings[0]:
                 pts = rings[0]
-                lon = sum(p[0] for p in pts) / len(pts)
-                lat = sum(p[1] for p in pts) / len(pts)
+                mx = sum(p[0] for p in pts) / len(pts)
+                my = sum(p[1] for p in pts) / len(pts)
+                lat, lon = mercator_to_latlon(mx, my)
             rows.append({
                 "call": "RAWLAND",
                 "source": "Gov Parcel",
