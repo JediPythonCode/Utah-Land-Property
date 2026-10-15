@@ -220,7 +220,7 @@ def pull_ksl_fsbo(limit=50):
         return []
 
 def main():
-    counties = ["Davis", "Utah", "Weber", "Cache", "Washington", "Tooele", "BoxElder", "Uintah"]
+    counties = ["Davis", "Utah", "Weber", "Cache", "Washington", "Tooele", "BoxElder", "Uintah", "Iron", "Kane", "Garfield", "Sanpete", "Sevier", "Millard", "Beaver"]
     rows = pull_slco_parcels() + pull_gov_parcels() + pull_hud_reo() + pull_ksl_fsbo()
     for c in counties:
         rows += pull_county_lir(c, limit=80)
