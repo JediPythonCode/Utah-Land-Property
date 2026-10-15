@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Utah Land & Property — Open Desk</title>
+  <title>Utah Land Desk — Market Analysis</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     :root {
-      --bg: #0b1220;
+      --bg: #0a0f1c;
       --surface: #111827;
       --surface-2: #1f2937;
       --border: #374151;
-      --text: #f3f4f6;
+      --text: #f9fafb;
       --muted: #9ca3af;
       --accent: #3b82f6;
       --buy: #10b981;
@@ -30,59 +30,87 @@
     }
     .app {
       display: grid;
-      grid-template-columns: 240px 1fr;
+      grid-template-columns: 280px 1fr;
       min-height: 100vh;
     }
     .sidebar {
       background: var(--surface);
       border-right: 1px solid var(--border);
-      padding: 1.5rem 1rem;
+      padding: 1.75rem 1.25rem;
+      display: flex;
+      flex-direction: column;
     }
     .brand {
       font-family: 'Playfair Display', serif;
-      font-size: 1.35rem;
-      margin-bottom: 1.5rem;
+      font-size: 1.5rem;
+      margin: 0 0 0.25rem;
+      letter-spacing: -0.02em;
     }
     .brand span { color: var(--accent); }
-    .main { padding: 1.25rem 1.5rem; }
+    .tagline {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+    }
+    .disclaimer {
+      font-size: 0.78rem;
+      line-height: 1.5;
+      color: var(--muted);
+      background: rgba(59, 130, 246, 0.08);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      border-radius: 8px;
+      padding: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+    .disclaimer strong { color: #e5e7eb; }
+    .footer-note {
+      margin-top: auto;
+      font-size: 0.7rem;
+      color: #6b7280;
+      line-height: 1.4;
+    }
+    .main { padding: 1.5rem 1.75rem; }
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 1.25rem;
     }
-    .macro { display: flex; gap: 1.25rem; font-size: 0.85rem; color: var(--muted); }
-    .macro strong { color: #fff; }
+    .macro { display: flex; gap: 1.5rem; font-size: 0.85rem; color: var(--muted); }
+    .macro strong { color: #fff; font-weight: 600; }
     .filters { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
     .filter-btn {
       background: var(--surface-2);
       border: 1px solid var(--border);
       color: var(--muted);
-      padding: 0.4rem 0.8rem;
+      padding: 0.4rem 0.85rem;
       border-radius: 6px;
       cursor: pointer;
       font-size: 0.8rem;
+      font-weight: 500;
     }
     .filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
     .grid {
       display: grid;
-      grid-template-columns: 1fr 340px;
-      gap: 1.25rem;
+      grid-template-columns: 1fr 360px;
+      gap: 1.5rem;
     }
     .cards { display: flex; flex-direction: column; gap: 0.75rem; }
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 1.1rem 1.2rem;
+      padding: 1.15rem 1.25rem;
       transition: transform 0.15s, border-color 0.15s;
     }
     .card:hover { transform: translateY(-2px); border-color: var(--accent); }
     .call {
       display: inline-block;
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       font-weight: 700;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.06em;
       padding: 3px 8px;
       border-radius: 999px;
       text-transform: uppercase;
@@ -90,10 +118,10 @@
     .BUY { background: rgba(16,185,129,0.15); color: var(--buy); }
     .FADE { background: rgba(245,158,11,0.15); color: var(--fade); }
     .DISTRESSED { background: rgba(239,68,68,0.15); color: var(--distressed); }
-    .price { font-size: 1.45rem; font-weight: 800; margin: 0.35rem 0 0.15rem; }
+    .price { font-size: 1.4rem; font-weight: 800; margin: 0.4rem 0 0.2rem; }
     .addr { font-weight: 600; }
-    .why { font-size: 0.85rem; color: var(--muted); margin-top: 0.35rem; line-height: 1.45; }
-    .meta { font-size: 0.75rem; color: #6b7280; margin-top: 0.5rem; }
+    .why { font-size: 0.85rem; color: var(--muted); margin-top: 0.4rem; line-height: 1.45; }
+    .meta { font-size: 0.75rem; color: #6b7280; margin-top: 0.55rem; }
     #map { height: 260px; border-radius: 12px; margin-bottom: 1rem; }
     .panel {
       background: var(--surface);
@@ -102,16 +130,32 @@
       padding: 1rem;
       margin-bottom: 1rem;
     }
-    .panel h3 { margin: 0 0 0.6rem; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+    .panel h3 {
+      margin: 0 0 0.65rem;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
     .search {
       background: var(--surface-2);
       border: 1px solid var(--border);
       color: #fff;
-      padding: 0.45rem 0.7rem;
+      padding: 0.5rem 0.75rem;
       border-radius: 8px;
-      width: 200px;
+      width: 210px;
+      font-size: 0.85rem;
     }
-    @media (max-width: 900px) {
+    .banner {
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      border-radius: 8px;
+      padding: 0.6rem 0.9rem;
+      font-size: 0.8rem;
+      color: #a7f3d0;
+      margin-bottom: 1rem;
+    }
+    @media (max-width: 960px) {
       .app { grid-template-columns: 1fr; }
       .sidebar { border-right: none; border-bottom: 1px solid var(--border); }
       .grid { grid-template-columns: 1fr; }
@@ -122,27 +166,38 @@
   <div class="app">
     <aside class="sidebar">
       <div class="brand">Utah Land <span>Desk</span></div>
-      <p style="font-size:0.8rem;color:var(--muted);line-height:1.4;">
-        Public opportunity board for Utah land & property assignments.<br><br>
-        No login required. Live data coming soon.
-      </p>
+      <div class="tagline">Market Analysis Platform</div>
+
+      <div class="disclaimer">
+        <strong>Analysis only — not a brokerage.</strong><br>
+        This site provides independent market analysis and pricing context for Utah land and property. We do not list, sell, or broker real estate. No agency relationship is created. All data is for informational purposes only and should be independently verified.
+      </div>
+
+      <div class="footer-note">
+        Not a licensed real estate brokerage.<br>
+        Sample data shown. Live analysis engine available privately.
+      </div>
     </aside>
 
     <main class="main">
+      <div class="banner">
+        Independent analysis board — not an offer to sell or solicit the purchase of any property.
+      </div>
+
       <div class="header">
         <div class="macro">
           <span>30yr <strong>7.40%</strong></span>
           <span>UE <strong>3.6%</strong></span>
-          <span>Market <strong>Open</strong></span>
+          <span>Context <strong>Analysis</strong></span>
         </div>
-        <input class="search" id="search" placeholder="Search…" oninput="render()">
+        <input class="search" id="search" placeholder="Search addresses…" oninput="render()">
       </div>
 
       <div class="filters">
-        <button class="filter-btn active" data-filter="all">All</button>
-        <button class="filter-btn" data-filter="BUY">Buy</button>
-        <button class="filter-btn" data-filter="FADE">Fade</button>
-        <button class="filter-btn" data-filter="DISTRESSED">Distressed</button>
+        <button class="filter-btn active" data-filter="all">All Signals</button>
+        <button class="filter-btn" data-filter="BUY">Below ELO</button>
+        <button class="filter-btn" data-filter="FADE">Above ELO</button>
+        <button class="filter-btn" data-filter="DISTRESSED">Distressed Flags</button>
       </div>
 
       <div class="grid">
@@ -151,8 +206,8 @@
         <aside>
           <div id="map"></div>
           <div class="panel">
-            <h3>Sample Neighborhoods</h3>
-            <div style="font-size:0.85rem;line-height:1.6;">
+            <h3>Neighborhood Context (Sample)</h3>
+            <div style="font-size:0.85rem;line-height:1.65;">
               Salt Lake City — ELO 1524<br>
               Provo — ELO 1488<br>
               Ogden — ELO 1511<br>
@@ -161,9 +216,9 @@
             </div>
           </div>
           <div class="panel">
-            <h3>Public Access</h3>
-            <p style="font-size:0.85rem;color:var(--muted);margin:0;">
-              This board is open for marketing and discovery. Full live ELO engine and alerts available on the private desk.
+            <h3>How to Read</h3>
+            <p style="font-size:0.85rem;color:var(--muted);margin:0;line-height:1.5;">
+              ELO reflects relative pricing strength versus recent neighborhood transactions. Signals are analytical observations only — not recommendations to buy or sell.
             </p>
           </div>
         </aside>
@@ -174,11 +229,11 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     const sample = [
-      { call: "BUY", line: "$389,000 (−12% vs ELO)", address: "4200 S Highland Dr, Salt Lake City", why: "Priced 12% below neighborhood ELO. Rates stable. Strong entry.", agent: "Smith", elo: 1458 },
-      { call: "FADE", line: "$749,000 (+18% vs ELO)", address: "1800 E 900 S, Salt Lake City", why: "18% above ELO in a softening market. Inventory rising.", agent: "Jones", elo: 1512 },
-      { call: "DISTRESSED", line: "$412,000 (short sale)", address: "77 N 500 E, Salt Lake City", why: "Short sale. Seller motivated. Verify with title company.", agent: "Park", elo: 1480 },
-      { call: "BUY", line: "$275,000 (−9% vs ELO)", address: "1450 W 3300 S, Provo", why: "Below neighborhood ELO with stable macro. Good assignment candidate.", agent: "Lee", elo: 1522 },
-      { call: "FADE", line: "$620,000 (+14% vs ELO)", address: "890 E 2100 N, Ogden", why: "Agent pattern of overpricing. Expect a cut.", agent: "Taylor", elo: 1445 }
+      { call: "BUY", line: "$389,000 (−12% vs ELO)", address: "4200 S Highland Dr, Salt Lake City", why: "Priced 12% below neighborhood ELO baseline. Rates stable. Analytical observation only.", agent: "Smith", elo: 1458 },
+      { call: "FADE", line: "$749,000 (+18% vs ELO)", address: "1800 E 900 S, Salt Lake City", why: "18% above ELO in a softening context. Inventory rising.", agent: "Jones", elo: 1512 },
+      { call: "DISTRESSED", line: "$412,000 (short sale flag)", address: "77 N 500 E, Salt Lake City", why: "Distressed indicator present. Independent verification required.", agent: "Park", elo: 1480 },
+      { call: "BUY", line: "$275,000 (−9% vs ELO)", address: "1450 W 3300 S, Provo", why: "Below neighborhood ELO with stable macro backdrop.", agent: "Lee", elo: 1522 },
+      { call: "FADE", line: "$620,000 (+14% vs ELO)", address: "890 E 2100 N, Ogden", why: "Pricing above recent neighborhood ELO range.", agent: "Taylor", elo: 1445 }
     ];
 
     let filter = "all";
@@ -200,19 +255,18 @@
 
       document.getElementById("cards").innerHTML = rows.map(r => `
         <div class="card">
-          <span class="call ${r.call}">${r.call}</span>
+          <span class="call ${r.call}">${r.call === "BUY" ? "BELOW ELO" : r.call === "FADE" ? "ABOVE ELO" : "FLAG"}</span>
           <div class="price">${r.line}</div>
           <div class="addr">${r.address}</div>
           <div class="why">${r.why}</div>
-          <div class="meta">Agent: ${r.agent} (ELO ${r.elo})</div>
+          <div class="meta">Listing agent context: ${r.agent} (ELO ${r.elo}) — analysis only</div>
         </div>
       `).join("") || '<div class="card">No matches.</div>';
     }
 
-    // Map
     const map = L.map("map").setView([39.32, -111.09], 6);
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-      attribution: "&copy; OpenStreetMap &copy; CARTO"
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
     [
       [40.7608, -111.8910, "Salt Lake City"],
