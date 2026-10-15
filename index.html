@@ -17,49 +17,49 @@
     .header { height: 64px; background: #fff; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 1.5rem; gap: 1.5rem; }
     .brand { font-weight: 800; font-size: 1.3rem; color: var(--accent); }
     .hero {
-      height: 280px;
-      background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)),
+      height: 260px;
+      background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)),
                   url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1600&q=80') center/cover;
       display: flex; flex-direction: column; justify-content: center; align-items: center;
-      text-align: center; color: #fff; padding: 1.5rem;
+      text-align: center; color: #fff; padding: 1.25rem;
     }
-    .hero h1 { font-size: 2.4rem; font-weight: 800; margin: 0 0 0.4rem; letter-spacing: -0.03em; }
-    .hero p { margin: 0 0 1rem; font-size: 1rem; opacity: 0.95; max-width: 560px; }
+    .hero h1 { font-size: 2.2rem; font-weight: 800; margin: 0 0 0.35rem; letter-spacing: -0.03em; }
+    .hero p { margin: 0 0 0.9rem; font-size: 0.95rem; opacity: 0.95; max-width: 580px; }
     .hero-search {
-      width: 100%; max-width: 520px; background: #fff; border: none; border-radius: 8px;
-      padding: 0.85rem 1rem; font-size: 1rem; color: #111;
+      width: 100%; max-width: 500px; background: #fff; border: none; border-radius: 8px;
+      padding: 0.8rem 1rem; font-size: 1rem; color: #111;
     }
-    .filters { display: flex; gap: 0.4rem; margin-top: 0.75rem; flex-wrap: wrap; justify-content: center; }
+    .filters { display: flex; gap: 0.35rem; margin-top: 0.7rem; flex-wrap: wrap; justify-content: center; }
     .filter-btn {
       background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.35);
-      color: #fff; padding: 0.35rem 0.75rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem;
+      color: #fff; padding: 0.32rem 0.7rem; border-radius: 6px; cursor: pointer; font-size: 0.78rem;
     }
     .filter-btn.active { background: var(--accent); border-color: var(--accent); }
     .disclaimer {
       background: #fffbeb; border-bottom: 1px solid #fde68a;
-      padding: 0.4rem 1.5rem; font-size: 0.75rem; color: #92400e; text-align: center;
+      padding: 0.35rem 1.5rem; font-size: 0.72rem; color: #92400e; text-align: center;
     }
     .layout {
-      display: grid; grid-template-columns: 1fr 460px;
-      height: calc(100vh - 64px - 280px - 34px); min-height: 480px;
+      display: grid; grid-template-columns: 1fr 450px;
+      height: calc(100vh - 64px - 260px - 32px); min-height: 460px;
     }
     #map { height: 100%; }
-    .list { overflow-y: auto; padding: 1rem; background: #f9fafb; border-left: 1px solid var(--border); }
-    .count { font-size: 0.85rem; color: var(--muted); margin: 0 0 0.75rem 0.25rem; }
+    .list { overflow-y: auto; padding: 0.9rem; background: #f9fafb; border-left: 1px solid var(--border); }
+    .count { font-size: 0.82rem; color: var(--muted); margin: 0 0 0.6rem 0.2rem; }
     .card {
-      background: #fff; border: 1px solid var(--border); border-radius: 12px;
-      overflow: hidden; margin-bottom: 0.85rem; cursor: pointer;
+      background: #fff; border: 1px solid var(--border); border-radius: 10px;
+      overflow: hidden; margin-bottom: 0.7rem; cursor: pointer;
     }
-    .card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.07); }
-    .card img { width: 100%; height: 150px; object-fit: cover; display: block; }
-    .card-body { padding: 0.8rem 1rem; }
-    .price { font-size: 1.25rem; font-weight: 800; margin: 0.15rem 0; }
-    .details { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.25rem; }
-    .addr { font-weight: 600; font-size: 0.95rem; }
-    .why { font-size: 0.78rem; color: var(--muted); margin-top: 0.3rem; line-height: 1.4; }
+    .card:hover { box-shadow: 0 3px 12px rgba(0,0,0,0.07); }
+    .card img { width: 100%; height: 130px; object-fit: cover; display: block; }
+    .card-body { padding: 0.7rem 0.9rem; }
+    .price { font-size: 1.15rem; font-weight: 800; margin: 0.1rem 0; }
+    .details { font-size: 0.75rem; color: var(--muted); margin-bottom: 0.2rem; }
+    .addr { font-weight: 600; font-size: 0.9rem; }
+    .why { font-size: 0.75rem; color: var(--muted); margin-top: 0.25rem; line-height: 1.35; }
     .badge {
-      display: inline-block; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.04em;
-      padding: 2px 6px; border-radius: 4px; text-transform: uppercase; margin-bottom: 0.25rem;
+      display: inline-block; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.03em;
+      padding: 2px 5px; border-radius: 4px; text-transform: uppercase; margin-bottom: 0.2rem;
     }
     .BUY { background: #ccfbf1; color: #0f766e; }
     .FADE { background: #fef3c7; color: #b45309; }
@@ -68,11 +68,12 @@
     .FSBO { background: #dbeafe; color: #1d4ed8; }
     .OFFMARKET { background: #f3f4f6; color: #374151; }
     .RAWLAND { background: #d1fae5; color: #047857; }
-    .source { font-size: 0.72rem; color: #9ca3af; margin-top: 0.3rem; }
+    .EXPIRED { background: #fce7f3; color: #be185d; }
+    .source { font-size: 0.7rem; color: #9ca3af; margin-top: 0.25rem; }
     @media (max-width: 900px) {
-      .hero { height: 240px; }
-      .hero h1 { font-size: 1.8rem; }
-      .layout { grid-template-columns: 1fr; grid-template-rows: 38vh 1fr; height: auto; }
+      .hero { height: 220px; }
+      .hero h1 { font-size: 1.6rem; }
+      .layout { grid-template-columns: 1fr; grid-template-rows: 36vh 1fr; height: auto; }
       .list { border-left: none; border-top: 1px solid var(--border); }
     }
   </style>
@@ -84,28 +85,29 @@
 
   <section class="hero">
     <h1>Utah Market Analysis</h1>
-    <p>Active, REO, short sale, FSBO, off-market, and raw land signals from public records. Analysis only — not a brokerage.</p>
+    <p>Signals across every major Utah city — active, REO, short sale, FSBO, expired, raw land, and off-market. Analysis only.</p>
     <input class="hero-search" id="search" placeholder="Search city, address, or type…" oninput="render()">
     <div class="filters">
-      <button class="filter-btn active" data-filter="all">All Sources</button>
+      <button class="filter-btn active" data-filter="all">All</button>
       <button class="filter-btn" data-filter="BUY">Below ELO</button>
       <button class="filter-btn" data-filter="FADE">Above ELO</button>
       <button class="filter-btn" data-filter="DISTRESSED">Short Sale</button>
-      <button class="filter-btn" data-filter="REO">REO / Foreclosure</button>
+      <button class="filter-btn" data-filter="REO">REO</button>
       <button class="filter-btn" data-filter="FSBO">FSBO</button>
-      <button class="filter-btn" data-filter="OFFMARKET">Off-Market</button>
+      <button class="filter-btn" data-filter="EXPIRED">Expired</button>
       <button class="filter-btn" data-filter="RAWLAND">Raw Land</button>
+      <button class="filter-btn" data-filter="OFFMARKET">Off-Market</button>
     </div>
   </section>
 
   <div class="disclaimer">
-    <strong>Analysis only — not a brokerage.</strong> Signals from public parcel records, HUD REO, and market context. Raw land is not listed for sale. Verify independently.
+    <strong>Analysis only — not a brokerage.</strong> Public records, HUD REO, and market context. Expired and raw land are not active listings. Verify independently.
   </div>
 
   <div class="layout">
     <div id="map"></div>
     <div class="list">
-      <div class="count" id="count">Loading signals…</div>
+      <div class="count" id="count">Loading…</div>
       <div id="cards"></div>
     </div>
   </div>
@@ -113,18 +115,24 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     const sample = [
-      { call: "BUY", source: "Active", price: "$389,000", delta: "−12% vs ELO", address: "4200 S Highland Dr", city: "Salt Lake City", beds: 3, baths: 2, sqft: "1,840", why: "Below neighborhood ELO baseline.", lat: 40.685, lon: -111.84, img: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=600&q=70" },
-      { call: "FADE", source: "Active", price: "$749,000", delta: "+18% vs ELO", address: "1800 E 900 S", city: "Salt Lake City", beds: 4, baths: 3, sqft: "2,650", why: "Above ELO in softening context.", lat: 40.748, lon: -111.845, img: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=600&q=70" },
-      { call: "DISTRESSED", source: "Short Sale", price: "$412,000", delta: "Short sale", address: "77 N 500 E", city: "Salt Lake City", beds: 3, baths: 2, sqft: "1,520", why: "Short sale flag. Lender approval required.", lat: 40.77, lon: -111.885, img: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=600&q=70" },
-      { call: "REO", source: "HUD REO", price: "$285,000", delta: "REO", address: "1450 W 3300 S", city: "Provo", beds: 3, baths: 1, sqft: "1,420", why: "HUD REO inventory. Bank-owned.", lat: 40.22, lon: -111.68, img: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=70" },
-      { call: "FSBO", source: "FSBO", price: "$520,000", delta: "FSBO", address: "890 E 2100 N", city: "Ogden", beds: 4, baths: 2, sqft: "2,100", why: "Owner-listed. No listing agent.", lat: 41.24, lon: -111.95, img: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=70" },
-      { call: "OFFMARKET", source: "Off-Market", price: "$375,000", delta: "Off-market", address: "2100 S 200 E", city: "Salt Lake City", beds: 3, baths: 2, sqft: "1,680", why: "Not on MLS. Public-record signal.", lat: 40.73, lon: -111.88, img: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=600&q=70" },
-      { call: "RAWLAND", source: "Raw Land", price: "$185,000", delta: "2.4 acres", address: "Near 7800 S 2700 W", city: "West Jordan", beds: 0, baths: 0, sqft: "0", why: "Public parcel. No structure. Not on MLS. Potential raw land.", lat: 40.61, lon: -111.98, img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=600&q=70" },
-      { call: "RAWLAND", source: "Raw Land", price: "$92,000", delta: "5.1 acres", address: "Near SR-73", city: "Tooele", beds: 0, baths: 0, sqft: "0", why: "Public parcel record. Vacant. Off-market candidate.", lat: 40.53, lon: -112.3, img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=600&q=70" },
-      { call: "RAWLAND", source: "Raw Land", price: "$340,000", delta: "1.8 acres", address: "Near 2000 E 10000 S", city: "Sandy", beds: 0, baths: 0, sqft: "0", why: "Assessor parcel. Land value only. Not listed.", lat: 40.57, lon: -111.84, img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=600&q=70" },
-      { call: "REO", source: "HUD REO", price: "$198,000", delta: "REO", address: "450 N 100 W", city: "St. George", beds: 2, baths: 1, sqft: "980", why: "HUD REO. Southern Utah.", lat: 37.1, lon: -113.57, img: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=600&q=70" },
-      { call: "RAWLAND", source: "Raw Land", price: "$75,000", delta: "10 acres", address: "Near Highway 40", city: "Heber", beds: 0, baths: 0, sqft: "0", why: "Public parcel. Rural vacant land. Off-market.", lat: 40.5, lon: -111.4, img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=600&q=70" },
-      { call: "BUY", source: "Active", price: "$310,000", delta: "−8% vs ELO", address: "1200 E 400 S", city: "Provo", beds: 3, baths: 2, sqft: "1,550", why: "Below neighborhood ELO.", lat: 40.23, lon: -111.65, img: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=600&q=70" }
+      { call: "BUY", source: "Active", price: "$389,000", delta: "−12% vs ELO", address: "4200 S Highland Dr", city: "Salt Lake City", beds: 3, baths: 2, sqft: "1,840", why: "Below neighborhood ELO.", lat: 40.76, lon: -111.89, img: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=500&q=60" },
+      { call: "FADE", source: "Active", price: "$749,000", delta: "+18% vs ELO", address: "1800 E 900 S", city: "Salt Lake City", beds: 4, baths: 3, sqft: "2,650", why: "Above ELO.", lat: 40.75, lon: -111.84, img: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=500&q=60" },
+      { call: "DISTRESSED", source: "Short Sale", price: "$412,000", delta: "Short sale", address: "77 N 500 E", city: "Salt Lake City", beds: 3, baths: 2, sqft: "1,520", why: "Short sale flag.", lat: 40.77, lon: -111.88, img: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=500&q=60" },
+      { call: "REO", source: "HUD REO", price: "$285,000", delta: "REO", address: "1450 W 3300 S", city: "Provo", beds: 3, baths: 1, sqft: "1,420", why: "HUD REO.", lat: 40.23, lon: -111.66, img: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=500&q=60" },
+      { call: "FSBO", source: "FSBO", price: "$520,000", delta: "FSBO", address: "890 E 2100 N", city: "Ogden", beds: 4, baths: 2, sqft: "2,100", why: "Owner-listed.", lat: 41.22, lon: -111.97, img: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=500&q=60" },
+      { call: "EXPIRED", source: "Expired", price: "$445,000", delta: "Expired 12d", address: "2100 S 200 E", city: "Salt Lake City", beds: 3, baths: 2, sqft: "1,680", why: "Listing expired. Potential re-list or off-market.", lat: 40.73, lon: -111.88, img: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=500&q=60" },
+      { call: "RAWLAND", source: "Raw Land", price: "$185,000", delta: "2.4 acres", address: "Near 7800 S 2700 W", city: "West Jordan", beds: 0, baths: 0, sqft: "0", why: "Public parcel. No structure.", lat: 40.61, lon: -111.98, img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=500&q=60" },
+      { call: "BUY", source: "Active", price: "$310,000", delta: "−8% vs ELO", address: "1200 E 400 S", city: "Provo", beds: 3, baths: 2, sqft: "1,550", why: "Below ELO.", lat: 40.24, lon: -111.65, img: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=500&q=60" },
+      { call: "REO", source: "HUD REO", price: "$198,000", delta: "REO", address: "450 N 100 W", city: "St. George", beds: 2, baths: 1, sqft: "980", why: "HUD REO.", lat: 37.1, lon: -113.57, img: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=500&q=60" },
+      { call: "EXPIRED", source: "Expired", price: "$275,000", delta: "Expired 8d", address: "340 N Main", city: "Logan", beds: 3, baths: 1, sqft: "1,320", why: "Expired listing in Cache County.", lat: 41.74, lon: -111.83, img: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=500&q=60" },
+      { call: "RAWLAND", source: "Raw Land", price: "$92,000", delta: "5.1 acres", address: "Near SR-73", city: "Tooele", beds: 0, baths: 0, sqft: "0", why: "Public parcel. Vacant.", lat: 40.53, lon: -112.3, img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=500&q=60" },
+      { call: "FSBO", source: "FSBO", price: "$1,250,000", delta: "FSBO", address: "Near Deer Valley", city: "Park City", beds: 4, baths: 4, sqft: "3,200", why: "Owner-listed resort area.", lat: 40.65, lon: -111.5, img: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=500&q=60" },
+      { call: "EXPIRED", source: "Expired", price: "$189,000", delta: "Expired 21d", address: "120 E Center", city: "Cedar City", beds: 3, baths: 2, sqft: "1,480", why: "Expired. Iron County.", lat: 37.68, lon: -113.06, img: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=500&q=60" },
+      { call: "RAWLAND", source: "Raw Land", price: "$75,000", delta: "10 acres", address: "Near Highway 40", city: "Heber", beds: 0, baths: 0, sqft: "0", why: "Public parcel. Rural.", lat: 40.5, lon: -111.4, img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=500&q=60" },
+      { call: "BUY", source: "Active", price: "$265,000", delta: "−10% vs ELO", address: "450 S 100 E", city: "Brigham City", beds: 3, baths: 2, sqft: "1,410", why: "Below ELO. Box Elder.", lat: 41.51, lon: -112.02, img: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=500&q=60" },
+      { call: "DISTRESSED", source: "Short Sale", price: "$340,000", delta: "Short sale", address: "6700 S 900 E", city: "Murray", beds: 3, baths: 2, sqft: "1,610", why: "Short sale.", lat: 40.63, lon: -111.87, img: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=500&q=60" },
+      { call: "RAWLAND", source: "Raw Land", price: "$340,000", delta: "1.8 acres", address: "Near 2000 E 10000 S", city: "Sandy", beds: 0, baths: 0, sqft: "0", why: "Assessor parcel. Land only.", lat: 40.57, lon: -111.84, img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=500&q=60" },
+      { call: "EXPIRED", source: "Expired", price: "$520,000", delta: "Expired 5d", address: "1500 N 400 W", city: "Layton", beds: 4, baths: 2.5, sqft: "2,180", why: "Expired. Davis County.", lat: 41.06, lon: -111.97, img: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=500&q=60" }
     ];
 
     let filter = "all";
@@ -162,22 +170,22 @@
           <img src="${r.img}" alt="">
           <div class="card-body">
             <span class="badge ${r.call}">${r.source}</span>
-            <div class="price">${r.price} <span style="font-size:0.75rem;font-weight:500;color:#6b7280">${r.delta}</span></div>
+            <div class="price">${r.price} <span style="font-size:0.72rem;font-weight:500;color:#6b7280">${r.delta}</span></div>
             <div class="details">${r.beds > 0 ? r.beds + ' bd · ' + r.baths + ' ba · ' : ''}${r.sqft !== '0' ? r.sqft + ' sqft' : r.delta}</div>
             <div class="addr">${r.address}</div>
-            <div style="font-size:0.82rem;color:#6b7280">${r.city}, UT</div>
+            <div style="font-size:0.78rem;color:#6b7280">${r.city}, UT</div>
             <div class="why">${r.why}</div>
-            <div class="source">Source: ${r.source} — analysis only</div>
+            <div class="source">Source: ${r.source}</div>
           </div>
         </div>
       `).join("") || '<div style="padding:1rem;color:#6b7280">No matches.</div>';
 
       clearMarkers();
       rows.forEach((r, i) => {
-        const color = r.call === "BUY" ? "#0d9488" : r.call === "FADE" ? "#d97706" : r.call === "REO" ? "#7c3aed" : r.call === "FSBO" ? "#2563eb" : r.call === "OFFMARKET" ? "#6b7280" : r.call === "RAWLAND" ? "#059669" : "#dc2626";
+        const color = r.call === "BUY" ? "#0d9488" : r.call === "FADE" ? "#d97706" : r.call === "REO" ? "#7c3aed" : r.call === "FSBO" ? "#2563eb" : r.call === "EXPIRED" ? "#be185d" : r.call === "RAWLAND" ? "#059669" : r.call === "OFFMARKET" ? "#6b7280" : "#dc2626";
         const m = L.circleMarker([r.lat, r.lon], {
-          radius: 8, color: "#fff", weight: 1.5, fillColor: color, fillOpacity: 0.9
-        }).addTo(map).bindPopup(`<b>${r.source}</b><br>${r.price}<br>${r.address}`);
+          radius: 7, color: "#fff", weight: 1.5, fillColor: color, fillOpacity: 0.9
+        }).addTo(map).bindPopup(`<b>${r.source}</b><br>${r.price}<br>${r.address}, ${r.city}`);
         m.on("click", () => {
           document.querySelectorAll(".card")[i]?.scrollIntoView({ behavior: "smooth", block: "nearest" });
         });
@@ -186,13 +194,13 @@
 
       if (rows.length) {
         const group = L.featureGroup(markers);
-        map.fitBounds(group.getBounds().pad(0.3));
+        map.fitBounds(group.getBounds().pad(0.25));
       }
     }
 
     window.focusMarker = function(i) {
       if (markers[i]) {
-        map.setView(markers[i].getLatLng(), 12);
+        map.setView(markers[i].getLatLng(), 11);
         markers[i].openPopup();
       }
     };
