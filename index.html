@@ -276,8 +276,10 @@
       if (r.beds > 0) items.push(`<div class="detail-item"><strong>${r.beds}</strong> Bedrooms</div>`);
       if (r.baths > 0) items.push(`<div class="detail-item"><strong>${r.baths}</strong> Bathrooms</div>`);
       if (r.sqft && r.sqft !== "0") items.push(`<div class="detail-item"><strong>${r.sqft}</strong> Sqft</div>`);
+      if (r.acres) items.push(`<div class="detail-item"><strong>${Number(r.acres).toFixed(1)}</strong> Acres</div>`);
       if (r.delta) items.push(`<div class="detail-item"><strong>${r.delta}</strong> Signal</div>`);
       items.push(`<div class="detail-item"><strong>${r.source}</strong> Source</div>`);
+      if (r.call) items.push(`<div class="detail-item"><strong>${r.call}</strong> Grade</div>`);
       document.getElementById("d-grid").innerHTML = items.join("");
       document.getElementById("detail").classList.add("open");
       document.getElementById("overlay").classList.add("open");
