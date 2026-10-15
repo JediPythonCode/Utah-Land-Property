@@ -94,6 +94,64 @@
       { call: "REO", source: "HUD REO", price: "$198,000", delta: "REO", address: "450 N 100 W", city: "St. George", beds: 2, baths: 1, sqft: "980", why: "HUD REO. Southern Utah.", lat: 37.1, lon: -113.57, img: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=600&q=70" }
     ];
 
+    // City aliases and common typos / abbreviations
+    const cityAliases = {
+      "slc": ["salt lake city", "salt lake"],
+      "saltlake": ["salt lake city", "salt lake"],
+      "salt lake": ["salt lake city"],
+      "sl": ["salt lake city", "salt lake"],
+      "provo": ["provo"],
+      "ogden": ["ogden"],
+      "st george": ["st. george", "saint george", "st george"],
+      "saint george": ["st. george", "st george"],
+      "st. george": ["st. george"],
+      "sg": ["st. george"],
+      "west jordan": ["west jordan"],
+      "wj": ["west jordan"],
+      "westvalley": ["west valley city", "west valley"],
+      "wvc": ["west valley city"],
+      "sandy": ["sandy"],
+      "murray": ["murray"],
+      "layton": ["layton"],
+      "logan": ["logan"],
+      "park city": ["park city"],
+      "pc": ["park city"],
+      "heber": ["heber", "heber city"],
+      "tooele": ["tooele"],
+      "brigham": ["brigham city"],
+      "cedar": ["cedar city"],
+      "cedar city": ["cedar city"]
+    };
+
+    function normalize(s) {
+      return (s || "").toLowerCase().replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, " ").trim();
+    }
+
+    function matchesQuery(row, q) {
+      if (!q) return true;
+      const hay = normalize(row.address + " " + row.city + " " + (row.source || ""));
+      const nq = normalize(q);
+      if (hay.includes(nq)) return true;
+      // Check aliases
+      const aliases = cityAliases[nq] || [];
+      for (const a of aliases) {
+        if (hay.includes(normalize(a))) return true;
+      }
+      // Simple typo tolerance: allow 1-2 char difference for short queries
+      if (nq.length >= 3 && nq.length <= 8) {
+        const words = hay.split(" ");
+        for (const w of words) {
+          if (Math.abs(w.length - nq.length) > 2) continue;
+          let diffs = 0;
+          const len = Math.min(w.length, nq.length);
+          for (let i = 0; i < len; i++) if (w[i] !== nq[i]) diffs++;
+          diffs += Math.abs(w.length - nq.length);
+          if (diffs <= 2) return true;
+        }
+      }
+      return false;
+    }
+
     let allRows = sample;
     let live = false;
     let filter = "all";
@@ -165,10 +223,10 @@
     function clearMarkers() { markers.forEach(m => map.removeLayer(m)); markers = []; }
 
     function render() {
-      const q = (document.getElementById("search").value || "").toLowerCase();
+      const q = document.getElementById("search").value || "";
       let rows = allRows;
       if (filter !== "all") rows = rows.filter(r => r.call === filter);
-      if (q) rows = rows.filter(r => (r.address + r.city).toLowerCase().includes(q));
+      if (q) rows = rows.filter(r => matchesQuery(r, q));
 
       document.getElementById("count").textContent = rows.length + " signal" + (rows.length === 1 ? "" : "s") + (live ? " · live" : "");
 
