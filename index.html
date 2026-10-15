@@ -5,17 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Utah Land & Property — Market Analysis</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     :root { --accent: #006aff; --muted: #6b7280; --border: #e5e7eb; }
     * { box-sizing: border-box; }
     body { margin: 0; font-family: 'Inter', system-ui, sans-serif; background: #fff; color: #111827; }
-    .header { height: 68px; background: #fff; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; padding: 0 1.75rem; }
+    .header { height: 68px; background: #fff; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; padding: 0 1.75rem; position: relative; }
     .nav-left, .nav-right { display: flex; gap: 1.25rem; align-items: center; font-size: 0.9rem; font-weight: 500; color: #374151; }
     .nav-left a, .nav-right a { color: inherit; text-decoration: none; }
     .nav-left a:hover, .nav-right a:hover { color: var(--accent); }
-    .brand { font-weight: 800; font-size: 1.5rem; color: var(--accent); letter-spacing: -0.03em; margin: 0 auto; }
+    .brand { font-family: "Playfair Display", serif; font-weight: 700; font-size: 1.45rem; color: var(--accent); letter-spacing: -0.01em; position: absolute; left: 50%; transform: translateX(-50%); }
     .signin { background: var(--accent); color: #fff; border: none; padding: 0.4rem 0.9rem; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; }
     .status { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--muted); margin-left: 1rem; }
     .status .dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; }
@@ -96,6 +96,16 @@
   </style>
 </head>
 <body>
+  
+<div id="signin-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+  <div style="background:#fff;padding:1.5rem;border-radius:12px;width:320px;">
+    <h3 style="margin:0 0 1rem;font-family:'Playfair Display',serif;">Sign In</h3>
+    <input id="si-email" placeholder="Email" style="width:100%;padding:0.6rem;margin-bottom:0.5rem;border:1px solid #ddd;border-radius:6px;">
+    <input id="si-pass" type="password" placeholder="Password" style="width:100%;padding:0.6rem;margin-bottom:1rem;border:1px solid #ddd;border-radius:6px;">
+    <button onclick="document.getElementById('signin-modal').style.display='none'" style="background:#006aff;color:#fff;border:none;padding:0.6rem 1rem;border-radius:6px;width:100%;font-weight:600;">Continue</button>
+  </div>
+</div>
+
   <div class="header">
     <div class="nav-left">
       <a href="/">Homes</a>
@@ -104,7 +114,7 @@
     </div>
     <div class="brand">Utah Land & Property</div>
     <div class="nav-right">
-      <button class="signin">Sign In</button>
+      <button class="signin" onclick="document.getElementById('signin-modal').style.display='flex'">Sign In</button>
       <div class="status"><span class="dot" id="dot"></span><span id="status-text">Connecting…</span></div>
     </div>
   </div>
