@@ -192,8 +192,12 @@
     let map, markers = [];
     let currentRows = [];
 
-    map = L.map("map").setView([39.32, -111.09], 7);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: '&copy; OpenStreetMap' }).addTo(map);
+    map = L.map("map", { zoomControl: true }).setView([40.7, -111.9], 9);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; OpenStreetMap',
+      maxZoom: 18
+    }).addTo(map);
+    setTimeout(() => map.invalidateSize(), 200);
 
     async function tryLive() {
       try {
@@ -276,7 +280,12 @@
       document.getElementById("d-grid").innerHTML = items.join("");
       document.getElementById("detail").classList.add("open");
       document.getElementById("overlay").classList.add("open");
-      if (markers[i]) { map.setView(markers[i].getLatLng(), 13); markers[i].openPopup(); }
+      if (markers[i]) {
+        const ll = markers[i].getLatLng();
+        map.setView(ll, 14);
+        markers[i].openPopup();
+        setTimeout(() => map.invalidateSize(), 100);
+      }
     }
 
     function closeDetail() {
