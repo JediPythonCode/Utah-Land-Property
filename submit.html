@@ -19,23 +19,22 @@
     button { margin-top: 1.25rem; background: #006aff; color: #fff; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: 600; cursor: pointer; width: 100%; }
     button:hover { background: #0056cc; }
     .note { background: #fffbeb; border: 1px solid #fde68a; padding: 0.75rem; border-radius: 6px; font-size: 0.75rem; color: #92400e; margin-top: 1.5rem; }
-    .success { display: none; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 1rem; border-radius: 6px; color: #065f46; }
   </style>
 </head>
 <body>
   <div class="header"><a class="brand" href="/">Utah Land & Property</a></div>
   <div class="wrap">
     <h1>Submit a Signal</h1>
-    <p>Share a property you know about. Submissions are reviewed before appearing on the desk.</p>
-    <form id="form" action="https://formspree.io/f/xjkvlbwa" method="POST">
+    <p>Opens a GitHub issue for review. No account required to start; you confirm on GitHub.</p>
+    <form id="form">
       <label>Address</label>
-      <input name="address" required placeholder="123 Main St">
+      <input id="address" required placeholder="123 Main St">
       <label>City</label>
-      <input name="city" required placeholder="Salt Lake City">
+      <input id="city" required placeholder="Salt Lake City">
       <label>Price (USD)</label>
-      <input name="price" type="number" placeholder="450000">
+      <input id="price" type="number" placeholder="450000">
       <label>Type</label>
-      <select name="type">
+      <select id="type">
         <option>Raw Land</option>
         <option>FSBO</option>
         <option>Short Sale</option>
@@ -43,32 +42,26 @@
         <option>Other</option>
       </select>
       <label>Beds / Baths / Sqft</label>
-      <input name="details" placeholder="3 bd, 2 ba, 1,800 sqft">
+      <input id="details" placeholder="3 bd, 2 ba, 1,800 sqft">
       <label>Notes</label>
-      <textarea name="notes" placeholder="Why this property? Condition, off-market, etc."></textarea>
-      <label>Your email (for follow-up)</label>
-      <input name="email" type="email" placeholder="you@example.com">
-      <button type="submit">Submit for Review</button>
+      <textarea id="notes" placeholder="Why this property? Condition, off-market, etc."></textarea>
+      <button type="submit">Create GitHub Issue</button>
     </form>
-    <div class="success" id="success">Thanks. Your submission was received and will be reviewed.</div>
-    <div class="note">Analysis only — not a brokerage. Submissions are reviewed manually. Do not include personal documents or sensitive data.</div>
+    <div class="note">Analysis only — not a brokerage. Submissions become a GitHub issue for manual review. Do not include personal documents.</div>
   </div>
   <script>
-    document.getElementById("form").onsubmit = async (e) => {
+    document.getElementById("form").onsubmit = (e) => {
       e.preventDefault();
-      const form = e.target;
-      const data = new FormData(form);
-      try {
-        const resp = await fetch(form.action, { method: "POST", body: data, headers: { Accept: "application/json" } });
-        if (resp.ok) {
-          form.style.display = "none";
-          document.getElementById("success").style.display = "block";
-        } else {
-          alert("Something went wrong. Try again.");
-        }
-      } catch {
-        alert("Network error. Try again.");
-      }
+      const title = encodeURIComponent("Signal: " + document.getElementById("address").value);
+      const body = encodeURIComponent(
+        "**Address:** " + document.getElementById("address").value + "\n" +
+        "**City:** " + document.getElementById("city").value + "\n" +
+        "**Price:** " + (document.getElementById("price").value || "—") + "\n" +
+        "**Type:** " + document.getElementById("type").value + "\n" +
+        "**Details:** " + (document.getElementById("details").value || "—") + "\n\n" +
+        "**Notes:**\n" + (document.getElementById("notes").value || "—")
+      );
+      window.open("https://github.com/JediPythonCode/Utah-Land-Property/issues/new?title=" + title + "&body=" + body, "_blank");
     };
   </script>
 </body>
