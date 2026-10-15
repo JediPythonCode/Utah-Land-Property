@@ -109,7 +109,8 @@ async def refresh_desk():
         order = {"DISTRESSED": 0, "BUY": 1, "RAWLAND": 2, "FADE": 3, "HOLD": 4, "STANDARD": 5}
         rows.sort(key=lambda r: order.get(r["grade"]["call"], 9))
 
-        desk_memory = {
+        desk_memory.clear()
+        desk_memory.update({
             "updated": datetime.now(timezone.utc).isoformat(),
             "source": "live",
             "rows": rows,
@@ -119,7 +120,7 @@ async def refresh_desk():
                 "rates_rising": macro.rates_rising,
                 "ue_rising": macro.ue_rising,
             },
-        }
+        })
         logger.info(f"Desk refreshed: {len(rows)} signals (free + MLS)")
     except Exception as e:
         logger.error(f"Desk refresh failed: {e}")
